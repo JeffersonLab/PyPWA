@@ -41,4 +41,7 @@ class gampParticle():
         """
         Returns a string of the particle data members delimited by newlines.
         """
-        return " ".join([str(self.particleID),str(self.particleCharge),str(self.particleXMomentum),str(self.particleYMomentum),str(self.particleZMomentum),str(self.particleE)])
+        if "\n" in str(self.particleE):
+            return " ".join([str(self.particleID),str(self.particleCharge),str(self.particleXMomentum),str(self.particleYMomentum),str(self.particleZMomentum),str(self.particleE)])
+        elif not "\n" in str(self.particleE):
+            return " ".join([str(int(self.particleID)),str(int(self.particleCharge)),str(self.particleXMomentum),str(self.particleYMomentum),str(self.particleZMomentum),str(self.particleE)+"\n"])
