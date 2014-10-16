@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>model &mdash; pythonPWA 1.0.5 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.5',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pythonPWA 1.0.5 documentation" href="index.html" />
+    <link rel="prev" title="utilities" href="utilities.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="utilities"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pythonPWA 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pythonPWA.model">
+<span id="model"></span><h1>model<a class="headerlink" href="#module-pythonPWA.model" title="Permalink to this headline">¶</a></h1>
+<p>This module contains the python representations of the functions and algorithms described in the
+paper &#8220;On the partial-wave analysis of mesonic resonances decaying to multiparticle final states produced by polarized photons&#8221;
+by Carlos Salgado and Dennis Weygand.</p>
+<div class="section" id="module-pythonPWA.model.complexV">
+<span id="complexv"></span><h2>complexV<a class="headerlink" href="#module-pythonPWA.model.complexV" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="function">
+<dt id="pythonPWA.model.complexV.complexV">
+<tt class="descclassname">pythonPWA.model.complexV.</tt><tt class="descname">complexV</tt><big>(</big><em>resonance</em>, <em>wave</em>, <em>waves</em>, <em>normint</em>, <em>mass</em><big>)</big><a class="headerlink" href="#pythonPWA.model.complexV.complexV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Production amplitude (V) function.</p>
+<p>Args:
+resonance (pythonPWA.dataTypes.resonance):
+wave (pythonPWA.dataTypes.wave):
+waves (list)
+normint (pythonPWA.model.normInt):
+mass (float):</p>
+<p>Returns:
+A numpy.complex value representing a production amplitude.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.getPhi">
+<span id="getphi"></span><h2>getPhi<a class="headerlink" href="#module-pythonPWA.model.getPhi" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="function">
+<dt id="pythonPWA.model.getPhi.getPhi">
+<tt class="descclassname">pythonPWA.model.getPhi.</tt><tt class="descname">getPhi</tt><big>(</big><em>mass</em>, <em>resonance</em><big>)</big><a class="headerlink" href="#pythonPWA.model.getPhi.getPhi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of Phi used in complex production amplitude calculation, and thus
+number of events (nTrue.nTrue()), for a specified mass and resonance.</p>
+<p>Args:
+mass (float):
+resonance (pythonPWA.dataTypes.resonance):</p>
+<p>Returns:
+Float representing the value of phi.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.intensity">
+<span id="intensity"></span><h2>intensity<a class="headerlink" href="#module-pythonPWA.model.intensity" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="class">
+<dt id="pythonPWA.model.intensity.intensity">
+<em class="property">class </em><tt class="descclassname">pythonPWA.model.intensity.</tt><tt class="descname">intensity</tt><big>(</big><em>resonances=</em>, <span class="optional">[</span><span class="optional">]</span><em>waves=</em>, <span class="optional">[</span><span class="optional">]</span><em>productionAmplitudes=</em>, <span class="optional">[</span><span class="optional">]</span><em>normint=None</em>, <em>alphaList=</em>, <span class="optional">[</span><span class="optional">]</span><em>beamPolarization=0.6</em><big>)</big><a class="headerlink" href="#pythonPWA.model.intensity.intensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>This represents the intensity function used in the PWA model.</p>
+<dl class="method">
+<dt id="pythonPWA.model.intensity.intensity.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>mass</em>, <em>eventNumber</em><big>)</big><a class="headerlink" href="#pythonPWA.model.intensity.intensity.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate function for the instensity class, returns the value for the instensity for specified mass and event number.</p>
+<p>Args:
+mass (float):
+eventNumber (int):</p>
+<p>Returns:
+The value of the intensity function as a numpy.complex type.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.magV">
+<span id="magv"></span><h2>magV<a class="headerlink" href="#module-pythonPWA.model.magV" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="function">
+<dt id="pythonPWA.model.magV.magV">
+<tt class="descclassname">pythonPWA.model.magV.</tt><tt class="descname">magV</tt><big>(</big><em>mass</em>, <em>resonance</em>, <em>wave</em>, <em>waves</em>, <em>normint</em><big>)</big><a class="headerlink" href="#pythonPWA.model.magV.magV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the magnitude of the production amplitued V, for a specified wave, 
+resonance, wave in the set of waves, and normalization integral.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.normInt">
+<span id="normint"></span><h2>normInt<a class="headerlink" href="#module-pythonPWA.model.normInt" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="class">
+<dt id="pythonPWA.model.normInt.normInt">
+<em class="property">class </em><tt class="descclassname">pythonPWA.model.normInt.</tt><tt class="descname">normInt</tt><big>(</big><em>waves=</em>, <span class="optional">[</span><span class="optional">]</span><em>alphaList=</em>, <span class="optional">[</span><span class="optional">]</span><em>beamPolarization=0.4</em><big>)</big><a class="headerlink" href="#pythonPWA.model.normInt.normInt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Represents a normalization integral.  To compute the value of the normalization integral
+call normInt.execute().  To save the normalization integral to a directory call normInt.save()</p>
+<dl class="method">
+<dt id="pythonPWA.model.normInt.normInt.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#pythonPWA.model.normInt.normInt.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the normalization integral for the waves, alphas, and beam polarization.
+Note that the normalization integral is stored as a numpy ndarray with 4 dimensions.
+The indexing of the normalization integral is [wave1.epsilon,wave2.epsilon,waves.index(wave1),waves.index(wave2)].
+This means that the first 2 dimensions (wave1.epsilon,wave2.epsilon) have length of 2.  The last 2 dimensions
+(waves.index(wave1),waves.index(waves2)) have length equal to the number of waves to be represented in this normalization
+integral.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pythonPWA.model.normInt.normInt.save">
+<tt class="descname">save</tt><big>(</big><em>directory</em><big>)</big><a class="headerlink" href="#pythonPWA.model.normInt.normInt.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the current value of the normalization integral.  Note that if this is called before
+normInt.execute() it will save an ndarray of complex 0&#8217;s to the specified file.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pythonPWA.model.normInt.normInt.writeToAscii">
+<tt class="descname">writeToAscii</tt><big>(</big><em>directory</em><big>)</big><a class="headerlink" href="#pythonPWA.model.normInt.normInt.writeToAscii" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes the values of the normalization integral to a text file.
+Make sure to run execute method first.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.nTrue">
+<span id="ntrue"></span><h2>nTrue<a class="headerlink" href="#module-pythonPWA.model.nTrue" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="function">
+<dt id="pythonPWA.model.nTrue.calcNTrueError">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">calcNTrueError</tt><big>(</big><em>iSets</em>, <em>covarianceMatrix</em>, <em>rawNormalizationIntegral</em>, <em>vList</em>, <em>waves</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.calcNTrueError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the total error in nTrue including the systematic and statistical error</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.calcStatSquaredError">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">calcStatSquaredError</tt><big>(</big><em>covarianceMatrix</em>, <em>rawNormalizationIntegral</em>, <em>vList</em>, <em>waves</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.calcStatSquaredError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the square of the statistical error for nTrue</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.calcSysSquaredError">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">calcSysSquaredError</tt><big>(</big><em>iSets</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.calcSysSquaredError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates the square of the systematic error for nTrue</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.constructJacobianVector">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">constructJacobianVector</tt><big>(</big><em>rawNormalizationIntegral</em>, <em>vList</em>, <em>waves</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.constructJacobianVector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list representing the jacobian vector for specifed set of waves.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.nTrue">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">nTrue</tt><big>(</big><em>resonances</em>, <em>waves</em>, <em>mass</em>, <em>normint</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.nTrue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of events for all resonances and waves for the specified mass and normalization integral.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.nTrueForFixedV1V2">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">nTrueForFixedV1V2</tt><big>(</big><em>vList</em>, <em>waves</em>, <em>normint</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.nTrueForFixedV1V2" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the number of events for fitted v1 and v2 values.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.nTrueForFixedV1V2AndWave">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">nTrueForFixedV1V2AndWave</tt><big>(</big><em>v</em>, <em>waves</em>, <em>wave</em>, <em>normint</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.nTrueForFixedV1V2AndWave" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculates the number of events for fitted v1 and v2 values for a specific
+wave.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.nTrueForWave">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">nTrueForWave</tt><big>(</big><em>resonances</em>, <em>waves</em>, <em>wave</em>, <em>mass</em>, <em>normint</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.nTrueForWave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of events for all resonances, for a specified wave out of the set of all waves, for the specified mass,
+and for the nomalization integral.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pythonPWA.model.nTrue.partialDerivativeNTrue">
+<tt class="descclassname">pythonPWA.model.nTrue.</tt><tt class="descname">partialDerivativeNTrue</tt><big>(</big><em>rawNormalizationIntegral</em>, <em>vList</em>, <em>waves</em>, <em>wave</em>, <em>realFlag</em><big>)</big><a class="headerlink" href="#pythonPWA.model.nTrue.partialDerivativeNTrue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the partial derivative of nTrue</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.prodAmp">
+<span id="prodamp"></span><h2>prodAmp<a class="headerlink" href="#module-pythonPWA.model.prodAmp" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="class">
+<dt id="pythonPWA.model.prodAmp.ProdAmp">
+<em class="property">class </em><tt class="descclassname">pythonPWA.model.prodAmp.</tt><tt class="descname">ProdAmp</tt><big>(</big><em>gList=[[0, 0.0], [1, 0.4], [2, 1.0], [3, 0.0], [4, 0.0], [5, 0.0], [6, 0.0], [7, 0.0], [8, 0.0]]</em><big>)</big><a class="headerlink" href="#pythonPWA.model.prodAmp.ProdAmp" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is a recreation of the ProdAmp class written by Dennis Weygand.
+The algorithmic structuring of this class is as similar to the ProdAmp
+java version as possible.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pythonPWA.model.spinDensity">
+<span id="spindensity"></span><h2>spinDensity<a class="headerlink" href="#module-pythonPWA.model.spinDensity" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-pythonPWA.model"></span><dl class="function">
+<dt id="pythonPWA.model.spinDensity.spinDensity">
+<tt class="descclassname">pythonPWA.model.spinDensity.</tt><tt class="descname">spinDensity</tt><big>(</big><em>beampolarization</em>, <em>alpha</em><big>)</big><a class="headerlink" href="#pythonPWA.model.spinDensity.spinDensity" title="Permalink to this definition">¶</a></dt>
+<dd><p>SpinDensity matrix for specified beam polarization and angle alpha.</p>
+<p>Args:
+beampolarization (float):
+alpha (float):</p>
+<p>Returns:
+The entire spinDensity matrix for specified beam polarization and angle alpha.
+Note that the spinDensity matrix is a 2x2 matrix indexed by the wave reflectivity (wave.epsilon).</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">model</a><ul>
+<li><a class="reference internal" href="#module-pythonPWA.model.complexV">complexV</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.getPhi">getPhi</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.intensity">intensity</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.magV">magV</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.normInt">normInt</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.nTrue">nTrue</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.prodAmp">prodAmp</a></li>
+<li><a class="reference internal" href="#module-pythonPWA.model.spinDensity">spinDensity</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="utilities.html"
+                        title="previous chapter">utilities</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/model.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utilities.html" title="utilities"
+             >previous</a> |</li>
+        <li><a href="index.html">pythonPWA 1.0.5 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Brandon DeMello.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
+    </div>
+  </body>
+</html>
