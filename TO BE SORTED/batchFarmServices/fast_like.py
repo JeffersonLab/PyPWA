@@ -4,7 +4,7 @@ from pythonPWA.model.spinDensity import spinDensity
 from pythonPWA.model.intensity import intensity
 from random import random
 import numpy as np
-import os
+import os, math
 
 class FASTLikelihood(object):
     
@@ -22,8 +22,7 @@ class FASTLikelihood(object):
                 rhoAA = None,
                 accNormInt=None,
                 rawAlphaList=[],
-                rawNormInt=None,
-                
+                rawNormInt=None,                
                 ):
         
         self.waves=waves
@@ -46,38 +45,31 @@ class FASTLikelihood(object):
         self.etaX = 0.
         
     
-#    def countAlphas(self,fname):
-#        with open(fname) as f:
-#            num = f.readlines()
-#        return float(num[0])
+#    def countAlphas(self,fname):   This function will be able to read the .num file
+#        with open(fname) as f:      instead of reading the entire file length. Uncomment
+#            num = f.readlines()        it and comment '#' out the next function to
+#        return float(num[0])           use it. 
+
     def countAlphas(self,path):
         Alpha = open(path,'r')
         AlphaList = Alpha.readlines()
-
-        
-
         return float(len(AlphaList)) 
        
     def calcetaX(self):
         self.etaX=(self.countAlphas(self.acceptedPath)/self.countAlphas(self.generatedPath))
-	#print self.etaX        
-    
-    def calclnL(self):
         
-       
+
+    def calclnL(self):       
         a0 = 0.
         a1 = 0.
         for i in range(self.nwaves):
             for j in range(self.nwaves):
-                VV = self.productionAmplitudes[i] * np.conjugate(self.productionAmplitudes[j])
-#		print VV
-                a0 = a0 + (VV * self.rhoAA[i,j,:]).real
-                a1 = a1 + (VV * self.accNormInt[i,j]).real
-
+                VV = self.productionAmplitudes[i] * np.conjugate(self.productionAmplitudes[j])                
+                a0 = a0 + (VV * self.rhoAA[i,j,:]).real                
+                a1 = a1 + (VV * self.accNormInt[i,j]).real 
         return -((np.log(a0)).sum(0)) + (self.etaX * a1)
 
     def calcneglnL(self,paramsList):
-#	    print self.accNormInt            
             self.productionAmplitudes=paramsList
             self.calcetaX()
             LLog = self.calclnL()    

@@ -1,13 +1,12 @@
-#! /usr/bin/python
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
 import Tkinter as tk
 import numpy, os, sys 
-sys.path.append("/u/home/jpond/bdemello/bdemello/pythonPWA/pythonPWA")
+sys.path.append("/volatile/halld/PyPWA/pythonPWA")
 from batchFarmServices.graphicHelp import Help
 
 class Control(object):
     
     def __init__(self,                 
-                 instDir = None,
                  reactMode = 24,
                  BeamPole = 0.4,
                  LoMass = 1000,
@@ -16,9 +15,8 @@ class Control(object):
                  NumSet = 20,
                  MigNcal = 1000,
                  reactNm = None,
-                 pltLstNm = None):
-            
-        self.instDirL = instDir
+                 pltLstNm = None):            
+       
         self.reactModeL = reactMode
         self.BeamPoleL = BeamPole
         self.UpMassL = UpMass
@@ -29,48 +27,43 @@ class Control(object):
         self.reactNmL = reactNm
         self.pltLstNmL = pltLstNm
 
-    def instDir(self):
-        iD = ent0.get()
-        self.instDirL = iD
-
     def reactMode(self):
-        rM = ent1.get()
+        rM = ent0.get()
         self.reactModeL = rM        
 
     def BeamPole(self):
-        Bp = ent2.get()
+        Bp = ent1.get()
         self.BeamPoleL = Bp
         
     def LoMass(self):
-        Lm = ent3.get()
+        Lm = ent2.get()
         self.LoMassL = Lm
 
     def UpMass(self):
-        Um = ent4.get()
+        Um = ent3.get()
         self.UpMassL = Um
 
     def RaMass(self):
-        Rm = ent5.get()
+        Rm = ent4.get()
         self.RaMassL = Rm
 
     def NumSet(self):
-        Ns = ent6.get()
+        Ns = ent5.get()
         self.NumSetL = Ns
 
     def MigNcal(self):
-        MnC = ent7.get()
+        MnC = ent6.get()
         self.MigNcalL = MnC
 
     def reactNm(self):
-        rNm = ent8.get()
+        rNm = ent7.get()
         self.reactNmL = rNm
 
     def pltLstNm(self):
-        plN = ent9.get()
+        plN = ent8.get()
         self.pltLstNmL = plN
 
     def run(self):
-        self.instDir()
         self.reactMode()
         self.BeamPole()
         self.LoMass()
@@ -82,16 +75,15 @@ class Control(object):
         self.pltLstNm()
     
     def load(self,Con):
-        self.instDirL = Con[0]
-        self.reactModeL = Con[1]
-        self.BeamPoleL = Con[2]
-        self.LoMassL = Con[3]
-        self.UpMassL = Con[4]
-        self.RaMassL = Con[5]
-        self.NumSetL = Con[6]
-        self.MigNcalL = Con[7]
-        self.reactNmL = Con[8]
-        self.pltLstNmL = Con[9]
+        self.reactModeL = Con[0]
+        self.BeamPoleL = Con[1]
+        self.LoMassL = Con[2]
+        self.UpMassL = Con[3]
+        self.RaMassL = Con[4]
+        self.NumSetL = Con[5]
+        self.MigNcalL = Con[6]
+        self.reactNmL = Con[7]
+        self.pltLstNmL = Con[8]
         
         ent0.insert("end",Con[0])
         ent1.insert("end",Con[1])
@@ -102,12 +94,10 @@ class Control(object):
         ent6.insert("end",Con[6])
         ent7.insert("end",Con[7])
         ent8.insert("end",Con[8])
-        ent9.insert("end",Con[9])
-
+        
     def save(self):
         self.run()
-        Con = [self.instDirL,
-                int(self.reactModeL),
+        Con = [int(self.reactModeL),
                 float(self.BeamPoleL),
                 int(self.LoMassL),       
                 int(self.UpMassL),   
@@ -127,8 +117,7 @@ class Control(object):
         label.pack(side="top", fill="both", padx=10, pady=10)
             
 
-Lst = ['Full path to the directory '+'\n'+'the pythonPWA toolkit is installed',
-                'Reaction Mode ',
+Lst = ['Reaction Mode ',
                 'Beam Polorization ',
                 'Lower Mass ',
                 'Upper Mass ',
@@ -199,12 +188,6 @@ L8.pack(side="top")
 
 ent8=tk.Entry(frame, width=30, font=55)
 ent8.pack(side="top")
-
-L9=tk.Label(frame,text=Lst[9])
-L9.pack(side="top")
-
-ent9=tk.Entry(frame, width=30, font=55)
-ent9.pack(side="top")
 
 frame1=tk.Frame(frame)
 frame1.pack(side="top")

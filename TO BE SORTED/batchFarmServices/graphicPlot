@@ -7,7 +7,7 @@ import os
 import sys
 import Tkinter as tk
 import itertools
-sys.path.append("/u/home/jpond/bdemello/bdemello/pythonPWA/pythonPWA")
+sys.path.append(os.path.join(os.getcwd().strip("GUI"),"pythonPWA"))
 from batchFarmServices.graphicHelp import Help
 class graphicPlot(object):
 
@@ -55,8 +55,8 @@ class graphicPlot(object):
 
     def loadl(self):
         self.Control = numpy.load("Control_List.npy")    
-        if os.path.isfile(self.topDir+"/"+self.Control[9]+".npy"):
-            self.allL = numpy.load(self.topDir+"/"+self.Control[9]+".npy")
+        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"))
             self.dataL = self.allL[0]
             self.simL = self.allL[1]
             self.accMC = self.allL[2]
@@ -72,8 +72,8 @@ class graphicPlot(object):
             self.wvs = self.allL[12]
             self.delF = self.allL[13]
             text.delete("0.0wordstart", "end")
-            text.insert("end","LOADED")
-        elif not os.path.isfile(self.topDir+"/"+self.Control[9]+".npy"):
+            text.insert("end",self.Control[8]+"\n"+"LOADED")
+        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
             text.delete("0.0wordstart", "end")
             text.insert("end","NO LIST"+"\n"+"UPDATE AND PRESS SAVE "+"\n"+"FOR FITTED WAVES")
             self.allL = [[] for i in range(14)]
@@ -109,32 +109,32 @@ class graphicPlot(object):
     def up_data(self):
         self.dataL = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/acc/accDATA.gamp"):
-                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/acc/accDATA.gamp"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.gamp"):
+                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.gamp"))
         text.delete("0.0wordstart", "end")
         text.insert("end","data UPDATED")
 
     def up_sim(self):
         self.simL = []
         for d in self.ran:            
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/raw/rawDATA.gamp"):                
-                self.simL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/raw/rawDATA.gamp"))
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/events.gamp"):                
+                self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/rawDATA.gamp"))
         text.delete("0.0wordstart", "end")
         text.insert("end","sim UPDATED")
 
     def up_accMC(self):
         self.accMC = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/accMC.gamp"):                
-                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/accMC.gamp"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.gamp"):                
+                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.gamp"))
         text.delete("0.0wordstart", "end")
         text.insert("end","accMC UPDATED")  
     
     def up_rawMC(self):
         self.rawMC = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/rawMC.gamp"):                
-                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/rawMC.gamp"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.gamp"):                
+                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.gamp"))
         text.delete("0.0wordstart", "end")
         text.insert("end","rawMC UPDATED")  
 
@@ -176,25 +176,29 @@ class graphicPlot(object):
                 elif not os.path.isfile(self.topDir+"/fittiing/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy"):
                     self.nTA[g-1].append(0)
                     self.nEA[g-1].append(0)
-        self.up_delF()
+        #self.up_delF()
         text.delete("0.0wordstart", "end")
         text.insert("end","FITS UPDATED") 
 
     def up_delF(self):
         self.delF = []
         for i in range(len(self.ran)):
-            self.delF.append(float(float(self.nT0[i])-float(self.simL[i])))
+            if float(float(self.nT0[i])-float(self.simL[i])) > 100.0 or float(float(self.nT0[i])-float(self.simL[i]))< -100.0:
+                self.delF.append(float(float(self.nT0[i])-float(self.simL[i])))
+            else:
+                self.delF.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","Delta UPDATED")
    
     def savel(self):
         self.mk_all()
-        numpy.save(self.topDir+"/"+self.Control[9]+".npy",self.allL)
+        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"),self.allL)
         text.delete("0.0wordstart", "end")
         text.insert("end","SAVED")
+        self.destrFr()
         self.wv_Buttons(len(GP.allL[8]))  
         root.update()
-
+        
     def up_all(self):
         text.delete("0.0wordstart", "end")
         text.insert("end","UPDATE STARTED")
@@ -320,9 +324,7 @@ class graphicPlot(object):
                 ax1.legend()
                 ax1.set_ylabel("Percent")
                 ax1.set_xlabel("Mass (MeV)")
-        plt.title(self.Control[8]+" "+self.Control[9])
-        #plt.draw()
-        
+        plt.title(self.Control[7]+" "+self.Control[8])        
         plt.show()
         self.plts = []
         self.nms = []
@@ -336,14 +338,12 @@ class graphicPlot(object):
         self.nms = []
 
     def wv_Buttons(self,lent):
-        frame4.grid_forget()
-        frame5.grid_forget()        
+        frame4=tk.Frame(frame3)
+        frame5=tk.Frame(frame3)
         frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
         frame5.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
         x = 0
-
         t = 0
-
         for y in range(lent):
             btn = tk.Button(frame4, text = GP.wvs[y].strip(".bamp")+"\n"+"nTrue", command = lambda x=x,t=t: GP.add_nTrue_wave((x*9)+t+x))         
             btn.grid(column=t,row=x)
@@ -352,8 +352,12 @@ class graphicPlot(object):
             t += 1
             if t > 9:
                 t = 0
-                x += 1
-                
+                x += 1        
+    
+    def destrFr(self):
+        frame4.destroy()
+        frame5.destroy()
+            
     def help_window(self):
         window = tk.Toplevel(root)
         window.wm_title("HELP")
@@ -364,9 +368,9 @@ class graphicPlot(object):
 
 
 
-#GP = graphicPlot(topDir="/work/clas/clasg12/salgado/phi")
+GP = graphicPlot(topDir=os.path.join(os.getcwd().strip("GUI")))
 
-GP = graphicPlot()
+#GP = graphicPlot()
 
 root = tk.Tk()
 
