@@ -1,0 +1,48 @@
+#!/usr/bin/python 
+import os, glob, shutil, time, numpy
+from subprocess import Popen
+
+indir = os.getcwd().strip("GUI")
+Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
+scriptOutDir=os.path.join(indir,"scripts","submitions")
+
+def submit(jsub_file):
+    cmd = 'jsub '+jsub_file
+    proc = Popen(cmd,
+        shell = True,
+        executable = os.environ.get('SHELL', '/bin/tcsh'),
+        env = os.environ)    
+    time.sleep(.5)
+
+def gen(directory,cmd):
+    auger_opts = dict(
+                    project = 'gluex',
+                    track = 'analysis',
+                    jobname = 'WalkNTrue',
+                    os = 'centos62',
+                    time = 30,
+		    cmd = cmd)
+    jsub_filename = os.path.join(scriptOutDir,directory)
+    jsub_file = open(jsub_filename,'w')
+    jsub_file.write('''\
+PROJECT:{project}
+TRACK:{track}
+JOBNAME:{jobname}
+OS:{os}
+TIME:{time}
+COMMAND:{cmd}
+'''.format(**auger_opts))
+    jsub_file.close()
+    return jsub_filename
+
+def parseDir(Bin):    
+    cmd = os.path.join(indir,"scripts","walkingNTrue.py")+" "+str(Bin)+" "+os.getcwd()
+    return cmd
+
+if __name__ == '__main__':
+    top = int(Control[2])    
+    bot = int(Control[3])
+    ran = int(Control[4])
+    for i in range(top,bot+ran,ran):
+        print "Processing bin",i
+        submit(gen(str(i)+"_MeV",parseDir(i)))
