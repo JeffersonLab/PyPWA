@@ -1,4 +1,13 @@
 #! /usr/bin/python 
+"""
+.. module:: pythonPWA/fileHandlers
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import sys
 import os
 import numpy
@@ -7,12 +16,27 @@ sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pyt
 from pythonPWA.dataTypes.gampParticle import gampParticle
 from pythonPWA.dataTypes.gampEvent import gampEvent
 class gampTranslator():
-    
+    """
+    This class is a convience class used to convert a gamp .txt file into a 3 demensional numpy ndarray saved in numpy's .npy file format
+    """
     def __init__(self,gampFile=None):
+        """
+        Default gampReader constructor.
+
+        Kwargs:
+        gampFile (file): Must be an open file handle, gamp file to be read.
+
+        """
         self.gampFile=gampFile
         self.events= numpy.ones(shape=(1,1,6),dtype=float)
 
-    def readFile(self):            
+    def readFile(self): 
+        """
+        This function parses a whole gamp file and returns the 3 demensional array. The first demension is the event number. 
+        The second is the line number in that event (0 is the number of particles, >0 is a particle). The third is the index within
+        an individual particle.  
+       
+        """           
         i = 0
         n = 0 
         x = -1
@@ -46,10 +70,25 @@ class gampTranslator():
                 sys.stdout.flush()    
 
     def translate(self,saveFile):
+        """
+        This function will run the readFile function and then save the array to the specified file name. 
+
+        Args:
+        saveFile (string): The file name the user wants the file named(will end in .npy).
+        """
         self.readFile()        
         numpy.save(saveFile,self.events)
 
     def writeEvent(self,dataSlice):
+        """
+        This function takes a slice of the events array ([n,:,:]) and returns the pythonPWA gampEvent object of that slice. 
+
+        Args:
+        dataSlice (numpy ndarray): The 2 densional array of a single event fron the events 3D array.
+        
+        Returns:
+        gampEvent 
+        """
         nPart = dataSlice[0,0]
         event = []
         for i in range(int(nPart)):            
@@ -64,6 +103,13 @@ class gampTranslator():
         return gampEvent(particles=event)
     
     def writeFile(self,outFile,data):
+        """
+        This function will convert the 3 demensional array of gamp data back into a text file of those events. 
+
+        Args:
+        outFile (string): The file name the user wants the file named(will end in .txt).
+        data (numpy ndarray): The 3D that will be converted. 
+        """
         with open(outFile,"w") as gF:
             for i in range(data.shape[0]):                
                 event = self.writeEvent(data[i,:,:])
