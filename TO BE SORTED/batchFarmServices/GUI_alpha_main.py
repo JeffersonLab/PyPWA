@@ -1,4 +1,13 @@
-#!/usr/bin/python 
+#!/usr/bin/python
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import os, glob, shutil, numpy, sys
 from subprocess import Popen
 
@@ -10,6 +19,15 @@ i = 1
 M= cf[0]
 
 def submit(jsub_file):
+    """
+        This function submits a jsub text file to the Jlab batch system
+
+        Args:
+        jsub_file (file): Must be the file handle for a valid jsub text file.
+
+        Returns:
+        nothing
+        """
     cmd = 'jsub '+jsub_file
     proc = Popen(cmd,
         shell = True,

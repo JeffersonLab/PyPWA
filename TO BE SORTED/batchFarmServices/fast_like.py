@@ -1,3 +1,12 @@
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 from math import log 
 from pythonPWA.model.complexV import complexV
 from pythonPWA.model.spinDensity import spinDensity

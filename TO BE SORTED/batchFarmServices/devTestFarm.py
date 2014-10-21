@@ -1,8 +1,16 @@
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import numpy
 import os
 import sys
 sys.path.append("/u/home/jpond/bdemello/bdemello/pythonPWA/pythonPWA")
-
 from pythonPWA.dataTypes.resonance import resonance
 from pythonPWA.fileHandlers.getWavesGen import getwaves
 from pythonPWA.model.normInt import normInt

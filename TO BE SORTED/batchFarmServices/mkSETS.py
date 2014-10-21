@@ -1,3 +1,12 @@
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import os, time
 from subprocess import Popen
 sets = int(raw_input("Number of sets?"))

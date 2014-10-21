@@ -1,8 +1,12 @@
-'''
-Created on Jun 13, 2014
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
 
-@author: jpond
-'''
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import os 
 import sys
 sys.path.append("/u/home/jpond/bdemello/bdemello/pythonPWA/pythonPWA")

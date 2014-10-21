@@ -1,3 +1,12 @@
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Stephanie K. A. Bramlett <skab@jlab.org>, Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import os, sys, numpy
 sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
 from pythonPWA.utilities.ThreeVec import ThreeVector

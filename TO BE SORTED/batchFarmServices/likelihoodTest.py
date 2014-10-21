@@ -1,4 +1,13 @@
 #! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import numpy
 import os
 import sys
