@@ -99,7 +99,8 @@ class FourVector(object):
         return  self.p.theta()
     def cosTheta(self):
         return self.p.CosTheta()
-        
+    def dot(self, n):
+        return self.E*n.E - self.x*n.x - self.y*n.y - self.z*n.z    
 
 #v = ThreeVector(1, 2, 3)
 ##print v
