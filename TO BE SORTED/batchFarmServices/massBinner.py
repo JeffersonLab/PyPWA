@@ -41,29 +41,32 @@ class massBinner(object):
                     self.bins[x,i] = 1
         np.save("bins",self.bins)                    
             
-    def fill(self):
+    def fill(self,direct):
         self.binner()
         for b in range(self.nBins):
-            if not os.path.isdir(os.path.join(self.bindir,str(self.Control[2] + (b * int(self.Control[4])))+"_MeV")):
-                os.mkdir(os.path.join(self.bindir,str(self.Control[2] + (b * int(self.Control[4])))+"_MeV"))
+            if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV")):
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV"))
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","data"))                
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","mc"))
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","mc","acc"))
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","mc","raw"))
         for r in range(self.nBins):
             num = 0
-            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV","events.gamp"),"w") as gF:
+            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV",direct,"events.gamp"),"w") as gF:
                 for i in range(int(self.gampList.shape[0])):
                     if self.bins[r,i] == 1:
                         event = self.gampT.writeEvent(self.gampList[i,:,:])
                         event.writeGamp(gF)
                         num+=1 
-            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV","events.num"),"w") as nF: 
+            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
                 nF.write(str(num))
-                    
-
 
 mB = massBinner(indir=sys.argv[1],bindir=sys.argv[2],gfile=sys.argv[3])
-mB.fill()
-
-
-
-
-
+if "data" in sys.argv[3]:
+    direct = "data"
+if "acc" in sys.argv[3]:
+    direct = "mc/acc"
+if "raw" in sys.argv[3]:
+    direct = "mc/raw"
+mB.fill(direct)
 
