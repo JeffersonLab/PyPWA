@@ -47,11 +47,15 @@ class massBinner(object):
             if not os.path.isdir(os.path.join(self.bindir,str(self.Control[2] + (b * int(self.Control[4])))+"_MeV")):
                 os.mkdir(os.path.join(self.bindir,str(self.Control[2] + (b * int(self.Control[4])))+"_MeV"))
         for r in range(self.nBins):
+            num = 0
             with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV","events.gamp"),"w") as gF:
                 for i in range(int(self.gampList.shape[0])):
                     if self.bins[r,i] == 1:
                         event = self.gampT.writeEvent(self.gampList[i,:,:])
                         event.writeGamp(gF)
+                        num+=1 
+            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV","events.num"),"w") as nF: 
+                nF.write(str(num))
                     
 
 
