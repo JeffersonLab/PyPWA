@@ -11,7 +11,7 @@ class massBinner(object):
     def __init__(self,indir=None,bindir=None,gfile=None):
         self.indir = indir
         self.bindir = bindir
-        self.Control = np.load(os.path.join(os.getcwd(),"Control_List.npy"))
+        self.Control = np.load(os.path.join(os.getcwd().strip("scripts"),"GUI","Control_List.npy"))
         self.gfile = gfile+".gamp"
         self.nfile = gfile+".npy"        
         self.gampT = gampTranslator(os.path.join(self.indir,self.gfile))
@@ -37,28 +37,28 @@ class massBinner(object):
             event = self.gampT.writeEvent(self.gampList[i,:,:])
             mass = self.calcMass(event)            
             for x in range(0, self.nBins):
-                if mass >= (float(self.Control[2] + (x * float(self.Control[4]))) / 1000.0) and mass < ( float(self.Control[2] + ((x + 1) * float(self.Control[4]))) / 1000.0):
+                if mass >= (float(float(self.Control[2]) + (x * float(self.Control[4]))) / 1000.0) and mass < ( float(float(self.Control[2]) + ((x + 1) * float(self.Control[4]))) / 1000.0):
                     self.bins[x,i] = 1
         np.save("bins",self.bins)                    
             
     def fill(self,direct):
         self.binner()
         for b in range(self.nBins):
-            if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV")):
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV"))
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","data"))                
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","mc"))
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","mc","acc"))
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2] + (b * int(self.Control[4]))))+"_MeV","mc","raw"))
+            if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","data"))                
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc"))
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
+                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
         for r in range(self.nBins):
             num = 0
-            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV",direct,"events.gamp"),"w") as gF:
+            with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"NEWevents.gamp"),"w") as gF:
                 for i in range(int(self.gampList.shape[0])):
                     if self.bins[r,i] == 1:
                         event = self.gampT.writeEvent(self.gampList[i,:,:])
                         event.writeGamp(gF)
                         num+=1 
-            with open(os.path.join(self.bindir,str(self.Control[2] + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
+            with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"NEWevents.num"),"w") as nF: 
                 nF.write(str(num))
 
 mB = massBinner(indir=sys.argv[1],bindir=sys.argv[2],gfile=sys.argv[3])
@@ -69,10 +69,4 @@ if "acc" in sys.argv[3]:
 if "raw" in sys.argv[3]:
     direct = "mc/raw"
 mB.fill(direct)
-
-
-
-
-
-
 
