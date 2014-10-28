@@ -60,32 +60,28 @@ def calcNTrueForDir(dataDir):
     for wave in waves:
         nTrueList.append(ntrueforwave(vList[waves.index(wave)],waves,wave,rawNormInt).real)    
         nExpList.append(nExpforwave(vList[waves.index(wave)],waves,wave,accNormInt,apath,rpath).real)
+        wvNameList.append(wave.filename)
+
     #next up lets load our raw normalization integral
     rawNormalizationIntegral=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))    
     #loading our minuit covariance matrix obtained from fitting
-    covarianceMatrix=numpy.load(os.path.join(dataDir,"minuitCovar3.npy"))
-    statSquared=calcStatSquaredError(covarianceMatrix,rawNormalizationIntegral,vList,waves)
-    #appending our error
-    errorList.append(numpy.sqrt(statSquared[0,0].real))    
-    for wave in waves:
-        buffer=numpy.zeros(shape=rawNormalizationIntegral.shape)
-        i=waves.index(wave)
-        buffer[wave.epsilon,wave.epsilon,i,:]=rawNormalizationIntegral[wave.epsilon,wave.epsilon,i,:]
-        statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)        
+    if os.path.isfile(os.path.join(dataDir,"minuitCovar3.npy")):
+        covarianceMatrix=numpy.load(os.path.join(dataDir,"minuitCovar3.npy"))
+        statSquared=calcStatSquaredError(covarianceMatrix,rawNormalizationIntegral,vList,waves)
         errorList.append(numpy.sqrt(statSquared[0,0].real))
-        wvNameList.append(wave.filename)    
-        #hack work-around to get wave 1 error
-    v1rawNormalizationIntegral=numpy.copy(rawNormalizationIntegral)
-    v1rawNormalizationIntegral[waves[0].epsilon,waves[0].epsilon,1,0]=numpy.complex(0.,0.)
-    v1rawNormalizationIntegral[waves[0].epsilon,waves[0].epsilon,1,1]=numpy.complex(0.,0.)
-    statSquared=calcStatSquaredError(covarianceMatrix,v1rawNormalizationIntegral,vList,waves)      
-    errorList.append(numpy.sqrt(statSquared.real))    
-    #hack workaround to get wave 2 error
-    v2rawNormalizationIntegral=numpy.copy(rawNormalizationIntegral)
-    v2rawNormalizationIntegral[waves[0].epsilon,waves[0].epsilon,0,0]=numpy.complex(0.,0.)
-    v2rawNormalizationIntegral[waves[0].epsilon,waves[0].epsilon,0,1]=numpy.complex(0.,0.)
-    statSquared=calcStatSquaredError(covarianceMatrix,v2rawNormalizationIntegral,vList,waves)
-    errorList.append(numpy.sqrt(statSquared.real))
+    if not os.path.isfile(os.path.join(dataDir,"minuitCovar3.npy")):
+        statSquared=0
+        errorList.append(0)
+    for wave in waves:
+        if statSquared != 0:
+            buffer=numpy.zeros(shape=rawNormalizationIntegral.shape)
+            i=waves.index(wave)
+            buffer[wave.epsilon,wave.epsilon,i,:]=rawNormalizationIntegral[wave.epsilon,wave.epsilon,i,:]
+            statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)        
+            errorList.append(numpy.sqrt(statSquared[0,0].real))
+        else:
+            errorList.append(0)        
+       
     #saving our results to be used in plotting later.  format is numpy array [[nTrueTotal,nTrueWave1,nTrueWave2],[errorNTrueTotal,errorNTrueWave1,errorNTrueWave2]]
     #numpy.save(os.path.join(dataDir,"nTrueError.npy"),numpy.array([nTrueList,errorList]))
     retList=[]
