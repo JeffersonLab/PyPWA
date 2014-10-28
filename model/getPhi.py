@@ -4,8 +4,6 @@
    :synopsis: Module describing the various mathematical constructs commonly used in partial wave analysis.
 
 .. moduleauthor:: Brandon Kaleiokalani DeMello <bdemello@jlab.org>
-
-
 """
 import numpy
 
