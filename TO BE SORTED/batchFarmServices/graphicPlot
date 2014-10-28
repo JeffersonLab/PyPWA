@@ -1,13 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
-
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
-
-
-"""  
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 import subprocess as sp
@@ -95,9 +86,8 @@ class graphicPlot(object):
 
     def file_len(self,fname):
         with open(fname) as f:
-            for i, l in enumerate(f):
-                pass
-        return (i + 1)/6
+            num = f.readlines()
+        return int(num[0])
 
     def up_range(self):
         rang = []
@@ -118,32 +108,32 @@ class graphicPlot(object):
     def up_data(self):
         self.dataL = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.gamp"):
-                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.gamp"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.num"):
+                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","data UPDATED")
 
     def up_sim(self):
         self.simL = []
         for d in self.ran:            
-            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/events.gamp"):                
-                self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/rawDATA.gamp"))
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/events.num"):                
+                self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/rawDATA.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","sim UPDATED")
 
     def up_accMC(self):
         self.accMC = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.gamp"):                
-                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.gamp"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.num"):                
+                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","accMC UPDATED")  
     
     def up_rawMC(self):
         self.rawMC = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.gamp"):                
-                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.gamp"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.num"):                
+                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","rawMC UPDATED")  
 
@@ -166,11 +156,17 @@ class graphicPlot(object):
             elif not os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy"):
                 self.nT0.append(0)
                 self.nE0.append(0)
-        while self.iL < 100:
-            if os.path.isfile(self.topDir+"/fitting/results/"+str(self.ran[0])+"_MeV/nTrueList-"+str(self.iL)+"_"+str(self.ran[0])+".npy"):
-                self.iL += 1
-            elif not os.path.isfile(self.topDir+"/fitting/results/"+str(self.ran[0])+"_MeV/nTrueList-"+str(self.iL)+"_"+str(self.ran[0])+".npy"):
+        b = 0
+        for dirs in sorted(os.listdir(os.path.join(self.topDir,"fitting","results"))):
+            if os.path.isfile(self.topDir+"/fitting/results/"+dirs+"/nTrueList-"+str(self.iL)+"_"+str(dirs.strip("_MeV"))+".npy"):
                 break
+            else:
+                b+=1        
+        while self.iL < 100:
+            if os.path.isfile(self.topDir+"/fitting/results/"+str(self.ran[b])+"_MeV/nTrueList-"+str(self.iL)+"_"+str(self.ran[b])+".npy"):
+                self.iL += 1
+            elif not os.path.isfile(self.topDir+"/fitting/results/"+str(self.ran[b])+"_MeV/nTrueList-"+str(self.iL)+"_"+str(self.ran[b])+".npy"):
+                break        
         self.nTA = [[] for i in range(self.iL-1)]
         self.nEA = [[] for i in range(self.iL-1)]
         self.wvs = []
@@ -180,7 +176,7 @@ class graphicPlot(object):
                     rx = numpy.load(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy")
                     self.nTA[g-1].append(rx[0][1])
                     self.nEA[g-1].append(rx[0][4])
-                    if d == self.ran[0]:
+                    if d == self.ran[b]:
                         self.wvs.append(rx[0][3])
                 elif not os.path.isfile(self.topDir+"/fittiing/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy"):
                     self.nTA[g-1].append(0)
