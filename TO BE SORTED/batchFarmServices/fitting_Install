@@ -1,13 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
-
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
-
-
-"""  
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
 import os
 import numpy,sys
 import subprocess as sp
@@ -41,7 +32,7 @@ for i in tdirs:
         os.makedirs(directoryBuffer)        
 progs = ("fnGenerator.py","generateAlphas.py","GUI_alpha_main.py",
 "GUI_gamp_main.py","GUI_subPyNormInt.py","likelihoodTest.py","mvBAMP_GUI",
-"run_normintFARM.py","subLikelihood","subWalkNTrue","walkingNTrue.py","dirSplitter.py","MCdir.py")
+"run_normintFARM.py","subLikelihood","subWalkNTrue","walkingNTrue.py","massBinner.py")
 for s in progs:
     cmd = 'cp '+os.path.join(os.getcwd(),str(s))+" "+os.path.join(indir,"scripts")
     proc = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
@@ -62,10 +53,11 @@ for g in guis:
         sys.stdout.flush()
     elif g == guis[-1]:
         sys.stdout.write("Filling GUI"+"."*(guis.index(g)+1)+"\r\n")
-        sys.stdout.flush()        
-cmd = indir+"/scripts/dirSplitter.py "+os.path.join(indir,"fitting")+" "+os.path.join(indir,"fitting","results")+" "+os.path.join(indir,"fitting","overflow")
-cmd1 = indir+"/scripts/MCdir.py"
-for c in (cmd,cmd1):
-    procx = Popen(c,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
-    procx.wait()
+        sys.stdout.flush() 
+for fil in os.listdir(indir):
+    if ".gamp" in fil:
+        cmd = indir+"/scripts/massBinner.py "+os.path.join(indir)+" "+os.path.join(indir,"fitting")+" "+str(fil).strip(".gamp")+" v"
+        procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+        procx.wait()
+    
 print "Welcome to PyPWA!\nYou are now ready to start Partial Wave Analysis!"

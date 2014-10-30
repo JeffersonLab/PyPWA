@@ -11,14 +11,14 @@ class massBinner(object):
     def __init__(self,indir=None,bindir=None,gfile=None,verb="q"):
         self.indir = indir
         self.bindir = bindir
-        self.Control = np.load(os.path.join(os.getcwd().strip("scripts"),"GUI","Control_List.npy"))
+        self.Control = np.load(os.path.join(os.path.split(os.path.split(os.getcwd())[0])[0],"GUI","Control_List.npy"))
         self.gfile = gfile+".gamp"
         self.nfile = gfile+".npy" 
         self.verb = verb       
         self.gampT = gampTranslator(os.path.join(self.indir,self.gfile))
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             if self.verb == "v":
-                print "Starting translator."
+                print "Starting translator, for",self.gfile
             self.gampT.translate(os.path.join(self.indir,self.nfile))
         self.gampList=np.load(os.path.join(self.indir,self.nfile))
         self.nBins = int(((int(self.Control[3])-int(self.Control[2]))/int(self.Control[4])))+1  
@@ -54,17 +54,14 @@ class massBinner(object):
         for b in range(self.nBins):
             if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
                 os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                os.mkdir(os.path.join(self.bindir,"results",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                os.mkdir(os.path.join(self.bindir,"overflow",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
                 os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","data"))                
                 os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc"))
                 os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
                 os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
                 if self.verb == "v":
-                    print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."
-            if os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
-                if self.verb == "v" and b == 0:
-                    print "\nDirectory already written."
-                if self.verb == "v" and b != 0:
-                    print "Directory already written."
+                    print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."        
         totNum = 0
         for r in range(self.nBins):
             num = 0
