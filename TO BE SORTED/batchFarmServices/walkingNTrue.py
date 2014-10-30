@@ -94,16 +94,10 @@ def calcNTrueForDir(dataDir):
 
 retList=[]
 topDir = os.path.join(sys.argv[2],"fitting")
-for dirpath, dirnames, filenames in os.walk(topDir):    
-    if dirpath.find(sys.argv[1]+"_MeV")!=-1:
-        if dirpath.find("overflow")==-1:
-            if dirpath.find(sys.argv[1]+"_MeV/data")==-1:
-                if dirpath.find("results")==-1:
-                    if dirpath.find("mc")==-1:
-                        if dirpath.find(".ipynb_checkpoints")==-1:
-                            print"processing",dirpath
-                            ret=calcNTrueForDir(dirpath)
-                            retList.append(ret)
+print"processing", sys.argv[1]
+ret=calcNTrueForDir(os.path.join(topDir,sys.argv[1]+"_MeV"))
+retList.append(ret)
+
 plotLists=[[] for i in range(len(retList[0]))]
 for bin in retList:
     for item in bin:
