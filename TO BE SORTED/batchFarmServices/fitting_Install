@@ -30,7 +30,7 @@ for i in tdirs:
     if i == "scripts":
         directoryBuffer=os.path.join(indir,"scripts","submitions")
         os.makedirs(directoryBuffer)        
-progs = ("fnGenerator.py","generateAlphas.py","GUI_alpha_main.py",
+progs = ("fnGenerator.py","generateAlphas.py","generateAlphaNPY.py","GUI_alpha_main.py",
 "GUI_gamp_main.py","GUI_subPyNormInt.py","likelihoodTest.py","mvBAMP_GUI",
 "run_normintFARM.py","subLikelihood","subWalkNTrue","walkingNTrue.py","massBinner.py")
 for s in progs:
@@ -56,7 +56,7 @@ for g in guis:
         sys.stdout.flush() 
 for fil in os.listdir(indir):
     if ".gamp" in fil:
-        cmd = indir+"/scripts/massBinner.py "+os.path.join(indir)+" "+os.path.join(indir,"fitting")+" "+str(fil).strip(".gamp")+" v"
+        cmd = "python "+indir+"/scripts/massBinner.py "+os.path.join(indir)+" "+os.path.join(indir,"fitting")+" "+str(fil).strip(".gamp")+" v"
         procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
         procx.wait()
     
