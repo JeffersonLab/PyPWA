@@ -8,7 +8,7 @@
 
 
 """ 
-import os, glob, shutil, sys
+import os, glob, shutil, sys, time
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -24,6 +24,7 @@ def submit(jsub_file):
         shell = True,
         executable = os.environ.get('SHELL', '/bin/tcsh'),
         env = os.environ)
+    time.sleep(1)
    
 BoA = sys.argv[1] 
 if BoA == 'n':
