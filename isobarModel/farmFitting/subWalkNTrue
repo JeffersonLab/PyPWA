@@ -45,7 +45,7 @@ COMMAND:{cmd}
     return jsub_filename
 
 def parseDir(Bin):    
-    cmd = os.path.join(indir,"scripts","walkingNTrue.py")+" "+str(Bin)+" "+os.getcwd()
+    cmd = os.path.join(indir,"scripts","walkingNTrue.py")+" "+str(Bin)+" "+indir
     return cmd
 
 if __name__ == '__main__':
