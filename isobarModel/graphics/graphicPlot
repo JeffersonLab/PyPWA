@@ -68,8 +68,8 @@ class graphicPlot(object):
 
     def loadl(self):
         self.Control = numpy.load("Control_List.npy") 
-        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy")):
-            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy"))
+        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"))
             self.dataL = self.allL[0]
             self.simL = self.allL[1]
             self.accMC = self.allL[2]
@@ -89,8 +89,8 @@ class graphicPlot(object):
             self.nE0E = self.allL[16]
             self.nEAE = self.allL[17]
             text.delete("0.0wordstart", "end")
-            text.insert("end",self.Control[9]+"\n"+"LOADED")
-        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy")):
+            text.insert("end",self.Control[8]+"\n"+"LOADED")
+        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
             text.delete("0.0wordstart", "end")
             text.insert("end","NO LIST"+"\n"+"UPDATE AND PRESS SAVE "+"\n"+"FOR FITTED WAVES")
             self.allL = [[] for i in range(14)]
@@ -244,7 +244,7 @@ class graphicPlot(object):
    
     def savel(self):
         self.mk_all()
-        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy"),self.allL)
+        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"),self.allL)
         text.delete("0.0wordstart", "end")
         text.insert("end","SAVED")
         self.destrFr()
@@ -393,7 +393,7 @@ class graphicPlot(object):
                 ax1.legend()
                 ax1.set_ylabel("Percent")
                 ax1.set_xlabel("Mass (MeV)")
-        plt.title(self.Control[8]+" "+self.Control[9])        
+        plt.title(self.Control[7]+" "+self.Control[8])        
         plt.show()
         self.plts = []
         self.nms = []
