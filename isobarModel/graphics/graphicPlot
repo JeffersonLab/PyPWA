@@ -7,12 +7,13 @@ import os
 import sys
 import Tkinter as tk
 import itertools
+import argparse
 sys.path.append(os.path.join(os.getcwd().strip("GUI"),"pythonPWA"))
 from batchFarmServices.graphicHelp import Help
 class graphicPlot(object):
 
     def __init__(self,
-                    topDir = os.getcwd(),
+                    topDir = os.getcwd().strip("GUI"),
                     dataL = [],
                     simL = [],
                     accMC = [],
@@ -27,10 +28,16 @@ class graphicPlot(object):
                     ran = [],
                     wvs = [],
                     delF = [],
-                    allL = [[] for i in range(13)],
+                    allL = [[] for i in range(18)],
                     plts = [],
                     nms = [],
-                    iL = 1):
+                    iL = 1,
+                    nT0E = [],
+                    nTAE = [],
+                    nE0E = [],
+                    nEAE = [],
+                    er = 0,
+                    errs = []):
         self.topDir = topDir
         self.dataL = dataL
         self.simL = simL
@@ -49,14 +56,20 @@ class graphicPlot(object):
         self.allL = allL
         self.plts = plts
         self.nms = nms
-        self.iL = iL
+        self.iL = iL   
+        self.nT0E = nT0E
+        self.nTAE = nTAE
+        self.nE0E = nE0E
+        self.nEAE = nEAE  
+        self.er = er   
+        self.errs = errs
         self.Control = numpy.load("Control_List.npy")
-
+       
 
     def loadl(self):
-        self.Control = numpy.load("Control_List.npy")    
-        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
-            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"))
+        self.Control = numpy.load("Control_List.npy") 
+        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy")):
+            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy"))
             self.dataL = self.allL[0]
             self.simL = self.allL[1]
             self.accMC = self.allL[2]
@@ -71,15 +84,36 @@ class graphicPlot(object):
             self.ran = self.allL[11]
             self.wvs = self.allL[12]
             self.delF = self.allL[13]
+            self.nT0E = self.allL[14]
+            self.nTAE = self.allL[15]
+            self.nE0E = self.allL[16]
+            self.nEAE = self.allL[17]
             text.delete("0.0wordstart", "end")
-            text.insert("end",self.Control[8]+"\n"+"LOADED")
-        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            text.insert("end",self.Control[9]+"\n"+"LOADED")
+        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy")):
             text.delete("0.0wordstart", "end")
             text.insert("end","NO LIST"+"\n"+"UPDATE AND PRESS SAVE "+"\n"+"FOR FITTED WAVES")
             self.allL = [[] for i in range(14)]
 
     def mk_all(self):
-        self.allL = [self.dataL,self.simL,self.accMC,self.rawMC,self.normL,self.normC,self.percL,self.nT0,self.nTA,self.nE0,self.nEA,self.ran,self.wvs,self.delF]
+        self.allL = [self.dataL,
+                        self.simL,
+                        self.accMC,
+                        self.rawMC,
+                        self.normL,
+                        self.normC,
+                        self.percL,
+                        self.nT0,
+                        self.nTA,
+                        self.nE0,
+                        self.nEA,   
+                        self.ran,
+                        self.wvs,
+                        self.delF,
+                        self.nT0E,
+                        self.nTAE,
+                        self.nE0E,
+                        self.nEAE]
         text.delete("0.0wordstart", "end")     
         text.insert("end","PLotList UPDATED")
         return self.allL
@@ -148,14 +182,20 @@ class graphicPlot(object):
     def up_fits(self):
         self.nT0 = []
         self.nE0 = []
+        self.nT0E = []
+        self.nE0E = []
         for d in self.ran:
             if os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy"):
                 r0 = numpy.load(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy")
-                self.nT0.append(r0[0][1])
-                self.nE0.append(r0[0][3])
+                self.nT0.append(float(r0[0][1]))
+                self.nE0.append(float(r0[0][3]))
+                self.nT0E.append(float(r0[0][2]))
+                self.nE0E.append(float(r0[0][4]))
             elif not os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy"):
                 self.nT0.append(0)
                 self.nE0.append(0)
+                self.nT0E.append(0)
+                self.nE0E.append(0)
         b = 0
         for dirs in sorted(os.listdir(os.path.join(self.topDir,"fitting","results"))):
             if os.path.isfile(self.topDir+"/fitting/results/"+dirs+"/nTrueList-"+str(self.iL)+"_"+str(dirs.strip("_MeV"))+".npy"):
@@ -169,19 +209,26 @@ class graphicPlot(object):
                 break        
         self.nTA = [[] for i in range(self.iL-1)]
         self.nEA = [[] for i in range(self.iL-1)]
+        self.nTAE = [[] for i in range(self.iL-1)]
+        self.nEAE = [[] for i in range(self.iL-1)]
         self.wvs = []
         for g in range(1,self.iL):
             for d in self.ran:
                 if os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy"):
                     rx = numpy.load(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy")
-                    self.nTA[g-1].append(rx[0][1])
-                    self.nEA[g-1].append(rx[0][4])
+                    self.nTA[g-1].append(float(rx[0][1]))
+                    self.nEA[g-1].append(float(rx[0][4]))
+                    self.nTAE[g-1].append(float(rx[0][2]))
+                    self.nEAE[g-1].append(float(rx[0][5]))
                     if d == self.ran[b]:
                         self.wvs.append(rx[0][3])
                 elif not os.path.isfile(self.topDir+"/fittiing/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy"):
                     self.nTA[g-1].append(0)
                     self.nEA[g-1].append(0)
-        #self.up_delF()
+                    self.nTAE[g-1].append(0)
+                    self.nEAE[g-1].append(0)
+        if len(self.nT0) == len(self.ran) and len(self.simL) == len(self.ran):
+            self.up_delF()
         text.delete("0.0wordstart", "end")
         text.insert("end","FITS UPDATED") 
 
@@ -197,7 +244,7 @@ class graphicPlot(object):
    
     def savel(self):
         self.mk_all()
-        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"),self.allL)
+        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[9]+".npy"),self.allL)
         text.delete("0.0wordstart", "end")
         text.insert("end","SAVED")
         self.destrFr()
@@ -237,66 +284,77 @@ class graphicPlot(object):
     def add_data(self):
         self.plts.append(self.dataL)
         self.nms.append("data")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","data ADDED")   
 
     def add_sim(self):
         self.plts.append(self.simL)
         self.nms.append("sim")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","sim ADDED")
 
     def add_accMC(self):
         self.plts.append(self.accMC)
         self.nms.append("accMC")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","accMC ADDED")
 
     def add_rawMC(self):
         self.plts.append(self.rawMC)
         self.nms.append("rawMC")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","rawMC ADDED")
 
     def add_norms(self):
         self.plts.append(self.normL)
         self.nms.append("norm")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","NORM ADDED")
 
     def add_perc(self):
         self.plts.append(self.percL)
         self.nms.append("% Accepted")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","PERC ADDED")
 
     def add_nTrue(self):
         self.plts.append(self.nT0)
         self.nms.append("Total nTrue")
+        self.errs.append(self.nT0E)
         text.delete("0.0wordstart", "end")
         text.insert("end","nTrue ADDED")
 
     def add_nExp(self):
         self.plts.append(self.nE0)
         self.nms.append("Total nExp")
+        self.errs.append(self.nE0E)
         text.delete("0.0wordstart", "end")
         text.insert("end","nExp ADDED")
 
     def add_nTrue_wave(self,x):
         self.plts.append(self.allL[8][x])
-        self.nms.append(self.wvs[x].strip(".bamp")+"True")        
+        self.nms.append(self.wvs[x].strip(".bamp")+"True") 
+        self.errs.append(self.nTAE[x])       
         text.delete("0.0wordstart", "end")
         text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")        
 
     def add_nExp_wave(self,x):
         self.plts.append(self.allL[10][x])
-        self.nms.append(self.wvs[x].strip(".bamp")+"Exp")    
+        self.nms.append(self.wvs[x].strip(".bamp")+"Exp")
+        self.errs.append(self.nEAE[x])    
         text.delete("0.0wordstart", "end")
         text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED")
 
     def add_delF(self):
         self.plts.append(self.delF)
         self.nms.append("Delta fit-sim")
+        self.errs.append(0)
         text.delete("0.0wordstart", "end")
         text.insert("end","Delta ADDED")
 
@@ -308,7 +366,10 @@ class graphicPlot(object):
         if self.percL in lis and len(lis)>1:
             for i in range(len(lis)):
                 if lis[i] != self.percL:
-                    ax1.plot(self.ran,lis[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                    if self.er == 1:
+                        ax1.errorbar(self.ran,lis[i],yerr=self.errs[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                    elif self.er ==0:
+                        ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i])
                     ax1.legend(loc = 2)
                     ax1.set_ylabel("Events")
                     ax1.set_xlabel("Mass (MeV)")
@@ -318,8 +379,11 @@ class graphicPlot(object):
                     ax2.legend()
                     ax2.set_ylabel("Percent")            
         elif not self.percL in lis:
-            for i in range(len(lis)):
-                ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
+            for i in range(len(lis)):                
+                if self.er == 1:
+                    ax1.errorbar(self.ran,lis[i],yerr=self.errs[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                elif self.er ==0:
+                    ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
                 ax1.legend()
                 ax1.set_ylabel("Events")
                 ax1.set_xlabel("Mass (MeV)")
@@ -329,11 +393,11 @@ class graphicPlot(object):
                 ax1.legend()
                 ax1.set_ylabel("Percent")
                 ax1.set_xlabel("Mass (MeV)")
-        plt.title(self.Control[7]+" "+self.Control[8])        
+        plt.title(self.Control[8]+" "+self.Control[9])        
         plt.show()
         self.plts = []
         self.nms = []
-
+        self.errs = []
     def plot(self, lis):
         text.delete("0.0wordstart", "end")
         text.insert("end","PLOTTING")
@@ -341,6 +405,7 @@ class graphicPlot(object):
         p.start()
         self.plts = []
         self.nms = []
+        self.errs = []
 
     def wv_Buttons(self,lent):
         frame4=tk.Frame(frame3)
@@ -369,13 +434,23 @@ class graphicPlot(object):
         tx = Help()
         label = tk.Label(window, text=tx.GPhelp)
         label.pack(side="top", fill="both", padx=10, pady=10)
+    
+    def error(self):
+        if self.er == 0:
+            self.er = 1
+            text.delete("0.0wordstart", "end")
+            text.insert("end","ERROR ON")
+        elif self.er == 1:
+            self.er = 0
+            text.delete("0.0wordstart", "end")
+            text.insert("end","ERROR OFF")
             
 
+parser = argparse.ArgumentParser(description="""A graphing utility for the PyPWA partial wave analysis toolkit.""")
+parser.add_argument("-t", "--topDir", help="Run graphicPlot with a different top directory than the current working directory.",default=os.getcwd().strip("GUI"))
+args = parser.parse_args()
 
-
-GP = graphicPlot(topDir=os.path.join(os.getcwd().strip("GUI")))
-
-#GP = graphicPlot()
+GP = graphicPlot(topDir=args.topDir)
 
 root = tk.Tk()
 
@@ -397,7 +472,7 @@ text=tk.Text(frame1, height = 3, width = 23, font = 13)
 text.pack(side="top")
 text.tag_config("0.0wordstart", justify = "center")
 
-root.wm_title("GRAPHIC PLOT")
+root.wm_title("GRAPHIC PLOT"+args.topDir)
 
 GP.loadl()
 lent = len(GP.allL[8])
@@ -417,6 +492,8 @@ PnE0 = tk.Button(frame2, text="PLOT"+"\n"+"nExp",  command=lambda: GP.add_nExp()
 PdelF = tk.Button(frame2, text="PLOT"+"\n"+"delta",  command=lambda: GP.add_delF())
 help = tk.Button(frame2, text="HELP",  command=lambda: GP.help_window())
 Plot = tk.Button(frame2, text="PLOT", fg = "red", command=lambda: GP.plot(GP.plts))
+err = tk.Button(frame2, text="ERROR",  command=lambda: GP.error())
+
 
 Pall.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
 Pdata.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
@@ -430,7 +507,7 @@ PnE0.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
 PdelF.grid(row=1,column=4,sticky="N"+"S"+"E"+"W")
 help.grid(row=0,column=5,sticky="N"+"S"+"E"+"W")
 Plot.grid(row=1,column=5,sticky="N"+"S"+"E"+"W")
-
+err.grid(row=0,column=6,sticky="N"+"S"+"E"+"W")
 
 cob = tk.Button(frame, text="pwa"+"\n"+"Controls", command=lambda: sp.call(os.getcwd()+"/pwa_controls"))
 load = tk.Button(frame, text="LOAD", command=lambda: GP.loadl())
