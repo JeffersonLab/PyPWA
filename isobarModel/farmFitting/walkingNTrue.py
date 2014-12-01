@@ -1,13 +1,4 @@
 #! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
-
-.. moduleauthor:: Brandon Kaleiokalani DeMello <bdemello@jlab.org>, Joshua Pond <jpond@jlab.org>
-
-
-""" 
 import numpy
 import os
 import sys
@@ -28,6 +19,7 @@ import operator
 def calcNTrueForDir(dataDir):    
     #list to hold nTrue errors
     errorList=[]
+    errorListEx=[]
     wvNameList=[]
     #getting our waves
     waves=getwaves(os.path.join(dataDir,"data"))        
@@ -63,33 +55,44 @@ def calcNTrueForDir(dataDir):
         wvNameList.append(wave.filename)
 
     #next up lets load our raw normalization integral
-    rawNormalizationIntegral=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))    
+      
     #loading our minuit covariance matrix obtained from fitting
     if os.path.isfile(os.path.join(dataDir,"minuitCovar3.npy")):
         covarianceMatrix=numpy.load(os.path.join(dataDir,"minuitCovar3.npy"))
-        statSquared=calcStatSquaredError(covarianceMatrix,rawNormalizationIntegral,vList,waves)
+        statSquared=calcStatSquaredError(covarianceMatrix,rawNormInt,vList,waves)
+        statSquaredEx=calcStatSquaredError(covarianceMatrix,accNormInt,vList,waves)
+        print statSquared
+        print statSquaredEx
         errorList.append(numpy.sqrt(statSquared[0,0].real))
+        errorListEx.append(numpy.sqrt(statSquaredEx[0,0].real))
     if not os.path.isfile(os.path.join(dataDir,"minuitCovar3.npy")):
         statSquared=0
         errorList.append(0)
+        statSquaredEx=0
+        errorListEx.append(0)
     for wave in waves:
         if statSquared != 0:
-            buffer=numpy.zeros(shape=rawNormalizationIntegral.shape)
+            buffer=numpy.zeros(shape=rawNormInt.shape)
             i=waves.index(wave)
-            buffer[wave.epsilon,wave.epsilon,i,:]=rawNormalizationIntegral[wave.epsilon,wave.epsilon,i,:]
+            buffer[wave.epsilon,wave.epsilon,i,:]=rawNormInt[wave.epsilon,wave.epsilon,i,:]
             statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)        
             errorList.append(numpy.sqrt(statSquared[0,0].real))
+            buffer=numpy.zeros(shape=accNormInt.shape)
+            i=waves.index(wave)
+            buffer[wave.epsilon,wave.epsilon,i,:]=accNormInt[wave.epsilon,wave.epsilon,i,:]
+            statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)        
+            errorListEx.append(numpy.sqrt(statSquared[0,0].real))
         else:
             errorList.append(0)        
-       
+            errorListEx.append(0)  
     #saving our results to be used in plotting later.  format is numpy array [[nTrueTotal,nTrueWave1,nTrueWave2],[errorNTrueTotal,errorNTrueWave1,errorNTrueWave2]]
     #numpy.save(os.path.join(dataDir,"nTrueError.npy"),numpy.array([nTrueList,errorList]))
     retList=[]
     for i in range(len(nTrueList)):
         if i == 0:
-            retList.append([dataDir.strip("_MeV"),nTrueList[i],errorList[i],nExpList[i]])
+            retList.append([dataDir.strip("_MeV"),nTrueList[i],errorList[i],nExpList[i],errorListEx[i]])
         elif i > 0:
-            retList.append([dataDir.strip("_MeV"),nTrueList[i],errorList[i],wvNameList[i-1],nExpList[i]])
+            retList.append([dataDir.strip("_MeV"),nTrueList[i],errorList[i],wvNameList[i-1],nExpList[i],errorListEx[i]])
     return retList
 
 retList=[]
