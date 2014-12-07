@@ -10,47 +10,66 @@
 import numpy
 import os
 import sys
-sys.path.append("/u/home/jpond/bdemello/bdemello/pythonPWA/pythonPWA")
+sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
 from pythonPWA.dataTypes.resonance import resonance
 from pythonPWA.fileHandlers.getWavesGen import getwaves
 from pythonPWA.model.normInt import normInt
 from pythonPWA.model.intensity import intensity
 from pythonPWA.fileHandlers.gampReader import gampReader 
-from batchFarmServices.DataSimulatorFarm import dataSimulator
+from batchFarmServices.dataSimulatorNPY import dataSimulator
+import operator
 
+from batchFarmServices.rhoAA import rhoAA
 
-dataDir=os.path.join(sys.argv[4],"data",sys.argv[1]+"_MeV","set_"+sys.argv[2])
-topDir=os.path.join(sys.argv[4],"data")
+Control = numpy.load(os.path.join(sys.argv[2],"GUI","Control_List.npy"))
 
-alphaList=numpy.loadtxt(os.path.join(dataDir,"alphaevents.txt"))
+dataDir=os.path.join(sys.argv[2],"simulation",sys.argv[1]+"_MeV")
+topDir=os.path.join(sys.argv[2])
+
+alphaList=numpy.loadtxt(os.path.join(dataDir,"mc","raw","alphaevents.txt"))
               
 maxNumberOfEvents=float(len(alphaList))   
 
-testMass= int(sys.argv[1])+(int(sys.argv[3])/2.)
+testMass= int(sys.argv[1])+(int(Control[4])/2.)
 
 resonances=[resonance(cR=2.*maxNumberOfEvents/3.,wR=[0.,1.],w0=1320.,r0=107.),resonance(cR=maxNumberOfEvents/3.,wR=[1.,0.],w0=1670.,r0=259.)]
 
-
+contents=numpy.load(os.path.join(dataDir,"Vvalues.npy"))    
+orderedContents=sorted(contents.tolist().iteritems(),key=operator.itemgetter(0))    
+productionAmplitudes=[]
+for i in range(0,len(orderedContents),2):
+    realPart=orderedContents[i][1]
+    imaginaryPart=orderedContents[i+1][1]
+    productionAmplitudes.append(numpy.complex(realPart,imaginaryPart))
     
-waves=getwaves(dataDir)
-
-
+waves=getwaves(os.path.join(dataDir,"mc","raw"))
                
-normint=numpy.load(os.path.join(dataDir,"normint.npy"))
+normint=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))
 
+if sys.argv[3] == "i":
+    if os.path.isfile(os.path.join(dataDir,"mc","raw","rhoAA.npy")):
+        rhoAA = numpy.load(os.path.join(dataDir,"mc","raw","rhoAA.npy"))
+    if not os.path.isfile(os.path.join(dataDir,"mc","raw","rhoAA.npy")):
+        rAA = rhoAA(waves=waves,alphaList=alphaList,beamPolarization=float(Control[1]))
+        rhoAA = rAA.calc()  
+        numpy.save(os.path.join(dataDir,"mc","raw","rhoAA.npy"),rhoAA)
 
-dSimulator=dataSimulator(mass=testMass,waves=waves,resonances=resonances,normint=normint,alphaList=alphaList)
+    dSimulator=dataSimulator(mass=testMass,waves=waves,resonances=resonances,productionAmplitudes=productionAmplitudes,normint=normint,alphaList=alphaList,rhoAA=rhoAA)
+    iList = dSimulator.calcIList()
+    numpy.save(os.path.join(dataDir,"mc","raw","iList"),iList)
 
-inputGampFile=open(os.path.join(dataDir,"events.gamp"),'r')
-inputPfFile=open(os.path.join(dataDir,"events.pf"),'r')
-outputRawGampFile=open(os.path.join(dataDir,"selected_events.raw.gamp"),'w')
-outputAccGampFile=open(os.path.join(dataDir,"selected_events.acc.gamp"),'w')
-                
-iList = numpy.load(os.path.join(dataDir,"iList.npy"))
+elif if sys.argv[3] == "s":
+    inputGampFile=open(os.path.join(dataDir,"mc","raw","events.gamp"),'r')
+    inputPfFile=open(os.path.join(dataDir,"mc","raw","events.pf"),'r')
+    outputRawGampFile=open(os.path.join(dataDir,"data","selected_events.raw.gamp"),'w')
+    outputAccGampFile=open(os.path.join(dataDir,"data","selected_events.acc.gamp"),'w')
+                    
+    iList = numpy.load(os.path.join(dataDir,"mc","raw","iList.npy"))
 
-iMax = max(numpy.load(os.path.join(topDir,"IMaxList.npy")))
+    iMax = numpy.load(os.path.join(dataDir,"mc","raw","iMax.npy"))
 
+    dSimulator=dataSimulator(mass=testMass,waves=waves,resonances=resonances,productionAmplitudes=productionAmplitudes,normint=normint,alphaList=alphaList,rhoAA=rhoAA,iList=iList,iMax=iMax)
 
-dSimulator.calcWList(iList,iMax,inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile)
+    dSimulator.execute(inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile)
                 
 

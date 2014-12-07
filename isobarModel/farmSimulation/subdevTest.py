@@ -10,11 +10,12 @@
 """ 
 import os, glob, shutil
 from subprocess import Popen
-
+import time, sys
 
 #add bin selection via 
-
-scriptOutDir=os.path.join(os.getcwd(),"subPyDEVS")
+indir = os.getcwd().strip("GUI")
+Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
+scriptOutDir=os.path.join(indir,"scripts","submitions")
 
 def submit(jsub_file):
     cmd = 'jsub '+jsub_file
@@ -22,12 +23,12 @@ def submit(jsub_file):
         shell = True,
         executable = os.environ.get('SHELL', '/bin/tcsh'),
         env = os.environ)
-    proc.wait()
+    time.sleep(1)
 
 
 
 
-def gen(directory,cmd,i):
+def gen(directory,cmd):
 
     auger_opts = dict(
                     project = 'gluex',
@@ -37,7 +38,7 @@ def gen(directory,cmd,i):
                     time = 30,
 		    cmd = cmd)
 
-    jsub_filename = os.path.join(scriptOutDir,directory)+"_"+str(i)
+    jsub_filename = os.path.join(scriptOutDir,directory)
     jsub_file = open(jsub_filename,'w')
     jsub_file.write('''\
 PROJECT:{project}
@@ -52,20 +53,18 @@ COMMAND:{cmd}
 
     return jsub_filename
 
-def parseDir(Bin,i,wd):
+def parseDir(Bin):
     
-    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.getcwd()+"/devTestFarm.py "+str(Bin)+" "+str(i)+" "+str(wd)+" "+os.getcwd()
+    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"devTestFarm.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
 
     return cmd
 
 
 
 if __name__ == '__main__':
-    sets = int(raw_input("number of sets?: "))    
-    wd = raw_input("bin width?: ")
-    for d in os.listdir(os.path.join(os.getcwd(),"data")):
-        for i in range(sets):
-            if os.path.isdir(os.path.join(os.getcwd(),"data",d)):
-                if d.find("_MeV")!=-1:
-                    print "Processing bin",d,i
-                    submit(gen(d,parseDir(d.strip("_MeV"),i,wd),str(i)))
+    top = int(Control[2])    
+    bot = int(Control[3])
+    ran = int(Control[4])
+    for i in range(top,bot+ran,ran):
+        print "Processing bin",i
+        submit(gen(str(i)+"_MeV",parseDir(i)))

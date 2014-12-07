@@ -84,4 +84,11 @@ class FASTLikelihood(object):
             LLog = self.calclnL()    
             print"LLog:",LLog        
             return LLog
+    def calcInt(self):
+        a0 = 0.        
+        for i in range(self.nwaves):
+            for j in range(self.nwaves):
+                VV = self.productionAmplitudes[i] * np.conjugate(self.productionAmplitudes[j])                
+                a0 = a0 + (VV * self.rhoAA[i,j,:]).real    
+        return a0
 

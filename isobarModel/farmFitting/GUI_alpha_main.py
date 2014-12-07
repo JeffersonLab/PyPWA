@@ -1,14 +1,5 @@
-#!/usr/bin/python
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
-
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
-
-
-""" 
-import os, glob, shutil, numpy, sys, time
+#!/usr/bin/python 
+import os, glob, shutil, numpy, sys
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -19,27 +10,24 @@ i = 1
 M= cf[0]
 
 def submit(jsub_file):
-    """
-        This function submits a jsub text file to the Jlab batch system
-
-        Args:
-        jsub_file (file): Must be the file handle for a valid jsub text file.
-
-        Returns:
-        nothing
-        """
     cmd = 'jsub '+jsub_file
     proc = Popen(cmd,
         shell = True,
         executable = os.environ.get('SHELL', '/bin/tcsh'),
         env = os.environ)
-    time.sleep(1)    
 
 BoA = sys.argv[1]
 if BoA == 'n':
-    dataDir=os.path.join(indir,"simulation")
-    filen = 'events'    
-    stri = 'set_'
+    DoM = sys.argv[2]
+    if DoM == 'mc':
+        dataDir=os.path.join(indir,"simulation")
+        AoR = sys.argv[3]
+        stri = '/'+DoM+'/'+AoR
+        filen = 'events'
+    elif DoM == 'data':
+        dataDir=os.path.join(indir,"simulation")
+        stri = 'data'
+        filen = 'events'
 elif BoA == 'y':
     DoM = sys.argv[2]
     if DoM == 'mc':
@@ -59,14 +47,14 @@ for path, subdirs, files in os.walk(dataDir):
                 filen = filen,
                 direct = filename+'/',
                 mode = M)                    
-            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/generateAlphaNPY.py {mode} {direct} {filen}
+            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/generateAlphas.py {mode} {direct} {filen}
     '''.format(**cmd_opts)
             auger_opts = dict(
                 project = 'gluex',
                 track = 'analysis',
                 jobname = 'AlphaGen',
                 os = 'centos62',
-                memory = '3000 MB',
+                memory = '8000 MB',
     	    time = 300,
                 cmd = cmd)
             jsub_filename = os.path.join(scriptOutDir,"subAlpha"+str(i))

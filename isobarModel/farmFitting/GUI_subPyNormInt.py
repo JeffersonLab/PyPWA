@@ -1,14 +1,5 @@
 #!/usr/bin/env python 
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
-
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
-
-
-""" 
-import os, glob, shutil, sys, numpy, time
+import os, glob, shutil, sys, numpy
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -22,12 +13,12 @@ def submit(jsub_file):
         shell = True,
         executable = os.environ.get('SHELL', '/bin/tcsh'),
         env = os.environ)
-    time.sleep(1)
     
 BoA = sys.argv[1] 
 if BoA == 'n':
     dataDir=os.path.join(indir,"simulation")
-    stri = 'set_'
+    AoR = sys.argv[2]
+    stri = '/mc/'+AoR
     name = 'alphaevents.txt'
 elif BoA == 'y':
     dataDir=os.path.join(indir,"fitting")

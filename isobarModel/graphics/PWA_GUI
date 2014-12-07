@@ -1,13 +1,4 @@
 #! /usr/bin/python
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
-
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
-
-
-""" 
 import Tkinter as tk
 import numpy, os
 import subprocess as sp
@@ -77,45 +68,59 @@ class PWA_GUI(object):
         btnS0.pack(side="top")
         btnS1.pack(side="top")
         btnS2.pack(side="top")
-        btnF3.pack(side="top")
-        btnF4.pack(side="top") 
+        btnS3.pack(side="top")
+        btnS4.pack(side="top")
+        btnS5.pack(side="top") 
         btnB0.pack(side="bottom")
 
-    def runD(self,prog):
+    def runD(self,prog,FoS):
         if prog == 0:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),"y","data"]) 
+            print "HI"
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"data"]) 
         if prog == 1:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),"y","data"])
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"data"])
 
-    def runaM(self,prog):
+    def runaM(self,prog,FoS):
         if prog == 0:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),"y","mc","acc"]) 
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"mc","acc"]) 
         if prog == 1:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),"y","mc","acc"])
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"mc","acc"])
         if prog == 2:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),"y","acc"])   
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),str(FoS),"acc"])   
 
-    def runrM(self,prog):
+    def runrM(self,prog,FoS):
         if prog == 0:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),"y","mc","raw"])
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"mc","raw"])
         if prog == 1:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),"y","mc","raw"]) 
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"mc","raw"]) 
         if prog == 2:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),"y","raw"])
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),str(FoS),"raw"])
         
     def fitt2(self,prog):
         frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
         if prog != 2:
-            btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog))
-        btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog))
-        btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog))
+            btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog,"y"))
+        btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog,"y"))
+        btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog,"y"))
         btnB1.grid(row=3,column=0,sticky="N"+"S"+"E"+"W")
         if prog != 2:    
             btnR0.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
         btnR1.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
         btnR2.grid(row=2,column=0,sticky="N"+"S"+"E"+"W")
         root.update()
-
+    
+    def sim2(self,prog):
+        frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
+        if prog != 2:
+            btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog,"n"))
+        btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog,"n"))
+        btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog,"n"))
+        btnB1.grid(row=3,column=0,sticky="N"+"S"+"E"+"W")
+        if prog != 2:    
+            btnR0.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+        btnR1.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+        btnR2.grid(row=2,column=0,sticky="N"+"S"+"E"+"W")
+        root.update()
     
         
                 
@@ -131,9 +136,12 @@ frame3=tk.Frame(root)
 btnB0=tk.Button(frame2, text="back",  height=2 , width = 10,command= lambda: PG.back1())
 btnB1=tk.Button(frame3, text="back", height=2 , width = 10,command= lambda: PG.back2())
 
-btnS0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: PG.fitt2(0))
-btnS1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.fitt2(1))
-btnS2=tk.Button(frame2, text="normint", height=2 , width = 10,command= lambda: PG.fitt2(2))
+btnS0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: PG.sim2(0))
+btnS1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.sim2(1))
+btnS2=tk.Button(frame2, text="normint", height=2 , width = 10,command= lambda: PG.sim2(2))
+btnS3=tk.Button(frame2, text="iList", height=2 , width = 10,command= lambda:sp.call([os.getcwd().strip("GUI")+"/scripts/subdevTest","i"]))
+btnS4=tk.Button(frame2, text="iMax", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/getImax.py"))
+btnS5=tk.Button(frame2, text="Simulator", height=2 , width = 10,command= lambda: sp.call([os.getcwd().strip("GUI")+"/scripts/subdevTest","s"]))
 
 btnF0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: PG.fitt2(0))
 btnF1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.fitt2(1))
