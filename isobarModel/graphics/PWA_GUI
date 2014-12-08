@@ -74,8 +74,7 @@ class PWA_GUI(object):
         btnB0.pack(side="bottom")
 
     def runD(self,prog,FoS):
-        if prog == 0:
-            print "HI"
+        if prog == 0:            
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"data"]) 
         if prog == 1:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"data"])

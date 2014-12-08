@@ -79,12 +79,14 @@ class FASTLikelihood(object):
         return -((np.log(a0)).sum(0)) + (self.etaX * a1)
 
     def calcneglnL(self,paramsList):
-            self.productionAmplitudes=paramsList
-            self.calcetaX()
-            LLog = self.calclnL()    
-            print"LLog:",LLog        
-            return LLog
+        self.productionAmplitudes=paramsList
+        self.calcetaX()
+        LLog = self.calclnL()    
+        print"LLog:",LLog        
+        return LLog
+
     def calcInt(self):
+        print self.nwaves
         a0 = 0.        
         for i in range(self.nwaves):
             for j in range(self.nwaves):

@@ -63,7 +63,9 @@ elif if sys.argv[3] == "s":
     inputPfFile=open(os.path.join(dataDir,"mc","raw","events.pf"),'r')
     outputRawGampFile=open(os.path.join(dataDir,"data","selected_events.raw.gamp"),'w')
     outputAccGampFile=open(os.path.join(dataDir,"data","selected_events.acc.gamp"),'w')
-                    
+    
+    rhoAA = numpy.load(os.path.join(dataDir,"mc","raw","rhoAA.npy"))
+                
     iList = numpy.load(os.path.join(dataDir,"mc","raw","iList.npy"))
 
     iMax = numpy.load(os.path.join(dataDir,"mc","raw","iMax.npy"))
