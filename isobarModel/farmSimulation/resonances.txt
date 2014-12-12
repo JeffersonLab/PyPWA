@@ -1,0 +1,8 @@
+# resonances.txt is the control file that devTest uses to get resonances to simulate from waves.
+# Add resonaces starting on line 6 in the format cR (float) wR (list) w0 (float) r0 (float) phase (float)
+# Ex: 1.0 1.0,0.0 1.0 0.5 0.0 
+# One resonance to a line and use the # to comment.
+# 
+1.0 1.0,0.0,0.5 1.0 0.5 0.0 
+1.0 1.0,0.0,0.5 1.0 0.5 0.0  
+1.0 1.0,0.0,0.5 1.0 0.5 0.0 
