@@ -39,7 +39,7 @@ waves=getwaves(os.path.join(dataDir,"mc","raw"))
 
 normint=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))
 
-if not os.path.isfile(os.path.join(dataDir,"Vvalues.npy")):
+if os.path.isfile(os.path.join(dataDir,"Vvalues.npy")):
     contents=numpy.load(os.path.join(dataDir,"Vvalues.npy"))    
     orderedContents=sorted(contents.tolist().iteritems(),key=operator.itemgetter(0))     
     for i in range(0,len(orderedContents),2):
@@ -55,7 +55,7 @@ elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
         if re[0] != "#" and re[0] != " " and re[0] != "\n":
             rev = re.split(" ")
             wRx = [(float(x)) for x in rev[1].split(",")]
-            resonances.append(resonance(cR=float(rev[0]),wR=wRx,w0=float(rev[2]),r0=float(rev[3])))        
+            resonances.append(resonance(cR=float(rev[0])*maxNumberOfEvents,wR=wRx,w0=float(rev[2]),r0=float(rev[3])))        
     for resonance in resonances:
         print resonance.toString()                
         for wave in waves:
