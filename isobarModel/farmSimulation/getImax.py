@@ -1,0 +1,23 @@
+#!/usr/bin/python 
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+"""
+import numpy
+import os
+
+topDir = os.getcwd().rstrip("GUI")
+
+iMax = [0]
+
+for d in os.listdir(os.path.join(topDir,"simulation")):
+    Max = numpy.amax(numpy.load(os.path.join(topDir,"simulation",d,"mc","raw","iList.npy")))
+    if Max > iMax[0]:
+        iMax[0] = Max
+
+numpy.save(os.path.join(topDir,"simulation","iMax.npy"),iMax)

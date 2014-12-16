@@ -1,4 +1,4 @@
-#!/usr/bin python 
+#!/usr/bin/python 
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -10,7 +10,7 @@
 """ 
 import os, glob, shutil
 from subprocess import Popen
-import time, sys
+import time, sys, numpy
 
 #add bin selection via 
 indir = os.getcwd().strip("GUI")
