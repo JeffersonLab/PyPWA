@@ -1,3 +1,12 @@
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+"""
 from random import random
 import os, numpy
 from pythonPWA.fileHandlers.gampReader import gampReader
