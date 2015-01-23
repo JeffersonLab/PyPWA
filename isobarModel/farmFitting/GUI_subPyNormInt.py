@@ -49,7 +49,7 @@ for path, subdirs, files in os.walk(dataDir):
                 project = cf[9],
                 track = 'analysis',
                 jobname = 'normINT',
-                os = 'centos62',
+                os = 'centos65',
                 memory = '3000 MB',
     	        time = 360,
                 cmd = cmd)
