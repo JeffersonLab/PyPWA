@@ -5,12 +5,12 @@ Created on Wed Jul  9 10:45:11 2014
 @author: sbramlett
 """
 import os, sys
-#sys.path.append("/home/sbramlett/workspace/PythonPWA/bdemello/pythonPWA/pythonPWA/pythonPWA")
-from utilities.ThreeVec import ThreeVector
-from utilities.FourVec import FourVector
-from utilities.LorentzTransform import lorentzTransform
+sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
+from pythonPWA.utilities.ThreeVec import ThreeVector
+from pythonPWA.utilities.FourVec import FourVector
+from pythonPWA.utilities.LorentzTransform import lorentzTransform
 
-from fileHandlers.gampReader import gampReader
+from pythonPWA.fileHandlers.gampReader import gampReader
 import math
 
 class generateAlphas(object):
@@ -29,10 +29,10 @@ class generateAlphas(object):
     def __init__(self, mode, indir, gfile):
         self.mode = mode
         self.indir = indir
-        self.gfile = gfile
+        self.gfile = gfile+".gamp"
         f = gfile.partition(".")[0]
         #read the file
-        igreader=gampReader(gampFile = open(os.path.join(indir,gfile),'r'))
+        igreader=gampReader(gampFile = open(os.path.join(self.indir,self.gfile),'r'))
         self.events = igreader.readGamp() #list of events from gamp file
         #fileIn = self.indir + gfile + ".gamp" <-from weygands code
         
@@ -53,6 +53,8 @@ class generateAlphas(object):
     p pi+ pi- pi0
     '''
     def analyze8(self):
+        print "Start!"
+        i =0
         for event in self.events:
             for particles in event.particles:
                 if particles.particleID == "14": #proton
@@ -85,7 +87,9 @@ class generateAlphas(object):
             beam3 = bm.p
             polarization = ThreeVector(0.,1.,0.)
             Normal = beam3 * pMeson
-            
+            sys.stdout.write(str(i)+"\r")
+            sys.stdout.flush()
+            i+=1
             cosAlpha = Normal.dot(polarization) / Normal.r()
             alpha = math.acos(cosAlpha)
             self.alphalist.append(alpha)
@@ -258,8 +262,9 @@ class generateAlphas(object):
 
     
     
-#indir = "/home/sbramlett/Documents/"
-#gfile = "test.gamp"
-##
-#a = generateAlphas("24", indir, gfile)
-#a.toFile()
+indir = sys.argv[2]
+gfile = sys.argv[3]
+mode = sys.argv[1]
+a = generateAlphas(mode, indir, gfile)
+a.toFile()
+

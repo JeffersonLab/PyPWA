@@ -26,18 +26,20 @@ indir = sys.argv[2]
 Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 dataDir=os.path.join(indir,"fitting",sys.argv[1]+"_MeV")
 alphaList=numpy.loadtxt(os.path.join(dataDir,"data","alphaevents.txt"))
+if os.path.isfile(os.path.join(dataDir,"data","QFactor.txt")):
+    QFactor = numpy.loadtxt(os.path.join(dataDir,"data","QFactor.txt"))
+else:
+    QFactor = [1]
 maxNumberOfEvents=float(len(alphaList))
 waves=getwaves(os.path.join(dataDir,"data"))
 normint=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))
 accNormInt=numpy.load(os.path.join(dataDir,"mc","acc","normint.npy"))
 acceptedPath=os.path.join(dataDir,"mc","acc","alphaevents.txt")
 generatedPath=os.path.join(dataDir,"mc","raw","alphaevents.txt")
-print float(Control[1])
-print float(Control[6])
 if os.path.isfile(os.path.join(dataDir,"data","rhoAA.npy")):
     rhoAA = numpy.load(os.path.join(dataDir,"data","rhoAA.npy"))
 if not os.path.isfile(os.path.join(dataDir,"data","rhoAA.npy")):
-    rAA = rhoAA(waves=waves,alphaList=alphaList,beamPolarization=float(Control[1]))
+    rAA = rhoAA(waves=waves,alphaList=alphaList,Q=QFactor,beamPolarization=float(Control[1]))
     rhoAA = rAA.calc()  
     numpy.save(os.path.join(dataDir,"data","rhoAA.npy"),rhoAA)
 minuitLn=FASTLikelihood(waves=waves,normint=normint,alphaList=alphaList,acceptedPath=acceptedPath,generatedPath=generatedPath,accNormInt=accNormInt,rhoAA=rhoAA)
