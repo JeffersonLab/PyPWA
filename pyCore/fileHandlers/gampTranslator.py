@@ -12,7 +12,6 @@ import sys
 import os
 import numpy
 import fileinput
-sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
 from pythonPWA.dataTypes.gampParticle import gampParticle
 from pythonPWA.dataTypes.gampEvent import gampEvent
 class gampTranslator():
