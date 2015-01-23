@@ -7,13 +7,12 @@
 
 
 """ 
-from math import log 
-from pythonPWA.model.complexV import complexV
-from pythonPWA.model.spinDensity import spinDensity
-from pythonPWA.model.intensity import intensity
-from random import random
+
 import numpy as np
-import os, math
+import os
+"""
+    This is the mathmatical class of the likelihood calculation and the calculation of the intensity. 
+"""
 
 class FASTLikelihood(object):
     

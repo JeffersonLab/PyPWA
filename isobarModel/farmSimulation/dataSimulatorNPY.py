@@ -9,9 +9,6 @@
 """
 from random import random
 import os, numpy
-from pythonPWA.fileHandlers.gampReader import gampReader
-from pythonPWA.model.intensity import intensity
-from batchFarmServices.fast_like import FASTLikelihood
 from batchFarmServices.rhoAA import rhoAA
 from pythonPWA.fileHandlers.gampTranslator import gampTranslator
 from batchFarmServices.fast_like import FASTLikelihood

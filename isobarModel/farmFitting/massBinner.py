@@ -1,17 +1,30 @@
 #! /usr/bin/python
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import numpy as np
 import math
 import os, sys
-sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
+sys.path.append(os.path.join(sys.argv[1],"pythonPWA"))
 from pythonPWA.utilities.FourVec import FourVector
 from pythonPWA.fileHandlers.gampTranslator import gampTranslator
+"""
+    This is the pyPWA mass binning utility 
+"""
+
 
 class massBinner(object):
 
     def __init__(self,indir=None,bindir=None,gfile=None,verb="q"):
         self.indir = indir
         self.bindir = bindir
-        self.Control = np.load(os.path.join(os.path.split(os.path.split(os.getcwd())[0])[0],"GUI","Control_List.npy"))
+        self.Control = np.load(os.path.join(sys.argv[1],"GUI","Control_List.npy"))
         self.gfile = gfile+".gamp"
         self.nfile = gfile+".npy" 
         self.verb = verb       

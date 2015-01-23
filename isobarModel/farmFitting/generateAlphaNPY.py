@@ -8,12 +8,13 @@
 
 """ 
 import os, sys, numpy
-sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
+if "fitting" in sys.argv[2]:
+    sys.path.append(os.path.join(sys.argv[2].split("/")[(sys.argv[2].split("/").index("fitting"))-1],"pythonPWA"))
+elif "simulation" in sys.argv[2]:
+    sys.path.append(os.path.join(sys.argv[2].split("/")[(sys.argv[2].split("/").index("simulation"))-1],"pythonPWA"))
 from pythonPWA.utilities.ThreeVec import ThreeVector
 from pythonPWA.utilities.FourVec import FourVector
-from pythonPWA.utilities.LorentzTransform import lorentzTransform
 from pythonPWA.fileHandlers.gampTranslator import gampTranslator
-from pythonPWA.fileHandlers.gampReader import gampReader
 import math
 
 class generateAlphas(object):

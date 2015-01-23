@@ -8,16 +8,15 @@
 
 
 """ 
+"""
+    This is the main program for running the calculation of the log likelihood fitter/minuit
+"""
+
 import numpy
 import os
 import sys
-sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
-from pythonPWA.dataTypes.resonance import resonance
+sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
 from pythonPWA.fileHandlers.getWavesGen import getwaves
-from pythonPWA.model.normInt import normInt
-from pythonPWA.model.intensity import intensity
-from pythonPWA.fileHandlers.gampReader import gampReader
-from pythonPWA.utilities.minuitLikelihood import minuitLikelihood
 from batchFarmServices.fast_like import FASTLikelihood
 from batchFarmServices.rhoAA import rhoAA
 import fnGenerator

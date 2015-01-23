@@ -8,7 +8,7 @@
 
 
 """
-import os, glob, shutil, sys, numpy
+import os, glob, sys, numpy
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -46,7 +46,7 @@ for path, subdirs, files in os.walk(dataDir):
             cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/run_normintFARM.py {dirc} {name} {beamP}
     '''.format(**cmd_opts)            
             auger_opts = dict(
-                project = 'gluex',
+                project = cf[9],
                 track = 'analysis',
                 jobname = 'normINT',
                 os = 'centos62',

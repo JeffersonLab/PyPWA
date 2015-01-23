@@ -25,10 +25,10 @@ def submit(jsub_file):
 
 def gen(directory,cmd):
     auger_opts = dict(
-                    project = 'gluex',
+                    project = Control[9],
                     track = 'analysis',
                     jobname = 'fitLike',
-                    os = 'centos62',
+                    os = 'centos65',
                     memory = "3000 MB",
                     time = 60,
 		    cmd = cmd)

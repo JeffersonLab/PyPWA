@@ -8,7 +8,7 @@
 
 
 """
-import os, glob, shutil, sys
+import os, glob, sys
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -61,10 +61,10 @@ for keyfile in keyfiles:
 /group/clas/builds/bin/gamp {keyfile} < {infile} > {outfile}
     '''.format(**cmd_opts)
                 auger_opts = dict(
-                    project = 'gluex',
+                    project = cf[9],
                     track = 'analysis',
                     jobname = 'runGamp',
-                    os = 'centos62',
+                    os = 'centos65',
                     time = 360,
                     memory = '1000 MB',
                     cmd = cmd)

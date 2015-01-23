@@ -1,8 +1,17 @@
 #! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+"""
+.. module:: batchFarmServices
+   :platform: Unix, Windows, OSX
+   :synopsis: Utilities for doing PWA with the Jlab batch system.
+
+.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+
+
+""" 
 import numpy
 import os
 import sys
-sys.path.append(os.path.join("/volatile","clas","clasg12","salgado","omega","pythonPWA"))
+sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
 from pythonPWA.dataTypes.resonance import resonance
 from pythonPWA.fileHandlers.getWavesGen import getwaves
 from pythonPWA.model.normInt import normInt

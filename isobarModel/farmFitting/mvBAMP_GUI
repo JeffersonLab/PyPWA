@@ -8,7 +8,8 @@
 
 
 """ 
-import os, glob, shutil, sys 
+
+import os, glob, sys 
 from subprocess import Popen 
 
 nfile = sys.argv[2]+".bamp"

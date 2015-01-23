@@ -8,7 +8,7 @@
 
 
 """ 
-import os, glob, shutil, time, numpy
+import os, glob, time, numpy
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -25,10 +25,10 @@ def submit(jsub_file):
 
 def gen(directory,cmd):
     auger_opts = dict(
-                    project = 'gluex',
+                    project = Control[9],
                     track = 'analysis',
                     jobname = 'WalkNTrue',
-                    os = 'centos62',
+                    os = 'centos65'
                     time = 30,
 		    cmd = cmd)
     jsub_filename = os.path.join(scriptOutDir,directory)

@@ -9,8 +9,9 @@
 
 """ 
 import Tkinter as tk
-import numpy, os, sys 
-sys.path.append("/volatile/halld/PyPWA/pythonPWA")
+import numpy, os, sys
+if "GUI" in os.getcwd():
+    sys.path.append(os.path.join(os.getcwd().rstrip("GUI"),"pythonPWA"))
 from batchFarmServices.graphicHelp import Help
 
 class Control(object):
@@ -24,7 +25,8 @@ class Control(object):
                  NumSet = 20,
                  MigNcal = 1000,
                  reactNm = None,
-                 pltLstNm = None):            
+                 pltLstNm = None,
+                 project = None):            
        
         self.reactModeL = reactMode
         self.BeamPoleL = BeamPole
@@ -35,6 +37,7 @@ class Control(object):
         self.MigNcalL = MigNcal
         self.reactNmL = reactNm
         self.pltLstNmL = pltLstNm
+        self.project = project
 
     def reactMode(self):
         rM = ent0.get()
@@ -71,6 +74,10 @@ class Control(object):
     def pltLstNm(self):
         plN = ent8.get()
         self.pltLstNmL = plN
+    
+    def projNm(self):
+        prN = ent9.get()
+        self.project = prN
 
     def run(self):
         self.reactMode()
@@ -82,6 +89,7 @@ class Control(object):
         self.MigNcal()
         self.reactNm()
         self.pltLstNm()
+        self.projNm()
     
     def load(self,Con):
         self.reactModeL = Con[0]
@@ -93,6 +101,7 @@ class Control(object):
         self.MigNcalL = Con[6]
         self.reactNmL = Con[7]
         self.pltLstNmL = Con[8]
+        self.project = Con[9]
         
         ent0.insert("end",Con[0])
         ent1.insert("end",Con[1])
@@ -103,6 +112,7 @@ class Control(object):
         ent6.insert("end",Con[6])
         ent7.insert("end",Con[7])
         ent8.insert("end",Con[8])
+        ent9.insert("end",Con[9])
         
     def save(self):
         self.run()
@@ -114,7 +124,8 @@ class Control(object):
                 int(self.NumSetL),
                 int(self.MigNcalL),
                 self.reactNmL,
-                self.pltLstNmL]
+                self.pltLstNmL,
+                self.project]
         numpy.save(os.getcwd()+"/Control_List.npy",Con)
         root.destroy()
 
@@ -134,7 +145,8 @@ Lst = ['Reaction Mode ',
                 'Number of Sets ',
                 'Max Number of Migrad Calls ',
                 'Name of tested Reaction',
-                'Name of saved plotting data']
+                'Name of saved plotting data',
+                'Batch Farm project name']
 
 Contr = Control()
 
@@ -197,6 +209,12 @@ L8.pack(side="top")
 
 ent8=tk.Entry(frame, width=30, font=55)
 ent8.pack(side="top")
+
+L9=tk.Label(frame,text=Lst[9])
+L9.pack(side="top")
+
+ent9=tk.Entry(frame, width=30, font=55)
+ent9.pack(side="top")
 
 frame1=tk.Frame(frame)
 frame1.pack(side="top")

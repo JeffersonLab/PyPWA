@@ -8,7 +8,7 @@
 
 
 """
-import os, glob, shutil, numpy, sys
+import os, glob, numpy, sys
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
@@ -59,12 +59,12 @@ for path, subdirs, files in os.walk(dataDir):
             cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/generateAlphaNPY.py {mode} {direct} {filen}
     '''.format(**cmd_opts)
             auger_opts = dict(
-                project = 'gluex',
+                project = cf[9],
                 track = 'analysis',
                 jobname = 'AlphaGen',
-                os = 'centos62',
+                os = 'centos65',
                 memory = '3000 MB',
-    	    time = 300,
+    	        time = 300,
                 cmd = cmd)
             jsub_filename = os.path.join(scriptOutDir,"subAlpha"+str(i))
             jsub_file = open(jsub_filename,'w')
