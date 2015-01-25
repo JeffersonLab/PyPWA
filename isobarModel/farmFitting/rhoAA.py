@@ -35,5 +35,5 @@ class rhoAA(object):
                     if len(self.Q) == 1:                   
                         self.rhoAA[i,j,n] = spinDensity(self.beamPolarization,self.alphaList[n])[iwave.epsilon,jwave.epsilon] * Ai * np.conjugate(Aj)   
                     else:
-                        self.rhoAA[i,j,n] = Q[n] * spinDensity(self.beamPolarization,self.alphaList[n])[iwave.epsilon,jwave.epsilon] * Ai * np.conjugate(Aj)                 
+                        self.rhoAA[i,j,n] = float(Q[n]) * spinDensity(self.beamPolarization,self.alphaList[n])[iwave.epsilon,jwave.epsilon] * Ai * np.conjugate(Aj)                 
         return self.rhoAA
