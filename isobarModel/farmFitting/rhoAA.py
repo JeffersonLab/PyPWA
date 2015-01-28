@@ -8,7 +8,7 @@
 
 """ 
 import numpy as np
-import os,
+import os
 from pythonPWA.model.spinDensity import spinDensity
 
 class rhoAA(object):
