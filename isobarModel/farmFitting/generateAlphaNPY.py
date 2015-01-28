@@ -8,10 +8,7 @@
 
 """ 
 import os, sys, numpy
-if "fitting" in sys.argv[2]:
-    sys.path.append(os.path.join(sys.argv[2].split("/")[(sys.argv[2].split("/").index("fitting"))-1],"pythonPWA"))
-elif "simulation" in sys.argv[2]:
-    sys.path.append(os.path.join(sys.argv[2].split("/")[(sys.argv[2].split("/").index("simulation"))-1],"pythonPWA"))
+sys.path.append(os.path.join(sys.argv[4],"pythonPWA"))
 from pythonPWA.utilities.ThreeVec import ThreeVector
 from pythonPWA.utilities.FourVec import FourVector
 from pythonPWA.fileHandlers.gampTranslator import gampTranslator

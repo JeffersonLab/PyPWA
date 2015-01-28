@@ -52,11 +52,12 @@ for path, subdirs, files in os.walk(dataDir):
     for filename in glob.glob(path):
         if stri in filename:            
             cmd_opts = dict(
+                indir = indir,
                 cwd = os.path.join(indir,"scripts"),                
                 filen = filen,
                 direct = filename+'/',
                 mode = M)                    
-            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/generateAlphaNPY.py {mode} {direct} {filen}
+            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/generateAlphaNPY.py {mode} {direct} {filen} {indir}
     '''.format(**cmd_opts)
             auger_opts = dict(
                 project = cf[9],
