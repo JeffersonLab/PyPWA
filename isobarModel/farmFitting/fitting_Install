@@ -6,6 +6,7 @@ from subprocess import Popen
 
 indir = os.path.split(os.path.split(os.getcwd())[0])[0]
 print "Top Directory: ",indir
+sys.path.append(os.path.join(indir,"pythonPWA"))
 if not os.path.isfile(os.path.join("Control_List.npy")):
     sp.call("pwa_controls")
 Control = numpy.load(os.path.join("Control_List.npy"))  
