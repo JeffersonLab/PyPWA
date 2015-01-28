@@ -28,7 +28,7 @@ def gen(directory,cmd):
                     project = Control[9],
                     track = 'analysis',
                     jobname = 'WalkNTrue',
-                    os = 'centos65'
+                    os = 'centos65',
                     time = 30,
 		    cmd = cmd)
     jsub_filename = os.path.join(scriptOutDir,directory)
