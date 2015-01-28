@@ -31,7 +31,7 @@ for i in tdirs:
     if i == "scripts":
         directoryBuffer=os.path.join(indir,"scripts","submitions")
         os.makedirs(directoryBuffer)        
-progs = ("fnGenerator.py","generateAlphas.py","generateAlphaNPY.py","GUI_alpha_main.py",
+progs = ("fnGenerator.py","generateAlphaNPY.py","GUI_alpha_main.py",
 "GUI_gamp_main.py","GUI_subPyNormInt.py","likelihoodTest.py","mvBAMP_GUI",
 "run_normintFARM.py","subLikelihood","subWalkNTrue","walkingNTrue.py","massBinner.py")
 for s in progs:
