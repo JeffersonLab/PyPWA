@@ -16,6 +16,7 @@ keyfileDir=os.path.join(indir,"keyfiles")
 dataDir=os.path.join(indir,"fitting")
 scriptOutDir=os.path.join(indir,"scripts","submitions")
 keyfiles=glob.glob(os.path.join(keyfileDir,'*.keyfile'))
+cf = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 i=1
 
 def submit(jsub_file):
