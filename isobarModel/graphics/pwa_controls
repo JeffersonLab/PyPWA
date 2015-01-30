@@ -12,7 +12,9 @@ import Tkinter as tk
 import numpy, os, sys
 if "GUI" in os.getcwd():
     sys.path.append(os.path.join(os.getcwd().rstrip("GUI"),"pythonPWA"))
-from batchFarmServices.graphicHelp import Help
+    from batchFarmServices.graphicHelp import Help
+else:
+    from graphicHelp import Help
 
 class Control(object):
     
