@@ -55,6 +55,10 @@ for g in guis:
     elif g == guis[-1]:
         sys.stdout.write("Filling GUI"+"."*(guis.index(g)+1)+"\r\n")
         sys.stdout.flush() 
+cmd = "mv "+indir+"/*.keyfile "+os.path.join(indir,"keyfiles")
+procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+procx.wait()
+print "Filling keyfiles"
 for fil in os.listdir(indir):
     if ".gamp" in fil:
         cmd = "python "+indir+"/scripts/massBinner.py "+os.path.join(indir)+" "+os.path.join(indir,"fitting")+" "+str(fil).rstrip(".gamp")+" v"
