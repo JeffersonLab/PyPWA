@@ -19,7 +19,7 @@ class normInt():
     def __init__(self,
                  waves=[],
                  alphaList=[],
-                 beamPolarization=0.4):
+                 beamPolarization=0.0):
         
         self.waves=waves
         self.alphaList=alphaList

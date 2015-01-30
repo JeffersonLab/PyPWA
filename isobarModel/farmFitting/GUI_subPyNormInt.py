@@ -42,9 +42,10 @@ for path, subdirs, files in os.walk(dataDir):
                 cwd = os.path.join(indir,"scripts"),
                 dirc = path,
                 name = name,
-                beamP = cf[1]                
+                beamP = cf[1],
+                indir = indir            
                )                    
-            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/run_normintFARM.py {dirc} {name} {beamP}
+            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/run_normintFARM.py {dirc} {name} {beamP} {indir}
     '''.format(**cmd_opts)            
             auger_opts = dict(
                 project = cf[9],
