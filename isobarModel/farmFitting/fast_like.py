@@ -18,37 +18,23 @@ class FASTLikelihood(object):
     
     def __init__(self,
                 waves=[],
-                productionAmplitudes=[],
-                normint=None,
-                alphaList=[],
-                beamPolarization=.4,
-                mass=1010.,
-                eventNumber=7540,
+                productionAmplitudes=[],                
+                alphaList=[],               
                 acceptedPath=os.getcwd(),
-                generatedPath=os.getcwd(),
-                accAlphaList=[],
+                generatedPath=os.getcwd(),                
                 rhoAA = None,
-                accNormInt=None,
-                rawAlphaList=[],
-                rawNormInt=None,                
+                accNormInt=None,                               
                 ):
         
         self.waves=waves
         self.productionAmplitudes=productionAmplitudes
-        self.normint=normint
         self.alphaList=alphaList
-        self.beamPolarization=beamPolarization
-        self.mass=mass
-        self.eventNumber=len(self.alphaList)
         self.nwaves = len(self.waves)
         self.acceptedPath=acceptedPath
         self.generatedPath=generatedPath
-        self.debugPrinting=0
         self.iList=[]
         self.accAlphaList=accAlphaList
         self.accNormInt=accNormInt.sum(0).sum(0)
-        self.rawAlphaList=rawAlphaList
-        self.rawNormInt=rawNormInt
         self.rhoAA = rhoAA
         self.etaX = 0.
         
@@ -84,8 +70,7 @@ class FASTLikelihood(object):
         print"LLog:",LLog        
         return LLog
 
-    def calcInt(self):
-        print self.nwaves
+    def calcInt(self):        
         a0 = 0.        
         for i in range(self.nwaves):
             for j in range(self.nwaves):
