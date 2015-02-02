@@ -42,7 +42,7 @@ if not os.path.isfile(os.path.join(dataDir,"data","rhoAA.npy")):
     rAA = rhoAA(waves=waves,alphaList=alphaList,Q=QFactor,beamPolarization=float(Control[1]))
     rhoAA = rAA.calc()  
     numpy.save(os.path.join(dataDir,"data","rhoAA.npy"),rhoAA)
-minuitLn=FASTLikelihood(waves=waves,normint=normint,alphaList=alphaList,acceptedPath=acceptedPath,generatedPath=generatedPath,accNormInt=accNormInt,rhoAA=rhoAA)
+minuitLn=FASTLikelihood(waves=waves,alphaList=alphaList,acceptedPath=acceptedPath,generatedPath=generatedPath,accNormInt=accNormInt,rhoAA=rhoAA)
 generator=fnGenerator.generator()
 generator.fileName=os.path.join(os.getcwd(),"generatedFn.py")
 generator.createFile(len(waves)*2)
