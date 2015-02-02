@@ -32,8 +32,7 @@ class FASTLikelihood(object):
         self.nwaves = len(self.waves)
         self.acceptedPath=acceptedPath
         self.generatedPath=generatedPath
-        self.iList=[]
-        self.accAlphaList=accAlphaList
+        self.iList=[]        
         self.accNormInt=accNormInt.sum(0).sum(0)
         self.rhoAA = rhoAA
         self.etaX = 0.
