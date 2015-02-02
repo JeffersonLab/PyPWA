@@ -8,7 +8,7 @@
 
 
 """
-import os, glob, sys, time
+import os, glob, sys, time, numpy
 from subprocess import Popen
 
 indir = os.getcwd().strip("GUI")
