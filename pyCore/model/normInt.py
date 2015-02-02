@@ -23,7 +23,7 @@ class normInt():
         
         self.waves=waves
         self.alphaList=alphaList
-        self.beamPolarization=beamPolarization
+        self.beamPolarization=float(beamPolarization)
         
         self.ret=numpy.ndarray((2,2,len(waves),len(waves)),dtype=numpy.complex)
         self.ret[:,:,:,:]=numpy.complex(0.,0.)
