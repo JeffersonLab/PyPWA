@@ -60,7 +60,7 @@ for keyfile in keyfiles:
                     keyfile = os.path.join(keyfileDir,keyfile),
                     infile = os.path.join(path, filename))                    
                 cmd = '''\
-/group/clas/builds/bin/gamp {keyfile} < {infile} > {outfile}
+/group/clas/builds/centos65/bin/gamp {keyfile} < {infile} > {outfile}
     '''.format(**cmd_opts)
                 auger_opts = dict(
                     project = cf[9],
