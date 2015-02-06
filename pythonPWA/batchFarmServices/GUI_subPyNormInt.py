@@ -28,7 +28,7 @@ BoA = sys.argv[1]
 if BoA == 'n':
     dataDir=os.path.join(indir,"simulation")
     AoR = sys.argv[2]
-    stri = '/flat/alphaevents.txt'
+    stri = 'flat'
     name = 'alphaevents.txt'
 elif BoA == 'y':
     dataDir=os.path.join(indir,"fitting")
