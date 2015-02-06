@@ -45,7 +45,7 @@ if os.path.isfile(os.path.join(dataDir,"Vvalues.npy")):
           
 elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
     resonances=[]
-    res = open("resonances.txt")
+    res = open(os.path.join(topDir,"scripts","resonances.txt"))
     rez = res.readlines()
     for re in rez:
         if re[0] != "#" and re[0] != " " and re[0] != "\n":
