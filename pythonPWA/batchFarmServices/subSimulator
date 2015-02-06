@@ -35,7 +35,7 @@ def gen(directory,cmd):
                     track = 'analysis',
                     jobname = 'simulator',
                     os = 'centos65',
-                    memory = 1000,
+                    memory = '1000 MB',
                     time = 30,
 		    cmd = cmd)
 
