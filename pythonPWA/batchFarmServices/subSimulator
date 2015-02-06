@@ -57,7 +57,7 @@ COMMAND:{cmd}
 
 def parseDir(Bin):
     
-    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
+    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"scripts","simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
 
     return cmd
 
