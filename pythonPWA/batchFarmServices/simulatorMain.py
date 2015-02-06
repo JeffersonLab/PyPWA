@@ -14,6 +14,7 @@ sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
 from pythonPWA.fileHandlers.getWavesGen import getwaves
 from batchFarmServices.dataSimulatorNPY import dataSimulator
 from pythonPWA.model.complexV import complexV
+from pythonPWA.dataTypes.resonance import resonance 
 import operator
 
 from batchFarmServices.rhoAA import rhoAA
