@@ -35,6 +35,7 @@ def gen(directory,cmd):
                     track = 'analysis',
                     jobname = 'simulator',
                     os = 'centos65',
+                    memory = 1000,
                     time = 30,
 		    cmd = cmd)
 
@@ -45,6 +46,7 @@ PROJECT:{project}
 TRACK:{track}
 JOBNAME:{jobname}
 OS:{os}
+MEMORY:{memory}
 TIME:{time}
 COMMAND:{cmd}
 '''.format(**auger_opts))
