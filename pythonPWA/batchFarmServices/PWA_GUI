@@ -79,6 +79,14 @@ class PWA_GUI(object):
         if prog == 1:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"data"])
 
+    def runF(self,prog,FoS):
+        if prog == 0:
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"flat"]) 
+        if prog == 1:
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"flat"])
+        if prog == 2:
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),str(FoS),"flat"])
+
     def runaM(self,prog,FoS):
         if prog == 0:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"mc","acc"]) 
@@ -109,17 +117,7 @@ class PWA_GUI(object):
         root.update()
     
     def sim2(self,prog):
-        frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
-        if prog != 2:
-            btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog,"n"))
-        btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog,"n"))
-        btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog,"n"))
-        btnB1.grid(row=3,column=0,sticky="N"+"S"+"E"+"W")
-        if prog != 2:    
-            btnR0.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
-        btnR1.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
-        btnR2.grid(row=2,column=0,sticky="N"+"S"+"E"+"W")
-        root.update()
+        self.runF(prog,"n")
     
         
                 
@@ -138,9 +136,9 @@ btnB1=tk.Button(frame3, text="back", height=2 , width = 10,command= lambda: PG.b
 btnS0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: PG.sim2(0))
 btnS1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.sim2(1))
 btnS2=tk.Button(frame2, text="normint", height=2 , width = 10,command= lambda: PG.sim2(2))
-btnS3=tk.Button(frame2, text="iList", height=2 , width = 10,command= lambda:sp.call([os.getcwd().strip("GUI")+"/scripts/subdevTest","i"]))
+btnS3=tk.Button(frame2, text="iList", height=2 , width = 10,command= lambda:sp.call([os.getcwd().strip("GUI")+"/scripts/subSimulator","i"]))
 btnS4=tk.Button(frame2, text="iMax", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/getImax.py"))
-btnS5=tk.Button(frame2, text="Simulator", height=2 , width = 10,command= lambda: sp.call([os.getcwd().strip("GUI")+"/scripts/subdevTest","s"]))
+btnS5=tk.Button(frame2, text="Simulator", height=2 , width = 10,command= lambda: sp.call([os.getcwd().strip("GUI")+"/scripts/subSimulator","s"]))
 
 btnF0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: PG.fitt2(0))
 btnF1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.fitt2(1))

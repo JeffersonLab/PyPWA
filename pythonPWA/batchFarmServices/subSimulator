@@ -33,7 +33,7 @@ def gen(directory,cmd):
     auger_opts = dict(
                     project = Control[9],
                     track = 'analysis',
-                    jobname = 'devTest',
+                    jobname = 'simulator',
                     os = 'centos65',
                     time = 30,
 		    cmd = cmd)
@@ -55,7 +55,7 @@ COMMAND:{cmd}
 
 def parseDir(Bin):
     
-    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"devTestFarm.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
+    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
 
     return cmd
 

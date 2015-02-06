@@ -22,9 +22,8 @@ for i in tdirs:
         sys.stdout.write("Writing Directories"+"."*(tdirs.index(i)+1)+"\r\n")
         sys.stdout.flush()
     if i == "simulation":
-        for d in ("overflow","results"):
-            directoryBuffer=os.path.join(indir,"simulation",str(d))
-            os.makedirs(directoryBuffer)  
+        directoryBuffer=os.path.join(indir,"simulation","overflow")
+        os.makedirs(directoryBuffer)  
     if i == "GUI":
         directoryBuffer=os.path.join(indir,"GUI","plotLists")
         os.makedirs(directoryBuffer)          

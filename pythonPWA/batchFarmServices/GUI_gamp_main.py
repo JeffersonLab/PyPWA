@@ -30,14 +30,14 @@ def submit(jsub_file):
 BoA = sys.argv[1] 
 if BoA == 'n':
     DoM = sys.argv[2]
-    if DoM == 'mc':
+    if DoM == 'weight':
         dataDir=os.path.join(indir,"simulation")
         AoR = sys.argv[3]
         stri = '/'+DoM+'/'+AoR
         filen = 'events'
-    elif DoM == 'data':
+    elif DoM == 'flat':
         dataDir=os.path.join(indir,"simulation")
-        stri = 'data'
+        stri = 'flat'
         filen = 'events'
 elif BoA == 'y':
     DoM = sys.argv[2]

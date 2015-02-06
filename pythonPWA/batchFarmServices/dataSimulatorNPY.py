@@ -44,7 +44,7 @@ class dataSimulator(object):
         
         return iList        
         
-    def execute(self,inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile):
+    def execute(self,inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile,outputPFGampFile):
         
         #igreader=gampReader(gampFile=inputGampFile)
         #inputGampEvents=igreader.readGamp() 
@@ -67,12 +67,16 @@ class dataSimulator(object):
        	
         numpy.save(os.path.join(os.path.split(inputGampFile.name)[0],"wnList"),wnList)
 
-        for wn in range(len(wnList)): 
-            if wnList[wn] == 1:
-                wnEvent = gampT.writeEvent(gampList[wn,:,:])
+        for wn in range(len(wnList)):
+            wnEvent = gampT.writeEvent(gampList[wn,:,:])
+            if int(pflist[wn])==1:
+                wnEvent.writeGamp(outputPFGampFile)
+            if wnList[wn] == 1:                
                 wnEvent.writeGamp(outputRawGampFile)
-                if int(pflist[wn])==1:
-                    wnEvent.writeGamp(outputAccGampFile)
-
+            if wnList[wn] == 1 and int(pflist[wn])==1:
+                wnEvent.writeGamp(outputAccGampFile)
+        inputGampFile.close()
+        inputPfFile.close()
+        outputPFGampFile.close()
         outputRawGampFile.close()
         outputAccGampFile.close()

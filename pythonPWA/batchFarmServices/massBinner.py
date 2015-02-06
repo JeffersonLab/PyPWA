@@ -26,6 +26,7 @@ class massBinner(object):
         self.bindir = bindir
         self.Control = np.load(os.path.join(sys.argv[1],"GUI","Control_List.npy"))
         self.Qfile = os.path.join(sys.argv[1],"QFactor.txt")
+        self.pFfile = os.path.join(sys.argv[1],"events.pf")
         self.gfile = gfile+".gamp"
         self.nfile = gfile+".npy" 
         self.verb = verb       
@@ -67,19 +68,34 @@ class massBinner(object):
         self.binner()
         if os.path.isfile(self.Qfile) and direct == "data":
             Qlist = np.loadtxt(self.Qfile)
+        elif os.path.isfile(self.pFfile) and direct == "flat":
+            pFlist = np.loadtxt(self.pFfile)
         for b in range(self.nBins):
-            if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
-                os.mkdir(os.path.join(self.bindir,"results",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
-                os.mkdir(os.path.join(self.bindir,"overflow",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","data"))                
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc"))
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
-                os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
-                if self.verb == "v" and b ==0:
-                    print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
-                if self.verb == "v" and b !=0:
-                    print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."          
+            if "fitting" in self.bindir:
+                if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                    os.mkdir(os.path.join(self.bindir,"results",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                    os.mkdir(os.path.join(self.bindir,"overflow",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","data"))                
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc"))
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
+                    if self.verb == "v" and b ==0:
+                        print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
+                    if self.verb == "v" and b !=0:
+                        print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."
+            elif "simulation" in self.bindir:
+                if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))                    
+                    os.mkdir(os.path.join(self.bindir,"overflow",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","flat"))                
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight"))
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","acc"))
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","raw"))
+                    if self.verb == "v" and b ==0:
+                        print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
+                    if self.verb == "v" and b !=0:
+                        print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."          
         if os.path.isfile(self.Qfile) and direct == "data":
             totNum = 0
             for r in range(self.nBins):
@@ -91,6 +107,26 @@ class massBinner(object):
                                 event = self.gampT.writeEvent(self.gampList[i,:,:])
                                 event.writeGamp(gF)
                                 qfF.write(str(Qlist[i])+"\n")
+                                num+=1 
+                totNum+=num
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
+                    nF.write(str(num))
+                if num == 0 or self.verb == "v":
+                    print direct , str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV" , "has" , str(num) , "events."
+            excluded = self.gampList.shape[0]-totNum
+            if self.verb == "v" or excluded != 0:
+                print "Binning Complete, " + str(excluded) + " events not in range."
+        elif os.path.isfile(self.pFfile) and direct == "flat":
+            totNum = 0
+            for r in range(self.nBins):
+                num = 0
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.gamp"),"w") as gF:
+                    with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.pf"),"w") as pfF:
+                        for i in range(int(self.gampList.shape[0])):
+                            if self.bins[r,i] == 1:
+                                event = self.gampT.writeEvent(self.gampList[i,:,:])
+                                event.writeGamp(gF)
+                                pfF.write(str(pFlist[i])+"\n")
                                 num+=1 
                 totNum+=num
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
@@ -128,7 +164,9 @@ if "data" in sys.argv[3]:
     direct = "data"
 if "acc" in sys.argv[3]:
     direct = "mc/acc"
-if "raw" in sys.argv[3]:
+if "raw" in sys.argv[3] and "fitting" in sys.argv[2]:
     direct = "mc/raw"
+elif "raw" in sys.argv[3] and "simulation" in sys.argv[2]:
+    direct = "flat"
 mB.fill(direct)
 
