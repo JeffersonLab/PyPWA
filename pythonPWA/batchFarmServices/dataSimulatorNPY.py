@@ -69,11 +69,11 @@ class dataSimulator(object):
 
         for wn in range(len(wnList)):
             wnEvent = gampT.writeEvent(gampList[wn,:,:])
-            if int(pflist[wn])==1:
+            if float(pflist[wn])==1.0:
                 wnEvent.writeGamp(outputPFGampFile)
             if wnList[wn] == 1:                
                 wnEvent.writeGamp(outputRawGampFile)
-            if wnList[wn] == 1 and int(pflist[wn])==1:
+            if wnList[wn] == 1 and float(pflist[wn])==1.0:
                 wnEvent.writeGamp(outputAccGampFile)
         inputGampFile.close()
         inputPfFile.close()
