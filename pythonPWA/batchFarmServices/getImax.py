@@ -21,4 +21,5 @@ for d in os.listdir(os.path.join(topDir,"simulation")):
         if Max > iMax[0]:
             iMax[0] = Max
 
-numpy.save(os.path.join(topDir,"simulation","flat","iMax.npy"),iMax)
+        numpy.save(os.path.join(topDir,"simulation",d,"flat","iMax.npy"),iMax)
+print "DONE"
