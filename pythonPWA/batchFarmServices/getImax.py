@@ -16,8 +16,9 @@ topDir = os.getcwd().rstrip("GUI")
 iMax = [0]
 
 for d in os.listdir(os.path.join(topDir,"simulation")):
-    Max = numpy.amax(numpy.load(os.path.join(topDir,"simulation",d,"flat","iList.npy")))
-    if Max > iMax[0]:
-        iMax[0] = Max
+    if "_MeV" in d:
+        Max = numpy.amax(numpy.load(os.path.join(topDir,"simulation",d,"flat","iList.npy")))
+        if Max > iMax[0]:
+            iMax[0] = Max
 
 numpy.save(os.path.join(topDir,"simulation","flat","iMax.npy"),iMax)

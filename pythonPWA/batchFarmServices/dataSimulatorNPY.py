@@ -38,8 +38,8 @@ class dataSimulator(object):
         self.iList=iList
         self.iMax=iMax
 
-    def calcIList():
-        minuitLn=FASTLikelihood(waves=self.waves,normint=self.normint,alphaList=self.alphaList,productionAmplitudes=self.productionAmplitudes,rhoAA=self.rhoAA,accNormInt=self.normint)        
+    def calcIList(self):
+        minuitLn=FASTLikelihood(waves=self.waves,productionAmplitudes=self.productionAmplitudes,rhoAA=self.rhoAA,accNormInt=self.normint)        
         iList = minuitLn.calcInt()     
         
         return iList        
