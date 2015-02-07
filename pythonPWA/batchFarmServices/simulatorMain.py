@@ -82,7 +82,7 @@ elif sys.argv[3] == "s":
                     
     iList = numpy.load(os.path.join(dataDir,"flat","iList.npy"))
 
-    iMax = numpy.load(os.path.join(dataDir,"flat","iMax.npy"))
+    iMax = numpy.load(os.path.join(topDir,"simulation","iMax.npy"))
 
     dSimulator=dataSimulator(mass=testMass,waves=waves,productionAmplitudes=productionAmplitudes,normint=normint,alphaList=alphaList,rhoAA=rhoAA,iList=iList,iMax=iMax[0])
 

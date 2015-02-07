@@ -35,30 +35,57 @@ class PWA_GUI(object):
         root.update()
 
     def mvBAMP2(self,direct):
-        for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
-            if "_MeV" in d:
-                bin1 = d
-                break            
-        frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
-        wvs = []
-        if direct == "o":
-            for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting",bin1,"data")):
-                if ".bamp" in x:
-                    wvs.append(x)
-        elif direct == "i":
-            for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting","overflow",bin1)):
-                if "data" in x:
-                    wvs.append(x.strip("data"))
-        x = 0
-        t = 0
-        for y in range(len(wvs)):
-            btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))         
-            btn.grid(column=x,row=t)
-            t += 1
-            if t > 9:
-                t = 0
-                x += 1
-        btnB1.grid(row=t+1,column=0,sticky="N"+"S"+"E"+"W")  
+        if "fitting" in os.listdir(os.path.join(os.getcwd().strip("GUI")):
+            for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
+                if "_MeV" in d:
+                    bin1 = d
+                    break            
+            frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
+            wvs = []
+            if direct == "o":
+                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting",bin1,"data")):
+                    if ".bamp" in x:
+                        wvs.append(x)
+            elif direct == "i":
+                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting","overflow",bin1)):
+                    if "data" in x:
+                        wvs.append(x.strip("data"))
+            x = 0
+            t = 0
+            for y in range(len(wvs)):
+                btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))         
+                btn.grid(column=x,row=t)
+                t += 1
+                if t > 9:
+                    t = 0
+                    x += 1
+            btnB1.grid(row=t+1,column=0,sticky="N"+"S"+"E"+"W")
+
+        elif "simulation" in os.listdir(os.path.join(os.getcwd().strip("GUI")):
+            for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
+                if "_MeV" in d:
+                    bin1 = d
+                    break            
+            frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
+            wvs = []
+            if direct == "o":
+                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting",bin1,"flat")):
+                    if ".bamp" in x:
+                        wvs.append(x)
+            elif direct == "i":
+                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting","overflow",bin1)):
+                    if "flat" in x:
+                        wvs.append(x.strip("flat"))
+            x = 0
+            t = 0
+            for y in range(len(wvs)):
+                btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))         
+                btn.grid(column=x,row=t)
+                t += 1
+                if t > 9:
+                    t = 0
+                    x += 1
+            btnB1.grid(row=t+1,column=0,sticky="N"+"S"+"E"+"W")
 
     def mvBAMP3(self,direct,bamp):
         sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","mvBAMP_GUI"),str(direct),str(bamp)]) 
