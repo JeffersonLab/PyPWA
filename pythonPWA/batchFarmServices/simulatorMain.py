@@ -15,6 +15,8 @@ from pythonPWA.fileHandlers.getWavesGen import getwaves
 from batchFarmServices.dataSimulatorNPY import dataSimulator
 from pythonPWA.model.complexV import complexV
 from pythonPWA.dataTypes.resonance import resonance 
+from pythonPWA.model.nTrue import nTrueForFixedV1V2 as ntrue
+from pythonPWA.model.nTrue import nTrueForFixedV1V2AndWave as ntrueforwave
 import operator
 
 from batchFarmServices.rhoAA import rhoAA
@@ -42,8 +44,12 @@ if os.path.isfile(os.path.join(dataDir,"Vvalues.npy")):
     for i in range(0,len(orderedContents),2):
         realPart=orderedContents[i][1]
         imaginaryPart=orderedContents[i+1][1]
-        productionAmplitudes.append(numpy.complex(realPart,imaginaryPart))  
-          
+        productionAmplitudes.append(numpy.complex(realPart,imaginaryPart))
+    if sys.argv[3] == "s":
+        nTrueList = [ntrue(productionAmplitudes,waves,normint)]  
+        for wave in waves:
+            nTrueList.append(ntrueforwave(productionAmplitudes[waves.index(wave)],waves,wave,normint))        
+        numpy.save(os.path.join(dataDir,"flat","nTrueListV.npy"),nTrueList)         
 elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
     resonances=[]
     res = open(os.path.join(topDir,"scripts","resonances.txt"))
@@ -53,10 +59,15 @@ elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
             rev = re.split(" ")
             wRx = [(float(x)) for x in rev[1].split(",")]
             resonances.append(resonance(cR=float(rev[0])*maxNumberOfEvents,wR=wRx,w0=float(rev[2]),r0=float(rev[3])))        
-    for resonance in resonances:
-        print resonance.toString()                
+    for resonance in resonances:                        
         for wave in waves:
             productionAmplitudes.append(complexV(resonance,wave,waves,normint,testMass))
+    if sys.argv[3] == "s":
+        numpy.save(os.path.join(dataDir,"flat","calcVvalues.npy"),productionAmplitudes)
+        nTrueList = [ntrue(productionAmplitudes,waves,normint)]  
+        for wave in waves:
+            nTrueList.append(ntrueforwave(productionAmplitudes[waves.index(wave)],waves,wave,normint))        
+        numpy.save(os.path.join(dataDir,"flat","nTrueListR.npy"),nTrueList)
     if len(productionAmplitudes) == 0:
         print "There are no resonances in resonances.txt, modify it in /scripts and try again."
         exit()
