@@ -35,7 +35,7 @@ class PWA_GUI(object):
         root.update()
 
     def mvBAMP2(self,direct):
-        if "fitting" in os.listdir(os.path.join(os.getcwd().strip("GUI")):
+        if "fitting" in os.listdir(os.path.join(os.getcwd().strip("GUI"))):
             for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
                 if "_MeV" in d:
                     bin1 = d
@@ -61,7 +61,7 @@ class PWA_GUI(object):
                     x += 1
             btnB1.grid(row=t+1,column=0,sticky="N"+"S"+"E"+"W")
 
-        elif "simulation" in os.listdir(os.path.join(os.getcwd().strip("GUI")):
+        elif "simulation" in os.listdir(os.path.join(os.getcwd().strip("GUI"))):
             for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
                 if "_MeV" in d:
                     bin1 = d
