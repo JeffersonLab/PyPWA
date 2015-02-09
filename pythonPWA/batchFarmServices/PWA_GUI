@@ -69,11 +69,11 @@ class PWA_GUI(object):
             frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
             wvs = []
             if direct == "o":
-                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting",bin1,"flat")):
+                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation",bin1,"flat")):
                     if ".bamp" in x:
                         wvs.append(x)
             elif direct == "i":
-                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting","overflow",bin1)):
+                for x in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation","overflow",bin1)):
                     if "flat" in x:
                         wvs.append(x.strip("flat"))
             x = 0
