@@ -20,8 +20,7 @@ class dataSimulator(object):
                  waves=[],                 
                  normint=None,
                  productionAmplitudes=[],
-                 alphaList=[],
-                 beamPolarization=.4,
+                 alphaList=[],                 
                  dataDir = None,
                  rhoAA=None,
                  iList=None,
@@ -31,8 +30,7 @@ class dataSimulator(object):
         self.waves=waves        
         self.normint=normint
         self.productionAmplitudes=productionAmplitudes
-        self.alphaList=alphaList
-        self.beamPolarization=beamPolarization
+        self.alphaList=alphaList        
         self.dataDir=dataDir
         self.rhoAA=rhoAA
         self.iList=iList
