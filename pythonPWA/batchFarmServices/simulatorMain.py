@@ -59,7 +59,7 @@ elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
         if re[0] != "#" and re[0] != " " and re[0] != "\n":
             rev = re.split(" ")
             wRx = [(float(x)) for x in rev[1].split(",")]
-            resonances.append(resonance(cR=float(rev[0])*maxNumberOfEvents,wR=wRx,w0=float(rev[2]),r0=float(rev[3])))        
+            resonances.append(resonance(cR=float(rev[0])*maxNumberOfEvents,wR=wRx,w0=float(rev[2]),r0=float(rev[3]),phase=float(rev[4])))        
     for resonance in resonances:                        
         for wave in waves:
             productionAmplitudes.append(complexV(resonance,wave,waves,normint,testMass))
