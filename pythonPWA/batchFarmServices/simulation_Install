@@ -32,7 +32,7 @@ for i in tdirs:
         os.makedirs(directoryBuffer)        
 progs = ("generateAlphaNPY.py","GUI_alpha_main.py",
 "GUI_gamp_main.py","GUI_subPyNormInt.py","mvBAMP_GUI",
-"run_normintFARM.py","massBinner.py","dataSimulatorNPY.py",
+"run_normintFARM.py","massBinner.py",
 "getImax.py","resonances.txt","simulatorMain.py","subSimulator")
 for s in progs:
     cmd = 'cp '+os.path.join(os.getcwd(),str(s))+" "+os.path.join(indir,"scripts")
@@ -44,7 +44,7 @@ for s in progs:
     elif s == progs[-1]:
         sys.stdout.write("Filling scripts"+"."*(progs.index(s)+1)+"\r\n")
         sys.stdout.flush()
-guis = ("graphicPlot","pwa_controls","PWA_GUI","Control_List.npy")
+guis = ("graphicPlotSim","pwa_controls","PWA_GUI","Control_List.npy")
 for g in guis:
     if g != guis[-1]:
         cmd = 'cp '+os.path.join(os.getcwd(),str(g))+" "+os.path.join(indir,"GUI")
