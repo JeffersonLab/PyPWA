@@ -15,13 +15,23 @@ sys.path.append(os.path.join(sys.argv[1],"pythonPWA"))
 from pythonPWA.utilities.FourVec import FourVector
 from pythonPWA.fileHandlers.gampTranslator import gampTranslator
 """
-    This is the pyPWA mass binning utility 
+    This is the PyPWA mass binning utility that simulation/fitting install uses to bin .gamp files in mass. 
 """
 
 
 class massBinner(object):
 
     def __init__(self,indir=None,bindir=None,gfile=None,verb="q"):
+        """
+            This is the default massBinner constructor.
+
+            Kwargs:
+            indir (string): The full file path to the top directory.
+            bindir (string): The full file path to the directory where the new mass bin directories will be written. 
+            gfile (string): The name of the .gamp file to be binned. (/Without/ the .gamp extension.)
+            verb (string): either "q" for quiet or "v" for verbose. 
+        """
+        
         self.indir = indir
         self.bindir = bindir
         self.Control = np.load(os.path.join(sys.argv[1],"GUI","Control_List.npy"))
@@ -34,12 +44,21 @@ class massBinner(object):
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             if self.verb == "v":
                 print "Starting translator, for",self.gfile
-            self.gampT.translate(os.path.join(self.indir,self.nfile))
-        self.gampList=np.load(os.path.join(self.indir,self.nfile))        
+            self.gampList=self.gampT.translate(os.path.join(self.indir,self.nfile))        
         self.nBins = int(((int(self.Control[3])-int(self.Control[2]))/int(self.Control[4])))+1  
         self.bins = np.zeros(shape=(self.nBins,int(self.gampList.shape[0])))
     
     def calcMass(self,event):
+        """
+            This function calculates the mass of a single event.
+
+            Args:
+            event (PyPWA gampEvent object)
+            
+            Returns:
+            mass of the event (float)
+        """
+        
         mass = FourVector(E=[0,0,0,0])
         for part in range(len(event.particles)):
             if part > 1 and event.particles[part].particleID != 0:
@@ -51,6 +70,10 @@ class massBinner(object):
         return math.sqrt(mass.dot(mass))
 
     def binner(self):
+        """
+            Creates a pass/fail 2D array mask for all bins and events.
+        """
+        
         for i in range(int(self.gampList.shape[0])):
             event = self.gampT.writeEvent(self.gampList[i,:,:])
             mass = self.calcMass(event)            
@@ -63,6 +86,13 @@ class massBinner(object):
         np.save("bins",self.bins)                    
             
     def fill(self,direct):
+        """
+            Uses the bins p/f array mask to create all bin directories and fill all binned .gamp files.
+            
+            Args:
+            direct (string): keyword the program uses to know what kind of .gamp file is being binned and the directories to make. 
+        """
+        
         if self.verb == "v":
             print "\nStarting binner"
         self.binner()

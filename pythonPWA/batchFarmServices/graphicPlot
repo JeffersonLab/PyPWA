@@ -11,7 +11,10 @@ import argparse
 sys.path.append(os.path.join(os.getcwd().strip("GUI"),"pythonPWA"))
 from batchFarmServices.graphicHelp import Help
 class graphicPlot(object):
-
+    """
+        This is the graphicPlot GUI optimized for fitting. 
+    """
+    
     def __init__(self,
                     topDir = os.getcwd().strip("GUI"),
                     dataL = [],

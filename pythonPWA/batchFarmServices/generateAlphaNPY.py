@@ -15,10 +15,23 @@ from pythonPWA.fileHandlers.gampTranslator import gampTranslator
 import math
 
 class generateAlphas(object):
+    """
+        This program calculates the value of alpha for every event in a .gamp file and saves it to a .txt list, one event per line. 
+    """
+    
     alphaName = "alpha"
     labelOut = ""
     
     def __init__(self, mode, indir, gfile):
+        """
+            Default generatAlphas constructor
+
+            Kwargs:
+            mode (int):  8 = p pi+ pi- pi0, 22 = p p+ p-, 24 = p k+ k-, 42 = gamma p --> p Ks Ks (pi+ pi- pi+ pi-) 
+            indir (string): Full file path to directory of file
+            gfile (string): File name without .gamp extension. 
+        """
+        
         self.mode = mode
         self.indir = indir
         self.gfile = gfile+".gamp"
@@ -40,10 +53,11 @@ class generateAlphas(object):
             self.analyze42()
         if self.mode == "EtaPiN":
             self.analyzeEtaPiN
-    '''
-    p pi+ pi- pi0
-    '''
+    
     def analyze8(self):
+        '''
+            p pi+ pi- pi0
+        '''
         for i in range(int(self.gampList.shape[0])):
             event = self.gampT.writeEvent(self.gampList[i,:,:])
             for particles in event.particles:
@@ -83,10 +97,11 @@ class generateAlphas(object):
             sys.stdout.write(str(i)+"\r")
             sys.stdout.flush()
             self.alphalist.append(alpha)
-    '''
-    p p+ p-
-    '''
+    
     def analyze22(self):
+        '''
+            p p+ p-
+        '''
         for i in range(int(self.gampList.shape[0])):
             event = self.gampT.writeEvent(self.gampList[i,:,:])
             for particles in event.particles:
@@ -123,6 +138,9 @@ class generateAlphas(object):
             
     
     def analyze24(self):
+        """
+            p k+ k-  
+        """
         for i in range(int(self.gampList.shape[0])):
             event = self.gampT.writeEvent(self.gampList[i,:,:])
             for particles in event.particles:
@@ -164,6 +182,9 @@ class generateAlphas(object):
             self.alphalist.append(alpha)
     
     def analyze42(self):
+        """
+            gamma p --> p Ks Ks (pi+ pi- pi+ pi-)
+        """
         for i in range(int(self.gampList.shape[0])):
             event = self.gampT.writeEvent(self.gampList[i,:,:])
             nks = 0
@@ -240,6 +261,9 @@ class generateAlphas(object):
             
         
     def toFile(self):
+        """
+            Saves the list to a file. 
+        """
         f = open(os.path.join(self.indir, self.alphaName), 'w')
         for alpha in self.alphalist:
             f.write(str(alpha) + "\n")

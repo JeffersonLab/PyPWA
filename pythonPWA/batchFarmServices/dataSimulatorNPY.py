@@ -14,7 +14,9 @@ from pythonPWA.fileHandlers.gampTranslator import gampTranslator
 from batchFarmServices.fast_like import FASTLikelihood
 
 class dataSimulator(object):
-    """description of class"""
+    """
+        This is the program that does the work of simulation for PyPWA simulaton. 
+    """
     def __init__(self,
                  mass=1010.,
                  waves=[],                 
@@ -25,7 +27,20 @@ class dataSimulator(object):
                  rhoAA=None,
                  iList=None,
                  iMax=0):
-        
+        """
+            Default FASTLikelihood constructor
+            
+            Kwargs:
+            mass (float): Test mass at the center of the bin. 
+            waves (array): Array of all waves in this pwa fit/simulation.
+            normint (array): PyPWA normalization integral object
+            productionAmplitudes (list): List of all production amplitudes/ V values.             
+            alphaList (list): List of all alpha values for that bin.   
+            dataDir (string): File path to the mass bin directory that is being simulated. 
+            rhoAA (numpy ndarray): The PyPWA rhoAA object.
+            iList (numpy array): List of all intensities.
+            iMax (float): The maximum intensity for the whole mass range. 
+        """
         self.mass=mass
         self.waves=waves        
         self.normint=normint
@@ -37,12 +52,29 @@ class dataSimulator(object):
         self.iMax=iMax
 
     def calcIList(self):
+        """
+            Calculates the list of intensities. 
+
+            Returns:
+            iList; Note, does NOT save it. Must be saved after returning. 
+        """
+        
         minuitLn=FASTLikelihood(waves=self.waves,productionAmplitudes=self.productionAmplitudes,rhoAA=self.rhoAA,accNormInt=self.normint)        
         iList = minuitLn.calcInt()     
         
         return iList        
         
     def execute(self,inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile,outputPFGampFile):
+        """
+            This function does the bulk of the simulation work for PyPWA simulation.
+
+            Args:
+            inputGampFile (file): Open file with the flat .gamp events. 
+            outputRawGampFile (file): Open file for the events that only pass the weight filter. 
+            outputAccGampFile (file): Open file for the events that pass both the weight and p/f filter.
+            inputPfFile (file): Open file with the acceptance of the events (p/f).
+            outputPFGampFile (file): Open file for the events that only pass the p/f filter. 
+        """
         
         #igreader=gampReader(gampFile=inputGampFile)
         #inputGampEvents=igreader.readGamp() 

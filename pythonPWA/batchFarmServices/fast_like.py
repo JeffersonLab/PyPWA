@@ -10,12 +10,11 @@
 
 import numpy as np
 import os
-"""
-    This is the mathmatical class of the likelihood calculation and the calculation of the intensity. 
-"""
 
 class FASTLikelihood(object):
-    
+    """
+    This is the mathmatical class of the likelihood calculation and the calculation of the intensity. 
+    """
     def __init__(self,
                 waves=[],
                 productionAmplitudes=[],                
@@ -25,6 +24,18 @@ class FASTLikelihood(object):
                 rhoAA = None,
                 accNormInt=None,                               
                 ):
+        """
+            Default FASTLikelihood constructor
+            
+            Kwargs:
+            waves (array): Array of all waves in this pwa fit/simulation.
+            productionAmplitudes (list): List of all production amplitudes/ V values.             
+            alphaList (list): List of all alpha values for that bin.              
+            acceptedPath (string): Full file path to the accepted MC alpha file
+            generatedPath (string): Full file path to the generated MC alpha file
+            rhoAA (numpy ndarray array): PyPWA rhoAA array. 
+            accNormInt (numpy array): The normalization integral from the accepted MC. 
+        """
         
         self.waves=waves
         self.productionAmplitudes=productionAmplitudes
@@ -44,15 +55,34 @@ class FASTLikelihood(object):
 #        return float(num[0])           use it. 
 
     def countAlphas(self,path):
+        """
+            Returns the length of an alpha file.
+
+            Args:
+            path (string): Path to the alpha file to be measured. 
+
+            Returns:
+            Length of file. (float)
+        """
+        
         Alpha = open(path,'r')
         AlphaList = Alpha.readlines()
         return float(len(AlphaList)) 
        
     def calcetaX(self):
+        """
+            Sets the self.etaX variable. 
+        """
         self.etaX=(self.countAlphas(self.acceptedPath)/self.countAlphas(self.generatedPath))
         
 
-    def calclnL(self):       
+    def calclnL(self):
+        """
+            Calculates the value of the negative of the log likelihood function.
+
+            Returns:
+            Value of the negative of the log likelihood function. (float)
+        """       
         a0 = 0.
         a1 = 0.
         for i in range(self.nwaves):
@@ -63,13 +93,25 @@ class FASTLikelihood(object):
         return -((np.log(a0)).sum(0)) + (self.etaX * a1)
 
     def calcneglnL(self,paramsList):
+        """
+            Sets the production Amplitudes from Minuit and calculates the value of the negative of the log likelihood function.
+
+            Returns:
+            Value of the negative of the log likelihood function. (float)
+        """ 
         self.productionAmplitudes=paramsList
         self.calcetaX()
         LLog = self.calclnL()    
         print"LLog:",LLog        
         return LLog
 
-    def calcInt(self):        
+    def calcInt(self):
+        """
+            Calculates the list of intensities for a mass bin.
+
+            Returns:
+            iList (numpy array)
+        """        
         a0 = 0.        
         for i in range(self.nwaves):
             for j in range(self.nwaves):

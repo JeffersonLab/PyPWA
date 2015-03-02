@@ -16,8 +16,17 @@ import time, sys, numpy
 indir = os.getcwd().strip("GUI")
 Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 scriptOutDir=os.path.join(indir,"scripts","submitions")
+"""
+    This is submition program for the simulator.
+"""
 
 def submit(jsub_file):
+    """
+    This function calls the JLab jsub command for a specific jsub .txt file created by this program. 
+
+    Args:
+    jsub_file (string): The file name for the jsub file.
+    """
     cmd = 'jsub '+jsub_file
     proc = Popen(cmd,
         shell = True,
@@ -29,7 +38,16 @@ def submit(jsub_file):
 
 
 def gen(directory,cmd):
+    """
+    This function creates the jsub .txt file to be submitted to the JLab batch farm. 
 
+    Args:
+    directory (string): The file name for the jsub file.
+    cmd (string): The full command to be used in the jsub file. 
+
+    Returns:
+    jsub_filename (string): name of the jsub file created by this function.
+    """
     auger_opts = dict(
                     project = Control[9],
                     track = 'analysis',
@@ -56,7 +74,15 @@ COMMAND:{cmd}
     return jsub_filename
 
 def parseDir(Bin):
+    """
+    This function creates the cmd string to be submitted to the JLab batch farm. 
+
+    Args:
+    bin (int): The int value for the mass in MeV for the mass bin.
     
+    Returns:
+    cmd (string): The full command to be used in the jsub file.
+    """
     cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"scripts","simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
 
     return cmd

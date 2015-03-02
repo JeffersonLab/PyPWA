@@ -4,7 +4,10 @@ import numpy, os
 import subprocess as sp
 
 class PWA_GUI(object):
-
+    """
+        This program is the PWA_GUI, or main GUI for doing fitting and simulation in PyPWA.
+    """
+    
     def back1(self):
         self.destrFr1()        
         root.update()
