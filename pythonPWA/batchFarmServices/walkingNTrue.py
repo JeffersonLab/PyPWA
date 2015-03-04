@@ -25,7 +25,14 @@ from pythonPWA.model.nExpected import nExpForFixedV1V2AndWave as nExpforwave
 from pythonPWA.model.nTrue import calcStatSquaredError
 import operator
 
-def calcNTrueForDir(dataDir):    
+def calcNTrueForDir(dataDir): 
+    """
+        This function calculates the value of the total nTrue and the nTrue values for each wave for a single mass bin directory.
+
+        Args:
+        dataDir (string): The complete file path to the "mass_MeV" directory.
+    """
+       
     #list to hold nTrue errors
     errorList=[]
     errorListEx=[]

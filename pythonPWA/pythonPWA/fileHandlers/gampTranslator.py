@@ -74,9 +74,13 @@ class gampTranslator():
 
         Args:
         saveFile (string): The file name the user wants the file named(will end in .npy).
+
+        Returns:
+        The 3D numpy array of gamp events 
         """
         self.readFile()        
         numpy.save(saveFile,self.events)
+        return self.events
 
     def writeEvent(self,dataSlice):
         """

@@ -18,8 +18,16 @@ from pythonPWA.dataTypes.resonance import resonance
 from pythonPWA.model.nTrue import nTrueForFixedV1V2 as ntrue
 from pythonPWA.model.nTrue import nTrueForFixedV1V2AndWave as ntrueforwave
 import operator
-
 from batchFarmServices.rhoAA import rhoAA
+"""
+    This is the main simualtion program for PyPWA simulation. It creates the iList and the simulated gamp files. It can do this using the 
+    fitted V values or from the pre chosen waves and resonences. 
+    
+    Args:
+    bin (string)
+    topDir (string)
+    output (char)
+"""
 
 Control = numpy.load(os.path.join(sys.argv[2],"GUI","Control_List.npy"))
 
@@ -50,7 +58,7 @@ if os.path.isfile(os.path.join(dataDir,"Vvalues.npy")):
         for wave in waves:
             nTrueList.append(wave.filename.rstrip(".bamp"))
             nTrueList.append(ntrueforwave(productionAmplitudes[waves.index(wave)],waves,wave,normint).real)        
-        numpy.save(os.path.join(dataDir,"flat","nTrueListV.npy"),nTrueList)       
+        numpy.save(os.path.join(dataDir,"flat","nTrueListR.npy"),nTrueList)       
 elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
     resonances=[]
     res = open(os.path.join(topDir,"scripts","resonances.txt"))

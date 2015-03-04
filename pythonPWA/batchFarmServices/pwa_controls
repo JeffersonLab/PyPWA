@@ -17,6 +17,9 @@ else:
     from graphicHelp import Help
 
 class Control(object):
+    """
+        This program is the pwa_controls GUI, or the gui the user uses to specify environment variables for PyPWA. 
+    """
     
     def __init__(self,                 
                  reactMode = 24,

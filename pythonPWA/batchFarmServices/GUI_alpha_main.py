@@ -17,8 +17,17 @@ scriptOutDir=os.path.join(indir,"scripts","submitions")
 cf = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 i = 1
 M= cf[0]
+"""
+    This is the submition program for the alpha calculation.
+"""
 
 def submit(jsub_file):
+    """
+    This function calls the JLab jsub command for a specific jsub .txt file created by this program. 
+
+    Args:
+    jsub_file (string): The file name for the jsub file.
+    """
     cmd = 'jsub '+jsub_file
     proc = Popen(cmd,
         shell = True,

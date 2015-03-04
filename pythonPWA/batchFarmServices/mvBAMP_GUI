@@ -14,8 +14,11 @@ from subprocess import Popen
 
 nfile = sys.argv[2]+".bamp"
 oI = sys.argv[1]
+"""
+    This is the program used by the PWA_GUI's wave function to move .bamp files between the fit/simulation and the /overflow directory.
+"""
 
-if os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"fitting"):
+if os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
     for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
         if "_MeV" in d:
             for m in ("mc","data"):
@@ -37,7 +40,7 @@ if os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"fitting"):
             sys.stdout.write(d.rstrip("_MeV")+"\r")
             sys.stdout.flush()
     print "DONE    "
-elif os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"simulation"):
+elif os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
     for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
         if "_MeV" in d:
             if oI == "o":

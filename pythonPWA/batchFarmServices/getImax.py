@@ -10,6 +10,9 @@
 """
 import numpy
 import os
+"""
+    This program runs in the interactive farm to retrieve the maximum intensity value among the whole mass range. 
+"""
 
 topDir = os.getcwd().rstrip("GUI")
 

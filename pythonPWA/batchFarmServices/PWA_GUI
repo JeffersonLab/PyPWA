@@ -4,10 +4,14 @@ import numpy, os
 import subprocess as sp
 
 class PWA_GUI(object):
-
+    """
+        This program is the PWA_GUI, or main GUI for doing fitting and simulation in PyPWA.
+    """
+    
     def back1(self):
-        frame2.grid_forget()
-        root.update()           
+        self.destrFr1()        
+        root.update()
+                   
 
     def back2(self):
         frame3.grid_forget()
@@ -19,8 +23,9 @@ class PWA_GUI(object):
         btnF1.pack(side="top")
         btnF2.pack(side="top")
         btnF3.pack(side="top")
-        btnF4.pack(side="top") 
-        btnB0.pack(side="bottom")
+        btnF4.pack(side="top")
+        btnGF.pack(side="top") 
+        #btnB0.pack(side="bottom")
         root.update()
 
     def mvBAMP1(self):
@@ -31,7 +36,7 @@ class PWA_GUI(object):
         btnOut.pack(side="top")
         btnIn=tk.Button(frame2, text="IN", height=2 , width = 10,command= lambda: self.mvBAMP2("i"))
         btnIn.pack(side="top")
-        btnB0.pack(side="bottom")
+        #btnB0.pack(side="bottom")
         root.update()
 
     def mvBAMP2(self,direct):
@@ -97,8 +102,9 @@ class PWA_GUI(object):
         btnS2.pack(side="top")
         btnS3.pack(side="top")
         btnS4.pack(side="top")
-        btnS5.pack(side="top") 
-        btnB0.pack(side="bottom")
+        btnS5.pack(side="top")
+        btnGS.pack(side="top") 
+        #btnB0.pack(side="bottom")
 
     def runD(self,prog,FoS):
         if prog == 0:            
@@ -136,7 +142,7 @@ class PWA_GUI(object):
             btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog,"y"))
         btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog,"y"))
         btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog,"y"))
-        btnB1.grid(row=3,column=0,sticky="N"+"S"+"E"+"W")
+        #btnB1.grid(row=3,column=0,sticky="N"+"S"+"E"+"W")
         if prog != 2:    
             btnR0.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
         btnR1.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
@@ -145,7 +151,9 @@ class PWA_GUI(object):
     
     def sim2(self,prog):
         self.runF(prog,"n")
-    
+
+    def destrFr1(self):
+        frame2.destroy()
         
                 
 PG = PWA_GUI()
@@ -166,17 +174,19 @@ btnS2=tk.Button(frame2, text="normint", height=2 , width = 10,command= lambda: P
 btnS3=tk.Button(frame2, text="iList", height=2 , width = 10,command= lambda:sp.call([os.getcwd().strip("GUI")+"/scripts/subSimulator","i"]))
 btnS4=tk.Button(frame2, text="iMax", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/getImax.py"))
 btnS5=tk.Button(frame2, text="Simulator", height=2 , width = 10,command= lambda: sp.call([os.getcwd().strip("GUI")+"/scripts/subSimulator","s"]))
+btnGS=tk.Button(frame2, text="GRAPHIC\nPLOT", height=2 , width = 10, command= lambda: sp.call(os.getcwd()+"/graphicPlotSim"))
+
 
 btnF0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: PG.fitt2(0))
 btnF1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.fitt2(1))
 btnF2=tk.Button(frame2, text="normint", height=2 , width = 10,command= lambda: PG.fitt2(2))
 btnF3=tk.Button(frame2, text="Fitter", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/subLikelihood"))
 btnF4=tk.Button(frame2, text="nTrue", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/subWalkNTrue"))
+btnGF=tk.Button(frame2, text="GRAPHIC\nPLOT", height=2 , width = 10, command= lambda: sp.call(os.getcwd()+"/graphicPlot"))
 
 btnC=tk.Button(frame, text="PWA\nCONTROLS", height=2 , width = 10, command= lambda: sp.call(os.getcwd()+"/pwa_controls"))
 btnC.pack(side="top")
-btnG=tk.Button(frame, text="GRAPHIC\nPLOT", height=2 , width = 10, command= lambda: sp.call(os.getcwd()+"/graphicPlot"))
-btnG.pack(side="top")
+
 btnF=tk.Button(frame, text="FITTING", height=2 , width = 10, command= lambda: PG.fitt())
 btnF.pack(side="top")
 btnS=tk.Button(frame, text="SIMULATION", height=2 , width = 10,command= lambda: PG.sim())

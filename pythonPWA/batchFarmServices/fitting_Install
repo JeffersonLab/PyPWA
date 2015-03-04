@@ -3,7 +3,10 @@ import os
 import numpy,sys
 import subprocess as sp
 from subprocess import Popen
-
+"""
+    This program is the first step for the PyPWA fitting process. It sets up all directories and files needed for fitting
+    as well as all binning in mass as prescribed by the pwa_controls GUI. 
+"""
 indir = os.path.split(os.path.split(os.getcwd())[0])[0]
 print "Top Directory: ",indir
 sys.path.append(os.path.join(indir,"pythonPWA"))
