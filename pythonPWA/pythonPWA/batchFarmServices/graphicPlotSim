@@ -1,0 +1,344 @@
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+import matplotlib.pyplot as plt
+from multiprocessing import Process
+import subprocess as sp
+import numpy
+import os
+import sys
+import Tkinter as tk
+import itertools
+import argparse
+sys.path.append(os.path.join(os.getcwd().strip("GUI"),"pythonPWA"))
+from batchFarmServices.graphicHelp import Help
+class graphicPlotSim(object):
+    """
+        This is the graphicPlot GUI optimized for simulation.
+    """
+    
+    def __init__(self,
+                    topDir = os.getcwd().strip("GUI"),
+                    flatL = [],
+                    nTrue = [],
+                    accUW = [],
+                    rawW = [],
+                    accW = [],                    
+                    nTA = [],                    
+                    ran = [],
+                    wvs = [],                    
+                    allL = [[] for i in range(11)],
+                    plts = [],
+                    nms = []):
+
+        self.topDir = topDir
+        self.flatL = flatL
+        self.nTrue = nTrue
+        self.accUW = accUW
+        self.rawW = rawW
+        self.accW = accW        
+        self.nTA = nTA        
+        self.ran = ran
+        self.wvs = wvs       
+        self.allL = allL
+        self.plts = plts
+        self.nms = nms          
+        self.Control = numpy.load("Control_List.npy")       
+
+    def loadl(self):
+        self.Control = numpy.load("Control_List.npy") 
+        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"))
+            self.flatL = self.allL[0]
+            self.nTrue = self.allL[1]
+            self.accUW = self.allL[2]
+            self.rawW = self.allL[3]
+            self.accW = self.allL[4]
+            self.nTA = self.allL[5]
+            self.ran = self.allL[6]
+            self.wvs = self.allL[7]
+            self.plts = self.allL[8]
+            self.nms = self.allL[9]               
+            text.delete("0.0wordstart", "end")
+            text.insert("end",self.Control[8]+"\n"+"LOADED")
+        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            text.delete("0.0wordstart", "end")
+            text.insert("end","NO LIST"+"\n"+"UPDATE AND PRESS SAVE "+"\n"+"FOR FITTED WAVES")
+            self.allL = [[] for i in range(10)]
+
+    def mk_all(self):
+        self.allL = [self.flatL,
+                        self.nTrue,
+                        self.accUW,
+                        self.rawW,
+                        self.accW,
+                        self.nTA,
+                        self.ran,
+                        self.wvs,
+                        self.plts,
+                        self.nms                           
+                        ]
+        text.delete("0.0wordstart", "end")     
+        text.insert("end","PLotList UPDATED")
+        return self.allL
+
+    def num_len(self,fname):
+        with open(fname) as f:
+            num = f.readlines()
+        return int(num[0])
+    
+    def file_len(self,fname):
+        with open(fname) as f:
+            for i, l in enumerate(f):
+                pass
+        return (i + 1)/6
+
+    def up_range(self):
+        rang = []
+        for r in sorted(os.listdir(os.path.join(self.topDir,"simulation"))):
+            if "_MeV" in r:
+                rang.append(r.strip("_MeV"))
+        self.ran = rang 
+        text.delete("0.0wordstart", "end")     
+        text.insert("end","RANGE UPDATED")
+
+    def up_flat(self):
+        self.flatL = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/flat/events.num"):
+                self.flatL.append(self.num_len(self.topDir+"/simulation/"+str(d)+"_MeV/flat/events.num"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","flat UPDATED")
+
+    def up_accUW(self):
+        self.accUW = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/events_pf.gamp"):
+                self.accUW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/events_pf.gamp"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","accUW UPDATED")
+
+    def up_rawW(self):
+        self.rawW = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/events.gamp"):
+                self.rawW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/events.gamp"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","rawW UPDATED")
+
+    def up_accW(self):
+        self.accW = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/events.gamp"):
+                self.accW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/events.gamp"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","accW UPDATED")
+
+    def up_nTrue(self):
+        self.nTrue = []
+        self.nTA = []
+        self.wvs = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/flat/nTrueListR.npy"):
+                nT=numpy.load(self.topDir+"/simulation/"+str(d)+"_MeV/flat/nTrueListR.npy")
+                self.nTrue.append(nT[0])
+                if d == self.ran[0]:
+                    self.nTA = [[] for i in range((len(nT)-1)/2)]
+                b = 0
+                for i in range(1,len(nT),2):
+                    if d == self.ran[0]:
+                        self.wvs.append(nT[i])
+                    self.nTA[b].append(nT[i+1])
+                    b+=1                    
+        text.delete("0.0wordstart", "end")
+        text.insert("end","nTrue UPDATED")
+
+    def savel(self):
+        self.mk_all()
+        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"),self.allL)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","SAVED")
+        self.destrFr()
+        self.wv_Buttons(len(GPS.allL[7]))  
+        root.update()
+        
+    def up_all(self):
+        text.delete("0.0wordstart", "end")
+        text.insert("end","UPDATE STARTED")
+        root.update() 
+        self.up_range()
+        root.update()
+        self.up_flat()
+        root.update()
+        self.up_accUW()
+        root.update()
+        self.up_rawW()
+        root.update()        
+        self.up_accW()
+        root.update()    
+        self.up_nTrue()
+        root.update()       
+        self.mk_all()
+
+    def add_all(self):
+        self.add_flat()
+        self.add_accUW()
+        self.add_rawW()
+        self.add_accW()
+        self.add_nTrue()
+        text.delete("0.0wordstart", "end")
+        text.insert("end","flat, accUW, rawW, accW, nTrue"+"\n"+"\t"+"ADDED")  
+
+    def add_flat(self):
+        self.plts.append(self.flatL)
+        self.nms.append("Flat")
+        text.delete("0.0wordstart", "end")
+        text.insert("end","flat ADDED")   
+
+    def add_accUW(self):
+        self.plts.append(self.accUW)
+        self.nms.append("accepted Un-weighted")
+        text.delete("0.0wordstart", "end")
+        text.insert("end","accUW ADDED")
+
+    def add_rawW(self):
+        self.plts.append(self.rawW)
+        self.nms.append("raw weighted")
+        text.delete("0.0wordstart", "end")
+        text.insert("end","rawW ADDED")
+
+    def add_accW(self):
+        self.plts.append(self.accW)
+        self.nms.append("accepted weighted")
+        text.delete("0.0wordstart", "end")
+        text.insert("end","accW ADDED")
+
+    def add_nTrue(self):
+        self.plts.append(self.nTrue)
+        self.nms.append("nTrue total")
+        text.delete("0.0wordstart", "end")
+        text.insert("end","nTrue ADDED")
+
+    def add_nTrue_wave(self,x):
+        self.plts.append(self.nTA[x])
+        self.nms.append(self.wvs[x].strip(".bamp")+"True")        
+        text.delete("0.0wordstart", "end")
+        text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")
+
+    def mk_plot(self,lis):
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PLOTTING")
+        marker = itertools.cycle(('D','8','o','^','h','p','s','*','x','+'))
+        fig, ax1 = plt.subplots()
+        for i in range(len(lis)):                
+            ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
+            ax1.legend()
+            ax1.set_ylabel("Events")
+            ax1.set_xlabel("Mass (MeV)")        
+        plt.title(self.Control[7]+" "+self.Control[8])        
+        plt.show()
+        self.plts = []
+        self.nms = []
+
+    def plot(self, lis):
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PLOTTING")
+        p = Process(target=self.mk_plot,args=(lis,))
+        p.start()
+        self.plts = []
+        self.nms = []
+
+    def wv_Buttons(self,lent):
+        frame4=tk.Frame(frame3)        
+        frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")        
+        x = 0
+        t = 0
+        for y in range(lent):
+            btn = tk.Button(frame4, text = GPS.wvs[y].strip(".bamp")+"\n"+"nTrue", command = lambda x=x,t=t: GPS.add_nTrue_wave((x*9)+t+x))         
+            btn.grid(column=t,row=x)            
+            t += 1
+            if t > 9:
+                t = 0
+                x += 1        
+    
+    def destrFr(self):
+        frame4.destroy()
+    
+    def help_window(self):
+        window = tk.Toplevel(root)
+        window.wm_title("HELP")
+        tx = Help()
+        label = tk.Label(window, text=tx.GPShelp)
+        label.pack(side="top", fill="both", padx=10, pady=10)
+
+parser = argparse.ArgumentParser(description="""A graphing utility for the PyPWA partial wave analysis toolkit.""")
+parser.add_argument("-t", "--topDir", help="Run graphicPlotSim with a different top directory than the current working directory.",default=os.getcwd().strip("GUI"))
+args = parser.parse_args()
+
+GPS = graphicPlotSim(topDir=args.topDir)
+
+root = tk.Tk()
+
+frame=tk.Frame(root)
+frame1=tk.Frame(root)
+frame2=tk.Frame(root)
+frame3=tk.Frame(root)
+frame4=tk.Frame(frame3)
+
+frame.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+frame1.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
+frame2.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+frame3.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
+frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+
+text=tk.Text(frame1, height = 3, width = 23, font = 13)
+text.pack(side="top")
+text.tag_config("0.0wordstart", justify = "center")
+
+root.wm_title("GRAPHIC PLOT SIM"+args.topDir)
+
+GPS.loadl()
+lent = len(GPS.allL[7])
+
+
+GPS.wv_Buttons(lent)
+
+Pall = tk.Button(frame2, text="PLOT"+"\n"+"ALL",  command=lambda: GPS.add_all())        
+Pflat = tk.Button(frame2, text="PLOT"+"\n"+"flat",  command=lambda: GPS.add_flat())
+PaccUW = tk.Button(frame2, text="PLOT"+"\n"+"accUW",  command=lambda: GPS.add_accUW())
+PrawW = tk.Button(frame2, text="PLOT"+"\n"+"rawW",  command=lambda: GPS.add_rawW())
+PaccW = tk.Button(frame2, text="PLOT"+"\n"+"accW",  command=lambda: GPS.add_accW())	
+PnTrue = tk.Button(frame2, text="PLOT"+"\n"+"nTrue",  command=lambda: GPS.add_nTrue())
+help = tk.Button(frame2, text="HELP",  command=lambda: GPS.help_window())
+Plot = tk.Button(frame2, text="PLOT", fg = "red", command=lambda: GPS.plot(GPS.plts))
+
+Pall.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+Pflat.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
+PaccUW.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
+PrawW.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+PaccW.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
+PnTrue.grid(row=1,column=2,sticky="N"+"S"+"E"+"W")
+help.grid(row=0,column=3,sticky="N"+"S"+"E"+"W")
+Plot.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
+
+cob = tk.Button(frame, text="pwa"+"\n"+"Controls", command=lambda: sp.call(os.getcwd()+"/pwa_controls"))
+load = tk.Button(frame, text="LOAD", command=lambda: GPS.loadl())
+Uall = tk.Button(frame, text="UPDATE"+"\n"+"ALL", command=lambda: GPS.up_all())
+Uran = tk.Button(frame, text="UPDATE"+"\n"+"RANGE", command=lambda: GPS.up_range())        
+Uflat = tk.Button(frame, text="UPDATE"+"\n"+"flat", command=lambda: GPS.up_flat())
+UaccUW = tk.Button(frame, text="UPDATE"+"\n"+"accUW", command=lambda: GPS.up_accUW())
+UrawW = tk.Button(frame, text="UPDATE"+"\n"+"rawW", command=lambda: GPS.up_rawW())
+UaccW = tk.Button(frame, text="UPDATE"+"\n"+"accW", command=lambda: GPS.up_accW())
+UnTrue = tk.Button(frame, text="UPDATE"+"\n"+"nTrue", command=lambda: GPS.up_nTrue())
+save = tk.Button(frame, text="SAVE",  command=lambda: GPS.savel())
+
+cob.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+Uall.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
+Uran.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")      
+Uflat.grid(row=0,column=3,sticky="N"+"S"+"E"+"W")
+UaccUW.grid(row=0,column=4,sticky="N"+"S"+"E"+"W")
+UrawW.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
+load.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+UaccW.grid(row=1,column=2,sticky="N"+"S"+"E"+"W")
+UnTrue.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
+save.grid(row=1,column=4,sticky="N"+"S"+"E"+"W")
+
+root.mainloop()
