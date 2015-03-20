@@ -24,10 +24,10 @@ class rhoAA(object):
         """
         Default rhoAA constructor.
 
-        Kwargs:
-        waves (array): Array of all waves in this pwa fit/simulation.
-        alphaList (list): List of all alpha values for this mass bin. 
-        Q (list): List of all Q values for this mass bin.
+        Kwargs:\n
+        waves (array): Array of all waves in this pwa fit/simulation.\n
+        alphaList (list): List of all alpha values for this mass bin. \n
+        Q (list): List of all Q values for this mass bin.\n
         beamPolarization (float): Value of beam polarization; 0.0 for no polarization. 
 
         """

@@ -1,1 +1,0 @@
-in order to rebuild docs after making changes simply run "sphinx-build -b html . ./final"
