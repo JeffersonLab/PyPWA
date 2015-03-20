@@ -48,17 +48,6 @@ class generalFit (object):
         else:
             self.QList = numpy.ones(shape=(self.dataLen))
         
-    def file_len(self,fname,eventLen):
-        with open(fname) as f:
-            for i, l in enumerate(f):
-                pass
-        return (i + 1)/eventLen
-
-    def num_len(self,fname):
-        with open(fname) as f:
-            num = f.readlines()
-        return int(num[0])
-
     def getdKVars(self,i):
         if ".gamp" in self.dataDir:
             return kvFn(self.dataT.writeEvent(self.dataT.events[i,:,:]))        
@@ -88,7 +77,7 @@ class generalFit (object):
             sys.stdout.write("generated "+str(i)+"\r")
             sys.stdout.flush()
             gList[i] = ampFn(self.getgKVars(i),params)
-        val = -(((self.QList*numpy.log(iList)).sum(0)) + ((1.0/float(self.genLen)) * gList.sum(0)))
+        val = -((self.QList*numpy.log(iList)).sum(0)) + ((1.0/float(self.genLen)) * gList.sum(0))
         print val.real.item()
         return val.real.item()
 
