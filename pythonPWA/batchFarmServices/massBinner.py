@@ -44,7 +44,9 @@ class massBinner(object):
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             if self.verb == "v":
                 print "Starting translator, for",self.gfile
-            self.gampList=self.gampT.translate(os.path.join(self.indir,self.nfile))        
+            self.gampList=self.gampT.translate(os.path.join(self.indir,self.nfile))
+        elif os.path.isfile(os.path.join(self.indir,self.nfile)):
+            self.gampList=np.load(os.path.join(self.indir,self.nfile))
         self.nBins = int(((int(self.Control[3])-int(self.Control[2]))/int(self.Control[4])))+1  
         self.bins = np.zeros(shape=(self.nBins,int(self.gampList.shape[0])))
     
@@ -69,7 +71,7 @@ class massBinner(object):
                 mass = mass.__add__(pp)
         if mass >= 0.0:
             return math.sqrt(mass.dot(mass))
-        elif mass <= 0.0:
+        elif mass < 0.0:
             return -(math.sqrt(-(mass.dot(mass))))
 
     def binner(self):
