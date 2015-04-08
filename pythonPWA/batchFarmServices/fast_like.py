@@ -22,7 +22,8 @@ class FASTLikelihood(object):
                 acceptedPath=os.getcwd(),
                 generatedPath=os.getcwd(),                
                 rhoAA = None,
-                accNormInt=None,                               
+                accNormInt=None,
+                Q = [1.0]                               
                 ):
         """
             Default FASTLikelihood constructor
@@ -34,7 +35,8 @@ class FASTLikelihood(object):
             acceptedPath (string): Full file path to the accepted MC alpha file
             generatedPath (string): Full file path to the generated MC alpha file
             rhoAA (numpy ndarray array): PyPWA rhoAA array. 
-            accNormInt (numpy array): The normalization integral from the accepted MC. 
+            accNormInt (numpy array): The normalization integral from the accepted MC.
+            Q (list): List of all Q values for this mass bin. 
         """
         
         self.waves=waves
@@ -45,6 +47,7 @@ class FASTLikelihood(object):
         self.generatedPath=generatedPath
         self.iList=[]        
         self.accNormInt=accNormInt.sum(0).sum(0)
+        self.Q = Q
         self.rhoAA = rhoAA
         self.etaX = 0.
         
@@ -90,7 +93,7 @@ class FASTLikelihood(object):
                 VV = self.productionAmplitudes[i] * np.conjugate(self.productionAmplitudes[j])                
                 a0 = a0 + (VV * self.rhoAA[i,j,:]).real                
                 a1 = a1 + (VV * self.accNormInt[i,j]).real 
-        return -((np.log(a0)).sum(0)) + (self.etaX * a1)
+        return -((self.Q*(np.log(a0))).sum(0)) + (self.etaX * a1)
 
     def calcneglnL(self,paramsList):
         """
@@ -117,5 +120,5 @@ class FASTLikelihood(object):
             for j in range(self.nwaves):
                 VV = self.productionAmplitudes[i] * np.conjugate(self.productionAmplitudes[j])                
                 a0 = a0 + (VV * self.rhoAA[i,j,:]).real    
-        return a0
+        return self.Q*a0
 
