@@ -69,9 +69,9 @@ class massBinner(object):
                                 float(event.particles[part].particleYMomentum),
                                 float(event.particles[part].particleZMomentum)])
                 mass = mass.__add__(pp)
-        if mass >= 0.0:
+        if mass.dot(mass) >= 0.0:
             return math.sqrt(mass.dot(mass))
-        elif mass < 0.0:
+        elif mass.dot(mass) < 0.0:
             return -(math.sqrt(-(mass.dot(mass))))
 
     def binner(self):
