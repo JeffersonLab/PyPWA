@@ -17,20 +17,7 @@ class generalFit (object):
         self.QDir = QDir
         self.initial = initial
         self.dataT = gampTranslator(self.dataDir)
-        if ".gamp" in self.dataDir:
-            self.dataT = gampTranslator(self.dataDir)
-            if not os.path.isfile(self.dataDir.rstrip(".gamp")+".npy"):                        
-                self.dataT.translate(self.dataDir.rstrip(".gamp")+".npy")
-            else:
-                self.dataT.events=numpy.load(self.dataDir.rstrip(".gamp")+".npy")
-            self.genT = gampTranslator(self.genDir)
-            if not os.path.isfile(self.genDir.rstrip(".gamp")+".npy"):
-                self.genT.translate(self.genDir.rstrip(".gamp")+".npy")
-            else:
-                self.genT.events=numpy.load(self.genDir.rstrip(".gamp")+".npy")
-            self.dataLen = self.dataT.events.shape[0]
-            self.genLen = self.genT.events.shape[0]
-        elif ".txt" in self.dataDir:
+        if ".txt" in self.dataDir:
             if not os.path.isfile(self.dataDir.rstrip(".txt")+".npy"):
                 self.dataKV = kvParser(self.dataDir)
                 numpy.save(self.dataDir.rstrip(".txt")+".npy",self.dataKV)
@@ -49,16 +36,10 @@ class generalFit (object):
             self.QList = numpy.ones(shape=(self.dataLen))
         
     def getdKVars(self,i):
-        if ".gamp" in self.dataDir:
-            return kvFn(self.dataT.writeEvent(self.dataT.events[i,:,:]))        
-        elif ".txt" in self.dataDir:
-            return self.dataKV[i]
+        return self.dataKV[i]
 
     def getgKVars(self,i):
-        if ".gamp" in self.genDir:
-            return kvFn(self.genT.writeEvent(self.genT.events[i,:,:]))        
-        elif ".txt" in self.genDir:
-            return self.genKV[i]
+        return self.genKV[i]
 
     def calcIList(self,**kwargs):      
         iList = numpy.zeros(shape = (self.dataLen))        

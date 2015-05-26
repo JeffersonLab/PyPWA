@@ -2,7 +2,7 @@ import numpy,sys, os
 from FourVec import FourVector
 from iminuit import Minuit
 
-def ampFn(kVars,params): # Do not change the name of this function
+def intFn(kVars,params): # Do not change the name of this function
     """
         This is where you define your intensity function. Do not change the name of the function. 
         The names of the arguments are up to you, but they both need to be dictionaries, with the 
@@ -14,50 +14,19 @@ def ampFn(kVars,params): # Do not change the name of this function
     """
     return numpy.complex((kVars['s']**2)*(kVars['t']**3)*params["A1"],params['A2']*kVars['u']) #example
 
-def kvFn(event): # Do not change anything on this line
+def ampFn(kVars,params):
     """
-        This is where you define your function that returns a dictionary of the kinematic variables
-        calculated from a PyPWA.gampEvent object. This is an example of the calculation of the
-        Mandelstram variables(S,T,U) from gamma + P -> Pi+ Pi- Pi0 data, but it can be anything
-        that takes a gampEvent object and returns a dictionary that matches the above defined function.
-        If you are using a straight list of variables, then this function will never be called. After
-        the definition line just put "pass" indented once, with no return statement. 
+        This is the function that is called by generalShell. As you can see if you have a 
+        function that returns the intensity in intFn then this function will be the same as the 
+        default here, so you can ignore this function. If you don NOT have an intensity function, 
+        but instead an amplitude function, then comment out the return statement of intFn and add
+        the 'pass' keyword in its place. Then replace the contents of this function with your own 
+        code. 
     """
+    
+    Int = intFn(kVars,params)
+    return Int*numpy.conjugate(Int)
 
-    for particles in event.particles:
-        if particles.particleID == 14.0: #recoil proton
-            p = FourVector(float(particles.particleE), 
-                            float(particles.particleXMomentum),
-                            float(particles.particleYMomentum),
-                            float(particles.particleZMomentum))
-        if particles.particleID == 1.0: #photon gamma
-            bm = FourVector(float(particles.particleE), 
-                            float(particles.particleXMomentum),
-                            float(particles.particleYMomentum),
-                            float(particles.particleZMomentum))
-        if particles.particleID == 9.0: #p-
-            pim = FourVector(float(particles.particleE), 
-                            float(particles.particleXMomentum),
-                            float(particles.particleYMomentum),
-                            float(particles.particleZMomentum))
-        if particles.particleID == 8.0: #p+
-            pip = FourVector(float(particles.particleE), 
-                            float(particles.particleXMomentum),
-                            float(particles.particleYMomentum),
-                            float(particles.particleZMomentum))
-    ptarget = FourVector(.938, 0.,0.,0.)
-    initp = bm + ptarget
-    finalp = pip + pim + p
-    pi0 = initp - finalp
-    P1 = FourVector(bm.E,0.0,0.0,bm.E)
-    P2 = ptarget
-    P3 = pip + pim + pi0
-    P4 = p   
-
-    s= (P1+P2).dot(P1+P2)
-    t= (P1-P3).dot(P1-P3)
-    u= (P1-P4).dot(P1-P4)
-    return {'s':s,'t':t,'u':u} #example
 
 def parFn(A1,A2): # Do not change the name of this function
     """
