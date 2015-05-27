@@ -35,8 +35,8 @@ def migFn(): # Do not change this line
                                                         # want to save the fitted values to
 def nTrueFn():
     from calcNTrue import calcNTrue
-    genDir = "./kvArgsGen.txt"  #<------- This should be the only thing you have to set for the calculation of nTrue, just set it to the generated MC file. 
-    params = numpy.load("Vvalues.npy")
+    genDir = "./kvArgsGen.txt"  #<------- This should be the only thing you have to set for the  
+    params = numpy.load("Vvalues.npy")     #calculation of nTrue, just set it to the generated MC file.
     nT = calcNTrue(genDir)
     nTrue = nT.calcNTrue(params)
 
