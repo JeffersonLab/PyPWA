@@ -39,6 +39,7 @@ def nTrueFn():
     params = numpy.load("Vvalues.npy")     #calculation of nTrue, just set it to the generated MC file.
     nT = calcNTrue(genDir)
     nTrue = nT.calcNTrue(params)
+    print nTrue
 
 from generalShell import generalFit # Do not change this line
 dataDir="./kvArgs.txt"
