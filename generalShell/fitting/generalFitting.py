@@ -39,19 +39,19 @@ class generalFit (object):
         return self.accKV[i]   
 
     def calcLnLike(self,params): 
-        iList = numpy.zeros(shape = (self.dataLen),dtype = numpy.complex)        
+        iList = numpy.zeros(shape = (self.dataLen))        
         for i in range(self.dataLen):
             iList[i] = intFn(self.getdKVars(i),params)
             sys.stdout.write("int "+str(i)+"\r")
             sys.stdout.flush()
-        aList = numpy.zeros(shape = (self.accLen),dtype = numpy.complex)
+        aList = numpy.zeros(shape = (self.accLen))
         for i in range(self.accLen):
             sys.stdout.write("accepted "+str(i)+"\r")
             sys.stdout.flush()
             aList[i] = intFn(self.getaKVars(i),params)
         val = -((self.QList*numpy.log(iList)).sum(0)) + ((1.0/float(self.accLen)) * aList.sum(0))
-        print val.real.item()
-        return val.real.item()
+        print val
+        return val
 
 if __name__ == '__main__':
     migFn()

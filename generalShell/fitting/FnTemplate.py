@@ -8,10 +8,9 @@ def intFn(kVars,params): # Do not change the name of this function
         first one being the kinematic variables from a list. And the second
         being the fitted parameters. All fitted parameters need to be floating point numbers. If a
         parameter of your function is a complex number make the real part one fitted variable and
-        the imaginary part another. Your function should return a numpy.complex(real,imaginary) 
-        as below. 
+        the imaginary part another. Your function should return a float. 
     """
-    return numpy.complex((kVars['s']**2)*(kVars['t']**3)*params["A1"],params['A2']*kVars['u']) #example
+    return (kVars['s']**2)*(kVars['t']**3)*params["A1"] #example
 
 def parFn(A1,A2): # Do not change the name of this function
     """

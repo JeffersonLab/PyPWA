@@ -15,7 +15,7 @@ class generalSim (object):
             return kvFn(self.dataT.writeEvent(self.dataT.events[i,:,:]))        
        
     def calcIList(self,params): 
-        iList = numpy.zeros(shape = (self.dataLen),dtype = numpy.complex)        
+        iList = numpy.zeros(shape = (self.dataLen))        
         for i in range(self.dataLen):
             iList[i] = ampFn(self.getdKVars(i),params)
             sys.stdout.write("int "+str(i)+"\r")
@@ -48,7 +48,7 @@ class generalSim (object):
             if wList[wn]>random():                
                 wnList[wn] = 1 
        	
-        numpy.save(os.path.join(os.path.split(inputGampDir)[0],"wnList"),wnList)
+        numpy.save(os.path.join(os.path.split(inputGampDir)[0],"wMaskList"),wnList)
 
         for wn in range(len(wnList)):
             wnEvent = gampT.writeEvent(gampList[wn,:,:])
