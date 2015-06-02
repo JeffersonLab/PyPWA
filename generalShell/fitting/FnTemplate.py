@@ -40,7 +40,7 @@ def nTrueFn():
     nTrue = nT.calcNTrue(params)
     print nTrue
 
-from generalShell import generalFit # Do not change this line
+from generalFitting import generalFit # Do not change this line
 dataDir="./kvArgs.txt"
 accDir="./kvArgsAcc.txt"
 QDir="./QFactor.txt"
