@@ -8,16 +8,14 @@
 
 
 """ 
-import os, glob
+import os, glob, shutil, time, numpy
 from subprocess import Popen
-import time, sys, numpy
 
-#add bin selection via 
 indir = os.getcwd().strip("GUI")
 Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 scriptOutDir=os.path.join(indir,"scripts","submitions")
 """
-    This is submition program for the simulator.
+    This is submition program for the general likelihood program
 """
 
 def submit(jsub_file):
@@ -31,11 +29,8 @@ def submit(jsub_file):
     proc = Popen(cmd,
         shell = True,
         executable = os.environ.get('SHELL', '/bin/tcsh'),
-        env = os.environ)
-    time.sleep(1)
-
-
-
+        env = os.environ)    
+    time.sleep(.5)
 
 def gen(directory,cmd):
     """
@@ -51,12 +46,11 @@ def gen(directory,cmd):
     auger_opts = dict(
                     project = Control[9],
                     track = 'analysis',
-                    jobname = 'simulator',
+                    jobname = 'genFit',
                     os = 'centos65',
-                    memory = '1000 MB',
-                    time = 30,
+                    memory = "3000 MB",
+                    time = 60,
 		    cmd = cmd)
-
     jsub_filename = os.path.join(scriptOutDir,directory)
     jsub_file = open(jsub_filename,'w')
     jsub_file.write('''\
@@ -68,12 +62,10 @@ MEMORY:{memory}
 TIME:{time}
 COMMAND:{cmd}
 '''.format(**auger_opts))
-
     jsub_file.close()
-
     return jsub_filename
 
-def parseDir(Bin):
+def parseDir(Bin): 
     """
     This function creates the cmd string to be submitted to the JLab batch farm. 
 
@@ -82,12 +74,9 @@ def parseDir(Bin):
     
     Returns:
     cmd (string): The full command to be used in the jsub file.
-    """
-    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"scripts","simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
-
+    """   
+    cmd = os.path.join(indir,"scripts","generalShell.py")+" "+str(Bin)+" "+indir
     return cmd
-
-
 
 if __name__ == '__main__':
     top = int(Control[2])    

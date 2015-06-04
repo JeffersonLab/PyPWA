@@ -58,7 +58,7 @@ if os.path.isfile(os.path.join(dataDir,"Vvalues.npy")):
         for wave in waves:
             nTrueList.append(wave.filename.rstrip(".bamp"))
             nTrueList.append(ntrueforwave(productionAmplitudes[waves.index(wave)],waves,wave,normint).real)        
-        numpy.save(os.path.join(dataDir,"flat","nTrueListR.npy"),nTrueList)       
+        numpy.save(os.path.join(dataDir,"flat","nTrueListV.npy"),nTrueList)       
 elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
     resonances=[]
     res = open(os.path.join(topDir,"scripts","resonances.txt"))
