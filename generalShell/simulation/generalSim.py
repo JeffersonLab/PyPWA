@@ -2,22 +2,28 @@
 import numpy
 import os, sys
 from pythonPWA.fileHandlers.gampTranslator import gampTranslator
-from FnSim import ampFn
+from FnSim import intFn
+from FnSim import kvFn
 from random import random
 
 class generalSim (object):
 
-    def __init__(self):
-        pass
+    def __init__(self,gampDir):
+        self.gampDir = gampDir
+        self.gampT = gampTranslator(self.gampDir)
+        if not os.path.isfile(self.gampDir.rstrip(".gamp")+".npy"):
+            numpy.save(inputGampDir.rstrip(".gamp")+".npy",gampT.translate(inputGampDir.rstrip(".gamp")+".npy"))
+        self.gampT.events=numpy.load(self.gampDir.rstrip(".gamp")+".npy") 
+        self.dataLen = self.gampT.events.shape[0]
 
     def getdKVars(self,i):
-        if ".gamp" in self.dataDir:
-            return kvFn(self.dataT.writeEvent(self.dataT.events[i,:,:]))        
+        if ".gamp" in self.gampDir:
+            return kvFn(self.gampT.writeEvent(self.gampT.events[i,:,:]))   
        
     def calcIList(self,params): 
-        iList = numpy.zeros(shape = (self.dataLen))        
+    	iList = numpy.zeros(shape = (self.dataLen))        
         for i in range(self.dataLen):
-            iList[i] = ampFn(self.getdKVars(i),params)
+            iList[i] = intFn(self.getdKVars(i),params)
             sys.stdout.write("int "+str(i)+"\r")
             sys.stdout.flush()
         return iList
@@ -27,14 +33,12 @@ class generalSim (object):
         outputPFGampFile=open(outputPFGampDir,'w')    
         outputRawGampFile=open(outputRawGampDir,'w')
         outputAccGampFile=open(outputAccGampDir,'w')
-        #igreader=gampReader(gampFile=inputGampFile)
-        #inputGampEvents=igreader.readGamp() 
         nTrueList = [((1.0/(iList.shape[0]))*(iList.sum(0)))]  
         numpy.save(nTrueDir,nTrueList)
 
         gampT = gampTranslator(inputGampDir)
         if not os.path.isfile(inputGampDir.rstrip(".gamp")+".npy"):
-            gampT.translate(inputGampDir.rstrip(".gamp")+".npy")
+            numpy.save(inputGampDir.rstrip(".gamp")+".npy",gampT.translate(inputGampDir.rstrip(".gamp")+".npy"))
         gampList=numpy.load(inputGampDir.rstrip(".gamp")+".npy") 
       
         
