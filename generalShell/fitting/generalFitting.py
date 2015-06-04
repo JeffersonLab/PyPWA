@@ -9,10 +9,11 @@ from Fn import migFn
 
 class generalFit (object):
 
-    def __init__(self,dataDir=None,accDir=None,QDir=None,initial={}):
+    def __init__(self,dataDir=None,accDir=None,QDir=None,genLen=None,initial={}):
         self.dataDir = dataDir
         self.accDir = accDir
         self.QDir = QDir
+        self.genLen = genLen
         self.initial = initial
         if ".txt" in self.dataDir:
             if not os.path.isfile(self.dataDir.rstrip(".txt")+".npy"):
@@ -49,7 +50,7 @@ class generalFit (object):
             sys.stdout.write("accepted "+str(i)+"\r")
             sys.stdout.flush()
             aList[i] = intFn(self.getaKVars(i),params)
-        val = -((self.QList*numpy.log(iList)).sum(0)) + ((1.0/float(self.accLen)) * aList.sum(0))
+        val = -((self.QList*numpy.log(iList)).sum(0)) + ((1.0/float(self.genLen)) * aList.sum(0))
         print val
         return val
 
