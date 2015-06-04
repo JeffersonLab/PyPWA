@@ -41,11 +41,12 @@ def nTrueFn():
     print nTrue
 
 from generalFitting import generalFit # Do not change this line
-dataDir="./kvArgs.txt"
-accDir="./kvArgsAcc.txt"
-QDir="./QFactor.txt"
-initial={'A1':.01,'A2':.01,'errordef':0.5}#do not change errordef 
-gF = generalFit(dataDir=dataDir,accDir=accDir,QDir=QDir,initial=initial)
+dataDir="./kvArgs.txt" #filepath for data text file
+accDir="./kvArgsAcc.txt" #filepath for accepted Monte Carlo text file
+QDir="./QFactor.txt" #filepath for Q probability factor file. Leave empty if you do not have one. 
+genLen=3000000 #Integer value for number of generated Monte Carlo events
+initial={'A1':.01,'A2':.01,'errordef':0.5}#initial values of fitted parameters as well as other iminuit arguments (do not change errordef) 
+gF = generalFit(dataDir=dataDir,accDir=accDir,QDir=QDir,genLen=genLen,initial=initial)
 """
     In the above line do not change the names of any of the arguments but set the values to the directories
     Of your data file, accepted MC file, list of Q Factors(If you do not account
