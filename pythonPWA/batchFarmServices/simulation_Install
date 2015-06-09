@@ -11,7 +11,7 @@ indir = os.path.split(os.path.split(os.getcwd())[0])[0]
 print "Top Directory: ",indir
 sys.path.append(os.path.join(indir,"pythonPWA"))
 if not os.path.isfile(os.path.join("Control_List.npy")):
-    sp.call("pwa_controls")
+    sp.call(os.path.abspath("pwa_controls"))
 Control = numpy.load(os.path.join("Control_List.npy"))  
 print("Creating directory structure for PyPWA fitting")
 tdirs = ("GUI","keyfiles","scripts","simulation")
