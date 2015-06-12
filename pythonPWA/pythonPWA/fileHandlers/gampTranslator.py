@@ -33,7 +33,7 @@ class gampTranslator():
         """
         This function parses a whole gamp file and returns the 3 demensional array. The first demension is the event number. 
         The second is the line number in that event (0 is the number of particles, >0 is a particle). The third is the index within
-        an individual particle.  
+        an individual particle.   
        
         """           
         i = 0
