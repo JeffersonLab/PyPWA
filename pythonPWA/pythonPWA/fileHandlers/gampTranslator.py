@@ -46,7 +46,7 @@ class gampTranslator():
                 self.events[n,0,0] = float(line)           
                 i+=1
             elif i < x and i!= 0:                     
-                particle = line.split(" ") 
+                particle = line.split() 
                 self.events[n,i,0]= particle[0]
                 self.events[n,i,1]= particle[1]
                 self.events[n,i,2]= particle[2]
@@ -55,7 +55,7 @@ class gampTranslator():
                 self.events[n,i,5]= particle[5].strip("\n")
                 i+=1
             elif i == x:
-                particle = line.split(" ")
+                particle = line.split()
                 self.events[n,i,0]= particle[0]
                 self.events[n,i,1]= particle[1]
                 self.events[n,i,2]= particle[2]
