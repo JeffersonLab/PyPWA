@@ -22,7 +22,7 @@ class generalFit (object):
             else:
                 self.dataKV = numpy.load(self.dataDir.rstrip(".txt")+".npy")
             if not os.path.isfile(self.accDir.rstrip(".txt")+".npy"):
-                self.accKV = kvParser(self.genDir)
+                self.accKV = kvParser(self.accDir)
                 numpy.save(self.accDir.rstrip(".txt")+".npy",self.accKV)
             else:
                 self.accKV = numpy.load(self.accDir.rstrip(".txt")+".npy")
