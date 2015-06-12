@@ -23,7 +23,7 @@ print P3
 P4 = P1 + P2
 print P4
 
-P5 = P2 * P1
+P5 = P2 * P1 
 print P5
 """
 from ThreeVec import ThreeVector

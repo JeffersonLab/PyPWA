@@ -55,7 +55,7 @@ class generalFit (object):
         return val
 
 if __name__ == '__main__':
-    migFn()
+    migFn() 
 
 
 
