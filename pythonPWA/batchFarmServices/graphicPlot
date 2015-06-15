@@ -11,10 +11,7 @@ import argparse
 sys.path.append(os.path.join(os.getcwd().strip("GUI"),"pythonPWA"))
 from batchFarmServices.graphicHelp import Help
 class graphicPlot(object):
-    """
-        This is the graphicPlot GUI optimized for fitting. 
-    """
-    
+
     def __init__(self,
                     topDir = os.getcwd().strip("GUI"),
                     dataL = [],
@@ -40,6 +37,7 @@ class graphicPlot(object):
                     nE0E = [],
                     nEAE = [],
                     er = 0,
+                    cW = 0,
                     errs = []):
         self.topDir = topDir
         self.dataL = dataL
@@ -63,7 +61,8 @@ class graphicPlot(object):
         self.nT0E = nT0E
         self.nTAE = nTAE
         self.nE0E = nE0E
-        self.nEAE = nEAE  
+        self.nEAE = nEAE 
+        self.cW = cW 
         self.er = er   
         self.errs = errs
         self.Control = numpy.load("Control_List.npy")
@@ -96,7 +95,7 @@ class graphicPlot(object):
         elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
             text.delete("0.0wordstart", "end")
             text.insert("end","NO LIST"+"\n"+"UPDATE AND PRESS SAVE "+"\n"+"FOR FITTED WAVES")
-            self.allL = [[] for i in range(14)]
+            self.allL = [[] for i in range(18)]
 
     def mk_all(self):
         self.allL = [self.dataL,
@@ -154,7 +153,7 @@ class graphicPlot(object):
         self.simL = []
         for d in self.ran:            
             if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/events.num"):                
-                self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/rawDATA.num"))
+                self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/rawDATA.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","sim UPDATED")
 
@@ -341,18 +340,50 @@ class graphicPlot(object):
         text.insert("end","nExp ADDED")
 
     def add_nTrue_wave(self,x):
-        self.plts.append(self.allL[8][x])
-        self.nms.append(self.wvs[x].strip(".bamp")+"True") 
-        self.errs.append(self.nTAE[x])       
-        text.delete("0.0wordstart", "end")
-        text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")        
+        if self.cW == 0:
+            self.plts.append(self.nTA[x])
+            self.nms.append(self.wvs[x].strip(".bamp")+"True") 
+            self.errs.append(self.nTAE[x])       
+            text.delete("0.0wordstart", "end")
+            text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")   
+        if self.cW ==1:
+            if len(self.nms) == 0 or not "combined(" in self.nms[-1] or ")Exp" in self.nms[-1]:
+                self.plts.append(self.nTA[x])
+                self.nms.append("combined("+self.wvs[x].strip(".bamp")+")True") 
+                self.errs.append(self.nTAE[x])       
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")
+            else:
+                for i , val in enumerate(self.plts[-1]):
+                    self.plts[-1][i]+=self.nTA[x][i]
+                self.nms[-1]=(self.nms[-1].rstrip(")True"))+(",\n"+self.wvs[x].strip(".bamp")+")True")
+                for j in range(len(self.errs[-1])): 
+                    self.errs[-1][j]=self.errs[-1][j]+self.nTAE[x][j]     
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED to last wave")
 
     def add_nExp_wave(self,x):
-        self.plts.append(self.allL[10][x])
-        self.nms.append(self.wvs[x].strip(".bamp")+"Exp")
-        self.errs.append(self.nEAE[x])    
-        text.delete("0.0wordstart", "end")
-        text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED")
+        if self.cW == 0:
+            self.plts.append(self.nEA[x])
+            self.nms.append(self.wvs[x].strip(".bamp")+"Exp")
+            self.errs.append(self.nEAE[x])    
+            text.delete("0.0wordstart", "end")
+            text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED")
+        if self.cW ==1:
+            if len(self.nms) == 0 or not "combined(" in self.nms[-1] or ")True" in self.nms[-1]:
+                self.plts.append(self.nEA[x])
+                self.nms.append("combined("+self.wvs[x].strip(".bamp")+")Exp") 
+                self.errs.append(self.nEAE[x])       
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED")
+            else:
+                for i in range(len(self.plts[-1])):
+                    self.plts[-1][i]=self.plts[-1][i]+self.nEA[x][i]
+                self.nms[-1]=(self.nms[-1].rstrip(")Exp"))+(",\n"+self.wvs[x].strip(".bamp")+")Exp") 
+                for j in range(len(self.errs[-1])): 
+                    self.errs[-1][j]=self.errs[-1][j]+self.nEAE[x][j]     
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED to last wave")
 
     def add_delF(self):
         self.plts.append(self.delF)
@@ -371,8 +402,8 @@ class graphicPlot(object):
                 if lis[i] != self.percL:
                     if self.er == 1:
                         ax1.errorbar(self.ran,lis[i],yerr=self.errs[i],linestyle='',marker=marker.next(),label=self.nms[i])
-                    elif self.er ==0:
-                        ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                    elif self.er == 0:
+                        ax1.plot(self.ran,lis[i],linestyle='',marker=marker.next(),label=self.nms[i])
                     ax1.legend(loc = 2)
                     ax1.set_ylabel("Events")
                     ax1.set_xlabel("Mass (MeV)")
@@ -385,14 +416,14 @@ class graphicPlot(object):
             for i in range(len(lis)):                
                 if self.er == 1:
                     ax1.errorbar(self.ran,lis[i],yerr=self.errs[i],linestyle='',marker=marker.next(),label=self.nms[i])
-                elif self.er ==0:
-                    ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
+                elif self.er == 0:
+                    ax1.plot(self.ran,lis[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
                 ax1.legend()
                 ax1.set_ylabel("Events")
                 ax1.set_xlabel("Mass (MeV)")
         elif self.percL in lis and len(lis)== 1:
             for i in range(len(lis)):
-                ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
+                ax1.plot(self.ran,self.lis[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
                 ax1.legend()
                 ax1.set_ylabel("Percent")
                 ax1.set_xlabel("Mass (MeV)")
@@ -401,11 +432,14 @@ class graphicPlot(object):
         self.plts = []
         self.nms = []
         self.errs = []
+
     def plot(self, lis):
         text.delete("0.0wordstart", "end")
         text.insert("end","PLOTTING")
         p = Process(target=self.mk_plot,args=(lis,))
         p.start()
+        self.__init__()
+        self.loadl()
         self.plts = []
         self.nms = []
         self.errs = []
@@ -447,7 +481,16 @@ class graphicPlot(object):
             self.er = 0
             text.delete("0.0wordstart", "end")
             text.insert("end","ERROR OFF")
-            
+
+    def combiWaves(self):
+        if self.cW == 0:
+            self.cW = 1
+            text.delete("0.0wordstart", "end")
+            text.insert("end","Combining waves")
+        elif self.cW == 1:
+            self.cW = 0
+            text.delete("0.0wordstart", "end")
+            text.insert("end","Not combining waves")
 
 parser = argparse.ArgumentParser(description="""A graphing utility for the PyPWA partial wave analysis toolkit.""")
 parser.add_argument("-t", "--topDir", help="Run graphicPlot with a different top directory than the current working directory.",default=os.getcwd().strip("GUI"))
@@ -496,7 +539,7 @@ PdelF = tk.Button(frame2, text="PLOT"+"\n"+"delta",  command=lambda: GP.add_delF
 help = tk.Button(frame2, text="HELP",  command=lambda: GP.help_window())
 Plot = tk.Button(frame2, text="PLOT", fg = "red", command=lambda: GP.plot(GP.plts))
 err = tk.Button(frame2, text="ERROR",  command=lambda: GP.error())
-
+coW = tk.Button(frame2, text="ADD"+"\n"+"WAVES",  command=lambda: GP.combiWaves())
 
 Pall.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
 Pdata.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
@@ -509,7 +552,8 @@ PnT0.grid(row=1,column=2,sticky="N"+"S"+"E"+"W")
 PnE0.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
 PdelF.grid(row=1,column=4,sticky="N"+"S"+"E"+"W")
 help.grid(row=0,column=5,sticky="N"+"S"+"E"+"W")
-Plot.grid(row=1,column=5,sticky="N"+"S"+"E"+"W")
+Plot.grid(row=1,column=6,sticky="N"+"S"+"E"+"W")
+coW.grid(row=1,column=5,sticky="N"+"S"+"E"+"W")
 err.grid(row=0,column=6,sticky="N"+"S"+"E"+"W")
 
 cob = tk.Button(frame, text="pwa"+"\n"+"Controls", command=lambda: sp.call(os.getcwd()+"/pwa_controls"))
