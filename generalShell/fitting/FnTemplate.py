@@ -45,12 +45,15 @@ dataDir="./kvArgs.txt" #filepath for data text file
 accDir="./kvArgsAcc.txt" #filepath for accepted Monte Carlo text file
 QDir="./QFactor.txt" #filepath for Q probability factor file. Leave empty if you do not have one. 
 genLen=3000000 #Integer value for number of generated Monte Carlo events
+reLoad=False #Boolean value for reparsing the data and acc text files and overwriting their npy files
 initial={'A1':.01,'A2':.01,'errordef':0.5}#initial values of fitted parameters as well as other iminuit arguments (do not change errordef) 
-gF = generalFit(dataDir=dataDir,accDir=accDir,QDir=QDir,genLen=genLen,initial=initial)
+gF = generalFit(dataDir=dataDir,accDir=accDir,QDir=QDir,genLen=genLen,initial=initial,reLoad=reLoad)
 """
     In the above line do not change the names of any of the arguments but set the values to the directories
     Of your data file, accepted MC file, list of Q Factors(If you do not account
     for Q then leave it as an empty string("") and Q will be set to 1.0 for all events and be inconsequential),
+    an integer value for the number of generated MC events for this fit and a boolean value for reloading 
+    text files of kinimatic variables, since they do not automatically overwrite their npy files when the are changed,
     and a dictionary of all initial values for fitted parameters, as well as any other iMinuit fitting aruguments. 
     See iMinuit docs for more information. 
 """

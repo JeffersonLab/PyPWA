@@ -79,7 +79,8 @@ def simFn():
 
 from generalSim import generalSim
 inputGampDir=""#Loaction of the Generated MC Gamp File(Same as above)
-gS = generalSim(gampDir = inputGampDir)
+reLoad = False#Boolean value for reparsing the generated MC gamp file and overwriting its npy files
+gS = generalSim(gampDir = inputGampDir,reLoad=reLoad)
 if sys.argv[1] == "i":
     numpy.save("",gS.calcIList({'A1':7.,'A2':-3.0,'A3':0.37,'A4':0.037,'A5':0.121}))#example The first argument of numpy.save() is the filepath of the iList to be saved.
 elif sys.argv[1] == "s":

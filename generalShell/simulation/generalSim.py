@@ -8,10 +8,11 @@ from random import random
 
 class generalSim (object):
 
-    def __init__(self,gampDir):
+    def __init__(self,gampDir,reLoad):
         self.gampDir = gampDir
         self.gampT = gampTranslator(self.gampDir)
-        if not os.path.isfile(self.gampDir.rstrip(".gamp")+".npy"):
+        self.reLoad = reLoad
+        if not os.path.isfile(self.gampDir.rstrip(".gamp")+".npy") or self.reLoad:
             numpy.save(inputGampDir.rstrip(".gamp")+".npy",gampT.translate(inputGampDir.rstrip(".gamp")+".npy"))
         self.gampT.events=numpy.load(self.gampDir.rstrip(".gamp")+".npy") 
         self.dataLen = self.gampT.events.shape[0]
