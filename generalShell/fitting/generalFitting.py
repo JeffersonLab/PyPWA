@@ -9,20 +9,21 @@ from Fn import migFn
 
 class generalFit (object):
 
-    def __init__(self,dataDir=None,accDir=None,QDir=None,genLen=None,initial={}):
+    def __init__(self,dataDir=None,accDir=None,QDir=None,genLen=None,initial={},reLoad=False):
         self.dataDir = dataDir
         self.accDir = accDir
         self.QDir = QDir
         self.genLen = genLen
         self.initial = initial
+        self.reLoad = reLoad
         if ".txt" in self.dataDir:
-            if not os.path.isfile(self.dataDir.rstrip(".txt")+".npy"):
+            if not os.path.isfile(self.dataDir.rstrip(".txt")+".npy") or self.reLoad:
                 self.dataKV = kvParser(self.dataDir)
                 numpy.save(self.dataDir.rstrip(".txt")+".npy",self.dataKV)
             else:
                 self.dataKV = numpy.load(self.dataDir.rstrip(".txt")+".npy")
-            if not os.path.isfile(self.accDir.rstrip(".txt")+".npy"):
-                self.accKV = kvParser(self.genDir)
+            if not os.path.isfile(self.accDir.rstrip(".txt")+".npy") or self.reLoad:
+                self.accKV = kvParser(self.accDir)
                 numpy.save(self.accDir.rstrip(".txt")+".npy",self.accKV)
             else:
                 self.accKV = numpy.load(self.accDir.rstrip(".txt")+".npy")
@@ -55,7 +56,7 @@ class generalFit (object):
         return val
 
 if __name__ == '__main__':
-    migFn()
+    migFn() 
 
 
 

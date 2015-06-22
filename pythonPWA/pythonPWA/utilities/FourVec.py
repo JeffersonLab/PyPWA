@@ -23,7 +23,7 @@ print P3
 P4 = P1 + P2
 print P4
 
-P5 = P2 * P1
+P5 = P2 * P1 
 print P5
 """
 from ThreeVec import ThreeVector
@@ -87,7 +87,6 @@ class FourVector(object):
     def times(self, L): #L is Lorentz transformation
         this = self.toMatrix().transpose().dot(L.m).flatten().tolist()
         t = this[0]
-        print t
         return FourVector(t)
     def r(self):
         return (float(self.x**2) + float(self.y**2) + float(self.z**2))**(1./2.)
