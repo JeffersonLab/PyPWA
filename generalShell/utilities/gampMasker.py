@@ -1,3 +1,4 @@
+#! /apps/anaconda/bin/python2
 import argparse
 import numpy, sys, os
 from gampParticle import gampParticle
