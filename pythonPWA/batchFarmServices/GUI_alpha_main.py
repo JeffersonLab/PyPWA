@@ -79,13 +79,13 @@ if __name__ == '__main__':
                 jsub_filename = os.path.join(scriptOutDir,"subAlpha"+str(i))
                 jsub_file = open(jsub_filename,'w')
                 jsub_file.write('''\
-    PROJECT: {project}
-    TRACK: {track}
-    JOBNAME: {jobname}
-    OS: {os}
-    MEMORY: {memory}
-    TIME: {time}
-    COMMAND: {cmd}
+PROJECT: {project}
+TRACK: {track}
+JOBNAME: {jobname}
+OS: {os}
+MEMORY: {memory}
+TIME: {time}
+COMMAND: {cmd}
         '''.format(**auger_opts))    
                 jsub_file.close()
                 print jsub_filename

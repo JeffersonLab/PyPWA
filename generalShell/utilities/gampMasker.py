@@ -17,11 +17,11 @@ class gampMasker (object):
                 numpy.save(self.File.rstrip(".gamp")+".npy",gampT.translate(self.File.rstrip(".gamp")+".npy"))
             self.gampList=numpy.load(self.File.rstrip(".gamp")+".npy")
         elif "txt" in self.File:
-            if not os.path.isfile(self.File.rstrip(".txt")+".npy"):
-                self.gampList = kvParser(self.File)
-                numpy.save(self.File.rstrip(".txt")+".npy",self.gampList)
-            else:
-                self.gampList = numpy.load(self.File.rstrip(".txt")+".npy")
+            #if not os.path.isfile(self.File.rstrip(".txt")+".npy"):
+            #    self.gampList = kvParser(self.File)
+            #    numpy.save(self.File.rstrip(".txt")+".npy",self.gampList)
+            #else:
+            pass
         self.pfFile=pfFile
         if os.path.isfile(self.pfFile):
             self.pfList=numpy.loadtxt(self.pfFile)
@@ -35,51 +35,45 @@ class gampMasker (object):
 
     def maskPF(self):
         with open(args.accepted_out,'w+')as pfOut:
-            for n in range(self.gampList.shape[0]):
-                if "gamp" in self.File:
+            if "gamp" in self.File:
+                for n in range(self.gampList.shape[0]):
                     pfEvent = self.gampT.writeEvent(self.gampList[n,:,:])
                     if float(self.pfList[n])==1.0:
                         pfEvent.writeGamp(pfOut)
-                if "txt" in self.File:
+            if "txt" in self.File:
+                n = 0 
+                for line in fileinput.input([self.File]):        
                     if float(self.pfList[n])==1.0:
-                        pfEvent = self.gampList[n]
-                        for i in pfEvent.keys():
-                            if len(pfEvent) > 1:
-                                pfOut.write(str(i)+"="+str(pfEvent.pop(i))+",")
-                            elif len(pfEvent) == 1:
-                                pfOut.write(str(i)+"="+str(pfEvent.pop(i))+"\n")
+                        pfOut.write(line)
+                        n+=1
 
     def maskWN(self):
         with open(args.weighted_out,'w+') as wnOut:
-            for n in range(self.gampList.shape[0]):
-                if "gamp" in self.File:
+            if "gamp" in self.File:
+                for n in range(self.gampList.shape[0]):
                     wnEvent = self.gampT.writeEvent(self.gampList[n,:,:])
                     if float(self.wnList[n])==1.0:
                         wnEvent.writeGamp(wnOut)
-                if "txt" in self.File:
+            if "txt" in self.File:
+                n = 0
+                for line in fileinput.input([self.File]):
                     if float(self.wnList[n])==1.0:
-                        wnEvent = self.gampList[n]
-                        for i in wnEvent.keys():
-                            if len(wnEvent) > 1:
-                                wnOut.write(str(i)+"="+str(wnEvent.pop(i))+",")
-                            elif len(wnEvent) == 1:
-                                wnOut.write(str(i)+"="+str(wnEvent.pop(i))+"\n")
+                        wnOut.write(line)
+                        n+=1
 
     def maskBoth(self):
         with open(args.both_out,'w+') as btOut:
-            for n in range(self.gampList.shape[0]):
-                if "gamp" in self.File:
+            if "gamp" in self.File:
+                for n in range(self.gampList.shape[0]):            
                     btEvent = self.gampT.writeEvent(self.gampList[n,:,:])
                     if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
                         btEvent.writeGamp(btOut)
-                if "txt" in self.File:
+            if "txt" in self.File:
+                n = 0 
+                for line in fileinput.input([self.File]):
                     if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
-                        btEvent = self.gampList[n]
-                        for i in btEvent.keys():
-                            if len(btEvent) > 1:
-                                btOut.write(str(i)+"="+str(btEvent.pop(i))+",")
-                            elif len(btEvent) == 1:
-                                btOut.write(str(i)+"="+str(btEvent.pop(i))+"\n")
+                        btOut.write(line)
+                        n+=1
 
     def maskAny(self):
         maskList = numpy.loadtxt(raw_input("Where is the custom mask text file? "))
