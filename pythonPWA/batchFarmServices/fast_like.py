@@ -10,6 +10,7 @@
 
 import numpy as np
 import os
+from pythonPWA.model.complexV import complexV
 
 class FASTLikelihood(object):
     """
@@ -45,7 +46,8 @@ class FASTLikelihood(object):
         self.nwaves = len(self.waves)
         self.acceptedPath=acceptedPath
         self.generatedPath=generatedPath
-        self.iList=[]        
+        self.iList=[]   
+	    self.normint=accNormInt      
         self.accNormInt=accNormInt.sum(0).sum(0)
         self.Q = Q
         self.rhoAA = rhoAA
@@ -107,11 +109,11 @@ class FASTLikelihood(object):
         LLog = self.calclnL()    
         print"LLog:",LLog        
         return LLog
+    
 
     def calcInt(self):
         """
             Calculates the list of intensities for a mass bin.
-
             Returns:
             iList (numpy array)
         """        
@@ -120,5 +122,21 @@ class FASTLikelihood(object):
             for j in range(self.nwaves):
                 VV = self.productionAmplitudes[i] * np.conjugate(self.productionAmplitudes[j])                
                 a0 = a0 + (VV * self.rhoAA[i,j,:]).real    
+        return self.Q*a0
+
+    def calcIntRes(self,resonances,testMass):
+        """
+            Calculates the list of intensities for a mass bin.
+
+            Returns:
+            iList (numpy array)
+        """        
+        a0 = 0.   
+        for resonance1 in resonances:    
+            for resonance2 in resonances:  
+                for wave1 in self.waves:
+                    for wave2 in self.waves:
+                        VV = complexV(resonance1,wave1,self.waves,self.normint,testMass) * np.conjugate(complexV(resonance2,wave2,self.waves,self.normint,testMass))                
+                        a0 = a0 + (VV * self.rhoAA[self.waves.index(wave1),self.waves.index(wave2),:]).real    
         return self.Q*a0
 

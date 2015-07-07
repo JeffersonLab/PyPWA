@@ -61,8 +61,19 @@ class dataSimulator(object):
         
         minuitLn=FASTLikelihood(waves=self.waves,productionAmplitudes=self.productionAmplitudes,rhoAA=self.rhoAA,accNormInt=self.normint)        
         iList = minuitLn.calcInt()     
+        return iList 
+    
+    def calcIListRes(self,resonances):
+        """
+            Calculates the list of intensities. 
+
+            Returns:
+            iList; Note, does NOT save it. Must be saved after returning. 
+        """
         
-        return iList        
+        minuitLn=FASTLikelihood(waves=self.waves,productionAmplitudes=self.productionAmplitudes,rhoAA=self.rhoAA,accNormInt=self.normint)        
+        iList = minuitLn.calcIntRes(resonances)
+        return iList               
         
     def execute(self,inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile,outputPFGampFile):
         """

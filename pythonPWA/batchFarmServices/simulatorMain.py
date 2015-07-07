@@ -15,8 +15,8 @@ from pythonPWA.fileHandlers.getWavesGen import getwaves
 from batchFarmServices.dataSimulatorNPY import dataSimulator
 from pythonPWA.model.complexV import complexV
 from pythonPWA.dataTypes.resonance import resonance 
-from pythonPWA.model.nTrue import nTrueForFixedV1V2 as ntrue
-from pythonPWA.model.nTrue import nTrueForFixedV1V2AndWave as ntrueforwave
+from pythonPWA.model.nTrue import nTrue as ntrue
+from pythonPWA.model.nTrue import nTrueForWave as ntrueforwave
 import operator
 from batchFarmServices.rhoAA import rhoAA
 """
@@ -65,25 +65,21 @@ elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
     rez = res.readlines()
     for re in rez:
         if re[0] != "#" and re[0] != " " and re[0] != "\n":
-            rev = re.split(" ")
+            rev = re.split()
             wRx = [(float(x)) for x in rev[1].split(",")]
             resonances.append(resonance(cR=float(rev[0])*maxNumberOfEvents,wR=wRx,w0=float(rev[2]),r0=float(rev[3]),phase=float(rev[4])))        
-    for resonance in resonances:                        
-        for wave in waves:
-            productionAmplitudes.append(complexV(resonance,wave,waves,normint,testMass))
     if sys.argv[3] == "s":
-        numpy.save(os.path.join(dataDir,"flat","calcVvalues.npy"),productionAmplitudes)
-        nTrueList = [ntrue(productionAmplitudes,waves,normint)]  
+        nTrueList = [ntrue(resonances,waves,testMass,normint)]  
         for wave in waves:
             nTrueList.append(wave.filename.rstrip(".bamp"))
-            nTrueList.append(ntrueforwave(productionAmplitudes[waves.index(wave)],waves,wave,normint).real)        
+            nTrueList.append(ntrueforwave(resonances,waves,wave,testMass,normint))        
         numpy.save(os.path.join(dataDir,"flat","nTrueListR.npy"),nTrueList)
-    if len(productionAmplitudes) == 0:
+    if len(resonances) == 0:
         print "There are no resonances in resonances.txt, modify it in /scripts and try again."
-        exit()
+        exit(1)
 else:
     print "There is neither a resonance.txt file, or a Vvalues.npy file consult the documentation and try again."
-    exit()
+    exit(1)
     
 if sys.argv[3] == "i":   
     rAA = rhoAA(waves=waves,alphaList=alphaList,beamPolarization=float(Control[1]))
@@ -91,7 +87,10 @@ if sys.argv[3] == "i":
     numpy.save(os.path.join(dataDir,"flat","rhoAA.npy"),rhoAA)
 
     dSimulator=dataSimulator(mass=testMass,waves=waves,productionAmplitudes=productionAmplitudes,normint=normint,alphaList=alphaList,rhoAA=rhoAA)
-    iList = dSimulator.calcIList()
+    if len(productionAmplitudes) != 0:    
+        iList = dSimulator.calcIList()
+    elif len(productionAmplitudes) == 0 and len(resonances) != 0: 
+        iList = dSimulator.calcIListRes(resonances)
     numpy.save(os.path.join(dataDir,"flat","iList"),iList)
 
 elif sys.argv[3] == "s":

@@ -83,13 +83,14 @@ class graphicPlotSim(object):
     def num_len(self,fname):
         with open(fname) as f:
             num = f.readlines()
-        return int(num[0])
+        return float(num[0])
     
     def file_len(self,fname):
         with open(fname) as f:
+            g = f.readline(limit=1)
             for i, l in enumerate(f):
                 pass
-        return (i + 1)/6
+        return (i + 1)/g
 
     def up_range(self):
         rang = []
