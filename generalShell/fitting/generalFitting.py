@@ -2,7 +2,6 @@
 import numpy
 import os, sys
 from iminuit import Minuit
-from kvParser import kvParser
 from Fn import intFn
 from Fn import parFn
 from Fn import migFn
@@ -16,42 +15,85 @@ class generalFit (object):
         self.genLen = genLen
         self.initial = initial
         self.reLoad = reLoad
-        if ".txt" in self.dataDir:
-            if not os.path.isfile(self.dataDir.rstrip(".txt")+".npy") or self.reLoad:
-                self.dataKV = kvParser(self.dataDir)
-                numpy.save(self.dataDir.rstrip(".txt")+".npy",self.dataKV)
-            else:
-                self.dataKV = numpy.load(self.dataDir.rstrip(".txt")+".npy")
-            if not os.path.isfile(self.accDir.rstrip(".txt")+".npy") or self.reLoad:
-                self.accKV = kvParser(self.accDir)
-                numpy.save(self.accDir.rstrip(".txt")+".npy",self.accKV)
-            else:
-                self.accKV = numpy.load(self.accDir.rstrip(".txt")+".npy")
-            self.dataLen = len(self.dataKV)
-            self.accLen = len(self.accKV)
         if os.path.isfile(self.QDir):
            self.QList = numpy.loadtxt(self.QDir)
         else:
-            self.QList = numpy.ones(shape=(self.dataLen))
+            self.QList = 1.0
         
-    def getdKVars(self,i):
-        return self.dataKV[i]
-
-    def getaKVars(self,i):
-        return self.accKV[i]   
-
-    def calcLnLike(self,params): 
-        iList = numpy.zeros(shape = (self.dataLen))        
-        for i in range(self.dataLen):
-            iList[i] = intFn(self.getdKVars(i),params)
-            sys.stdout.write("int "+str(i)+"\r")
-            sys.stdout.flush()
-        aList = numpy.zeros(shape = (self.accLen))
-        for i in range(self.accLen):
-            sys.stdout.write("accepted "+str(i)+"\r")
-            sys.stdout.flush()
-            aList[i] = intFn(self.getaKVars(i),params)
+    def calcLnLikeExtUB(self,params): 
+        n = 0 
+    	iList = numpy.zeros(shape = (1))
+        for line in fileinput.input([self.dataDir]): 
+            iList.resize(n+1)       
+            kvAs = line.split(",")
+            kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
+            iList[n] = intFn(kvAx,params)
+            n+=1
+        n = 0 
+    	aList = numpy.zeros(shape = (1))
+        for line in fileinput.input([self.accDir]): 
+            aList.resize(n+1)       
+            kvAs = line.split(",")
+            kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
+            aList[n] = intFn(kvAx,params)
+            n+=1
         val = -((self.QList*numpy.log(iList)).sum(0)) + ((1.0/float(self.genLen)) * aList.sum(0))
+        print val
+        return val
+
+    def calcLnLikeUExtUB(self,params): 
+        n = 0 
+    	iList = numpy.zeros(shape = (1))
+        for line in fileinput.input([self.KVDir]): 
+            iList.resize(n+1)       
+            kvAs = line.split(",")
+            kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
+            iList[n] = intFn(kvAx,params)
+            n+=1
+        val = -((self.QList*numpy.log(iList)).sum(0))
+        print val
+        return val
+
+    def calcLnLikeExtB(self,params):
+        n = 0
+    	iList = numpy.zeros(shape = (1))
+        ibinList = numpy.zeros(shape = (1))
+        for line in fileinput.input([self.KVDir]): 
+            iList.resize(n+1)
+            ibinList.resize(n+1)       
+            kvAs = line.split(",")
+            kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
+            iList[n] = intFn(kvAx,params)
+            ibinList[n] = kvAx['BinN']
+            n+=1
+        n = 0        
+        aList = numpy.zeros(shape = (1))
+        abinList = numpy.zeros(shape = (1))
+        for line in fileinput.input([self.accDir]): 
+            aList.resize(n+1)       
+            abinList.resize(n+1)    
+            kvAs = line.split(",")
+            kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
+            aList[n] = intFn(kvAx,params)
+            abinList[n] = kvAx['BinN']
+            n+=1
+        val = -((self.QList*ibinList*numpy.log(iList)).sum(0)) + ((1.0/float(self.genLen)) *((abinList*aList).sum(0)))
+        print val
+        return val
+
+    def calcLnLikeUExtB(self,params,bins): 
+        n = 0
+    	iList = numpy.zeros(shape = (1))
+        ibinList = numpy.zeros(shape = (1))
+        for line in fileinput.input([self.KVDir]): 
+            iList.resize(n+1)
+            ibinList.resize(n+1)       
+            kvAs = line.split(",")
+            kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
+            iList[n] = intFn(kvAx,params)
+            ibinList[n] = kvAx['BinN']
+            n+=1
+        val = -((self.QList*ibinList*numpy.log(iList)).sum(0))
         print val
         return val
 

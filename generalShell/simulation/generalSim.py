@@ -7,16 +7,8 @@ from random import random
 
 class generalSim (object):
 
-    def __init__(self,KVDir,reLoad):
+    def __init__(self,KVDir):
         self.KVDir = KVDir
-        self.reLoad = reLoad
-        #if ".txt" in self.KVDir:
-        #    if not os.path.isfile(self.KVDir.rstrip(".txt")+".npy") or self.reLoad:
-        #        self.KVList = kvParser(self.KVDir)
-        #        numpy.save(self.KVDir.rstrip(".txt")+".npy",self.KVList)
-        #    else:
-        #        self.KVList = numpy.load(self.KVDir.rstrip(".txt")+".npy")
-        #self.KVLen = len(self.KVList)
        
     def calcIList(self,params): 
         n = 0 

@@ -18,10 +18,14 @@ def parFn(A1,A2): # Do not change the name of this function
         the initial value dictionary defined below and instantiate the params dictionary below and call the 
         generalFit.calcLnLike function below it with params as it's argument. This is so minutit can fit those
         parameters with your pre defined initial values. 
+        
+        Un-comment the return statement that you want to use. Only one can be used at a time. 
     """
     params = {'A1':A1,'A2':A2} 
-    return gF.calcLnLike(params) # Do not change anything on this line
-
+    return gF.calcLnLikeExtUB(params) # Extended Un-Binned
+#    return gF.calcLnLikeUExtUB(params) # Un-Extended Un-Binned
+#    return gF.calcLnLikeExtB(params) # Extended Binned
+#    return gF.calcLnLikeUExtB(params) # Un-Extended Binned
 def migFn(): # Do not change this line
     kwdarg = gF.initial # or this one
     m = Minuit(parFn,**kwdarg) # or this one
