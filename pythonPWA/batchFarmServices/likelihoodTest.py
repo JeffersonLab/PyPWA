@@ -15,24 +15,13 @@
 import numpy
 import os
 import sys
+import fileinput
 sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
 from pythonPWA.fileHandlers.getWavesGen import getwaves
 from batchFarmServices.fast_like import FASTLikelihood
 from batchFarmServices.rhoAA import rhoAA
+import fnGenerator
 from iminuit import Minuit
-
-def minFn(*args):
-    retList=[numpy.complex(args[i],args[i+1]) for i in range(0,len(args),2)]
-	return minuitLn.calcneglnL(retList)
-
-def initParsre(fileName):
-    kwdargs = {}  
-    for line in fileinput.input([dataFile]):
-        if line[0] != '#':
-            kvAs = line.split()
-            for kvAx in kvAs:
-                kwdargs[str(kvAx.split("=")[0])] = float(kvAx.split("=")[1])
-    return kwdargs 
 
 indir = sys.argv[2]
 Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
@@ -53,15 +42,46 @@ rhoAA = rAA.calc()
 numpy.save(os.path.join(dataDir,"data","rhoAA.npy"),rhoAA)
 minuitLn=FASTLikelihood(waves=waves,alphaList=alphaList,acceptedPath=acceptedPath,generatedPath=generatedPath,accNormInt=accNormInt,Q=QFactor,rhoAA=rhoAA)
 if not os.path.isfile(os.path.join(sys.argv[2],"scripts","minInit.txt")):
-    kwdarg = {"t"+str(i):.01 for i in range(len(waves)*2)}
-    kwdarg['errordef']=0.5
-    m=Minuit(minfn,**kwdarg)
+    generator=fnGenerator.generator()
+    generator.fileName=os.path.join(os.getcwd(),"generatedFn.py")
+    generator.createFile(len(waves)*2)
+    execfile(os.path.join(os.getcwd(),"generatedFn.py"))
+
+    m.set_up(0.5)
     m.set_strategy(2)
     m.migrad(ncall=int(Control[6]))
 else:
-    kwdarg = initParser(os.path.join(sys.argv[2],"scripts","minInit.txt"))
-    kwdarg['errordef']=0.5
-    m=Minuit(minfn,**kwdarg)
+    kwdargs = []
+    params = []  
+    for line in fileinput.input([os.path.join(sys.argv[2],"scripts","minInit.txt")]):
+        if line[0] != '#':
+            kvAs = line.split()
+            params.append(kvAs[0].split("=")[0])
+            for kvAx in kvAs:
+                kwdargs.append(kvAx)
+    f = open(os.path.join(os.getcwd(),"generatedFn.py"),"w+")
+    f.write("def fn(")
+    for p in params:
+        if p != params[-1]:
+            f.write(str(p)+",")
+        else:
+            f.write(str(p)+"):\n")
+    f.write("    retList=[")
+    for i in range(0,len(params),2):
+        if params[i+1] != params[-1]:
+            f.write("numpy.complex("+params[i]+","+params[i+1]+"),")
+        else:
+            f.write("numpy.complex("+params[i]+","+params[i+1]+")]\n")
+    f.write("    return minuitLn.calcneglnL(retList)\n\n")
+    f.write("m=Minuit(fn,")
+    for k in kwdargs:
+        if k != kwdargs[-1]:
+            f.write(str(k)+",")
+        else:
+            f.write(str(k)+")")
+    f.close()
+    execfile(os.path.join(os.getcwd(),"generatedFn.py"))
+    m.set_up(0.5)
     m.set_strategy(2)
     m.migrad(ncall=int(Control[6]))
     

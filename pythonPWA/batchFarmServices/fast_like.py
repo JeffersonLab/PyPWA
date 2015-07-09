@@ -24,7 +24,7 @@ class FASTLikelihood(object):
                 generatedPath=os.getcwd(),                
                 rhoAA = None,
                 accNormInt=None,
-                Q = [1.0]                               
+                Q = [1.0]
                 ):
         """
             Default FASTLikelihood constructor
@@ -47,7 +47,7 @@ class FASTLikelihood(object):
         self.acceptedPath=acceptedPath
         self.generatedPath=generatedPath
         self.iList=[]   
-	    self.normint=accNormInt      
+        self.normint=accNormInt      
         self.accNormInt=accNormInt.sum(0).sum(0)
         self.Q = Q
         self.rhoAA = rhoAA

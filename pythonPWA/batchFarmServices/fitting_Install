@@ -36,7 +36,7 @@ for i in tdirs:
         os.makedirs(directoryBuffer)        
 progs = ("fnGenerator.py","generateAlphaNPY.py","GUI_alpha_main.py",
 "GUI_gamp_main.py","GUI_subPyNormInt.py","likelihoodTest.py","mvBAMP_GUI",
-"run_normintFARM.py","subLikelihood","subWalkNTrue","walkingNTrue.py","massBinner.py")
+"run_normintFARM.py","subLikelihood","subWalkNTrue","walkingNTrue.py","massBinner2.py")
 for s in progs:
     cmd = 'cp '+os.path.join(os.getcwd(),str(s))+" "+os.path.join(indir,"scripts")
     proc = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
@@ -65,14 +65,14 @@ cmd = "mv "+indir+"/*.keyfile "+os.path.join(indir,"keyfiles")
 procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
 procx.wait()
 print "Filling keyfiles"
-Waves = [wave.strip(".keyfile") for wave in os.listdir(os.path.join(indir,"keyfiles"))]
+Waves = ["wave"+str(i) for i in range(len(os.listdir(os.path.join(indir,"keyfiles"))))]
 if len(Waves) > 0:
     minInit = open(os.path.join(indir,"scripts","minInit.txt"),"w+")
     minInit.write("# Fill out each line. Leave defaults that you are happy with. Completely remove any value you will not be using.\n")
     for wave in Waves:
-        minInit.write(wave+"_real=.01 fix_"wave+"_real=False error_"+wave+"_real=.1 limit_"+wave+"_real=(-1000,1000)\n")
-        minInit.write(wave+"_imag=.01 fix_"wave+"_imag=False error_"+wave+"_imag=.1 limit_"+wave+"_imag=(-1000,1000)\n")
-    minInit.cloas()
+        minInit.write(wave+"_real=.01 fix_"+wave+"_real=False error_"+wave+"_real=.1 limit_"+wave+"_real=(-1000,1000)\n")
+        minInit.write(wave+"_imag=.01 fix_"+wave+"_imag=False error_"+wave+"_imag=.1 limit_"+wave+"_imag=(-1000,1000)\n")
+    minInit.close()
 for fil in os.listdir(indir):
     if ".gamp" in fil:
         cmd = indir+"/scripts/massBinner2.py "+os.path.join(indir)+" "+os.path.join(indir,"fitting")+" "+str(fil).rstrip(".gamp")+" v"
