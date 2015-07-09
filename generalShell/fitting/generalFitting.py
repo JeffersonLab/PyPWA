@@ -1,6 +1,7 @@
 #! /u/apps/anaconda/anaconda-2.0.1/bin/python2
 import numpy
 import os, sys
+import fileinput
 from iminuit import Minuit
 from Fn import intFn
 from Fn import parFn
@@ -80,7 +81,7 @@ class generalFit (object):
         print val
         return val
 
-    def calcLnLikeUExtB(self,params,bins): 
+    def calcLnLikeUExtB(self,params): 
         n = 0
     	iList = numpy.zeros(shape = (1))
         ibinList = numpy.zeros(shape = (1))
