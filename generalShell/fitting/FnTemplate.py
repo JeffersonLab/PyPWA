@@ -26,6 +26,7 @@ def parFn(A1,A2): # Do not change the name of this function
 #    return gF.calcLnLikeUExtUB(params) # Un-Extended Un-Binned
 #    return gF.calcLnLikeExtB(params) # Extended Binned
 #    return gF.calcLnLikeUExtB(params) # Un-Extended Binned
+
 def migFn(): # Do not change this line
     kwdarg = gF.initial # or this one
     m = Minuit(parFn,**kwdarg) # or this one
@@ -49,7 +50,6 @@ dataDir="./kvArgs.txt" #filepath for data text file
 accDir="./kvArgsAcc.txt" #filepath for accepted Monte Carlo text file
 QDir="./QFactor.txt" #filepath for Q probability factor file. Leave empty if you do not have one. 
 genLen=3000000 #Integer value for number of generated Monte Carlo events
-reLoad=False #Boolean value for reparsing the data and acc text files and overwriting their npy files
 initial={'A1':.01,'A2':.01,'errordef':0.5}#initial values of fitted parameters as well as other iminuit arguments (do not change errordef) 
 gF = generalFit(dataDir=dataDir,accDir=accDir,QDir=QDir,genLen=genLen,initial=initial,reLoad=reLoad)
 """

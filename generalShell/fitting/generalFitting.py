@@ -8,13 +8,12 @@ from Fn import migFn
 
 class generalFit (object):
 
-    def __init__(self,dataDir=None,accDir=None,QDir=None,genLen=None,initial={},reLoad=False):
+    def __init__(self,dataDir=None,accDir=None,QDir=None,genLen=None,initial={}):
         self.dataDir = dataDir
         self.accDir = accDir
         self.QDir = QDir
         self.genLen = genLen
         self.initial = initial
-        self.reLoad = reLoad
         if os.path.isfile(self.QDir):
            self.QList = numpy.loadtxt(self.QDir)
         else:
@@ -44,7 +43,7 @@ class generalFit (object):
     def calcLnLikeUExtUB(self,params): 
         n = 0 
     	iList = numpy.zeros(shape = (1))
-        for line in fileinput.input([self.KVDir]): 
+        for line in fileinput.input([self.dataDir]): 
             iList.resize(n+1)       
             kvAs = line.split(",")
             kvAx = {kvA.split('=')[0]:float(kvA.split('=')[1]) for kvA in kvAs}
@@ -58,7 +57,7 @@ class generalFit (object):
         n = 0
     	iList = numpy.zeros(shape = (1))
         ibinList = numpy.zeros(shape = (1))
-        for line in fileinput.input([self.KVDir]): 
+        for line in fileinput.input([self.dataDir]): 
             iList.resize(n+1)
             ibinList.resize(n+1)       
             kvAs = line.split(",")
@@ -85,7 +84,7 @@ class generalFit (object):
         n = 0
     	iList = numpy.zeros(shape = (1))
         ibinList = numpy.zeros(shape = (1))
-        for line in fileinput.input([self.KVDir]): 
+        for line in fileinput.input([self.dataDir]): 
             iList.resize(n+1)
             ibinList.resize(n+1)       
             kvAs = line.split(",")
