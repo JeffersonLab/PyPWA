@@ -11,17 +11,6 @@ class gampMasker (object):
     def __init__(self,File=None,pfFile=None,wnFile=None):
         
         self.File=File
-        if "gamp" in self.File:
-            self.gampT = gampTranslator(self.File)
-            if not os.path.isfile(self.File.rstrip(".gamp")+".npy"):
-                numpy.save(self.File.rstrip(".gamp")+".npy",gampT.translate(self.File.rstrip(".gamp")+".npy"))
-            self.gampList=numpy.load(self.File.rstrip(".gamp")+".npy")
-        elif "txt" in self.File:
-            #if not os.path.isfile(self.File.rstrip(".txt")+".npy"):
-            #    self.gampList = kvParser(self.File)
-            #    numpy.save(self.File.rstrip(".txt")+".npy",self.gampList)
-            #else:
-            pass
         self.pfFile=pfFile
         if os.path.isfile(self.pfFile):
             self.pfList=numpy.loadtxt(self.pfFile)
@@ -36,44 +25,131 @@ class gampMasker (object):
     def maskPF(self):
         with open(args.accepted_out,'w+')as pfOut:
             if "gamp" in self.File:
-                for n in range(self.gampList.shape[0]):
-                    pfEvent = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(self.pfList[n])==1.0:
-                        pfEvent.writeGamp(pfOut)
+                i = 0
+                n = 0  
+                x = -1
+                event=np.zeros(shape=[1,6])
+                for line in fileinput.input([self.File]):
+                    if i == 0:
+                        x = int(line)              
+                        event.resize(x+1,6)         
+                        event[0,0] = float(line)           
+                        i+=1
+                    elif i < x and i!= 0:                     
+                        particle = line.split() 
+                        event[i,0]= particle[0]
+                        event[i,1]= particle[1]
+                        event[i,2]= particle[2]
+                        event[i,3]= particle[3]
+                        event[i,4]= particle[4]
+                        event[i,5]= particle[5].strip("\n")
+                        i+=1
+                    elif i == x:
+                        particle = line.split()
+                        event[i,0]= particle[0]
+                        event[i,1]= particle[1]
+                        event[i,2]= particle[2]
+                        event[i,3]= particle[3]
+                        event[i,4]= particle[4]
+                        event[i,5]= particle[5].strip("\n")
+                        if float(self.pfList[n])==1.0:
+                            Event = self.writeEvent(event)
+                            Event.writeGamp(pfOut)
+                        i = 0  
+                        x = -1
+                        n+=1
             if "txt" in self.File:
                 n = 0 
                 for line in fileinput.input([self.File]):        
                     if float(self.pfList[n])==1.0:
                         pfOut.write(line)
-                        n+=1
+                    n+=1
 
     def maskWN(self):
         with open(args.weighted_out,'w+') as wnOut:
             if "gamp" in self.File:
-                for n in range(self.gampList.shape[0]):
-                    wnEvent = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(self.wnList[n])==1.0:
-                        wnEvent.writeGamp(wnOut)
+                i = 0
+                n = 0  
+                x = -1
+                event=np.zeros(shape=[1,6])
+                for line in fileinput.input([self.File]):
+                    if i == 0:
+                        x = int(line)              
+                        event.resize(x+1,6)         
+                        event[0,0] = float(line)           
+                        i+=1
+                    elif i < x and i!= 0:                     
+                        particle = line.split() 
+                        event[i,0]= particle[0]
+                        event[i,1]= particle[1]
+                        event[i,2]= particle[2]
+                        event[i,3]= particle[3]
+                        event[i,4]= particle[4]
+                        event[i,5]= particle[5].strip("\n")
+                        i+=1
+                    elif i == x:
+                        particle = line.split()
+                        event[i,0]= particle[0]
+                        event[i,1]= particle[1]
+                        event[i,2]= particle[2]
+                        event[i,3]= particle[3]
+                        event[i,4]= particle[4]
+                        event[i,5]= particle[5].strip("\n")
+                        if float(self.wnList[n])==1.0:
+                            Event = self.writeEvent(event)
+                            Event.writeGamp(wnOut)
+                        i = 0  
+                        x = -1
+                        n+=1
             if "txt" in self.File:
                 n = 0
                 for line in fileinput.input([self.File]):
                     if float(self.wnList[n])==1.0:
                         wnOut.write(line)
-                        n+=1
+                    n+=1
 
     def maskBoth(self):
         with open(args.both_out,'w+') as btOut:
             if "gamp" in self.File:
-                for n in range(self.gampList.shape[0]):            
-                    btEvent = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
-                        btEvent.writeGamp(btOut)
+                i = 0
+                n = 0  
+                x = -1
+                event=np.zeros(shape=[1,6])
+                for line in fileinput.input([self.File]):
+                    if i == 0:
+                        x = int(line)              
+                        event.resize(x+1,6)         
+                        event[0,0] = float(line)           
+                        i+=1
+                    elif i < x and i!= 0:                     
+                        particle = line.split() 
+                        event[i,0]= particle[0]
+                        event[i,1]= particle[1]
+                        event[i,2]= particle[2]
+                        event[i,3]= particle[3]
+                        event[i,4]= particle[4]
+                        event[i,5]= particle[5].strip("\n")
+                        i+=1
+                    elif i == x:
+                        particle = line.split()
+                        event[i,0]= particle[0]
+                        event[i,1]= particle[1]
+                        event[i,2]= particle[2]
+                        event[i,3]= particle[3]
+                        event[i,4]= particle[4]
+                        event[i,5]= particle[5].strip("\n")
+                        if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
+                            Event = self.writeEvent(event)
+                            Event.writeGamp(wnOut)
+                        i = 0  
+                        x = -1
+                        n+=1
             if "txt" in self.File:
                 n = 0 
                 for line in fileinput.input([self.File]):
                     if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
                         btOut.write(line)
-                        n+=1
+                    n+=1
 
     def maskAny(self):
         maskList = numpy.loadtxt(raw_input("Where is the custom mask text file? "))
