@@ -3,8 +3,6 @@ import argparse
 import numpy, sys, os
 from gampParticle import gampParticle
 from gampEvent import gampEvent
-from gampTranslator import gampTranslator
-
 
 class gampMasker (object):
 
