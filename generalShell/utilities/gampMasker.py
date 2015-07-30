@@ -181,49 +181,34 @@ args = parser.parse_args()
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
 if args.acceptance_mask != "":
-    if len(gM.gampList) == len(gM.pfList):
-        if args.accepted_out != "":
-            gM.maskPF()
-        else:
-            print "Need a filepath to save new accepted file to."
-            exit()
+    if args.accepted_out != "":
+        gM.maskPF()
     else:
-        print "PF mask and file not equal lengths."
-        exit() 
-
+        print "Need a filepath to save new accepted file to."
+        exit()
+   
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
 if args.weighted_mask != "":
-    if len(gM.gampList) == len(gM.wnList):
-        if args.weighted_out != "":
-            gM.maskWN()
-        else:
-            print "Need a filepath to save new weighted file to."
-            exit()
+    if args.weighted_out != "":
+        gM.maskWN()
     else:
-        print "Weighted mask and file not equal lengths."
-        exit() 
+        print "Need a filepath to save new weighted file to."
+        exit()
 
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
 if args.both_masks:
-    if len(gM.gampList) == len(gM.pfList):
-        if args.accepted_out != "":
-            if len(gM.gampList) == len(gM.wnList):
-                if args.weighted_out != "":
-                    gM.maskBoth()
-                else:
-                    print "Need a filepath to save new weighted file to."
-                    exit()
-            else:
-                print "Weighted mask and file not equal lengths."
-                exit() 
+    if args.accepted_out != "":
+        if args.weighted_out != "":
+            gM.maskBoth()
         else:
-            print "Need a filepath to save new accepted file to."
+            print "Need a filepath to save new weighted file to."
             exit()
     else:
-        print "PF mask and file not equal lengths."
-        exit() 
+        print "Need a filepath to save new accepted file to."
+        exit()
+
 
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
