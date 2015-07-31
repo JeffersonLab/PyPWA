@@ -165,27 +165,15 @@ if args.acceptance_mask != "":
     if args.accepted_out != "":
         gM.maskPF()
     else:
-<<<<<<< HEAD
         exit("Need a filepath to save new accepted file to.")
-   
 
-=======
-        print "Need a filepath to save new accepted file to."
-        exit()
-   
->>>>>>> f50b93adca649007ef224c9f4595aabf72e486cb
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
 if args.weighted_mask != "":
     if args.weighted_out != "":
         gM.maskWN()
     else:
-<<<<<<< HEAD
         exit("Need a filepath to save new weighted file to.")
-=======
-        print "Need a filepath to save new weighted file to."
-        exit()
->>>>>>> f50b93adca649007ef224c9f4595aabf72e486cb
 
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
@@ -194,19 +182,10 @@ if args.both_masks:
         if args.weighted_out != "":
             gM.maskBoth()
         else:
-<<<<<<< HEAD
             exit("Need a filepath to save new weighted file to.")
     else:
         exit("Need a filepath to save new accepted file to.")
-=======
-            print "Need a filepath to save new weighted file to."
-            exit()
-    else:
-        print "Need a filepath to save new accepted file to."
-        exit()
-
 
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
->>>>>>> f50b93adca649007ef224c9f4595aabf72e486cb
 
 
