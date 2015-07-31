@@ -13,7 +13,7 @@ class generalFit (object):
         self.dataDir = dataDir
         self.accDir = accDir
         self.QDir = QDir
-        self.genLen = genLen
+        self.genLen = numpy.float64(genLen)
         self.initial = initial
         if os.path.isfile(self.QDir):
            self.QList = numpy.loadtxt(self.QDir,dtype=numpy.float64)
@@ -37,7 +37,7 @@ class generalFit (object):
             kvAx = {kvA.split('=')[0]:numpy.float64(kvA.split('=')[1]) for kvA in kvAs}
             aList[n] = intFn(kvAx,params)
             n+=1
-        val = -((self.QList*numpy.log(iList)).sum(0)) + ((numpy.float64(1.0)/numpy.float64(self.genLen)) * aList.sum(0))
+        val = -((self.QList*numpy.log(iList)).sum(0)) + ((numpy.float64(1.0)/self.genLen) * aList.sum(0))
         print val
         return val
 
@@ -77,7 +77,7 @@ class generalFit (object):
             aList[n] = intFn(kvAx,params)
             abinList[n] = kvAx['BinN']
             n+=1
-        val = -((self.QList*ibinList*numpy.log(iList)).sum(0)) + ((numpy.float64(1.0)/numpy.float64(self.genLen)) *((abinList*aList).sum(0)))
+        val = -((self.QList*ibinList*numpy.log(iList)).sum(0)) + ((numpy.float64(1.0)/self.genLen) *((abinList*aList).sum(0)))
         print val
         return val
 

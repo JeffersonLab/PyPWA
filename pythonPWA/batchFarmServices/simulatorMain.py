@@ -75,11 +75,9 @@ elif os.path.isfile(os.path.join(topDir,"scripts","resonances.txt")):
             nTrueList.append(ntrueforwave(resonances,waves,wave,testMass,normint))        
         numpy.save(os.path.join(dataDir,"flat","nTrueListR.npy"),nTrueList)
     if len(resonances) == 0:
-        print "There are no resonances in resonances.txt, modify it in /scripts and try again."
-        exit(1)
+        exit("There are no resonances in resonances.txt, modify it in /scripts and try again.")
 else:
-    print "There is neither a resonance.txt file, or a Vvalues.npy file consult the documentation and try again."
-    exit(1)
+    exit("There is neither a resonance.txt file, or a Vvalues.npy file consult the documentation and try again.")
     
 if sys.argv[3] == "i":   
     rAA = rhoAA(waves=waves,alphaList=alphaList,beamPolarization=float(Control[1]))
@@ -109,5 +107,4 @@ elif sys.argv[3] == "s":
     dSimulator.execute(inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile,outputPFGampFile)
                 
 else:
-    print "The last argument must be either i to calculate iList, or s to do the simulation."
-    exit()
+    exit("The last argument must be either i to calculate iList, or s to do the simulation.")
