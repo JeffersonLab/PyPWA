@@ -16,7 +16,7 @@ setup(
 	url="http//pypwa.jlab.org",
 	license="MIT License",
 	description="General Partial Wave Analysis",
-	long_description=open("README.txt").read(),
+	long_description=open("README.md").read(),
 	entry_points={
 		"console_scripts": [
 			"GeneralFitting = PyPWA.entry.console:Lets_Get_Fit",
