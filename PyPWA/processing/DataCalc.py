@@ -42,16 +42,16 @@ class DataCalc(object):
 
         users_function = getattr(self.imported, self.config["Function Name"])
 
-        if self.config["Number of threads"] > 1:
-            accepted_pool = multiprocessing.Pool(processes=self.config["Number of threads"])
-            data_pool = multiprocessing.Pool(processes=self.config["Number of threads"])
+        if self.config["Number of Threads"] > 1:
+            accepted_pool = multiprocessing.Pool(processes=self.config["Number of Threads"])
+            data_pool = multiprocessing.Pool(processes=self.config["Number of Threads"])
 
             accepted_jobs = []
-            for x in range((self.config["Number of threads"])):
+            for x in range((self.config["Number of Threads"])):
                 accepted_jobs.append(accepted_pool.apply_async(accepted_process, args=(users_function, self.accepted_split[x],the_params, self.processed)))
 
             data_jobs = []
-            for x in range((self.config["Number of threads"])):
+            for x in range((self.config["Number of Threads"])):
                 data_jobs.append(data_pool.apply_async(data_process, args=(users_function, self.data_split[x], the_params, self.qfactor_split[x])))
 
             #You must close the pool before you can wait until the threads die
@@ -94,26 +94,26 @@ class DataCalc(object):
         except:
             pass
 
-        if self.config["Number of threads"] > 1:
+        if self.config["Number of Threads"] > 1:
             self.data_split = []
             self.accepted_split = []
             
-            for x in range((self.config["Number of threads"]/2)):
+            for x in range((self.config["Number of Threads"])):
                 self.data_split.append({})
                 self.accepted_split.append({})
 
             for key in self.kvar_data:
-                for x in range((self.config["Number of threads"]/2)):
-                    self.data_split[x][key] = numpy.array_split(self.kvar_data[key],(self.config["Number of threads"]/2))[x]
+                for x in range((self.config["Number of Threads"])):
+                    self.data_split[x][key] = numpy.array_split(self.kvar_data[key],(self.config["Number of Threads"]))[x]
 
             for key in self.kvar_accepted:
-                for x in range((self.config["Number of threads"]/2)):
-                    self.accepted_split[x][key] = numpy.array_split(self.kvar_accepted[key], (self.config["Number of threads"]/2))[x]
+                for x in range((self.config["Number of Threads"])):
+                    self.accepted_split[x][key] = numpy.array_split(self.kvar_accepted[key], (self.config["Number of Threads"]))[x]
 
             if isinstance(self.qfactor, numpy.ndarray):
-                self.qfactor_split = numpy.array_split(self.qfactor, (self.config["Number of threads"]/2))
+                self.qfactor_split = numpy.array_split(self.qfactor, (self.config["Number of Threads"]))
             else:
-                self.qfactor_split = numpy.array_split(numpy.ones(shape=len(self.kvar_data.values()[0]), dtype="float64"), (self.config["Number of threads"]/2))
+                self.qfactor_split = numpy.array_split(numpy.ones(shape=len(self.kvar_data.values()[0]), dtype="float64"), (self.config["Number of Threads"]))
         else:
 
             if not isinstance(self.qfactor, numpy.ndarray):
