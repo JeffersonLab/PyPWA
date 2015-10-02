@@ -11,7 +11,7 @@ class YamlConfig(object):
             },
 
         "data" : {
-            "Kinematic Variable File" : "kvVars.txt", #Will this make it?
+            "Kinematic Variable File" : "kvVars.txt",
             "Accepted Kinematic Variable File": "kvArgs.txt",
             "QFactor List Location" : "Qfactor.txt", 
             "Use Cache": True
@@ -19,7 +19,7 @@ class YamlConfig(object):
     }
     default2 = {
         "general": {
-            "Initial Minuit Settings" : {'A1': 1,'A2':2,'A3':0.1,'A4':-10,'A5':-0.00001 },
+            "Initial Minuit Settings" : {'A1': 1,'A2':2,'A3':0.1,'A4':-10,'A5':-0.00001, "limit_A1": [0, 2500] },
             "Minuit Parameters" : ["A1","A2","A3","A4", "A5"],
             "Minuit Strategy" : 1,
             "Number of Threads" : 1,
@@ -29,11 +29,12 @@ class YamlConfig(object):
             }
         }
 
-    python_example = "import numpy\n\ndef the_function(the_array, the_params):\n    final = value*(A1**A2)*(A3**A4)*A5\n    return numpy.cos(final)\n"
+    python_example = "import numpy\n\n    def the_function(the_array, the_params):\n        values = numpy.zeros(shape=(len(the_array.values()[0])))\n        for x in range(len(values)):\n            values[x] = the_array[\"kvar\"][x] * the_params[\"A3\"]\n        return values\n"
 
     parsed_config = {}
 
     the_config = {}
+
 
     def __init__(self):
         self.defaults = self.default1.copy()
