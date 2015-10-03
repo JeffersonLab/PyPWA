@@ -1,6 +1,0 @@
-1. Add PyTable support
-2. Internationalization support, curious how to impliment this
-3. Add some real tests
-4. Be awesome
-5. ???
-6. Profit
