@@ -23,14 +23,14 @@ class KvData(object):
     
     def __init__(self, config):
         """
-        Sets the configuration and checks it for errors
+        Sets the configuration
         """
         self.config = config
 
 
     def parse(self, data_type ):
         """
-        A simple wrapper for __parse_events and __parse_qfactor
+        A simple wrapper for __parse_events and __parse_qfactor, also checks for a cache and loads it if valid.
 
         params: data_type = type of data being parsed (data,accepted,qfactor)
         """
@@ -62,6 +62,8 @@ class KvData(object):
         """
         This method loads the the events into two separate Numpy Arrays
         If you can find a better way of doing this please let me know
+
+        Stores the values into self.values
         
         params: data_type = type of data being parsed (data,accepted)
         """
@@ -90,7 +92,7 @@ class KvData(object):
 
     def parse_qfactor(self):
         """
-        This method is for parsing the Qfactors into a numpy array, stores the value in self.qfactor
+        This method is for parsing the Qfactors into a numpy array, stores the value in self.values["qfactor"]
         """
 
         if not self.config["Use QFactor"]:
@@ -123,7 +125,12 @@ class KvData(object):
         except IOError:
             raise AttributeError(file_name + " doesn't exsist. Please check your configuration and try again.")
 
-    def __find_hash(self, the_file): #This isn't used yet, but will provide a quick way to check to se if the files have changed
+    def __find_hash(self, the_file):
+        """
+        Fetches the hash for the data that is to be stored.
+
+        Args: the_file - The file which you wish to find the hash too
+        """
         try:   
             with open(the_file, "r") as a_file:
                 for line in a_file.readlines():
@@ -135,6 +142,11 @@ class KvData(object):
 
  
     def __cache_location(self, file_location):
+        """
+        Just fetches the location of the cache based off of the location of the original file.
+
+        Params: file_location: the location of the original file.
+        """
         the_path = file_location.split("/")
         path_length = len(the_path) - 1
         file_name = the_path[path_length]
@@ -146,11 +158,21 @@ class KvData(object):
         
 
     def __make_cache(self, data, the_file):
+        """
+        Writes the cache to file.
 
+        Params: the_file: The location where you want the cache to be written.
+        """
         with open(the_file, "wb") as a_file:
             pickle.dump(data, a_file, protocol=pickle.HIGHEST_PROTOCOL)
 
+
     def __load_cache(self, the_file):
+        """
+        Attempts to load the cache if present.
+
+        Params: the_file: The location of the cache.
+        """
         try:
             with open(the_file, "r")  as a_file:
                 cache = pickle.load(a_file)
@@ -164,7 +186,11 @@ class KvData(object):
             return {"files_hash":0}
 
     def __return_location(self, data_type ):
+        """
+        Wrapper for data types, takes the data type, and returns the location of the requested file.
 
+        Params: data_type: "data", "accepted", or "qfactor".
+        """
         if data_type == "data":
             return self.config['Kinematic Variable File']
         elif data_type == "accepted":

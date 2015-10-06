@@ -1,6 +1,23 @@
+#!/usr/bin/env python
+
+"""
+console.py: Entry point for the General Shell
+"""
+
+__author__ = "Mark Jones"
+__credits__ = ["Mark Jones"]
+__license__ = "MIT"
+__version__ = "[CURRENT_VERSION]"
+__maintainer__ = "Mark Jones"
+__email__ = "maj@jlab.org"
+__status__ = "[CURRENT_STATUS]"
+
 import  argparse, PyPWA.data.YamlConfig, os
 
 def the_generalfitting_args():
+    """
+    Parses the command line arguements for GeneralFitting
+    """
     arguments = argparse.ArgumentParser(description="PyPWA Threaded GeneralFitting")
 
     arguments.add_argument("-c", "--Config", help="Use to point to the direction of the configuration")
@@ -29,6 +46,9 @@ def the_generalfitting_args():
     return configuration.the_config
 
 def Lets_Get_Fit():
+    """
+    Actually launches the General Fitting utility with the parsed information.
+    """
     import PyPWA.core.GeneralFitting
     values = the_generalfitting_args()
     values["calc"]["cwd"] = os.getcwd()
