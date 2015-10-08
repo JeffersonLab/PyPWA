@@ -37,14 +37,11 @@ class GeneralFitting(object):
         self.calc.config["Number of Threads"] = self.config["general"]["Number of Threads"]
 
         print("Begining Parseing")
-        self.__parser()
+        self.parser()
         print("Begining Calculation")
-        self.__minimalization()
+        self.minimalization()
 
-        
-      
-
-    def __parser(self):
+    def parser(self):
         """
         This parses all the events into an variable, all actual parsing is done in the defined class
         """
@@ -60,7 +57,7 @@ class GeneralFitting(object):
             #raise RuntimeWarning("QFactor is not the same lengh as kvar data")
             self.calc.qfactor = 1
     
-    def __minimalization(self):
+    def minimalization(self):
         """
         Minimalization function. Uses Minuit to caculate the minimal for the given function as defined by FnUser
         """

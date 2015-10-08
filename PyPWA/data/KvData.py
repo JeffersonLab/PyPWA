@@ -30,22 +30,22 @@ class KvData(object):
 
     def parse(self, data_type ):
         """
-        A simple wrapper for __parse_events and __parse_qfactor, also checks for a cache and loads it if valid.
+        A simple wrapper for parse_events and parse_qfactor, also checks for a cache and loads it if valid.
 
         params: data_type = type of data being parsed (data,accepted,qfactor)
         """
         if self.config["Use Cache"]:
-            file_location = self.__return_location(data_type)
-            cache_location = self.__cache_location(file_location)
-            the_cache = self.__load_cache(cache_location)
-            the_hash = self.__find_hash(file_location)
-            if self.__cache_success and the_hash == the_cache["files_hash"]:
+            file_location = self.return_location(data_type)
+            cache_location = self.cache_location(file_location)
+            the_cache = self.load_cache(cache_location)
+            the_hash = self.find_hash(file_location)
+            if self.cache_success and the_hash == the_cache["files_hash"]:
                 self.values = the_cache
         else:
-            self.__cache_success = None
+            self.cache_success = None
 
 
-        if not self.__cache_success or self.__cache_success == None:
+        if not self.cache_success or self.cache_success == None:
             if data_type == "data" or data_type == "accepted":
                 self.parse_events(data_type)
             elif data_type == "qfactor":
@@ -53,9 +53,9 @@ class KvData(object):
             elif data_type == "all":
                 #todo, add threaded loading from disk
                 pass
-        if self.__cache_success == False:
+        if self.cache_success == False:
             self.values["files_hash"] = the_hash
-            self.__make_cache(self.values, cache_location)
+            self.make_cache(self.values, cache_location)
         
 
     def parse_events(self, data_type):
@@ -68,10 +68,10 @@ class KvData(object):
         params: data_type = type of data being parsed (data,accepted)
         """
 
-        data_file = self.__return_location(data_type)
+        data_file = self.return_location(data_type)
 
 
-        length = self.__file_length(data_file)
+        length = self.file_length(data_file)
 
         with open(data_file, 'r') as the_file:
             first_line = the_file.readline().strip("\n")
@@ -102,7 +102,7 @@ class KvData(object):
         data_file = self.config["QFactor List Location"]
 
         self.values = {}
-        length = self.__file_length(data_file)
+        length = self.file_length(data_file)
         self.values["qfactor"] = numpy.zeros(shape=length, dtype="float64")
 
         count = 0
@@ -112,7 +112,7 @@ class KvData(object):
         print("Finished loading qfactor from " + data_file )
 
 
-    def __file_length(self, file_name ):
+    def file_length(self, file_name ):
         """
         Methods determines how many lines are in a file.
         params: file_name = the path to the file
@@ -125,7 +125,7 @@ class KvData(object):
         except IOError:
             raise AttributeError(file_name + " doesn't exsist. Please check your configuration and try again.")
 
-    def __find_hash(self, the_file):
+    def find_hash(self, the_file):
         """
         Fetches the hash for the data that is to be stored.
 
@@ -141,7 +141,7 @@ class KvData(object):
         return the_hash.hexdigest()
 
  
-    def __cache_location(self, file_location):
+    def cache_location(self, file_location):
         """
         Just fetches the location of the cache based off of the location of the original file.
 
@@ -157,7 +157,7 @@ class KvData(object):
 
         
 
-    def __make_cache(self, data, the_file):
+    def make_cache(self, data, the_file):
         """
         Writes the cache to file.
 
@@ -167,7 +167,7 @@ class KvData(object):
             pickle.dump(data, a_file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-    def __load_cache(self, the_file):
+    def load_cache(self, the_file):
         """
         Attempts to load the cache if present.
 
@@ -176,16 +176,16 @@ class KvData(object):
         try:
             with open(the_file, "r")  as a_file:
                 cache = pickle.load(a_file)
-            self.__cache_success = True
+            self.cache_success = True
             return cache
         except EOFError:
-            self.__cache_success = False
+            self.cache_success = False
             return {"files_hash":0}
         except IOError:
-            self.__cache_success = False
+            self.cache_success = False
             return {"files_hash":0}
 
-    def __return_location(self, data_type ):
+    def return_location(self, data_type ):
         """
         Wrapper for data types, takes the data type, and returns the location of the requested file.
 

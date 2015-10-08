@@ -41,7 +41,7 @@ def the_generalfitting_args():
         exit(0)
 
 
-    configuration.parse_all(os.getcwd() +"/"+args.Config)
+    configuration.generate_config(os.getcwd() +"/"+args.Config)
 
     return configuration.the_config
 

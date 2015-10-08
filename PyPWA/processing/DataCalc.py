@@ -23,9 +23,13 @@ class DataCalc(object):
         Sets up basic config and checks it for errors
         """
         self.config = config
-        self.__preprocessing()
+        self.preprocessing()
         sys.path.append(self.config["cwd"])
-        self.imported = __import__(self.config["Function File"].strip(".py"))
+        try:
+            self.imported = __import__(self.config["Function Location"].strip(".py"))
+        except:
+            self.imported = __import__(self.config["Function File"].strip(".py"))
+            raise DeprecationWarning("Function File is being depreciated, replace with 'Function Location' inside your configuration.")
 
         
     def run(self, *args):
@@ -60,7 +64,7 @@ class DataCalc(object):
 
             try:
                 accepted_pool.join()
-                accepted_final = [completed.get() for completed in jobs ]
+                accepted_final = [completed.get() for completed in accepted_jobs ]
                 accepted_value = numpy.sum(final)
             except KeyboardInterrupt:
                 worker_pool.terminate()
@@ -69,17 +73,17 @@ class DataCalc(object):
 
             try:
                 data_pool.join()
-                data_final = [completed.get() for completed in jobs ]
+                data_final = [completed.get() for completed in data.jobs ]
                 data_value = numpy.sum(final)
             except KeyboardInterrupt:
                 worker_pool.terminate()
                 worker_pool.join()
                 sys.exit()
 
-            value = accepted_value + data_final
+            value = accepted_value + data_value
 
         else:
-            value = self.__likely_hood_function( users_function(self.kvar_data, the_params), users_function(self.kvar_accepted, the_params), self.qfactor)
+            value = self.likely_hood_function( users_function(self.kvar_data, the_params), users_function(self.kvar_accepted, the_params), self.qfactor)
             print value
         return value
 
@@ -120,17 +124,17 @@ class DataCalc(object):
                 self.qfactor = numpy.ones(shape=len(self.kvar_data.values()[0]))
 
 
-    def __preprocessing(self):
+    def preprocessing(self):
         """
         Processes static data for the likelihood function.
         """
         self.processed = (1.0/float(self.config["Generated Length"]))
 
-    def __likely_hood_function(self, array_data, array_accpeted, qfactor):
+    def likely_hood_function(self, array_data, array_accpeted, qfactor):
         """
         Returns the final likelihood function value
         """
-        return -(numpy.sum(qfactor * numpy.log(array_data))) + ((1/float(self.config["Generated Length"])) * numpy.sum(array_accpeted))
+        return -(numpy.sum(qfactor * numpy.log(array_data))) + self.processed * numpy.sum(array_accpeted))
     
 def accepted_process(function, array, params, processed):
     """
