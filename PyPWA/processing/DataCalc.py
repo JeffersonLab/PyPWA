@@ -13,6 +13,10 @@ __status__ = "Beta"
 
 import numpy, multiprocessing, sys
 
+#Setup Warnings:
+import warnings
+warnings.simplefilter('always', DeprecationWarning)
+
 class DataCalc(object):
     """
     This is the object used to calculate data in the arrays for the General Shell using Numexpr
@@ -29,7 +33,7 @@ class DataCalc(object):
             self.imported = __import__(self.config["Function Location"].strip(".py"))
         except:
             self.imported = __import__(self.config["Function File"].strip(".py"))
-            raise DeprecationWarning("Function File is being depreciated, replace with 'Function Location' inside your configuration.")
+            warnings.warn("Function File is being depreciated, replace with 'Function Location' inside your configuration.", DeprecationWarning)
 
         
     def run(self, *args):
@@ -65,7 +69,7 @@ class DataCalc(object):
             try:
                 accepted_pool.join()
                 accepted_final = [completed.get() for completed in accepted_jobs ]
-                accepted_value = numpy.sum(final)
+                accepted_value = numpy.sum(accepted_final)
             except KeyboardInterrupt:
                 worker_pool.terminate()
                 worker_pool.join()
@@ -73,8 +77,8 @@ class DataCalc(object):
 
             try:
                 data_pool.join()
-                data_final = [completed.get() for completed in data.jobs ]
-                data_value = numpy.sum(final)
+                data_final = [completed.get() for completed in data_jobs ]
+                data_value = numpy.sum(data_final)
             except KeyboardInterrupt:
                 worker_pool.terminate()
                 worker_pool.join()
@@ -134,7 +138,7 @@ class DataCalc(object):
         """
         Returns the final likelihood function value
         """
-        return -(numpy.sum(qfactor * numpy.log(array_data))) + self.processed * numpy.sum(array_accpeted))
+        return -(numpy.sum(qfactor * numpy.log(array_data))) + self.processed * numpy.sum(array_accpeted)
     
 def accepted_process(function, array, params, processed):
     """

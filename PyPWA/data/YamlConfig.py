@@ -59,7 +59,7 @@ class YamlConfig(object):
         self.the_config = self.defaults
 
 
-    def generate_config(self, file_location):
+    def generate_configPy(self, file_location):
         """
         Calls the loading function, the updates the internal arrays with the parsed configurations.
 
@@ -68,7 +68,7 @@ class YamlConfig(object):
         if not os.path.isfile(file_location):
             raise IOError("{0} does not exist!".format(file_location,))
 
-        with open(the_file) as stream:
+        with open(file_location) as stream:
             self.parsed_config = yaml.load(stream)
 
         self.the_config = self.defaults.copy()
