@@ -1,22 +1,21 @@
 __author__ = "Mark Jones"
 __license__ = "MIT"
-__version__ = "0.2.0a0"
+__version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha"
+__status__ = "Alpha.0"
 
 from setuptools import setup, find_packages
 
 setup(
 	name="PyPWA",
-	version=__version__,
+	version=__version__+"-"+__status__,
 	author="PyPWA Team",
 	author_email="someone@jlab.org",
 	packages=find_packages(),
 	url="http//pypwa.jlab.org",
 	license="MIT License",
 	description="General Partial Wave Analysis",
-	long_description=open("README.md").read(),
 	entry_points={
 		"console_scripts": [
 			"GeneralFitting = PyPWA.entry.console:Lets_Get_Fit",
