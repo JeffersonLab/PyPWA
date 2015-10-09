@@ -59,7 +59,7 @@ class YamlConfig(object):
         self.the_config = self.defaults
 
 
-    def generate_configPy(self, file_location):
+    def generate_config(self, file_location):
         """
         Calls the loading function, the updates the internal arrays with the parsed configurations.
 
