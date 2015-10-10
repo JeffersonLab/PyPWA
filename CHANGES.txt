@@ -1,1 +1,31 @@
-Added a license to LICENSE.txt
+PyPWA 2.0.0-Alpha.0:
+-Boasts a threaded GeneralShell with relatively no bugs in it.
+-A functioning python packaging system so that the General Shell can be installed with ease.
+-A Configuration file vs FnTemplate so that users can use the same GeneralShell for all fits.
+
+Complete changelog since PyPWA 1.1:
+
+* c27319a : Fixed a typo in the generate_config method of YamlConfig
+* 7ee371a : Updated setup.py to the current version and status of PyPWA, updated setup.cfg to point to README.md instead of README.txt, and updated MANIFEST.in to contain root licenese, changes, and readme files.
+* 80d27ab : Fixed a series of typos in YamlConfig and DataCalc that prevented GeneralFitting from executing properly.
+* 2089c9b : Added ignore for PyCharm files
+* edc7939 : Fixed bug #9 and enhancement #7. Fixed some bugs that prevented running, and converted private methods and variables to public.
+* fe46418 : Added documentation for undocumented methods and functions, also improved documenation for some methods.
+* 431c201 : Removed General Shell from limbo since the threaded general shell is part of the package now.
+* cfabc1a : Remove redundant LICENSE and TODO file
+* c87f120 : Updated readme to include the state of PyPWA and give a basic example of how to use the GeneralFitting
+* 5354d72 : Updated examples to better explain how to propperly use the program.
+*   57731cb : Merge branch 'threading-generalShell-resourceImprovement' into development for improved threading.
+|\  
+| *   193e082 : Merge branch 'development' into threading-generalShell-resourceImprovement
+| |\  
+| |/  
+|/|   
+* | 760f633 : Fixed setup.py pointing to README.txt over README.md
+| * 232d2a5 : Fixed a bug where "Number of threads" was used instead of "Number of Threads". Fixed array splitting.
+| * c62f23a : Modified how threads are handled to improve overall performance within the General Shell. Performance increase should be more linear now with the addition of more threads.
+|/  
+* 5420529 : Removed unintended virtualenv files
+* 9be3ec7 : Modified .gitignore to ignore virtualenv files.
+* f417348 : Merged in work on threaded GeneralShell with setuptools packaging utils.
+* 1773d3c : Removed deprecitated and outdated files.
