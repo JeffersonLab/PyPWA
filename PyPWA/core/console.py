@@ -11,7 +11,7 @@ __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
 
-class GeneralFitting(object):
+class Fitting(object):
     """
     Main point of entry into the General Shell, trying to stay as pythonic as possible.
     Tries to be both intelligent and provide a flexible way for users to do what they want how they want.
