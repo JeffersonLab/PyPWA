@@ -139,6 +139,6 @@ class Kv(DataTemplate):
                 with open(file_location, "w") as stream:
                     with click.progressbar(length=file_length, label="Writing QFactors:") as progress:
                         for event in progress:
-                            stream.write(str(self.data[event]))
+                            stream.write(str(self.data[event]) + "\n")
             except:
                 raise
