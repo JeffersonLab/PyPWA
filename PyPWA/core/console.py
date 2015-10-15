@@ -10,7 +10,6 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
-import os, iminuit, sys, PyPWA.data.KvData, PyPWA.processing.DataCalc
 
 class GeneralFitting(object):
     """
@@ -23,18 +22,19 @@ class GeneralFitting(object):
         Actually runs all the data, not the best way of doing things but it works, functions as the main function of the program running all the other functions of the program.
         """
 
-        sys.stderr.write("\x1b[2J\x1b[h") #Clears the terminal window of content before running the program
-
-        print("Loading Users configuration")
-        self.config = config
-        
-        self.data = PyPWA.data.KvData.KvData(self.config["data"])
-        self.calc = PyPWA.processing.DataCalc.DataCalc(self.config["calc"])
-
-        print("Passing users data to calc object")
-        self.calc.parameters = self.config["general"]["Minuit Parameters"]
-        self.data.config["Use QFactor"] = self.config["general"]["Use QFactor"]
-        self.calc.config["Number of Threads"] = self.config["general"]["Number of Threads"]
+        with click.progressbar(length=6, label="Importing and Configuring GeneralFitting") as progress:
+            self.config = config
+            progress.update(1)
+            self.data = PyPWA.lib.data.interface(self.config["data"])
+            progress.update(2)
+            self.calc = PyPWA.lib.calc.likelihood.calc(self.config["calc"])
+            progress.update(3)
+            self.calc.parameters = self.config["general"]["Minuit Parameters"]
+            progress.update(4)
+            self.data.config["Use QFactor"] = self.config["general"]["Use QFactor"]
+            progress.update(5)
+            self.calc.config["Number of Threads"] = self.config["general"]["Number of Threads"]
+            progress.update(6)
 
         print("Begining Parseing")
         self.parser()
@@ -57,12 +57,3 @@ class GeneralFitting(object):
             #raise RuntimeWarning("QFactor is not the same lengh as kvar data")
             self.calc.qfactor = 1
     
-    def minimalization(self):
-        """
-        Minimalization function. Uses Minuit to caculate the minimal for the given function as defined by FnUser
-        """
-        self.calc.prep_work()
-        self.minimal = iminuit.Minuit(self.calc.run, forced_parameters=self.config["general"]["Minuit Parameters"], **self.config["general"]["Initial Minuit Settings"])
-        self.minimal.set_strategy(self.config["general"]["Minuit Strategy"])
-        self.minimal.set_up(self.config["general"]["Minuit Set Up"])
-        self.minimal.migrad(ncall=self.config["general"]["Minuit ncall"])

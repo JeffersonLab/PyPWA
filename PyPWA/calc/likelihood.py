@@ -11,13 +11,9 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta"
 
-import numpy, multiprocessing, sys
+import numpy, threading, sys, Queue, warnings
 
-#Setup Warnings:
-import warnings
-warnings.simplefilter('always', DeprecationWarning)
-
-class DataCalc(object):
+class Calc(object):
     """
     This is the object used to calculate data in the arrays for the General Shell using Numexpr
     """
@@ -33,7 +29,7 @@ class DataCalc(object):
             self.imported = __import__(self.config["Function Location"].strip(".py"))
         except:
             self.imported = __import__(self.config["Function File"].strip(".py"))
-            warnings.warn("Function File is being depreciated, replace with 'Function Location' inside your configuration.", DeprecationWarning)
+            warnings.warn("Function File is being depreciated, replace with 'Function Location' inside your configuration.", PendingDeprecationWarning)
 
         
     def run(self, *args):
@@ -156,3 +152,7 @@ def data_process(function, array, params, qfactor):
     for x in range(len(values)):
         the_values[x] = qfactor[x] * numpy.log(values[x])
     return -(numpy.sum(the_values))
+
+class Likelihood(threading.Thread):
+    daemon = True
+
