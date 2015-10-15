@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 """
-KvData.py: A class that loads the kinematic variables from a text file and saves the data from the
-calculations
+PyPWA.data.handlers: A collection of file handlers for PyPWA
 """
 
 __author__ = "Mark Jones"
@@ -13,125 +12,23 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
-import fileinput, numpy, os, pickle, hashlib, click
+import fileinput, numpy, click
 from abc import ABCMeta, abstractmethod
 
 class DataTemplate:
     __metaclass__ = ABCMeta
 
+    parsed = None
+
+    data = None
+
     @abstractmethod
     def parse(self, file_location):
         pass
 
-    def file_length(self, file_name ):
-    """
-    Methods determines how many lines are in a file.
-    params: file_name = the path to the file
-    """
-    try:
-        with open(file_name) as the_file:
-            for length, l in enumerate(the_file):
-                pass
-        return length + 1
-    except IOError:
-        raise AttributeError(file_name + " doesn't exsist. Please check your configuration and try again."
-
-class Kv(DataTemplate):
-    """
-    This class reads and writes data from and to a Numpy Array.
-    Data is accessible threw event_one and event_two
-    """
-    
-    def __init__(self, config):
-        """
-        Sets the configuration
-        """
-        self.config = config
-
-
-    def parse(self, data_type ):
-        """
-        A simple wrapper for parse_events and parse_qfactor, also checks for a cache and loads it if valid.
-
-        params: data_type = type of data being parsed (data,accepted,qfactor)
-        """
-        if self.config["Use Cache"]:
-            file_location = self.return_location(data_type)
-            cache_location = self.cache_location(file_location)
-            the_cache = self.load_cache(cache_location)
-            the_hash = self.find_hash(file_location)
-            if self.cache_success and the_hash == the_cache["files_hash"]:
-                self.values = the_cache
-        else:
-            self.cache_success = None
-
-
-        if not self.cache_success or self.cache_success == None:
-            if data_type == "data" or data_type == "accepted":
-                self.parse_events(data_type)
-            elif data_type == "qfactor":
-                self.parse_qfactor()
-            elif data_type == "all":
-                #todo, add threaded loading from disk
-                pass
-        if self.cache_success == False:
-            self.values["files_hash"] = the_hash
-            self.make_cache(self.values, cache_location)
-        
-
-    def parse_events(self, data_type):
-        """
-        This method loads the the events into two separate Numpy Arrays
-        If you can find a better way of doing this please let me know
-
-        Stores the values into self.values
-        
-        params: data_type = type of data being parsed (data,accepted)
-        """
-
-        data_file = self.return_location(data_type)
-
-
-        length = self.file_length(data_file)
-
-        with open(data_file, 'r') as the_file:
-            first_line = the_file.readline().strip("\n")
-
-        self.values = {}
-        for x in range(len(first_line.split(","))):
-            self.values[first_line.split(",")[x].split("=")[0]] = numpy.zeros(shape=length, dtype="float64")
-
-        count = 0
-        for line in fileinput.input([data_file]):
-            the_line = line.strip("\n")
-
-            for x in range(len(line.split(","))):
-                self.values[the_line.split(",")[x].split("=")[0]][count] = numpy.float64(the_line.split(",")[x].split("=")[1])
-            count += 1
-        print("Finished loading " + data_type + " from " + data_file )
-
-
-    def parse_qfactor(self):
-        """
-        This method is for parsing the Qfactors into a numpy array, stores the value in self.values["qfactor"]
-        """
-
-        if not self.config["Use QFactor"]:
-            self.values = 1
-            return 0
-
-        data_file = self.config["QFactor List Location"]
-
-        self.values = {}
-        length = self.file_length(data_file)
-        self.values["qfactor"] = numpy.zeros(shape=length, dtype="float64")
-
-        count = 0
-        for line in fileinput.input([data_file]):
-            self.values["qfactor"][count] = numpy.float64(line)
-            count += 1
-        print("Finished loading qfactor from " + data_file )
-
+    @abstractmethod
+    def write(self, file_location, data= None):
+        pass
 
     def file_length(self, file_name ):
         """
@@ -147,17 +44,101 @@ class Kv(DataTemplate):
             raise AttributeError(file_name + " doesn't exsist. Please check your configuration and try again.")
 
 
-    def return_location(self, data_type ):
-        """
-        Wrapper for data types, takes the data type, and returns the location of the requested file.
+class Kv(DataTemplate):
+    """
+    This class reads and writes data from and to a Numpy Array.
+    Data is accessible threw event_one and event_two
+    """
 
-        Params: data_type: "data", "accepted", or "qfactor".
+    data_type = None
+
+    def parse(self, file_location):
         """
-        if data_type == "data":
-            return self.config['Kinematic Variable File']
-        elif data_type == "accepted":
-            return self.config['Accepted Kinematic Variable File']
-        elif data_type == "qfactor":
-            return self.config["QFactor List Location"]
+        Loads Kvs into self.parsed and returns the values
+        
+        params: file_location- Location of the file to loads
+        return: dict = { "kvar": numpy.array() }
+        """
+
+        file_length = self.file_length(file_location)
+
+        with open(file_location, 'r') as the_file:
+            first_line = the_file.readline().strip("\n")
+
+        try:
+            numpy.float64(first_line)
+            self.data_type = "QFactor"
+        except ValueError:
+            self.data_type = "kVar"
+
+        if self.data_type == "kVar":
+            self.parsed = {}
+            for x in range(len(first_line.split(","))):
+                self.parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(shape=file_length, dtype="float64")
+
+            with click.progressbar(length=file_length, label="Loading kinematic variables:") as progress:
+                for line in fileinput.input([file_location]):
+                    the_line = line.strip("\n")
+
+                    for x in range(len(line.split(","))):
+                        self.parsed[the_line.split(",")[x].split("=")[0]][count] = numpy.float64(the_line.split(",")[x].split("=")[1])
+                    count += 1
+                    progress.update(1)
+            
+            return self.parsed
+
+        elif self.data_type == "QFactor":
+            self.parsed = numpy.zeros(shape=file_length, dtype="float64")
+
+            count = 0
+            with click.progressbar(length = file_length, label="Loading Qfactor:") as progress:
+                for line in fileinput.input([file_location]):
+                    self.parsed[count] = line.strip("\n")
+                    count += 1
+                    progress.update(1)
+
+    def write(self, file_location, data = None):
+        if type(data) != None:
+            self.data = data
+        if type(self.data) != dict:
+            if type(self.data) != numpy.ndarray:
+                pass #Add Error
+            else:
+                self.data_type = "QFactor"
         else:
-            return 0
+            self.data_type = "kVar"
+
+        if self.data_type == "kVar":
+            if self.data[self.data.keys()[0]] != numpy.ndarray:
+                pass
+            else:
+                pass
+
+            kvars = self.data.keys()
+
+            file_length = len(self.data[kvars[0]])
+            
+            try:
+                with open(file_location, "w") as stream:
+                    with click.progressbar(length=file_length, label="Writing kinematic variables:") as progress:
+                        for event in progess:
+                            line = ""
+                            for kvar in range(len(kvars)):
+                                if kvar > 0:
+                                    line += ","
+                                line += "{0}={1}".format(kvars[kvar],str(self.data[kvars[kvar]][event]))
+                            line +="\n"
+                            stream.write(line)
+            except:
+                raise
+
+        elif self.data_type == "QFactor":
+            file_length = len(self.data)
+
+            try:
+                with open(file_location, "w") as stream:
+                    with click.progressbar(length=file_length, label="Writing QFactors:") as progress:
+                        for event in progress:
+                            stream.write(str(self.data[event]))
+            except:
+                raise
