@@ -5,35 +5,24 @@ iminuit.py: Handles Iminuit and its parsing of data.
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
-__version__ = "0.1"
+__version__= "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha"
+__status__= "Alpha.1"
 
 import iminuit, warnings, inspect
 
 class Minimalizer(object):
 
-    self.precalc = None
-
     self.calc_function = None
-
     self.parameters = None
-
     self.settings = None
-
     self.strategy = None
-
     self.set_up = None
-
     self.ncall = None
 
     def __init__(self, config = None):
         if config != None:
-            try:
-                self.precalc = config["precalc"]
-            except KeyError:
-                pass
 
             try:
                 self.calc_function = config["calc"]
