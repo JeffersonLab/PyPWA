@@ -33,19 +33,15 @@ class Interface(object):
 
     def parse(self, file_location, data_type = None):
         if type(data_type) == type(None):
-            print True
             handlers = self.extension_test(file_location)
         else:
-            print False
             handlers = data_type
-
-        print handlers
 
         if handlers == "Kv":
             handle = PyPWA.data.filehandling.Kv()
             return handle.parse(file_location)
 
-    def write(self, file_location, data, data_type = None):
+    def write(self, file_location, the_data, data_type = None):
         if type(data_type) == type(None):
             handlers = self.extension_test(file_location)
         else:
@@ -53,8 +49,7 @@ class Interface(object):
 
         if handlers == "Kv":
             handle = PyPWA.data.filehandling.Kv()
-            handle.data = data
-            handle.write(file_location)
+            handle.write(file_location, data=the_data)
 
 
 
