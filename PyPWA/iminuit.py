@@ -67,8 +67,7 @@ class Minimalizer(object):
 
 
     def test(self):
-        self.precalc = self.function_test( self.precalc, "warning")
-        self.function_test( self.calc_function, "error")
+        self.function_test( self.calc_function)
         if type(parameters) != list:
             raise TypeError("Parameters not defined as list!")
         if type(self.settings) != dict:
@@ -82,7 +81,7 @@ class Minimalizer(object):
         if type(self.ncall) != int:
             warnings.warn("ncall must be an integer! Defaulting to 1000.", UserWarning)
             self.ncall = 1000
-        elif self.ncall < 0:
+        elif self.ncall =< 0:
             warnings.warn("ncall must be a positive integer! Defaulting to 1000", UserWarning)
             self.ncall = 1000
 
@@ -95,22 +94,13 @@ class Minimalizer(object):
             if inspect.getargspec( function ).args == []:
                 return function
             else:
-                if eow == "error":
-                    raise TypeError("User defined function has arguments!")
-                elif eow == "warning":
-                    warnings.warn("User defined function has arguments! Defaulting to pass.", UserWarning)
-                    return holding_function
+                raise TypeError("User defined function has arguments!")
         else:
-            if eow == "error":
-                raise TypeError("User defined function is not a function!")
-            elif eow == "warning":
-                warnings.warn("User defined function is not a function! Defaulting to pass.", UserWarning)
-                return holding_function
+            raise TypeError("User defined function is not a function!")
         
 
     def min(self):
         self.test()
-        self.precalc()
         self.minimal = iminuit.Minuit(self.calc_function, forced_parameters=self.parameters, **self.settings )
         self.minimal.set_strategy(self.strategy)
         self.minimal.set_up(self.set_up)
