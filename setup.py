@@ -15,10 +15,11 @@ setup(
 	packages=find_packages(),
 	url="http//pypwa.jlab.org",
 	license="MIT License",
+	zip_safe=True,
 	description="General Partial Wave Analysis",
 	entry_points={
 		"console_scripts": [
-			"GeneralFitting = PyPWA.entry.console:start_general_fitting",
+			"GeneralFitting = PyPWA.entry.console:start_console_general_fitting",
 		],
 	},
 	keywords = "PyPWA GeneralFitting Partial Wave Analysis Minimalization",
