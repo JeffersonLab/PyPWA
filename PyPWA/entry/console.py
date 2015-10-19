@@ -12,7 +12,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "[CURRENT_STATUS]"
 
-import  click, PyPWA
+import  click, PyPWA.data, PyPWA.proc, PyPWA.config, os
 
 @click.command()
 @click.argument( "configuration", nargs=-1, type=click.Path(exists=True))
@@ -25,5 +25,17 @@ def start_console_general_fitting(configuration, writeconfig):
     if len(configuration) == 0 and len(writeconfig) == 0:
         click.secho("Use \"GeneralFitting --help\" for the proper way to use the utility", bold=True)
     else:
-        click.clear()
-        PyPWA.core.console.Fitting(configuration)
+        import PyPWA.core.console
+        fit = PyPWA.core.console.Fitting()
+        if writeconfig:
+            with open(os.getcwd() + "/Example.yml", "w") as stream:
+                stream.write(fit.example_config)
+            with open(os.getcwd() + "/Example.py", "w") as stream:
+                stream.write(fit.example_function)
+        else:
+            the_configure = PyPWA.config.handler.YAML()
+            config = the_configure.generate(configuration)
+            config["General Settings"]["cwd"] = os.getcwd()
+            click.clear()
+            fit.config = config
+            fit.start()
