@@ -12,47 +12,30 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "[CURRENT_STATUS]"
 
-import  argparse, PyPWA.data.YamlConfig, os
+import  click, PyPWA.data, PyPWA.proc, PyPWA.config, os
 
-def the_generalfitting_args():
+@click.command()
+@click.argument( "configuration", nargs=-1, type=click.Path(exists=True))
+@click.option("--WriteConfig", "-wc", multiple=True, default=False, help="Write an example configuration to the current working directory", is_flag=True)
+@click.version_option()
+def start_console_general_fitting(configuration, writeconfig):
     """
-    Parses the command line arguements for GeneralFitting
+    Parses <configuration> for settings and then uses them to the General Fitting utility.
     """
-    arguments = argparse.ArgumentParser(description="PyPWA Threaded GeneralFitting")
-
-    arguments.add_argument("-c", "--Config", help="Use to point to the direction of the configuration")
-    arguments.add_argument("-wc", "--writeConfig", action="store_true", help="Writes Example.yml and Example.py")
-
-    try:
-        args = arguments.parse_args()
-    except:
-        arguments.print_help()
-        raise
-        exit(1)
-
-    configuration = PyPWA.data.YamlConfig.YamlConfig()
-
-    if args.writeConfig:
-        configuration.dump_default(os.getcwd())
-        exit(0)
-
-    if args.Config == None:
-        arguments.print_help()
-        exit(0)
-
-
-    configuration.generate_config(os.getcwd() +"/"+args.Config)
-
-    return configuration.the_config
-
-def Lets_Get_Fit():
-    """
-    Actually launches the General Fitting utility with the parsed information.
-    """
-    import PyPWA.core.GeneralFitting
-    values = the_generalfitting_args()
-    values["calc"]["cwd"] = os.getcwd()
-    PyPWA.core.GeneralFitting.GeneralFitting(values)
-
-if __name__ == '__main__':
-    Lets_Get_Fit()
+    if len(configuration) == 0 and len(writeconfig) == 0:
+        click.secho("Use \"GeneralFitting --help\" for the proper way to use the utility", bold=True)
+    else:
+        import PyPWA.core.console
+        fit = PyPWA.core.console.Fitting()
+        if writeconfig:
+            with open(os.getcwd() + "/Example.yml", "w") as stream:
+                stream.write(fit.example_config)
+            with open(os.getcwd() + "/Example.py", "w") as stream:
+                stream.write(fit.example_function)
+        else:
+            the_configure = PyPWA.config.handler.YAML()
+            config = the_configure.generate(configuration)
+            config["General Settings"]["cwd"] = os.getcwd()
+            click.clear()
+            fit.config = config
+            fit.start()

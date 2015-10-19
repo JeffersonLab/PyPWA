@@ -3,7 +3,7 @@ __license__ = "MIT"
 __version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha.0"
+__status__ = "Alpha.1"
 
 from setuptools import setup, find_packages
 
@@ -15,17 +15,19 @@ setup(
 	packages=find_packages(),
 	url="http//pypwa.jlab.org",
 	license="MIT License",
+	zip_safe=True,
 	description="General Partial Wave Analysis",
 	entry_points={
 		"console_scripts": [
-			"GeneralFitting = PyPWA.entry.console:Lets_Get_Fit",
+			"GeneralFitting = PyPWA.entry.console:start_console_general_fitting",
 		],
 	},
 	keywords = "PyPWA GeneralFitting Partial Wave Analysis Minimalization",
 	install_requires=[
 	"iminuit<2.0",
 	"numpy<2.0",
-	"pyyaml<4"
+	"pyyaml<4",
+	"click"
 	],
 	classifiers=[
 	"Development Status :: 3 - Alpha",
