@@ -11,12 +11,14 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta"
 
-import numpy, threading, sys, Queue, warnings
+import numpy, multiprocessing, sys,  warnings
 
 class Calc(object):
     """
     This is the object used to calculate data in the arrays for the General Shell using Numexpr
     """
+
+    general = {}
     
     def __init__(self, config ):
         """
@@ -24,12 +26,8 @@ class Calc(object):
         """
         self.config = config
         self.preprocessing()
-        sys.path.append(self.config["cwd"])
-        try:
-            self.imported = __import__(self.config["Function Location"].strip(".py"))
-        except:
-            self.imported = __import__(self.config["Function File"].strip(".py"))
-            warnings.warn("Function File is being depreciated, replace with 'Function Location' inside your configuration.", PendingDeprecationWarning)
+        sys.path.append(self.general["cwd"])
+        self.imported = __import__(self.config["Function's Location"].strip(".py"))
 
         
     def run(self, *args):
@@ -44,18 +42,18 @@ class Calc(object):
             the_params[parameter] = arg
 
 
-        users_function = getattr(self.imported, self.config["Function Name"])
+        users_function = getattr(self.imported, self.config["Processing Name"])
 
-        if self.config["Number of Threads"] > 1:
-            accepted_pool = multiprocessing.Pool(processes=self.config["Number of Threads"])
-            data_pool = multiprocessing.Pool(processes=self.config["Number of Threads"])
+        if self.general["Number of Threads"] > 1:
+            accepted_pool = multiprocessing.Pool(processes=self.general["Number of Threads"])
+            data_pool = multiprocessing.Pool(processes=self.general["Number of Threads"])
 
             accepted_jobs = []
-            for x in range((self.config["Number of Threads"])):
+            for x in range((self.general["Number of Threads"])):
                 accepted_jobs.append(accepted_pool.apply_async(accepted_process, args=(users_function, self.accepted_split[x],the_params, self.processed)))
 
             data_jobs = []
-            for x in range((self.config["Number of Threads"])):
+            for x in range((self.general["Number of Threads"])):
                 data_jobs.append(data_pool.apply_async(data_process, args=(users_function, self.data_split[x], the_params, self.qfactor_split[x])))
 
             #You must close the pool before you can wait until the threads die
@@ -98,26 +96,28 @@ class Calc(object):
         except:
             pass
 
-        if self.config["Number of Threads"] > 1:
+        prep_function = getattr(self.imported, self.config["Setup Name"])
+
+        if self.general["Number of Threads"] > 1:
             self.data_split = []
             self.accepted_split = []
             
-            for x in range((self.config["Number of Threads"])):
+            for x in range((self.general["Number of Threads"])):
                 self.data_split.append({})
                 self.accepted_split.append({})
 
             for key in self.kvar_data:
-                for x in range((self.config["Number of Threads"])):
-                    self.data_split[x][key] = numpy.array_split(self.kvar_data[key],(self.config["Number of Threads"]))[x]
+                for x in range((self.general["Number of Threads"])):
+                    self.data_split[x][key] = numpy.array_split(self.kvar_data[key],(self.general["Number of Threads"]))[x]
 
             for key in self.kvar_accepted:
-                for x in range((self.config["Number of Threads"])):
-                    self.accepted_split[x][key] = numpy.array_split(self.kvar_accepted[key], (self.config["Number of Threads"]))[x]
+                for x in range((self.general["Number of Threads"])):
+                    self.accepted_split[x][key] = numpy.array_split(self.kvar_accepted[key], (self.general["Number of Threads"]))[x]
 
             if isinstance(self.qfactor, numpy.ndarray):
-                self.qfactor_split = numpy.array_split(self.qfactor, (self.config["Number of Threads"]))
+                self.qfactor_split = numpy.array_split(self.qfactor, (self.general["Number of Threads"]))
             else:
-                self.qfactor_split = numpy.array_split(numpy.ones(shape=len(self.kvar_data.values()[0]), dtype="float64"), (self.config["Number of Threads"]))
+                self.qfactor_split = numpy.array_split(numpy.ones(shape=len(self.kvar_data.values()[0]), dtype="float64"), (self.general["Number of Threads"]))
         else:
 
             if not isinstance(self.qfactor, numpy.ndarray):
@@ -152,7 +152,3 @@ def data_process(function, array, params, qfactor):
     for x in range(len(values)):
         the_values[x] = qfactor[x] * numpy.log(values[x])
     return -(numpy.sum(the_values))
-
-class Likelihood(threading.Thread):
-    daemon = True
-
