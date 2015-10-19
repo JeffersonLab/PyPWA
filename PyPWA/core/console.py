@@ -51,6 +51,10 @@ def the_function(the_array, the_params): #You can change both the variable names
         #Here is where you define your function.
         values[x] = the_param["A1"] + the_array["kvar"][x]
     return values
+
+def the_setup(): #This function can be renamed, but will not be sent any arguments.
+    #This function will be ran once before the data is Minuit begins.
+    pass
 """
     def start(self, config):
         """
@@ -73,8 +77,11 @@ def the_function(the_array, the_params): #You can change both the variable names
         self.calc.accepted = self.data.parsed
         self.data.parse(self.config["Data Information"]["QFactor List Location"])
         self.calc.qfactor = self.data.parsed
+        self.calc.prepwork()
 
         click.secho("Starting iminiut.")
         self.minimalization(self.config["iminuit"])
         self.minimalization.calc_function = self.calc.run()
+        self.minimalization.test()
+        self.minimalization.min()
     
