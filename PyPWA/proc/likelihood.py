@@ -90,13 +90,9 @@ class Calc(object):
         """
         Handles some initial work before processesing.
         """
-        try:
-            self.kvar_data.pop("files_hash")
-            self.kvar_accepted.pop("files_hash")
-        except:
-            pass
 
         prep_function = getattr(self.imported, self.config["Setup Name"])
+        prep_function()
 
         if self.general["Number of Threads"] > 1:
             self.data_split = []
@@ -108,20 +104,20 @@ class Calc(object):
 
             for key in self.kvar_data:
                 for x in range((self.general["Number of Threads"])):
-                    self.data_split[x][key] = numpy.array_split(self.kvar_data[key],(self.general["Number of Threads"]))[x]
+                    self.data_split[x][key] = numpy.array_split(self.data[key],(self.general["Number of Threads"]))[x]
 
             for key in self.kvar_accepted:
                 for x in range((self.general["Number of Threads"])):
-                    self.accepted_split[x][key] = numpy.array_split(self.kvar_accepted[key], (self.general["Number of Threads"]))[x]
+                    self.accepted_split[x][key] = numpy.array_split(self.accepted[key], (self.general["Number of Threads"]))[x]
 
             if isinstance(self.qfactor, numpy.ndarray):
                 self.qfactor_split = numpy.array_split(self.qfactor, (self.general["Number of Threads"]))
             else:
-                self.qfactor_split = numpy.array_split(numpy.ones(shape=len(self.kvar_data.values()[0]), dtype="float64"), (self.general["Number of Threads"]))
+                self.qfactor_split = numpy.array_split(numpy.ones(shape=len(self.data.values()[0]), dtype="float64"), (self.general["Number of Threads"]))
         else:
 
             if not isinstance(self.qfactor, numpy.ndarray):
-                self.qfactor = numpy.ones(shape=len(self.kvar_data.values()[0]))
+                self.qfactor = numpy.ones(shape=len(self.data.values()[0]))
 
 
     def preprocessing(self):
