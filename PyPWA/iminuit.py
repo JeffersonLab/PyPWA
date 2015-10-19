@@ -14,15 +14,15 @@ import iminuit, warnings, inspect
 
 class Minimalizer(object):
 
-    self.calc_function = None
-    self.parameters = None
-    self.settings = None
-    self.strategy = None
-    self.set_up = None
-    self.ncall = None
+    calc_function = None
+    parameters = None
+    settings = None
+    strategy = None
+    set_up = None
+    ncall = None
 
     def __init__(self, config = None):
-        if config != None:
+        if type(config) != type(None):
 
             try:
                 self.calc_function = config["calc"]
@@ -30,27 +30,27 @@ class Minimalizer(object):
                 pass
 
             try:
-                self.parameters = config["parameters"]
+                self.parameters = config["Minuit's Parameters"]
             except KeyError:
                 pass
 
             try:
-                self.settings = config["settings"]
+                self.settings = config["Minuit's Initial Setttings"]
             except KeyError:
                 pass
 
             try:
-                self.strategy = config["strategy"]
+                self.strategy = config["Minuit's Strategy"]
             except KeyError:
                 pass
 
             try:
-                self.set_up = config["set up"]
+                self.set_up = config["Minuit's Set up"]
             except KeyError:
                 pass
 
             try:
-                self.ncall = config["ncall"]
+                self.ncall = config["Minuit's ncall"]
             except KeyError:
                 pass
 
@@ -64,13 +64,13 @@ class Minimalizer(object):
         if type(self.strategy) != int:
             warnings.warn("iMinuit strategy is not an integer! Defaulting to 1", UserWarning)
             self.strategy = 1
-        elif ! self.strategy => 0 || ! self.strategy =< 2:
+        elif not self.strategy >= 0 or not self.strategy <= 2:
             warnings.warn("iMinuit's strategy must be 0, 1, or 2! Defaulting to 1", UserWarning)
             self.strategy = 1
         if type(self.ncall) != int:
             warnings.warn("ncall must be an integer! Defaulting to 1000.", UserWarning)
             self.ncall = 1000
-        elif self.ncall =< 0:
+        elif self.ncall <= 0:
             warnings.warn("ncall must be a positive integer! Defaulting to 1000", UserWarning)
             self.ncall = 1000
 
