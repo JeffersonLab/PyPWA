@@ -10,7 +10,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
-import PyPWA.data, PyPWA.proc.likelihood, PyPWA.iminuit, click
+import PyPWA.data, PyPWA.proc.likelihood, PyPWA.minuit, click
 
 class Fitting(object):
     """
@@ -56,7 +56,7 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
     #This function will be ran once before the data is Minuit begins.
     pass
 """
-    def start(self, config):
+    def start(self):
         """
         Actually runs all the data, not the best way of doing things but it works, functions as the main function of the program running all the other functions of the program.
         """
@@ -64,24 +64,20 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
         with click.progressbar(length=4, label="Configuring GeneralFitting") as progress:
             self.data = PyPWA.data.Interface()
             progress.update(1)
-            self.minimalization = PyPWA.iminiut.Minimalizer(self.config["Minuit's Settings"])
+            self.minimalization = PyPWA.minuit.Minimalizer(self.config["Minuit's Settings"])
             progress.update(1)
-            self.calc = PyPWA.calc.likelihood.Calc(self.config["Likelihood Information"])
+            self.calc = PyPWA.proc.likelihood.Calc(self.config["Likelihood Information"])
             progress.update(1)
             self.calc.general = self.config["General Settings"]
+            self.calc.parameters = self.config["Minuit's Settings"]["Minuit's Parameters"]
             progress.update(1)
 
-        self.data.parse(self.config["Data Information"]["Data Location"])
-        self.calc.data = self.data.parsed
-        self.data.parse(self.config["Data Information"]["Accepted Monte Carlo"])
-        self.calc.accepted = self.data.parsed
-        self.data.parse(self.config["Data Information"]["QFactor List Location"])
-        self.calc.qfactor = self.data.parsed
-        self.calc.prepwork()
+        self.calc.data = self.data.parse(self.config["Data Information"]["Data Location"])
+        self.calc.accepted = self.data.parse(self.config["Data Information"]["Accepted Monte Carlo Location"])
+        self.calc.qfactor = self.data.parse(self.config["Data Information"]["QFactor List Location"])
+        self.calc.prep_work()
 
         click.secho("Starting iminiut.")
-        self.minimalization(self.config["iminuit"])
-        self.minimalization.calc_function = self.calc.run()
-        self.minimalization.test()
+        self.minimalization.calc_function = self.calc.run
         self.minimalization.min()
     
