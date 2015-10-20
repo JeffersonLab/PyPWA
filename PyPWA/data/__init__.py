@@ -14,7 +14,7 @@ import PyPWA.data.filehandling, os
 
 class Interface(object):
 
-    supported_file_types = { ".txt" : "Kv" }
+    supported_file_types = { ".txt" : "Kv", ".yml" : "Yaml" }
 
     cache = True
 
@@ -40,6 +40,9 @@ class Interface(object):
         if handlers == "Kv":
             handle = PyPWA.data.filehandling.Kv()
             return handle.parse(file_location)
+        elif handlers == "Yaml":
+            handle = PyPWA.data.filehandling.Yaml()
+            return handle.parse(file_location)
 
     def write(self, file_location, the_data, data_type = None):
         if type(data_type) == type(None):
@@ -50,6 +53,10 @@ class Interface(object):
         if handlers == "Kv":
             handle = PyPWA.data.filehandling.Kv()
             handle.write(file_location, data=the_data)
+        elif handlers == "Yaml":
+            handle = PyPWA.data.filehandling.Yaml()
+            handle.write(file_location, data=the_data)
+            
 
 
 
