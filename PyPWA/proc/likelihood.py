@@ -26,8 +26,7 @@ class Calc(object):
         """
         self.config = config
         self.preprocessing()
-        sys.path.append(self.general["cwd"])
-        self.imported = __import__(self.config["Function's Location"].strip(".py"))
+
 
         
     def run(self, *args):
@@ -81,7 +80,7 @@ class Calc(object):
             value = accepted_value + data_value
 
         else:
-            value = self.likely_hood_function( users_function(self.kvar_data, the_params), users_function(self.kvar_accepted, the_params), self.qfactor)
+            value = self.likely_hood_function( users_function(self.data, the_params), users_function(self.accepted, the_params), self.qfactor)
             print value
         return value
 
@@ -91,6 +90,8 @@ class Calc(object):
         Handles some initial work before processesing.
         """
 
+        sys.path.append(self.general["cwd"])
+        self.imported = __import__(self.config["Function's Location"].strip(".py"))
         prep_function = getattr(self.imported, self.config["Setup Name"])
         prep_function()
 
@@ -102,11 +103,11 @@ class Calc(object):
                 self.data_split.append({})
                 self.accepted_split.append({})
 
-            for key in self.kvar_data:
+            for key in self.data:
                 for x in range((self.general["Number of Threads"])):
                     self.data_split[x][key] = numpy.array_split(self.data[key],(self.general["Number of Threads"]))[x]
 
-            for key in self.kvar_accepted:
+            for key in self.accepted:
                 for x in range((self.general["Number of Threads"])):
                     self.accepted_split[x][key] = numpy.array_split(self.accepted[key], (self.general["Number of Threads"]))[x]
 
