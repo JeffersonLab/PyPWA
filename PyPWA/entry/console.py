@@ -33,8 +33,8 @@ def start_console_general_fitting(configuration, writeconfig):
             with open(os.getcwd() + "/Example.py", "w") as stream:
                 stream.write(fit.example_function)
         else:
-            the_configure = PyPWA.config.handler.YAML()
-            config = the_configure.generate(configuration)
+            the_configure = PyPWA.config.YAML()
+            config = the_configure.generate(configuration[0])
             config["General Settings"]["cwd"] = os.getcwd()
             click.clear()
             fit.config = config
