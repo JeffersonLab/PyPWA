@@ -12,7 +12,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "[CURRENT_STATUS]"
 
-import os, warnings
+import os, warnings, yaml
 from abc import ABCMeta, abstractmethod
 
 class configurations:
@@ -35,9 +35,6 @@ class configurations:
 class YAML(configurations):
 
     default_flow_style = False
-
-    def __init__(self):
-        import yaml
 
     def generate(self, file_location):
         self.file_exists(file_location)
