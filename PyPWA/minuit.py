@@ -35,7 +35,7 @@ class Minimalizer(object):
                 pass
 
             try:
-                self.settings = config["Minuit's Initial Setttings"]
+                self.settings = config["Minuit's Initial Settings"]
             except KeyError:
                 pass
 
@@ -45,7 +45,7 @@ class Minimalizer(object):
                 pass
 
             try:
-                self.set_up = config["Minuit's Set up"]
+                self.set_up = config["Minuit's Set Up"]
             except KeyError:
                 pass
 
@@ -56,16 +56,15 @@ class Minimalizer(object):
 
 
     def test(self):
-        self.function_test( self.calc_function)
-        if type(parameters) != list:
+        if type(self.parameters) != list:
             raise TypeError("Parameters not defined as list!")
         if type(self.settings) != dict:
-            raise TypeError("iMinuit settings are not a dictionary!")
+            raise TypeError("Minuit settings are not a dictionary!")
         if type(self.strategy) != int:
-            warnings.warn("iMinuit strategy is not an integer! Defaulting to 1", UserWarning)
+            warnings.warn("Minuit strategy is not an integer! Defaulting to 1", UserWarning)
             self.strategy = 1
         elif not self.strategy >= 0 or not self.strategy <= 2:
-            warnings.warn("iMinuit's strategy must be 0, 1, or 2! Defaulting to 1", UserWarning)
+            warnings.warn("Minuit's strategy must be 0, 1, or 2! Defaulting to 1", UserWarning)
             self.strategy = 1
         if type(self.ncall) != int:
             warnings.warn("ncall must be an integer! Defaulting to 1000.", UserWarning)
@@ -73,19 +72,9 @@ class Minimalizer(object):
         elif self.ncall <= 0:
             warnings.warn("ncall must be a positive integer! Defaulting to 1000", UserWarning)
             self.ncall = 1000
-
-
-    def function_test(self, function, eow ):
-        def holding_function(self):
-            pass
-
-        if hasattr(function, "__call__"):
-            if inspect.getargspec( function ).args == []:
-                return function
-            else:
-                raise TypeError("User defined function has arguments!")
-        else:
-            raise TypeError("User defined function is not a function!")
+        if type(self.set_up) != float:
+            warnings.warn("Set up must be a float! Defaulting to .5", UserWarning)
+            self.set_up = float(0.5)
         
 
     def min(self):
