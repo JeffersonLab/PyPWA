@@ -61,7 +61,7 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
         Actually runs all the data, not the best way of doing things but it works, functions as the main function of the program running all the other functions of the program.
         """
 
-        with click.progressbar(length=4, label="Configuring GeneralFitting") as progress:
+        with click.progressbar(length=5, label="Configuring GeneralFitting") as progress:
             self.data = PyPWA.data.Interface()
             progress.update(1)
             self.minimalization = PyPWA.minuit.Minimalizer(self.config["Minuit's Settings"])
@@ -69,6 +69,7 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
             self.calc = PyPWA.proc.likelihood.Calc(self.config["Likelihood Information"])
             progress.update(1)
             self.calc.general = self.config["General Settings"]
+            progress.update(1)
             self.calc.parameters = self.config["Minuit's Settings"]["Minuit's Parameters"]
             progress.update(1)
 
