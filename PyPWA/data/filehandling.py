@@ -76,6 +76,7 @@ class Kv(DataTemplate):
             for x in range(len(first_line.split(","))):
                 self.parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(shape=file_length, dtype="float64")
 
+            count = 0
             with click.progressbar(length=file_length, label="Loading kinematic variables:") as progress:
                 for line in fileinput.input([file_location]):
                     the_line = line.strip("\n")
@@ -85,7 +86,6 @@ class Kv(DataTemplate):
                     count += 1
                     progress.update(1)
             
-            return self.parsed
 
         elif self.data_type == "QFactor":
             self.parsed = numpy.zeros(shape=file_length, dtype="float64")
@@ -96,6 +96,8 @@ class Kv(DataTemplate):
                     self.parsed[count] = line.strip("\n")
                     count += 1
                     progress.update(1)
+
+        return self.parsed
 
     def write(self, file_location, data = None):
         if type(data) != None:
@@ -121,7 +123,7 @@ class Kv(DataTemplate):
             try:
                 with open(file_location, "w") as stream:
                     with click.progressbar(length=file_length, label="Writing kinematic variables:") as progress:
-                        for event in progess:
+                        for event in progress:
                             line = ""
                             for kvar in range(len(kvars)):
                                 if kvar > 0:
