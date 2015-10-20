@@ -12,7 +12,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
-import fileinput, numpy, click
+import fileinput, numpy, click, yaml
 from abc import ABCMeta, abstractmethod
 
 class DataTemplate:
@@ -144,3 +144,20 @@ class Kv(DataTemplate):
                             stream.write(str(self.data[event]) + "\n")
             except:
                 raise
+
+class Yaml(DataTemplate):
+
+    default_flow_style = False
+
+    def parse(self, file_location):
+        with open(file_location) as stream:
+            self.saved = yaml.load(stream)
+        return self.saved
+
+    def write(self, file_location, data = None):
+        if  type(self.default_flow_style) != bool:
+            warnings.warn("Default flow style is not boolean. Defaulting to false.", UserWarning)
+            self.default_flow_style = False
+
+        with open(file_location, "w") as stream:
+            stream.write( yaml.dump(data, default_flow_style = self.default_flow_style ) )
