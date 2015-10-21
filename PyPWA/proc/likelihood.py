@@ -20,13 +20,11 @@ class Calc(object):
 
     general = {}
     
-    def __init__(self, config ):
+    def __init__(self, config=None ):
         """
         Sets up basic config and checks it for errors
         """
         self.config = config
-        self.preprocessing()
-
 
         
     def run(self, *args):
