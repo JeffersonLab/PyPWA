@@ -143,5 +143,3 @@ def likelihood(users_function, send, recieve, accepted, data, processed, qfactor
                 send.send(value)
             else:
                 return value
-
-

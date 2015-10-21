@@ -10,7 +10,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
-import PyPWA.data, PyPWA.proc.likelihood, PyPWA.minuit, click
+import PyPWA.data, PyPWA.proc.likelihood, PyPWA.minuit, click, sys, numpy
 
 class Fitting(object):
     """
@@ -83,3 +83,66 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
         self.minimalization.min()
         self.calc.stop()
     
+class Simulator(object): #Todo: Clean Up Josh's code
+    example_function = """\
+def the_function(the_array, the_params):
+        the_size = len(the_array.values()[0]) #You can change the variable name here, or set the length of values by hand
+    values = numpy.zeros(shape=the_size)
+    for x in range(the_size):
+        #    This is where you define your intensity function. Do not change the name of the function. 
+        #    The names of the arguments are up to you, but they both need to be dictionaries, with the 
+        #    first one being the kinematic variables, either from a gamp event or a list. And the second
+        #    being the fitted parameters. All fitted parameters need to be floating point numbers. If a
+        #    parameter of your function is a complex number make the real part one fitted variable and
+        #    the imaginary part another. Your function should return a float. 
+        values[x] = (the_array['s'][x]**2)*(the_array['t'][x]**3)*the_params["A1"] #example
+    return values
+
+    
+    return (kVars['s']**2)*(kVars['t']**3)*params["A1"] #example
+    """
+    example_config_simulator = """\
+Simulator:
+    nTrue file: ntrue.txt
+    Input kinematic variables file: kvar.txt
+    Output Weight file: output.txt
+    Intensities file: ilist.npy
+    Maximum intensity of whole mass range file: maxMass.npy
+"""
+    example_config_calcIlist = """\
+Calculate List of intensities:
+    Function Location: Example.py
+    Function Name: intFn
+    Input kinematic variables file: kvar.txt
+    Parameters: {'A1':7.,'A2':-3.0,'A3':0.37,'A4':0.037,'A5':0.121}
+    Save location: ilist.npy
+"""
+    simulator_config = None
+    calcIlist_config = None
+    cwd = None
+
+    def calcIlist(self):
+        sys.path.append(self.cwd)
+        imported = __import__(self.calcIlist_config["Function Location"].strip(".py"))
+        users_function = getattr(imported, self.calcIlist_config["Function Name"])
+
+        data = PyPWA.data.Interface()
+        kvar = data.parse(self.calcIlist_config["Input kinematic variables file"])
+        numpy.save( self.calcIlist_config["Save location"], users_function(kvar, self.calcIlist_config["Parameters"]))
+
+    def Simulate(self):
+        iList = numpy.load(self.simulator_config["Intensities file"])
+        iMax = numpy.load(self.simulator_config["Maximum intensity of whole mass range file"])
+
+        nTrueList = [((1.0/(iList.shape[0]))*(iList.sum(0)))]
+        numpy.save(self.simulator_config["nTrue file"],nTrueList)
+
+        wList = iList[:]/iMax
+
+        wnList = numpy.zeros(shape=(wList.shape[0]))
+
+        for wn in range(len(wList)):
+            if wList[wn] > numpy.random.random():
+                wnList[wn] = 1
+
+        numpy.save(self.simulator_config["Output Weight file"], wnList)
