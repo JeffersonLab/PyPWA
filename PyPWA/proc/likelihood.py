@@ -129,7 +129,7 @@ def likelihood(users_function, queue, accepted, data, processed, qfactor, single
         else:
             processed_data = users_function(data, params)
             processed_accepted = users_function(accepted, params)
-            value = -(numpy.sum(qfactor * log(processed_data))) + processed * numpy.sum(processed_accepted)
+            value = -(numpy.sum(qfactor * numpy.log(processed_data))) + processed * numpy.sum(processed_accepted)
             queue.put(value)
             if single:
                 break
