@@ -20,6 +20,7 @@ setup(
 	entry_points={
 		"console_scripts": [
 			"GeneralFitting = PyPWA.entry.console:start_console_general_fitting",
+			"GeneralSimulator = PyPWA.entry.console:start_console_general_simulator"
 		],
 	},
 	keywords = "PyPWA GeneralFitting Partial Wave Analysis Minimalization",

@@ -39,19 +39,20 @@ class Calc(object):
             the_params[parameter] = arg
 
         if self.general["Number of Threads"] > 1:
-            for queue in self.queues:
-                queue.put(the_params)
+            for pipe in self.sendThread:
+                pipe.send(the_params)
             values = numpy.zeros(shape=self.general["Number of Threads"])
-            for count,queue enumerate(self.queues):
-                values[count] = queue.get()
-            return numpy.sum(values)
+            for count,pipe in enumerate(self.recieveThread):
+                values[count] = pipe.recv()
+            value = numpy.sum(values)
+            print value
+            return value
 
         else:
-            queue = multiprocessing.Queue()
-            queue.put(the_params)
             users_function = getattr(self.imported, self.config["Processing Name"])
-            likelihood(users_function, queue, self.accepted, self.data, self.processed, self.qfactor )
-            return queue.get()
+            value = likelihood(users_function, the_params, None , self.accepted, self.data, self.processed, self.qfactor, single=True )
+            print value
+            return value
 
     def prep_work(self):
         """
@@ -99,33 +100,46 @@ class Calc(object):
 
         if self.general["Number of Threads"] > 1:
 
-            self.queues = []
+            self.sendMain = []
+            self.recieveMain = []
+            self.sendThread = []
+            self.recieveThread = []
             self.processes = []
 
             for x in range(self.general["Number of Threads"]):
-                self.queues.append(multiprocessing.Queue())
+                recieve, send = multiprocessing.Pipe(False)
+                self.sendThread.append(send)
+                self.recieveMain.append(recieve)
+            for x in range(self.general["Number of Threads"]):
+                recieve, send = multiprocessing.Pipe(False)
+                self.sendMain.append(send)
+                self.recieveThread.append(recieve)
 
-            for count,the_queue in enumerate(queues):
-                self.processes.append(multiprocessing.Process(target=likelihood, args=(users_function, the_queue, self.accepted_split[count], self.data_split[count], self.processed, self.qfactor_split[count])))
+            for count, pipe in enumerate(zip(self.sendMain, self.recieveMain)):
+                self.processes.append(multiprocessing.Process(target=likelihood, args=(users_function, pipe[0],pipe[1], self.accepted_split[count], self.data_split[count], self.processed, self.qfactor_split[count])))
             for process in self.processes:
                 process.daemon = True
             for process in self.processes:
                 process.start()
 
     def stop(self):
-        for queue in self.queues:
-            queue.put("DIE") 
+        for pipe in self.sendThread:
+            pipe.send("DIE") 
 
 
-def likelihood(users_function, queue, accepted, data, processed, qfactor ):
+def likelihood(users_function, send, recieve, accepted, data, processed, qfactor, single=False ):
     while True:
-        params = queue.get()
+        if not single:
+            params = recieve.recv()
+        else:
+            params = send
         if params == "DIE":
-            break
+            return 0 
         else:
             processed_data = users_function(data, params)
             processed_accepted = users_function(accepted, params)
-            value = -(numpy.sum(qfactor * log(processed_data))) + processed * numpy.sum(processed_accepted)
-            queue.put(value)
-
-
+            value = -(numpy.sum(qfactor * numpy.log(processed_data))) + processed * numpy.sum(processed_accepted)
+            if not single:
+                send.send(value)
+            else:
+                return value
