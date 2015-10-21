@@ -81,4 +81,5 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
         click.secho("Starting iminiut.")
         self.minimalization.calc_function = self.calc.run
         self.minimalization.min()
+        self.calc.stop()
     
