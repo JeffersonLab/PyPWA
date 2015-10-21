@@ -44,7 +44,6 @@ class Calc(object):
             values = numpy.zeros(shape=self.general["Number of Threads"])
             for count,pipe in enumerate(self.recieveThread):
                 values[count] = pipe.recv()
-                print values[count]
             value = numpy.sum(values)
             print value
             return value
@@ -111,13 +110,13 @@ class Calc(object):
                 recieve, send = multiprocessing.Pipe(False)
                 self.sendThread.append(send)
                 self.recieveMain.append(recieve)
-            for x in range(self.general["Number of Threads"])::
+            for x in range(self.general["Number of Threads"]):
                 recieve, send = multiprocessing.Pipe(False)
                 self.sendMain.append(send)
                 self.recieveThread.append(recieve)
 
-            for count,pipes in enumerate(zip(self.sendMain, self.recieveMain)):
-                self.processes.append(multiprocessing.Process(target=likelihood, args=(users_function, pipes[0],pipe[1], self.accepted_split[count], self.data_split[count], self.processed, self.qfactor_split[count])))
+            for count, pipe in enumerate(zip(self.sendMain, self.recieveMain)):
+                self.processes.append(multiprocessing.Process(target=likelihood, args=(users_function, pipe[0],pipe[1], self.accepted_split[count], self.data_split[count], self.processed, self.qfactor_split[count])))
             for process in self.processes:
                 process.daemon = True
             for process in self.processes:
@@ -129,7 +128,6 @@ class Calc(object):
 
 
 def likelihood(users_function, send, recieve, accepted, data, processed, qfactor, single=False ):
-    print accepted, data, processed, qfactor
     while True:
         if not single:
             params = recieve.recv()
