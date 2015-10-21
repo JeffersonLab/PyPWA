@@ -42,16 +42,20 @@ class Calc(object):
             for queue in self.queues:
                 queue.put(the_params)
             values = numpy.zeros(shape=self.general["Number of Threads"])
-            for count,queue enumerate(self.queues):
+            for count,queue in enumerate(self.queues):
                 values[count] = queue.get()
-            return numpy.sum(values)
+            value = numpy.sum(values)
+            print value
+            return value
 
         else:
             queue = multiprocessing.Queue()
             queue.put(the_params)
             users_function = getattr(self.imported, self.config["Processing Name"])
-            likelihood(users_function, queue, self.accepted, self.data, self.processed, self.qfactor )
-            return queue.get()
+            likelihood(users_function, queue, self.accepted, self.data, self.processed, self.qfactor, single=True )
+            value = queue.get()
+            print value
+            return value
 
     def prep_work(self):
         """
@@ -117,7 +121,7 @@ class Calc(object):
             queue.put("DIE") 
 
 
-def likelihood(users_function, queue, accepted, data, processed, qfactor ):
+def likelihood(users_function, queue, accepted, data, processed, qfactor, single=False ):
     while True:
         params = queue.get()
         if params == "DIE":
@@ -127,5 +131,7 @@ def likelihood(users_function, queue, accepted, data, processed, qfactor ):
             processed_accepted = users_function(accepted, params)
             value = -(numpy.sum(qfactor * log(processed_data))) + processed * numpy.sum(processed_accepted)
             queue.put(value)
+            if single:
+                break
 
 
