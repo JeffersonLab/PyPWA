@@ -105,7 +105,7 @@ class Calc(object):
             self.processes = []
 
             for x in range(self.general["Number of Threads"]):
-                self.queues.append(multiprocessing.Queue)
+                self.queues.append(multiprocessing.Queue())
 
             for count,the_queue in enumerate(queues):
                 self.processes.append(multiprocessing.Process(target=likelihood, args=(users_function, the_queue, self.accepted_split[count], self.data_split[count], self.processed, self.qfactor_split[count])))
@@ -113,6 +113,10 @@ class Calc(object):
                 process.daemon = True
             for process in self.processes:
                 process.start()
+
+    def stop(self):
+        for queue in self.queues:
+            queue.put("DIE") 
 
 
 def likelihood(users_function, queue, accepted, data, processed, qfactor ):
