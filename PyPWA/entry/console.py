@@ -12,7 +12,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "[CURRENT_STATUS]"
 
-import  click, PyPWA.data, PyPWA.proc, PyPWA.config, os
+import  click, PyPWA.data, PyPWA.proc, PyPWA.config, os, sys
 
 @click.command()
 @click.argument( "configuration", nargs=-1, type=click.Path(exists=True))
@@ -33,9 +33,9 @@ def start_console_general_fitting(configuration, writeconfig):
             with open(os.getcwd() + "/Example.py", "w") as stream:
                 stream.write(fit.example_function)
         else:
-            the_configure = PyPWA.config.handler.YAML()
-            config = the_configure.generate(configuration)
-            config["General Settings"]["cwd"] = os.getcwd()
+            the_data = PyPWA.data.Interface()
+            the_config = the_data.parse(configuration[0])
+            the_config["General Settings"]["cwd"] = os.getcwd()
             click.clear()
-            fit.config = config
+            fit.config = the_config
             fit.start()
