@@ -12,7 +12,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "[CURRENT_STATUS]"
 
-import  click, PyPWA.data, PyPWA.proc, PyPWA.config, os, sys
+import  click, PyPWA.data, PyPWA.proc, os, sys
 
 @click.command()
 @click.argument( "configuration", nargs=-1, type=click.Path(exists=True))
@@ -50,7 +50,7 @@ def start_console_general_simulator(configuration, writeconfig, simulator ):
         click.secho("Use \"GeneralSimulator --help\" for the proper way to use the utility", bold=True)
     else:
         if len(simulator) == 0:
-            #Print a message
+            pass
         import PyPWA.core.console
         sim = PyPWA.core.console.Simulator()
         if simulator == False:
