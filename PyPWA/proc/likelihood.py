@@ -124,8 +124,9 @@ class Calc(object):
                 process.start()
 
     def stop(self):
-        for pipe in self.sendThread:
-            pipe.send("DIE") 
+        if self.general["Number of Threads"] > 1:
+            for pipe in self.sendThread:
+                pipe.send("DIE") 
 
 
 def likelihood(users_function, send, recieve, accepted, data, processed, qfactor, single=False ):
