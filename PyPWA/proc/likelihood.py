@@ -2,6 +2,7 @@
 """
 DataCalc.py: This Caculates the from the General Shell using NumExpr
 """
+from __future__ import print_function
 
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond", "Will Phelps", "Stephanie Bramlett"]
@@ -45,13 +46,13 @@ class Calc(object):
             for count,pipe in enumerate(self.recieveThread):
                 values[count] = pipe.recv()
             value = numpy.sum(values)
-            print value
+            print(value)
             return value
 
         else:
             users_function = getattr(self.imported, self.config["Processing Name"])
             value = likelihood(users_function, the_params, None , self.accepted, self.data, self.processed, self.qfactor, single=True )
-            print value
+            print(value)
             return value
 
     def prep_work(self):
