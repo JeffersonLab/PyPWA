@@ -10,7 +10,8 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Alpha"
 
-import PyPWA.data, PyPWA.proc.likelihood, PyPWA.minuit, click, sys, numpy
+import PyPWA.data, PyPWA.proc.likelihood
+
 
 class Fitting(object):
     """
@@ -18,9 +19,78 @@ class Fitting(object):
     Tries to be both intelligent and provide a flexible way for users to do what they want how they want.
     """
 
-    config = None
+    def __init__(self, config, cwd):
+        self.generated_length = config["Likelihood Information"]["Generated Length"]
+        self.function_location = config["Likelihood Information"]["Function's Location"]
+        self.amplitude_name = config["Likelihood Information"]["Processing Name"]
+        self.setup_name = config["Likelihood Information"]["Setup Name"]
+        self.data_location = config["Data Information"]["Data Location"]
+        self.accepted_location = config["Data Information"]["Accepted Monte Carlo Location"]
+        self.qfactor_location = config["Data Information"]["QFactor List Location"]
+        self.initial_settings = config["Minuit's Settings"]["Minuit's Initial Settings"]
+        self.parameters = config["Minuit's Settings"]["Minuit's Parameters"]
+        self.strategy = config["Minuit's Settings"]["Minuit's Strategy"]
+        self.set_up = config["Minuit's Settings"]["Minuit's Set Up"]
+        self.ncall = config["Minuit's Settings"]["Minuit's ncall"]
+        self.num_threads = config["General Settings"]["Number of Threads"]
+        self.cwd = cwd
 
-    example_config = """\
+
+
+    def start(self):
+        """
+        Actually runs all the data, not the best way of doing things but it works, functions as the main function of the program running all the other functions of the program.
+        """
+
+        self.parse = PyPWA.data.Interface()
+        self.data = self.parse.parse(self.data_location)
+        self.accepted = self.parse.parse(self.accepted_location)
+        self.qfactor = self.parse.parse(self.qfactor_location)
+
+        self.functions = PyPwa.proc.tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
+        self.amplitude = self.functions.return_amplitude()
+        self.setup_function = self.functions.return_setup()
+
+        self.calc = PyPWA.proc.likelihood.Calc(self.num_threads, self.generated_length, self.amplitude, self.data, self.accepted, self.parameters)
+        self.minimalization = PyPWA.proc.tools.Minimalizer(self.calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
+
+        self.calc.prep_work()
+        self.setup_function()
+        self.minimalization.calc_function = self.calc.run
+        self.minimalization.min()
+        self.calc.stop()
+    
+class Simulator(object):
+
+    def __init__(self, config, cwd):
+        self.function_location = config["Simulator Information"]["Function's Location"]
+        self.amplitude_name = config["Simulator Information"]["Processing Name"]
+        self.setup_name = config["Simulator Information"]["Setup Name"]
+        self.parameters = config["Simulator Information"]["Parameters"]
+        self.data_location = config["Data Information"]["Data Location"]
+        self.save_location = config["Data Information"]["Save Location"]
+        self.cwd = cwd
+
+    def start(self):
+        self.data_manager = PyPWA.data.Interface()
+        self.data = self.data_manager(self.data_location)
+
+        self.functions = PyPWA.proc.tools.FunctionLoading(self.cwd, self.function_location, self.setup_function, self.amplitude_name, self.setup_name )
+        self.amplitude = self.functions.return_amplitude()
+        self.setup_function = self.functions.return_setup()
+
+        self.weighter = PyPWA.proc.simulator.Simulator(self.amplitude, self.data, self.parameters )
+        self.setup_function()
+
+
+        
+    
+class Configurations(object):
+    """
+    This object just holds the text for writing the information to the General Shell
+    """
+
+    fitting_config = """\
 Likelihood Information:
     Generated Length : 10000   #Number of Generated events
     Function's Location : Example.py   #The python file that has the functions in it
@@ -41,6 +111,17 @@ General Settings:
     Use QFactor: True   #Boolean, using Qfactor or not
 """
 
+    simulator_config = """\
+Simulator Information:
+    Function's Location : Example.py   #The python file that has the functions in it
+    Processing Name : the_function  #The name of the processing function
+    Setup Name :  the_setup   #The name of the setup function, called only once before fitting
+    Parameters : { A1: 1, A2: 2, A3: 0.1, A4: -10, A5: -0.00001 }
+Data Information:
+    Data Location : /home/user/foobar/data.txt #The location of the data
+    Save Location : /home/user/foobabar/weights.txt #Where you want to save the weights
+    """
+
     example_function = """\
 import numpy
 
@@ -56,93 +137,3 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
     #This function will be ran once before the data is Minuit begins.
     pass
 """
-    def start(self):
-        """
-        Actually runs all the data, not the best way of doing things but it works, functions as the main function of the program running all the other functions of the program.
-        """
-
-        with click.progressbar(length=5, label="Configuring GeneralFitting") as progress:
-            self.data = PyPWA.data.Interface()
-            progress.update(1)
-            self.minimalization = PyPWA.minuit.Minimalizer(self.config["Minuit's Settings"])
-            progress.update(1)
-            self.calc = PyPWA.proc.likelihood.Calc(self.config["Likelihood Information"])
-            progress.update(1)
-            self.calc.general = self.config["General Settings"]
-            progress.update(1)
-            self.calc.parameters = self.config["Minuit's Settings"]["Minuit's Parameters"]
-            progress.update(1)
-
-        self.calc.data = self.data.parse(self.config["Data Information"]["Data Location"])
-        self.calc.accepted = self.data.parse(self.config["Data Information"]["Accepted Monte Carlo Location"])
-        self.calc.qfactor = self.data.parse(self.config["Data Information"]["QFactor List Location"])
-        self.calc.prep_work()
-
-        click.secho("Starting iminiut.")
-        self.minimalization.calc_function = self.calc.run
-        self.minimalization.min()
-        self.calc.stop()
-    
-class Simulator(object): #Todo: Clean Up Josh's code
-    example_function = """\
-def the_function(the_array, the_params):
-        the_size = len(the_array.values()[0]) #You can change the variable name here, or set the length of values by hand
-    values = numpy.zeros(shape=the_size)
-    for x in range(the_size):
-        #    This is where you define your intensity function. Do not change the name of the function. 
-        #    The names of the arguments are up to you, but they both need to be dictionaries, with the 
-        #    first one being the kinematic variables, either from a gamp event or a list. And the second
-        #    being the fitted parameters. All fitted parameters need to be floating point numbers. If a
-        #    parameter of your function is a complex number make the real part one fitted variable and
-        #    the imaginary part another. Your function should return a float. 
-        values[x] = (the_array['s'][x]**2)*(the_array['t'][x]**3)*the_params["A1"] #example
-    return values
-
-    
-    return (kVars['s']**2)*(kVars['t']**3)*params["A1"] #example
-    """
-    example_config_simulator = """\
-Simulator:
-    nTrue file: ntrue.txt
-    Input kinematic variables file: kvar.txt
-    Output Weight file: output.txt
-    Intensities file: ilist.npy
-    Maximum intensity of whole mass range file: maxMass.npy
-"""
-    example_config_calcIlist = """\
-Calculate List of intensities:
-    Function Location: Example.py
-    Function Name: intFn
-    Input kinematic variables file: kvar.txt
-    Parameters: {'A1':7.,'A2':-3.0,'A3':0.37,'A4':0.037,'A5':0.121}
-    Save location: ilist.npy
-"""
-    simulator_config = None
-    calcIlist_config = None
-    cwd = None
-
-    def calcIlist(self):
-        sys.path.append(self.cwd)
-        imported = __import__(self.calcIlist_config["Function Location"].strip(".py"))
-        users_function = getattr(imported, self.calcIlist_config["Function Name"])
-
-        data = PyPWA.data.Interface()
-        kvar = data.parse(self.calcIlist_config["Input kinematic variables file"])
-        numpy.save( self.calcIlist_config["Save location"], users_function(kvar, self.calcIlist_config["Parameters"]))
-
-    def Simulate(self):
-        iList = numpy.load(self.simulator_config["Intensities file"])
-        iMax = numpy.load(self.simulator_config["Maximum intensity of whole mass range file"])
-
-        nTrueList = [((1.0/(iList.shape[0]))*(iList.sum(0)))]
-        numpy.save(self.simulator_config["nTrue file"],nTrueList)
-
-        wList = iList[:]/iMax
-
-        wnList = numpy.zeros(shape=(wList.shape[0]))
-
-        for wn in range(len(wList)):
-            if wList[wn] > numpy.random.random():
-                wnList[wn] = 1
-
-        numpy.save(self.simulator_config["Output Weight file"], wnList)
