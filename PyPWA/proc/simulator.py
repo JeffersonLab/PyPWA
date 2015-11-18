@@ -19,7 +19,7 @@ class Simulator(object):
         self.parameters = parameters
         self.events = events
 
-    def calcIlist(self):
+    def run(self):
         true_Random = random.SystemRandom(time.gmtime())
 
         intensities_list = self.amplitude(self.events, self.parameters)
