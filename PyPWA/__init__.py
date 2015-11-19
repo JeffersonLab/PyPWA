@@ -8,6 +8,6 @@ __license__ = "MIT"
 __version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha.2"
+__status__ = "Beta0"
 
 import numpy
