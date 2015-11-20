@@ -12,7 +12,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "[CURRENT_STATUS]"
 
-import  click, PyPWA.data.file_manager, os, PyPWA.core.console_main
+import  os, click, PyPWA.data.file_manager, PyPWA.core.console_main
 
 @click.command()
 @click.argument( "configuration", nargs=-1, type=click.Path(exists=True))
@@ -58,7 +58,7 @@ def start_console_general_simulator(configuration, writeconfig):
             with open(os.getcwd() + "/Example.py", "w") as stream:
                 stream.write(config.example_function)
         else:
-            the_data = PyPWA.data.Interface()
+            the_data = PyPWA.data.file_manager.MemoryInterface()
             the_config = the_data.parse(configuration[0])
             cwd = os.getcwd()
             click.clear()
