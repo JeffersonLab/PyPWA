@@ -12,13 +12,13 @@ __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
 import numpy, time, random
-import PyPWA.proc.calculation_tools, PyPWA.proc.process_calulation, PyPWA.proc.process_communication
-from abc import ABCMeta, abstractclass
+import PyPWA.proc.calculation_tools, PyPWA.proc.process_calculation, PyPWA.proc.process_communication
+from abc import ABCMeta, abstractmethod
 
 class InterfaceCalculation:
     __metaclass__ = ABCMeta
 
-    @abstractclass
+    @abstractmethod
     def run(self): pass
 
 
@@ -33,25 +33,25 @@ class MaximalLogLikelihood(InterfaceCalculation):
         self._parameters = parameters
         self._send_to_process, recieve_from_main, send_to_main, self._recieve_from_process = self._pipe_setup()
 
-        split_data, split_accepted, split_qfactor = _data_setup(data, accepted, qfactor )
-        processed = _preprocessed(generated_length)
+        split_data, split_accepted, split_qfactor = self._data_setup(data, accepted, qfactor )
+        processed = self._preprocessed(generated_length)
 
         self._thread_setup( amplitude_function, setup_function, processed, split_data, split_accepted, split_qfactor, send_to_main, recieve_from_main)
 
 
     def _data_setup(self, data, accepted, qfactor ):
         splitter = PyPWA.proc.calculation_tools.DataSplitter()
-        split_data = splitter.split(data, self.num_threads)
-        split_accepted = splitter.split(accepted, self.num_threads)
-        split_qfactor = splitter.split(qfactor, self.num_threads)
+        split_data = splitter.split(data, self._num_threads)
+        split_accepted = splitter.split(accepted, self._num_threads)
+        split_qfactor = splitter.split(qfactor, self._num_threads)
         return [split_data, split_accepted, split_qfactor]
 
 
     def _pipe_setup(self):
         pipe_communication = PyPWA.proc.process_communication.ProcessPipes()
 
-        send_to_process, recieve_from_main = pipe_communication.return_pipes(self.num_threads)
-        send_to_main, recieve_from_process = pipe_communication.return_pipes(self.num_threads)
+        send_to_process, recieve_from_main = pipe_communication.return_pipes(self._num_threads)
+        send_to_main, recieve_from_process = pipe_communication.return_pipes(self._num_threads)
 
         return [send_to_process, recieve_from_main, send_to_main, recieve_from_process ]
 
@@ -68,7 +68,7 @@ class MaximalLogLikelihood(InterfaceCalculation):
         processes = []
 
         for count, pipe in enumerate(zip(send_to_main, recieve_from_main)):
-                processes.append(PyPWA.proc.process_calulation.LikelihoodAmplitude(amplitude_function, setup_function, processed, data[count], accepted[counnt], qfactor[count], send[0], recieve[1]))
+                processes.append(PyPWA.proc.process_calculation.LikelihoodAmplitude(amplitude_function, setup_function, processed, data[count], accepted[count], qfactor[count], pipe[0], pipe[1]))
 
         for process in processes:
             process.start()
