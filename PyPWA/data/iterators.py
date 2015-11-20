@@ -17,22 +17,19 @@ class FileIterator(object):
     Abstract Class for iterators inside PyPWA.data, __init__ funciton is predefined.
     """
     __metaclass__ = ABCMeta
-    
-    buffersize = 0
 
-    def __init__(self, file_location, buffersize = None):
-        self.file_location = file_location
-        self.previous = None
-        self.current = None
-        if type(buffersize) != type(None):
-            self.buffersize = buffersize
-        self.file = open(file_location, "r", self.buffersize)
+    def __init__(self, file_location, buffersize = 0):
+        self._file_location = file_location
+        self._previous = None
+        self._current = None
+        self._buffersize = buffersize
+        self._file = open(file_location, "r", self._buffersize)
 
     def __iter__(self):
         return self
 
     def reset(self):
-        self.file.seek(0)
+        self._file.seek(0)
 
     @abstractmethod
     def next(self):
@@ -46,20 +43,20 @@ class FileIterator(object):
         return self.next()
 
     def close(self):
-        self.file.close()
+        self._file.close()
 
 class SingleIterator(FileIterator):
     def next(self):
-        self.previous = self.current
-        self.current = self.file.read(1)
-        if self.current == '':
+        self._previous = self._current
+        self._current = self._file.read(1)
+        if self._current == '':
             raise StopIteration
-        return self.current
+        return self._current
 
     def iterator_length(self):
         try:
             line_count = 0
-            data = open(self.file_location, "rb", self.buffersize )
+            data = open(self._file_location, "rb", self._buffersize )
 
             while True:
                 returned = data.read(1)
@@ -73,15 +70,15 @@ class SingleIterator(FileIterator):
 
 class GampIterator(FileIterator):
     def next(self):
-        self.previous = self.current
-        particle_count = self.file.readline()
+        self._previous = self._current
+        particle_count = self._file.readline()
         if particle_count == '':
             raise StopIteration
         event = []
         for count in range(particle_count):
-            event.append(self.file.readline())
-        self.current = event
-        return self.current
+            event.append(self._file.readline())
+        self._current = event
+        return self._current
 
     def iterator_length(self):
         #TODO
