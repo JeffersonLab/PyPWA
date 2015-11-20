@@ -1,20 +1,32 @@
 """
-Reader.py: Reads formats from 
+PyPWA/data/iterators.py: Different iterators to pull a single
 """
+
+__author__ = "Mark Jones"
+__credits__ = ["Mark Jones"]
+__license__ = "MIT"
+__version__ = "2.0.0"
+__maintainer__ = "Mark Jones"
+__email__ = "maj@jlab.org"
+__status__ = "Beta0"
+
 from abc import ABCMeta, abstractmethod
 
 class FileIterator(object):
+    """
+    Abstract Class for iterators inside PyPWA.data, __init__ funciton is predefined.
+    """
     __metaclass__ = ABCMeta
     
-    __buffersize = 0
+    buffersize = 0
 
     def __init__(self, file_location, buffersize = None):
-        self.__file_location = file_location
-        self.__previous = None
-        self.__current = None
+        self.file_location = file_location
+        self.previous = None
+        self.current = None
         if type(buffersize) != type(None):
-            self.__buffersize = buffersize
-        self.__file = open(file_location, "r", self.__buffersize)
+            self.buffersize = buffersize
+        self.file = open(file_location, "r", self.buffersize)
 
     def __iter__(self):
         return self
@@ -34,64 +46,42 @@ class FileIterator(object):
         return self.next()
 
     def close(self):
-        self.__file.close()
+        self.file.close()
 
 class SingleIterator(FileIterator):
     def next(self):
-        self.__previous = self.__current
-        self.__current = self.__file.read(1)
-        if self.__current == '':
+        self.previous = self.current
+        self.current = self.file.read(1)
+        if self.current == '':
             raise StopIteration
-        return self.__current
+        return self.current
 
     def iterator_length(self):
         try:
             line_count = 0
-            data = open(self.__file_location, "rb", self.__buffersize )
+            data = open(self.file_location, "rb", self.buffersize )
 
             while True:
                 returned = data.read(1)
                 if returned == '':
                     break
-                count += 1
+                line_count += 1
         except:
             raise
         return line_count
 
 
-class LineIterator(FileIterator):
-    def next(self):
-        self.__previous = self.__current
-        self.__current = self.__file.readline()
-        if self.__current == '':
-            raise StopIteration
-        return self.__current
-
-    def iterator_length(self):
-        """
-        Methods determines how many lines are in a file.
-        params: file_name = the path to the file
-        """
-        try:
-            with open(self.__file_location, "r", __buffersize) as the_file:
-                for length, l in enumerate(the_file):
-                    pass
-            return length + 1
-        except IOError:
-            raise AttributeError(self.__file_location + " doesn't exsist. Please check your configuration and try again.")
-
-
 class GampIterator(FileIterator):
     def next(self):
-        self.__previous = self.__current
-        particle_count = self.__file.readline()
+        self.previous = self.current
+        particle_count = self.file.readline()
         if particle_count == '':
             raise StopIteration
         event = []
         for count in range(particle_count):
             event.append(self.file.readline())
-        self.__current = event
-        return self.__current
+        self.current = event
+        return self.current
 
     def iterator_length(self):
         #TODO
