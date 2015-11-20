@@ -7,44 +7,48 @@ PyPWA.data.handlers: A collection of file handlers for PyPWA
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond"]
 __license__ = "MIT"
-__version__ = "0.6"
+__version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha"
+__status__ = "Beta0"
 
-import numpy, yaml, PyPWA.data.iterators
+import numpy, yaml, PyPWA.data.iterators, fileinput
 from abc import ABCMeta, abstractmethod
 
 class DataTemplate:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def parse(self, file_location):
-        pass
+    def parse(self, file_location): pass
 
     @abstractmethod
-    def write(self, file_location, data):
-        pass
+    def write(self, file_location, data): pass
 
 
 class Kv(DataTemplate):
     def parse(self, file_location):
-        iterator = PyPWA.data.iterator.LineIterator(file_location)
 
-        file_length = iterator.iterator_length()
 
-        first_line = iterator.next()
+        #This loop both sets the first_line variable, and finds the number of lines in the file
+        for file_length, line in enumerate(fileinput.input(file_location)):
+            if file_length == 0:
+                first_line = line
+        fileinput.close()
 
-        iterator.reset()
+
+        parsed = {}
 
         for x in range(len(first_line.split(","))):
-            parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(shape=file_length, dtype="float64")
+            parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(shape=file_length+1, dtype="float64")
 
-        for count, line in enumerate(iterator):
+        for index, line in enumerate(fileinput.input(file_location)):
             the_line = line.strip("\n")
 
-            for x in range(len(line.split(","))):
-                parsed[the_line.split(",")[x].split("=")[0]][count] = numpy.float64(the_line.split(",")[x].split("=")[1])
+            for particle_count in range(len(line.split(","))):
+                parsed[the_line.split(",")[particle_count].split("=")[0]][index] = numpy.float64(the_line.split(",")[particle_count].split("=")[1])
+        fileinput.close()
+
+        return parsed
     
     def write( file_location, data ):
 
@@ -67,14 +71,18 @@ class Kv(DataTemplate):
 class QFactor(DataTemplate):
 
     def parse(self, file_location ):
-        iterator = PyPWA.data.LineIterator(file_location)
+        fileinput.close()
 
-        file_length = iterator.iterator_length()
+        for file_length, line in enumerate(fileinput.input(file_location)):
+            pass
+        fileinput.close()
 
-        parsed = numpy.zeros(shape=file_length, dtype="float64")
+        parsed = numpy.zeros(shape=file_length+1, dtype="float64")
 
-        for count, line in enumerate(iterator):
+        for count, line in enumerate(fileinput.input(file_location)):
             parsed[count] = line.strip("\n")
+        fileinput.close()
+        return parsed
 
     def write(self, file_location, data):
 
@@ -84,7 +92,7 @@ class QFactor(DataTemplate):
 
 class KvCsv(DataTemplate):
     def parse(self, file_location ):
-        iterator = PyPWA.data.iterator.LineIterator(file_location)
+        iterator = PyPWA.data.iterators.LineIterator(file_location)
 
         file_length = iterator.iterator_length - 1
 
@@ -127,23 +135,44 @@ class KvCsv(DataTemplate):
                 stream.write("\n")
 
 
-class Weights(DataTemplate):
+class OldWeights(DataTemplate):
+    
+    def parse(self, file_location):
+        for file_length, line in enumerate(fileinput.input(file_location)):
+            pass
+        fileinput.close()
+
+        weights = numpy.zeros(shape=file_length, dtype=bool)
+
+        for index, weight in enumerate(fileinput.input(file_location)):
+            weights[index] = weight
+
+        return weights
+
+    def write(self, file_location, data ):
+        with open(file_location, "w") as stream:
+            for weight in data:
+                stream.write(str(int(data))+"\n")
+
+
+
+class NewWeights(DataTemplate):
 
     def parse(self, file_location):
-        iterator = PyPWA.data.iterator.SingleIterator(file_location)
+        iterator = PyPWA.data.iterators.SingleIterator(file_location)
         file_length = iterator.iterator_length()
 
         weights = numpy.zeros(shape=file_length, dtype=bool)
 
-        for count, weight in enumerate(iterator):
-            weights[count] = weight
+        for index, weight in enumerate(iterator):
+            weights[index] = weight
 
         return weights
 
     def write(self, file_location, data):
-        with open(file_location, "wb", 8096) as stream:
+        with open(file_location, "wb") as stream:
             for weight in data:
-                stream.write(str(weight))
+                stream.write(str(int(weight)))
 
 class Yaml(DataTemplate):
 
