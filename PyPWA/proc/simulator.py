@@ -14,34 +14,34 @@ import time, random, numpy
 class Simulator(object):
 
     def __init__(self, amplitude, setup_function, events, parameters ):
-        self.amplitude = amplitude
-        self.setup_function = setup_function
-        self.events = events
-        self.parameters = parameters
+        self.__amplitude = amplitude
+        self.__setup_function = setup_function
+        self.__events = events
+        self.__parameters = parameters
 
     def run(self):
-        self.random_setup()
-        self.intensities()
-        self.weighting()
-        self.rejection_list
-        return self.rejection
+        self.__random_setup()
+        self.__intensities()
+        self.__weighting()
+        self.__rejection_list
+        return self.__rejection
 
-    def random_setup(self):
-        self.true_random = random.SystemRandom(time.gmtime())
+    def __random_setup(self):
+        self.__true_random = random.SystemRandom(time.gmtime())
 
-    def random_number(self):
-        return self.true_random.random()
+    def __random_number(self):
+        return self.__true_random.random()
 
-    def intensities(self):
-        self.setup_function()
-        self.intensities_list = self.amplitude(self.events, self.parameters)
-        self.max_intensity = self.intensities_list.max()
+    def __intensities(self):
+        self.__setup_function()
+        self.__intensities_list = self.__amplitude(self.__events, self.__parameters)
+        self.__max_intensity = self.__intensities_list.max()
 
-    def weighting(self):
-        self.weighted_list = self.intensities_list / self.max_intensity
+    def __weighting(self):
+        self.__weighted_list = self.__intensities_list / self.__max_intensity
 
-    def rejection_list(self):
-        self.rejection = numpy.zeros(shape=len(self.weighted_list), dtype=bool)
+    def __rejection_list(self):
+        self.__rejection = numpy.zeros(shape=len(self.__weighted_list), dtype=bool)
         for index, event in enumerate(weighted_list):
-            if event > self.random_number():
-                self.rejection[index] = True
+            if event > self.__random_number():
+                self.__rejection[index] = True
