@@ -43,24 +43,22 @@ class Fitting(object):
         """
 
         print("Parsing files into memory.\n")
-        self.parse = PyPWA.data.filehandler.MemoryInterface()
-        self.data = self.parse.parse(self.data_location)
-        self.accepted = self.parse.parse(self.accepted_location)
-        self.qfactor = self.parse.parse(self.qfactor_location)
+        parse = PyPWA.data.filehandler.MemoryInterface()
+        data = parse.parse(self.data_location)
+        accepted = parse.parse(self.accepted_location)
+        qfactor = parse.parse(self.qfactor_location)
 
         print("Loading users function.\n")
-        self.functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
-        self.amplitude_function = self.functions.return_amplitude()
-        self.setup_function = self.functions.return_setup()
+        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
+        amplitude_function = functions.return_amplitude()
+        setup_function = functions.return_setup()
 
-        self.calc = PyPWA.proc.calculation.MaximalLogLikelihood(self.num_threads, self.parameters, self.data, self.accepted, self.qfactor, self.generated_length, self.amplitude_function, self.setup_function)
-        self.minimalization = PyPWA.proc.calculation_tools.Minimalizer(self.calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
+        calc = PyPWA.proc.calculation.MaximalLogLikelihood(self.num_threads, self.parameters, data, accepted, qfactor, self.generated_length, amplitude_function, setup_function)
+        minimalization = PyPWA.proc.calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
 
         print("Starting minimalization.\n")
-        self.calc.prep_work()
-        self.minimalization.calc_function = self.calc.run
-        self.minimalization.min()
-        self.calc.stop()
+        minimalization.min()
+        calc.stop()
     
 class Simulator(object):
 
@@ -69,6 +67,7 @@ class Simulator(object):
         self.amplitude_name = config["Simulator Information"]["Processing Name"]
         self.setup_name = config["Simulator Information"]["Setup Name"]
         self.parameters = config["Simulator Information"]["Parameters"]
+        self.num_threads = config["Simulator Information"]["Number of Threads"]
         self.data_location = config["Data Information"]["Monte Carlo Location"]
         self.save_location = config["Data Information"]["Save Location"]
         self.cwd = cwd
@@ -76,21 +75,21 @@ class Simulator(object):
     def start(self):
 
         print("Parsing data into memory.\n")
-        self.data_manager = PyPWA.data.filehandler.MemoryInterface()
-        self.data = self.data_manager(self.data_location)
+        data_manager = PyPWA.data.filehandler.MemoryInterface()
+        data = data_manager(self.data_location)
 
         print("Loading users functions.\n")
-        self.functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
-        self.amplitude = self.functions.return_amplitude()
-        self.setup_function = self.functions.return_setup()
+        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
+        amplitude_function = functions.return_amplitude()
+        setup_function = functions.return_setup()
 
         print("Running Simulation")
-        self.rejection_method = PyPWA.proc.calculation.AcceptanceRejctionMethod(self.amplitude, self.setup_function, self.data, self.parameters )
+        rejection_method = PyPWA.proc.calculation.AcceptanceRejctionMethod( self.num_threads, data, amplitude_function, setup_function, self.parameters)
 
-        self.rejection_list = self.rejection_method.run()
+        rejection_list = rejection_method.run()
 
         print("Saving Data")
-        self.data_manager.write(self.save_location, self.rejection_list )
+        data_manager.write(self.save_location, rejection_list )
 
 
         
@@ -130,6 +129,7 @@ Simulator Information:
     Processing Name : the_function  #The name of the processing function
     Setup Name :  the_setup   #The name of the setup function, called only once before fitting
     Parameters : { A1: 1, A2: 2, A3: 0.1, A4: -10, A5: -0.00001 }
+    Number of Threads: 2
 Data Information:
     Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
     Save Location : /home/user/foobabar/weights.txt #Where you want to save the weights
