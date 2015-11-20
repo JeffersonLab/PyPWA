@@ -98,6 +98,11 @@ class MaximalLogLikelihood(object):
         return final_value
 
 
+    def stop(self):
+        for pipe in self._send_to_process:
+            pipe.send("DIE")
+
+
 
 class AcceptanceRejctionMethod(object):
 
