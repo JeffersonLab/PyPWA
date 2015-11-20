@@ -1,5 +1,5 @@
 """
-GeneralFitting.py: The GeneralShell, provides users a flexible way of testing their calcutions
+console_main.py: The GeneralShell, provides users a flexible way of testing their calculations
 """
 
 __author__ = "Mark Jones"
@@ -10,7 +10,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import PyPWA.data.filehandler, PyPWA.proc.likelihood, PyPWA.proc.simulator, PyPWA.proc.tools
+import PyPWA.data.filehandler, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
 
 
 class Fitting(object):
@@ -49,12 +49,12 @@ class Fitting(object):
         self.qfactor = self.parse.parse(self.qfactor_location)
 
         print("Loading users function.\n")
-        self.functions = PyPWA.proc.tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
-        self.amplitude = self.functions.return_amplitude()
+        self.functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
+        self.amplitude_function = self.functions.return_amplitude()
         self.setup_function = self.functions.return_setup()
 
-        self.calc = PyPWA.proc.likelihood.Calc(self.num_threads, self.generated_length, self.amplitude, self.data, self.accepted, self.parameters, self.qfactor, self.setup_function)
-        self.minimalization = PyPWA.proc.tools.Minimalizer(self.calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
+        self.calc = PyPWA.proc.calculation.MaximalLogLikelihood(self.num_threads, self.parameters, self.data, self.accepted, self.qfactor, self.generated_length, self.amplitude_function, self.setup_function)
+        self.minimalization = PyPWA.proc.calculation_tools.Minimalizer(self.calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
 
         print("Starting minimalization.\n")
         self.calc.prep_work()
@@ -80,12 +80,12 @@ class Simulator(object):
         self.data = self.data_manager(self.data_location)
 
         print("Loading users functions.\n")
-        self.functions = PyPWA.proc.tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
+        self.functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
         self.amplitude = self.functions.return_amplitude()
         self.setup_function = self.functions.return_setup()
 
         print("Running Simulation")
-        self.rejection_method = PyPWA.proc.simulator.AcceptanceRejctionMethod(self.amplitude, self.setup_function, self.data, self.parameters )
+        self.rejection_method = PyPWA.proc.calculation.AcceptanceRejctionMethod(self.amplitude, self.setup_function, self.data, self.parameters )
 
         self.rejection_list = self.rejection_method.run()
 
