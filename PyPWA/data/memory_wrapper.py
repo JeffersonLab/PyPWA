@@ -12,8 +12,9 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import numpy, yaml, PyPWA.data.iterators, fileinput
+import fileinput
 from abc import ABCMeta, abstractmethod
+import numpy, yaml, PyPWA.data.iterators
 
 class DataTemplate:
     __metaclass__ = ABCMeta
@@ -152,7 +153,7 @@ class OldWeights(DataTemplate):
     def write(self, file_location, data ):
         with open(file_location, "w") as stream:
             for weight in data:
-                stream.write(str(int(data))+"\n")
+                stream.write(str(int(weight))+"\n")
 
 
 
