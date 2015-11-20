@@ -12,7 +12,3 @@ class ProcessPipes(object):
             send_to.append(send)
             recieve_from(recieve)
         return [ send_to, recieve_from ]
-
-class
-
-class UnidirectionalPipes(object):
