@@ -85,12 +85,12 @@ class Simulator(object):
         self.setup_function = self.functions.return_setup()
 
         print("Running Simulation")
-        self.weighter = PyPWA.proc.simulator.Simulator(self.amplitude, self.setup_function, self.data, self.parameters )
+        self.rejection_method = PyPWA.proc.simulator.AcceptanceRejctionMethod(self.amplitude, self.setup_function, self.data, self.parameters )
 
-        self.weights = self.weighter.run()
+        self.rejection_list = self.rejection_method.run()
 
         print("Saving Data")
-        self.data_manager.write(self.save_location, self.weights )
+        self.data_manager.write(self.save_location, self.rejection_list )
 
 
         

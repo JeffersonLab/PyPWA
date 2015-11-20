@@ -11,7 +11,7 @@ __status__ = "Beta0"
 
 import time, random, numpy
 
-class Simulator(object):
+class AcceptanceRejctionMethod(object):
 
     def __init__(self, amplitude, setup_function, events, parameters ):
         self.__amplitude = amplitude
