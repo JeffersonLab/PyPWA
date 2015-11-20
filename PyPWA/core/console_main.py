@@ -47,8 +47,6 @@ class Fitting(object):
         data = parse.parse(self.data_location)
         accepted = parse.parse(self.accepted_location)
         qfactor = parse.parse(self.qfactor_location)
-        print qfactor
-        print accepted
 
         print("Loading users function.\n")
         functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
