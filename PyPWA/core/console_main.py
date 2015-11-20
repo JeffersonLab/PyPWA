@@ -10,7 +10,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import PyPWA.data.filehandler, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
+import PyPWA.data.file_manager, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
 
 
 class Fitting(object):
@@ -43,10 +43,12 @@ class Fitting(object):
         """
 
         print("Parsing files into memory.\n")
-        parse = PyPWA.data.filehandler.MemoryInterface()
+        parse = PyPWA.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
         accepted = parse.parse(self.accepted_location)
         qfactor = parse.parse(self.qfactor_location)
+        print qfactor
+        print accepted
 
         print("Loading users function.\n")
         functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
@@ -75,7 +77,7 @@ class Simulator(object):
     def start(self):
 
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.filehandler.MemoryInterface()
+        data_manager = PyPWA.data.file_manager.MemoryInterface()
         data = data_manager(self.data_location)
 
         print("Loading users functions.\n")
