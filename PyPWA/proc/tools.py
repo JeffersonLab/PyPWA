@@ -39,7 +39,7 @@ class FunctionLoading(object):
 
         self.__import_function()
 
-    def __import_function(self):
+    def _import_function(self):
         sys.path.append(self.cwd)
         try:
             imported = __import__(self.function_location.strip(".py"))
@@ -68,20 +68,36 @@ class FunctionLoading(object):
         return self.setup_function
 
 class DataChunking(object):
-    def __init__(self, num_chunks):
-        self.num_chunks = num_chunks
 
-    def chunk_dictionary(self, dictionary):
-        dictionary_split = []
+    _num_chunks = 0
+    _data = None
+    _split_data = None
+
+    def chunks(self, data, num_chunks):
+        if num_chunks == 1:
+            return [data]
+
+        self._num_chunks = num_chunks
+        self._data = data
+
+        if type(self._data) == dict:
+            self._dictionary_split()
+        elif type(self._data) == numpy.ndaray:
+            self._array_split()
+
+        return self._split_data
+
+
+    def _dictionary_split(self):
+        self._split.data = []
         
-        for x in range(self.num_chunks):
-            dictionary_split.append({})
+        for x in range(self._num_chunks):
+            self._split_data.append({})
 
-        for key in dictionary:
-            for x in range(self.num_chunks):
-                dictionary_split[x][key] = numpy.array_split(dictionary[key],(self.num_chunks))[x]
+        for key in self._data:
+            for index in range(self._num_chunks):
+                self._split_data[index][key] = numpy.array_split(self._data[key],(self._num_chunks))[index]
 
-        return dictionary_split
 
-    def chunk_array(self, array):
-        return numpy.array_split(array, self.num_chunks)
+    def _array_split(self):
+        self._split_data = numpy.array_split(self._data, self._num_chunks)
