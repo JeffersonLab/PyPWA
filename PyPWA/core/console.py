@@ -5,12 +5,12 @@ GeneralFitting.py: The GeneralShell, provides users a flexible way of testing th
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond"]
 __license__ = "MIT"
-__version__ = "0.1"
+__version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha"
+__status__ = "Beta0"
 
-import PyPWA.data.filehandler, PyPWA.proc.likelihood, PyPWA.proc.simulator
+import PyPWA.data.filehandler, PyPWA.proc.likelihood, PyPWA.proc.simulator, PyPWA.proc.tools
 
 
 class Fitting(object):
@@ -49,16 +49,15 @@ class Fitting(object):
         self.qfactor = self.parse.parse(self.qfactor_location)
 
         print("Loading users function.\n")
-        self.functions = PyPwa.proc.tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
+        self.functions = PyPWA.proc.tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
         self.amplitude = self.functions.return_amplitude()
         self.setup_function = self.functions.return_setup()
 
-        self.calc = PyPWA.proc.likelihood.Calc(self.num_threads, self.generated_length, self.amplitude, self.data, self.accepted, self.parameters)
+        self.calc = PyPWA.proc.likelihood.Calc(self.num_threads, self.generated_length, self.amplitude, self.data, self.accepted, self.parameters, self.qfactor, self.setup_function)
         self.minimalization = PyPWA.proc.tools.Minimalizer(self.calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
 
         print("Starting minimalization.\n")
         self.calc.prep_work()
-        self.setup_function()
         self.minimalization.calc_function = self.calc.run
         self.minimalization.min()
         self.calc.stop()
@@ -70,7 +69,7 @@ class Simulator(object):
         self.amplitude_name = config["Simulator Information"]["Processing Name"]
         self.setup_name = config["Simulator Information"]["Setup Name"]
         self.parameters = config["Simulator Information"]["Parameters"]
-        self.data_location = config["Data Information"]["Data Location"]
+        self.data_location = config["Data Information"]["Monte Carlo Location"]
         self.save_location = config["Data Information"]["Save Location"]
         self.cwd = cwd
 
@@ -81,13 +80,12 @@ class Simulator(object):
         self.data = self.data_manager(self.data_location)
 
         print("Loading users functions.\n")
-        self.functions = PyPWA.proc.tools.FunctionLoading(self.cwd, self.function_location, self.setup_function, self.amplitude_name, self.setup_name )
+        self.functions = PyPWA.proc.tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
         self.amplitude = self.functions.return_amplitude()
         self.setup_function = self.functions.return_setup()
 
         print("Running Simulation")
-        self.weighter = PyPWA.proc.simulator.Simulator(self.amplitude, self.data, self.parameters )
-        self.setup_function()
+        self.weighter = PyPWA.proc.simulator.Simulator(self.amplitude, self.setup_function, self.data, self.parameters )
 
         self.weights = self.weighter.run()
 
@@ -103,7 +101,7 @@ class Configurations(object):
     """
 
     fitting_config = """\
-Likelihood Information:
+Likelihood Information: #There must be a space bewteen the colon and the data
     Generated Length : 10000   #Number of Generated events
     Function's Location : Example.py   #The python file that has the functions in it
     Processing Name : the_function  #The name of the processing function
@@ -113,7 +111,10 @@ Data Information:
     Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt   #The location of the Accepted Monte Carlo
     QFactor List Location : /home/foobar/fit/Qfactor.txt #The location of the Qfactors
 Minuit's Settings:
-    Minuit's Initial Settings : { A1: 1, A2: 2, A3: 0.1, A4: -10, A5: -0.00001, limit_A1: [0, 2500] }  #Iminuit settings in a single line
+    Minuit's Initial Settings : { A1: 1, limit_A1: [0, 2500], # You can arrange this value however you would like as long as the each line ends in either a "," or a "}"
+        A2: 2, limit_A2: [-2,3],
+        A3: 0.1, A4: -10, 
+        A5: -0.00001 }  #Iminuit settings in a single line
     Minuit's Parameters: [ A1, A2, A3, A4, A5 ]   #The name of the Parameters passed to Minuit
     Minuit's Strategy : 1
     Minuit's Set Up: 0.5
@@ -130,7 +131,7 @@ Simulator Information:
     Setup Name :  the_setup   #The name of the setup function, called only once before fitting
     Parameters : { A1: 1, A2: 2, A3: 0.1, A4: -10, A5: -0.00001 }
 Data Information:
-    Data Location : /home/user/foobar/data.txt #The location of the data
+    Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
     Save Location : /home/user/foobabar/weights.txt #Where you want to save the weights
     """
 
