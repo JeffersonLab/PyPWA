@@ -10,5 +10,5 @@ class ProcessPipes(object):
         for x in range(num_pipes):
             recieve, send = multiprocessing.Pipe(False)
             send_to.append(send)
-            recieve_from(recieve)
+            recieve_from.append(recieve)
         return [ send_to, recieve_from ]
