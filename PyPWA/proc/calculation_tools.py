@@ -58,22 +58,22 @@ class FunctionLoading(object):
         return [ users_amplitude, setup_function ]
 
     def return_amplitude(self):
-        return self._users_function
+        return self._users_amplitude
 
     def return_setup(self):
         return self._users_setup
 
 
 
-class DataChunking(object):
+class DataSplitter(object):
 
-    def chunks(self, data, num_chunks):
+    def split(self, data, num_chunks):
         if num_chunks == 1:
             return [data]
 
         if type(data) == dict:
             return self._dictionary_split(data, num_chunks)
-        elif type(data) == numpy.ndaray:
+        elif type(data) == numpy.ndarray:
             return self._array_split(data, num_chunks)
 
         return self._split_data
@@ -87,7 +87,7 @@ class DataChunking(object):
 
         for key in dictionary:
             for index in range(num_chunks):
-                split_dictionary[index][key] = numpy.array_split(data[key],(num_chunks))[index]
+                split_dictionary[index][key] = numpy.array_split(dictionary[key],(num_chunks))[index]
         return split_dictionary
 
 
