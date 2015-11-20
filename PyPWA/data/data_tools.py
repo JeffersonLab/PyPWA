@@ -54,8 +54,6 @@ class DataTypeSearch(object):
         with open(file_location, "r") as stream:
             first_line = stream.readline().strip("\n")
 
-        print first_line
-
         if "=" in first_line:
             return "Kv"
         elif len(first_line) > 1:
