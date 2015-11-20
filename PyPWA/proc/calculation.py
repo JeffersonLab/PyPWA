@@ -11,8 +11,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import numpy, time, random
-import PyPWA.proc.calculation_tools, PyPWA.proc.process_calculation, PyPWA.proc.process_communication
+import time, random, numpy, PyPWA.proc.calculation_tools, PyPWA.proc.process_calculation, PyPWA.proc.process_communication
 from abc import ABCMeta, abstractmethod
 
 class InterfaceCalculation:
@@ -118,14 +117,14 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
         return random.SystemRandom(time.gmtime())
 
 
-    def _data_setup(self, data, num_threads):
+    def _data_setup(self, data):
         splitter = PyPWA.proc.calculation_tools.DataSplitter()
-        return splitter.split(data, num_threads)
+        return splitter.split(data, self._num_threads)
 
 
     def _pipe_setup(self):
         pipe_communication = PyPWA.proc.process_communication.ProcessPipes()
-        send_to_main, recieve_from_process = pipe_communication.return_pipes(self.num_threads)
+        send_to_main, recieve_from_process = pipe_communication.return_pipes(self._num_threads)
         return [send_to_main, recieve_from_process]
 
 
@@ -133,7 +132,7 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
         processes = []
 
         for index, pipe in enumerate(send_to_main):
-                processes.append(PyPWA.proc.process_calulation.RejctionAcceptanceAmplitude(amplitude_function, setup_function, split_events[index], parameters, send, index))
+                processes.append(PyPWA.proc.process_calculation.RejctionAcceptanceAmplitude(amplitude_function, setup_function, split_events[index], parameters, pipe, index))
 
         return processes
 
@@ -148,7 +147,7 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
     def _intensities(self):
         results = []
 
-        for count in range(self.num_threads):
+        for count in range(self._num_threads):
             results.append(0)
 
         for process in self.processes:
@@ -164,13 +163,13 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
         return [intensities_list, max_intensity]
 
 
-    def _weighting(self, intensities, max_intensity):
+    def _weighting(self, intensities_list, max_intensity):
         return intensities_list / max_intensity
 
 
     def _rejection_list(self, weighted_list):
         rejection = numpy.zeros(shape=len(weighted_list), dtype=bool)
         for index, event in enumerate(weighted_list):
-            if event > self._random.random():
+            if event > self.random.random():
                 rejection[index] = True
         return rejection
