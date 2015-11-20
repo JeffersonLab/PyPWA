@@ -27,7 +27,7 @@ class AbstractProcess(multiprocessing.Process):
 class RejctionAcceptanceAmplitude(AbstractProcess):
 
     def __init__(self, amplitude_function, setup_function, data, parameters, send, the_id ):
-        super(AbstractAmplitude, self).__init__()
+        super(AbstractProcess, self).__init__()
         self._amplitude_function = amplitude_function
         self._setup_function = setup_function
         self._data = data
@@ -42,7 +42,7 @@ class RejctionAcceptanceAmplitude(AbstractProcess):
         self._send.send(data)
 
     def processing(self):
-         self._pipe_send([ self._id, self._amplitude_function(self.data, self.parameters)])
+         self._pipe_send([ self._id, self._amplitude_function(self._data, self._parameters)])
          self._looping = False
 
 
