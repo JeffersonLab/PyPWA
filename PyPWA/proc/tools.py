@@ -1,14 +1,14 @@
 """
-iminuit.py: Handles Iminuit and its parsing of data.
+tools.py: Tools needed for the various Amplitude analysing utilities.
 """
 
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
-__version__= "2.0.0"
+__version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__= "Alpha.1"
+__status__ = "Beta0"
 
 import iminuit, warnings, sys, numpy
 
@@ -31,7 +31,7 @@ class Minimalizer(object):
         self.minimal.migrad(ncall=self.ncall)
 
 class FunctionLoading(object):
-    def __init__(cwd, function_location, function_name, setup_name = None ):
+    def __init__(self, cwd, function_location, function_name, setup_name = None ):
         self.cwd = cwd
         self.function_location = function_location
         self.function_name = function_name
@@ -44,7 +44,7 @@ class FunctionLoading(object):
         try:
             imported = __import__(self.function_location.strip(".py"))
         except ImportError:
-            raise ValueError("The Function File was not found!")
+            raise 
 
         try:
             self.users_function = getattr(imported, self.function_name)
@@ -52,7 +52,7 @@ class FunctionLoading(object):
             raise ValueError("There is not function named {0} in the function file!".format(self.function_name))
 
         try:
-            self.setup_function = getattr(imported, self.setup_function)
+            self.setup_function = getattr(imported, self.setup_name)
         except AttributeError:
             warnings.warn("Setup fucntion {0} was not found in {1}, going without setup function".format(self.setup_function, self.function_location ), UserWarning)
             self.setup_function = empty_function
