@@ -15,7 +15,7 @@ import numpy, time, random
 import PyPWA.proc.calculation_tools, PyPWA.proc.process_calulation, PyPWA.proc.process_communication
 from abc import ABCMeta, abstractclass
 
-class AbstractCaculation:
+class InterfaceCalculation:
     __metaclass__ = ABCMeta
 
     @abstractclass
@@ -23,7 +23,7 @@ class AbstractCaculation:
 
 
 
-class MaximalLogLikelihood(object):
+class MaximalLogLikelihood(InterfaceCalculation):
     """
     This is the object used to calculate data in the arrays for the General Shell using Numexpr
     """
@@ -104,7 +104,7 @@ class MaximalLogLikelihood(object):
 
 
 
-class AcceptanceRejctionMethod(object):
+class AcceptanceRejctionMethod(InterfaceCalculation):
 
     def __init__(self, num_threads, events, amplitude_function, setup_function, parameters ):
         self._num_threads = num_threads
