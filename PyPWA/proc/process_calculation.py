@@ -1,13 +1,14 @@
-from abc, import ABCMeta, abstractmethod
+from abc import ABCMeta, abstractmethod
 import multiprocessing, numpy
 
 class AbstractProcess(multiprocessing.Process):
     __metaclass__ = ABCMeta
 
+    _looping = True
+    daemon = True
+
     def __init__(self):
         super(multiprocessing.Process, self).__init__()
-        self._looping = True
-        self.daemon = True
 
     def run(self):
         self.setup()
@@ -62,7 +63,7 @@ class LikelihoodAmplitude(AbstractProcess):
         self._setup_function()
 
     def _pipe_send(self, data):
-        self._send(data)
+        self._send.send((data))
 
     def _pipe_recieve(self):
         return self._recieve.recv()
@@ -76,6 +77,6 @@ class LikelihoodAmplitude(AbstractProcess):
             self._pipe_send(result)
 
     def _likelihood(self, parameters):
-        processed_data = self.amplitude_function( self.data, parameters )
-        processed_accepted = self.amplitude_function( self.accepted, parameters )
-        return -(numpy.sum(self.qfactor * numpy.log(processed_data))) + processed * numpy.sum(processed_accepted)
+        processed_data = self._amplitude_function( self._data, parameters )
+        processed_accepted = self._amplitude_function( self._accepted, parameters )
+        return -(numpy.sum(self._qfactor * numpy.log(processed_data))) + self._processed * numpy.sum(processed_accepted)
