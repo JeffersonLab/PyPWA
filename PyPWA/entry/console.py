@@ -24,9 +24,9 @@ def start_console_general_fitting():
         if args.WriteConfig:
             config = PyPWA.core.console_main.Configurations()
             with open(os.getcwd() + "/Example.yml", "w") as stream:
-                stream.write(config.fitting_config)
+                stream.write(config.fitting_config())
             with open(os.getcwd() + "/Example.py", "w") as stream:
-                stream.write(config.example_function)
+                stream.write(config.example_function())
         else:
             the_data = PyPWA.data.file_manager.MemoryInterface()
             the_config = the_data.parse(args.configuration)
@@ -50,9 +50,9 @@ def start_console_general_simulator():
         if args.WriteConfig:
             config = PyPWA.core.console_main.Configurations()
             with open(os.getcwd() + "/Example.yml", "w") as stream:
-                stream.write(config.simulator_config)
+                stream.write(config.simulator_config())
             with open(os.getcwd() + "/Example.py", "w") as stream:
-                stream.write(config.example_function)
+                stream.write(config.example_function())
         else:
             the_data = PyPWA.data.file_manager.MemoryInterface()
             the_config = the_data.parse(configuration[0])
