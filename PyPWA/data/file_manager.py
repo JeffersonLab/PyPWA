@@ -1,7 +1,6 @@
 """
-PyPWA.lib.data:
+Main Objects for the data module.
 """
-
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
@@ -13,12 +12,26 @@ __status__ = "Beta0"
 import PyPWA.data.memory_wrapper, PyPWA.data.data_tools
 
 class MemoryInterface(object):
+    """Loads data from disk into memory.
+    Args:
+        Cache(optional[bool]): Default is False. Determines if cache
+            should be used.
+        UseNew(optional[bool]): Default is False. Determines if new api
+            should be used.
+    """
 
     def __init__(self, Cache = False, UseNew = False):
         self.Cache = Cache
         self.UseNew = UseNew
 
+
     def parse(self, file_location):
+        """Parses file into memeory
+        Args:
+            file_location (str): The path of the file
+        Returns:
+            Object: Data that was parsed from the disk.
+        """
         tester = PyPWA.data.data_tools.DataTypeSearch()
         data_type = tester.search(file_location)
 
@@ -47,6 +60,12 @@ class MemoryInterface(object):
 
 
     def write(self, file_location, the_data):
+        """Writes data to disk from memory.
+        Args:
+            file_location (str): The path to the file.
+            the_data (object): The data that needs to be
+                written to disk.
+        """
         tester = PyPWA.data.data_tools.DataTypeWrite()
         data_type = tester.search(the_data, self.UseNew)
 
@@ -72,4 +91,3 @@ class MemoryInterface(object):
             self.UseNew = True
             reader = PyPWA.data.memory_wrapper.NewWeights()
             return reader.write(file_location, the_data)
-

@@ -1,8 +1,6 @@
-#!/usr/bin/env python
 """
-DataCalc.py: This Caculates the from the General Shell using NumExpr
+Multiprocessing Calculation
 """
-
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond", "Will Phelps", "Stephanie Bramlett"]
 __license__ = "MIT"
@@ -15,18 +13,37 @@ import time, random, numpy, PyPWA.proc.calculation_tools, PyPWA.proc.process_cal
 from abc import ABCMeta, abstractmethod
 
 class InterfaceCalculation:
+    """
+    Simple interface for calcualtion objects, serves
+    little purpose now, but is inplace for growth.
+    """
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def run(self): pass
+    def run(self):
+        """Actual method called to calculate the data,
+        and return the results, whatever those results
+        may be.
+        """
+        pass
 
 
+class MaximumLogLikelihoodEstimation(InterfaceCalculation):
+    """Object that handles the Maximum-Likelihood Estimation
 
-class MaximalLogLikelihood(InterfaceCalculation):
+    All arguments are in the order of their use inside the init method.
+
+    Args:
+        num_threads (int): Number of processes to use.
+        parameters (list): Parameters to use in calcualtion
+        data (dict): Dictionary of arrays with data events
+        accepted (dist): Dictionary of arrays with accepted monte carlo events
+        qfactor (numpy.ndarray): Float array with QFactors
+        generated_length (int): Number of generated events
+        amplitude_function (object): Function that calculates amplitude
+        setup_function (object): Function that runs before any calculation
     """
-    This is the object used to calculate data in the arrays for the General Shell using Numexpr
-    """
-    
+
     def __init__(self, num_threads, parameters, data, accepted, qfactor, generated_length, amplitude_function, setup_function ):
         self._num_threads = num_threads
         self._parameters = parameters
@@ -72,14 +89,16 @@ class MaximalLogLikelihood(InterfaceCalculation):
         for process in processes:
             process.start()
 
-        
+
     def run(self, *args):
         """
         This is the function is called by minuit and acts as a wrapper for the users function
-        Params: 
-        Returns: The final value from the likelihood function
+        Params:
+            list: List of argument values
+        Returns:
+            float: The final value from the likelihood function
         """
-        
+
         parameters_with_values = {}
         for parameter, arg in zip(self._parameters, args):
             parameters_with_values[parameter] = arg
@@ -98,12 +117,20 @@ class MaximalLogLikelihood(InterfaceCalculation):
 
 
     def stop(self):
+        """Shuts down processes"""
         for pipe in self._send_to_process:
             pipe.send("DIE")
 
 
-
 class AcceptanceRejctionMethod(InterfaceCalculation):
+    """Main Object for Acceptance Rejection Method
+    Args:
+        num_threads (int): Number of processes to use.
+        events (dict): Dictionary of Arrays of events
+        amplitude_function (object): Function that calculates amplitude
+        setup_function (object): Function that runs before any calculation
+        parameters (list): Parameters to use in calcualtion
+    """
 
     def __init__(self, num_threads, events, amplitude_function, setup_function, parameters ):
         self._num_threads = num_threads
@@ -138,6 +165,7 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
 
 
     def run(self):
+        """Main method that starts processing"""
         intensities_list, max_intensity = self._intensities()
         weight_list =  self._weighting(intensities_list, max_intensity)
         rejection_list = self._rejection_list(weight_list)

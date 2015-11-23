@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 """
-console.py: Entry point for the General Shell
+Entry point for the General Shell
 """
 
 __author__ = "Mark Jones"
@@ -36,7 +34,7 @@ def start_console_general_fitting(configuration, writeconfig):
             the_config = the_data.parse(configuration[0])
             cwd = os.getcwd()
             click.clear()
-            
+
             fitting = PyPWA.core.console_main.Fitting(the_config, cwd)
             fitting.start()
 
@@ -62,6 +60,6 @@ def start_console_general_simulator(configuration, writeconfig):
             the_config = the_data.parse(configuration[0])
             cwd = os.getcwd()
             click.clear()
-            
+
             simulating = PyPWA.core.console_main.Simulator(the_config, cwd)
             simulating.start()

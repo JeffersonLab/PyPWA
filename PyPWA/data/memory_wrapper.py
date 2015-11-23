@@ -1,7 +1,5 @@
-#!/usr/bin/env python
-
 """
-PyPWA.data.handlers: A collection of file handlers for PyPWA
+A collection of file handlers for PyPWA
 """
 
 __author__ = "Mark Jones"
@@ -16,19 +14,29 @@ import fileinput
 from abc import ABCMeta, abstractmethod
 import numpy, yaml, PyPWA.data.iterators
 
-class DataTemplate:
+class DataInterface:
+    """Interface for Data Objects"""
     __metaclass__ = ABCMeta
+
 
     @abstractmethod
     def parse(self, file_location): pass
+
 
     @abstractmethod
     def write(self, file_location, data): pass
 
 
-class Kv(DataTemplate):
-    def parse(self, file_location):
+class Kv(DataInterface):
+    """Handles old Kv format"""
 
+    def parse(self, file_location):
+        """Loads Kv data into memory
+        Args:
+            file_location (str): Path of file
+        Returns:
+            dict: name : numpy array of events
+        """
 
         #This loop both sets the first_line variable, and finds the number of lines in the file
         for file_length, line in enumerate(fileinput.input(file_location)):
@@ -50,11 +58,16 @@ class Kv(DataTemplate):
         fileinput.close()
 
         return parsed
-    
-    def write( file_location, data ):
 
+
+    def write( file_location, data ):
+        """Writes Classic Kvs to file
+        Args:
+            file_location (str): path to file
+            data (dict): dict of numpy arrays
+        """
         kvars = self.data.keys()
-        
+
         try:
             with open(file_location, "w") as stream:
                 for event in data.keys():
@@ -69,9 +82,16 @@ class Kv(DataTemplate):
             raise
 
 
-class QFactor(DataTemplate):
+class QFactor(DataInterface):
+    """Handles QFactor list parsing"""
 
     def parse(self, file_location ):
+        """Parses a list of factors
+        Args:
+            file_location (str): The path to file
+        Returns:
+            numpy.ndarray: Array of factors
+        """
         fileinput.close()
 
         for file_length, line in enumerate(fileinput.input(file_location)):
@@ -85,14 +105,27 @@ class QFactor(DataTemplate):
         fileinput.close()
         return parsed
 
-    def write(self, file_location, data):
 
+    def write(self, file_location, data):
+        """Writes Arrays to disk as floats
+        Args:
+            file_location (str): Path to file
+            data (numpy.ndaray): Data to be written to disk
+        """
         with open(file_location, "w") as stream:
             for event in data:
                 stream.write(str(data) + "\n")
 
-class KvCsv(DataTemplate):
+
+class KvCsv(DataInterface):
+    """Handles Kvs in CSV format"""
     def parse(self, file_location ):
+        """Loads CSVs into the memory
+        Args:
+            file_location (str): The path to the file
+        Returns:
+            dict: Dictionary of the numpy.arrays
+        """
         iterator = PyPWA.data.iterators.LineIterator(file_location)
 
         file_length = iterator.iterator_length - 1
@@ -116,6 +149,11 @@ class KvCsv(DataTemplate):
 
 
     def write(self, file_location, data ):
+        """Writes Dict of arrays in CSV
+        Args:
+            file_location (str): The path to the file
+            data (dict): Dictionary of numpy.ndarray
+        """
         with open(file_location, "w") as stream:
             keys = data.keys()
 
@@ -136,9 +174,16 @@ class KvCsv(DataTemplate):
                 stream.write("\n")
 
 
-class OldWeights(DataTemplate):
-    
+class OldWeights(DataInterface):
+    """Classic boolean per line data type"""
+
     def parse(self, file_location):
+        """Parses bools into numpy array.
+        Args:
+            file_location (str): Path to file
+        Returns:
+            numpy.ndarray: Bool array of weights
+        """
         for file_length, line in enumerate(fileinput.input(file_location)):
             pass
         fileinput.close()
@@ -150,16 +195,30 @@ class OldWeights(DataTemplate):
 
         return weights
 
+
     def write(self, file_location, data ):
+        """Writes booleans to text file with each weight on a new line
+        Args:
+            file_location (str): Path to file
+            data (numpy.ndarray): Array of booleans
+        """
         with open(file_location, "w") as stream:
             for weight in data:
                 stream.write(str(int(weight))+"\n")
 
 
-
-class NewWeights(DataTemplate):
+class NewWeights(DataInterface):
+    """New boolean data type, each bool is different character
+    per string with no newlines.
+    """
 
     def parse(self, file_location):
+        """Parses new booleans from file.
+        Args:
+            file_location (str): Path to file.
+        Returns:
+            numpy.ndarray: Boolean array of data
+        """
         iterator = PyPWA.data.iterators.SingleIterator(file_location)
         file_length = iterator.iterator_length()
 
@@ -170,21 +229,44 @@ class NewWeights(DataTemplate):
 
         return weights
 
+
     def write(self, file_location, data):
+        """Writes booleans to file
+        Args:
+            file_location (str): Path to file
+            data (numpy.ndarray): Boolean array of data
+        """
         with open(file_location, "wb") as stream:
             for weight in data:
                 stream.write(str(int(weight)))
 
-class Yaml(DataTemplate):
+
+class Yaml(DataInterface):
+    """YAML Parsing Object
+    Attributes:
+        default_flow_style (bool): Controls flow style when writting to file.
+    """
 
     default_flow_style = False
 
     def parse(self, file_location):
+        """Parses Yaml configuration files from disk
+        Args:
+            file_location (str): Path to the file
+        Retuns:
+            dict: The values stored in a multidemensional dictionary
+        """
         with open(file_location) as stream:
             self.saved = yaml.load(stream)
         return self.saved
 
-    def write(self, file_location, data = None):
+
+    def write(self, file_location, data):
+        """Writes YAML Configs to disk
+        Args:
+            file_location (str): Path to the file
+            data (dict): Dictionary to write.
+        """
         if  type(self.default_flow_style) != bool:
             warnings.warn("Default flow style is not boolean. Defaulting to false.", UserWarning)
             self.default_flow_style = False

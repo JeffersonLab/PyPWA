@@ -1,7 +1,6 @@
 """
-console_main.py: The GeneralShell, provides users a flexible way of testing their calculations
+Main objects for console PyPWA tools
 """
-
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond"]
 __license__ = "MIT"
@@ -12,11 +11,11 @@ __status__ = "Beta0"
 
 import PyPWA.data.file_manager, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
 
-
 class Fitting(object):
-    """
-    Main point of entry into the General Shell, trying to stay as pythonic as possible.
-    Tries to be both intelligent and provide a flexible way for users to do what they want how they want.
+    """Main General Fitting Object
+    Args:
+        config (dict): A dictionary with all the configuration packed into it.
+        cwd (str): The current working directory for the application
     """
 
     def __init__(self, config, cwd):
@@ -36,11 +35,8 @@ class Fitting(object):
         self.cwd = cwd
 
 
-
     def start(self):
-        """
-        Actually runs all the data, not the best way of doing things but it works, functions as the main function of the program running all the other functions of the program.
-        """
+        """Starts fitting process"""
 
         print("Parsing files into memory.\n")
         parse = PyPWA.data.file_manager.MemoryInterface()
@@ -59,8 +55,14 @@ class Fitting(object):
         print("Starting minimalization.\n")
         minimalization.min()
         calc.stop()
-    
+
+
 class Simulator(object):
+    """Main General Simulator Object
+    Args:
+        config (dict): A dictionary with all the configuration packed into it.
+        cwd (str): The current working directory for the application
+    """
 
     def __init__(self, config, cwd):
         self.function_location = config["Simulator Information"]["Function's Location"]
@@ -72,11 +74,13 @@ class Simulator(object):
         self.save_location = config["Data Information"]["Save Location"]
         self.cwd = cwd
 
+
     def start(self):
+        """Starts Rejection"""
 
         print("Parsing data into memory.\n")
         data_manager = PyPWA.data.file_manager.MemoryInterface()
-        data = data_manager(self.data_location)
+        data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
         functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
@@ -92,14 +96,16 @@ class Simulator(object):
         data_manager.write(self.save_location, rejection_list )
 
 
-        
-    
 class Configurations(object):
-    """
-    This object just holds the text for writing the information to the General Shell
-    """
+    """Static class that returns the example txt"""
 
-    fitting_config = """\
+    @staticmethod
+    def fitting_config():
+        """
+        Retruns:
+            str: Example.yml for GeneralFitting
+        """
+        return """\
 Likelihood Information: #There must be a space bewteen the colon and the data
     Generated Length : 10000   #Number of Generated events
     Function's Location : Example.py   #The python file that has the functions in it
@@ -112,7 +118,7 @@ Data Information:
 Minuit's Settings:
     Minuit's Initial Settings : { A1: 1, limit_A1: [0, 2500], # You can arrange this value however you would like as long as the each line ends in either a "," or a "}"
         A2: 2, limit_A2: [-2,3],
-        A3: 0.1, A4: -10, 
+        A3: 0.1, A4: -10,
         A5: -0.00001 }  #Iminuit settings in a single line
     Minuit's Parameters: [ A1, A2, A3, A4, A5 ]   #The name of the Parameters passed to Minuit
     Minuit's Strategy : 1
@@ -123,8 +129,15 @@ General Settings:
     Use QFactor: True   #Boolean, using Qfactor or not
 """
 
-    simulator_config = """\
-Simulator Information:
+
+    @staticmethod
+    def simulator_config():
+        """
+        Returns:
+            str: Example.yml for GeneralSimulator
+        """
+        return """\
+Simulator Information: #There must be a space bewteen the colon and the data
     Function's Location : Example.py   #The python file that has the functions in it
     Processing Name : the_function  #The name of the processing function
     Setup Name :  the_setup   #The name of the setup function, called only once before fitting
@@ -135,7 +148,14 @@ Data Information:
     Save Location : /home/user/foobabar/weights.txt #Where you want to save the weights
     """
 
-    example_function = """\
+
+    @staticmethod
+    def example_function():
+        """
+        Returns:
+            str: Example.py for both GeneralShell tools.
+        """
+        return """\
 import numpy
 
 def the_function(the_array, the_params): #You can change both the variable names and function name
@@ -143,6 +163,7 @@ def the_function(the_array, the_params): #You can change both the variable names
     values = numpy.zeros(shape=the_size)
     for x in range(the_size):
         #Here is where you define your function.
+        #Your array has to have a [x] after it so the for loop can iterate through all the events in the array
         values[x] = the_param["A1"] + the_array["kvar"][x]
     return values
 
