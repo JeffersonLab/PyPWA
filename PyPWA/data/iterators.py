@@ -1,98 +1,125 @@
 """
-Reader.py: Reads formats from 
+Data Iterators.
 """
+__author__ = "Mark Jones"
+__credits__ = ["Mark Jones"]
+__license__ = "MIT"
+__version__ = "2.0.0"
+__maintainer__ = "Mark Jones"
+__email__ = "maj@jlab.org"
+__status__ = "Beta0"
+
 from abc import ABCMeta, abstractmethod
 
 class FileIterator(object):
+    """Abstrat Class for Iterators
+    Args:
+        file_location (str): the path to the file
+        buffersize (optional[int]): Defaults to 0.
+            The size of the buffer to use.
+    """
     __metaclass__ = ABCMeta
-    
-    __buffersize = 0
 
-    def __init__(self, file_location, buffersize = None):
-        self.__file_location = file_location
-        self.__previous = None
-        self.__current = None
-        if type(buffersize) != type(None):
-            self.__buffersize = buffersize
-        self.__file = open(file_location, "r", self.__buffersize)
+
+    def __init__(self, file_location, buffersize = 0):
+        self._file_location = file_location
+        self._previous = None
+        self._current = None
+        self._buffersize = buffersize
+        self._file = open(file_location, "r", self._buffersize)
+
 
     def __iter__(self):
+        """Defines object as iterator
+        Returns:
+            self
+        """
         return self
 
+
     def reset(self):
-        self.file.seek(0)
+        """Resets the iteration."""
+        self._file.seek(0)
+
 
     @abstractmethod
     def next(self):
+        """Moves to next iteration"""
         pass
+
 
     @abstractmethod
     def iterator_length(self):
+        """Returns number of iterations in file"""
         pass
+
 
     def __next__(self):
+        """Python 3 wrapper for next()"""
         return self.next()
 
+
     def close(self):
-        self.__file.close()
+        """closes the file"""
+        self._file.close()
+
 
 class SingleIterator(FileIterator):
+    """Iterators every character in file"""
+
     def next(self):
-        self.__previous = self.__current
-        self.__current = self.__file.read(1)
-        if self.__current == '':
+        """Returns single character from file.
+        Returns:
+            str: Single character
+        Raises:
+            StopIteration: No characters left in file.
+        """
+        self._previous = self._current
+        self._current = self._file.read(1)
+        if self._current == '':
             raise StopIteration
-        return self.__current
+        return self._current
+
 
     def iterator_length(self):
+        """Retuns max iteration
+        Retuns:
+            int: Number of characters.
+        """
         try:
             line_count = 0
-            data = open(self.__file_location, "rb", self.__buffersize )
+            data = open(self._file_location, "rb", self._buffersize )
 
             while True:
                 returned = data.read(1)
                 if returned == '':
                     break
-                count += 1
+                line_count += 1
         except:
             raise
         return line_count
 
 
-class LineIterator(FileIterator):
-    def next(self):
-        self.__previous = self.__current
-        self.__current = self.__file.readline()
-        if self.__current == '':
-            raise StopIteration
-        return self.__current
-
-    def iterator_length(self):
-        """
-        Methods determines how many lines are in a file.
-        params: file_name = the path to the file
-        """
-        try:
-            with open(self.__file_location, "r", __buffersize) as the_file:
-                for length, l in enumerate(the_file):
-                    pass
-            return length + 1
-        except IOError:
-            raise AttributeError(self.__file_location + " doesn't exsist. Please check your configuration and try again.")
-
-
 class GampIterator(FileIterator):
+    """Iterates over entire Gamp event"""
     def next(self):
-        self.__previous = self.__current
-        particle_count = self.__file.readline()
+        """Returns event in string from
+        Returns:
+            list of str: Each particle as string in list
+        Raises:
+            StopIteration: No events left to parse
+        """
+        self._previous = self._current
+        particle_count = self._file.readline()
         if particle_count == '':
             raise StopIteration
         event = []
         for count in range(particle_count):
-            event.append(self.file.readline())
-        self.__current = event
-        return self.__current
+            event.append(self._file.readline())
+        self._current = event
+        return self._current
+
 
     def iterator_length(self):
-        #TODO
+        """Nothing yet"""
         pass

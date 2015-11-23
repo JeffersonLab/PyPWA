@@ -3,7 +3,7 @@ __license__ = "MIT"
 __version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Alpha.1"
+__status__ = "Beta0"
 
 from setuptools import setup, find_packages
 
@@ -27,8 +27,7 @@ setup(
 	install_requires=[
 	"iminuit<2.0",
 	"numpy<2.0",
-	"pyyaml<4",
-	"click"
+	"pyyaml<4"
 	],
 	classifiers=[
 	"Development Status :: 3 - Alpha",
