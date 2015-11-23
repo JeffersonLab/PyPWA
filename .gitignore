@@ -52,3 +52,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Virtualenv
+virt/
+virt3/
+
+# PyCharm
+.idea/
