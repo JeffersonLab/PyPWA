@@ -30,7 +30,10 @@ class AbstractProcess(multiprocessing.Process):
         """Main loop for Processes"""
         self.setup()
         while self._looping:
-            self.processing()
+            try:
+                self.processing()
+            except KeyboardInterrupt:
+                return 0
         return 0
 
     @abstractmethod
