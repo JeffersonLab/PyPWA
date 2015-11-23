@@ -1,15 +1,4 @@
 """
-init for data module.
-"""
-__author__ = "Mark Jones"
-__credits__ = ["Mark Jones"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "Beta0"
-
-"""
 This module loads data from various data types to be used
 inside the program as they would like. Data types supported
 are the classic Kinematic Variable files defined by Josh
