@@ -27,8 +27,7 @@ setup(
 	install_requires=[
 	"iminuit<2.0",
 	"numpy<2.0",
-	"pyyaml<4",
-	"click"
+	"pyyaml<4"
 	],
 	classifiers=[
 	"Development Status :: 3 - Alpha",
