@@ -32,6 +32,7 @@ class Fitting(object):
         self.set_up = config["Minuit's Settings"]["Minuit's Set Up"]
         self.ncall = config["Minuit's Settings"]["Minuit's ncall"]
         self.num_threads = config["General Settings"]["Number of Threads"]
+        self.use_qfactor = config["Generated Settings"]["Use QFactor"]
         self.cwd = cwd
 
 
@@ -42,7 +43,10 @@ class Fitting(object):
         parse = PyPWA.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
         accepted = parse.parse(self.accepted_location)
-        qfactor = parse.parse(self.qfactor_location)
+        if self.use_qfactor:
+            qfactor = parse.parse(self.qfactor_location)
+        else:
+            qfactor = numpy.ones(shape=len(data.values()[0]))
 
         print("Loading users function.\n")
         functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
