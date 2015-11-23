@@ -11,7 +11,7 @@ from fileHandlers.gampTranslator import gampTranslator
 class gampMasker (object):
 
     def __init__(self,File=None,pfFile=None,wnFile=None):
-        
+
         self.File=File
         if "gamp" in self.File:
             self.gampT = gampTranslator(self.File)
@@ -25,13 +25,13 @@ class gampMasker (object):
             #    numpy.save(self.File.rstrip(".txt")+".npy",self.gampList)
             #else:
             pass
-            
+
         self.pfFile=pfFile
         if os.path.isfile(self.pfFile):
             self.pfList=numpy.loadtxt(self.pfFile)
         else:
             self.pfList=[0]
-            
+
         self.wnFile=wnFile
         if os.path.isfile(self.wnFile):
             self.wnList=numpy.load(self.wnFile)
@@ -51,8 +51,8 @@ class gampMasker (object):
                         #print "I'm writing a gampEvent (pf)!"
 
             if "txt" in self.File:
-                n = 0 
-                for line in fileinput.input([self.File]):        
+                n = 0
+                for line in fileinput.input([self.File]):
                     if float(self.pfList[n])==1.0:
                         pfOut.write(line)
                         #print "I'm writing a txtEvent (pf)!"
@@ -77,13 +77,13 @@ class gampMasker (object):
     def maskBoth(self):
         with open(args.both_out,'w+') as btOut:
             if "gamp" in self.File:
-                for n in range(self.gampList.shape[0]):            
+                for n in range(self.gampList.shape[0]):
                     btEvent = self.gampT.writeEvent(self.gampList[n,:,:])
                     if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
                         btEvent.writeGamp(btOut)
                         #print "I'm writing a gampEvent (bt)!"
             if "txt" in self.File:
-                n = 0 
+                n = 0
                 for line in fileinput.input([self.File]):
                     if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
                         btOut.write(line)
@@ -139,7 +139,7 @@ if args.weighted_mask != "":
     else:
         print "Need a filepath to save new weighted file to."
         exit()
-    
+
 gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
 if args.both_masks:
@@ -150,7 +150,7 @@ if args.both_masks:
         else:
             print "Need a filepath to save new weighted file to."
             exit()
-            
+
     else:
         print "Need a filepath to save new accepted file to."
         exit()
