@@ -49,7 +49,7 @@ class Fitting(object):
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
-        calc = PyPWA.proc.calculation.MaximalLogLikelihood(self.num_threads, self.parameters, data, accepted, qfactor, self.generated_length, amplitude_function, setup_function)
+        calc = PyPWA.proc.calculation.MaximumLogLikelihoodEstimation(self.num_threads, self.parameters, data, accepted, qfactor, self.generated_length, amplitude_function, setup_function)
         minimalization = PyPWA.proc.calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
 
         print("Starting minimalization.\n")
