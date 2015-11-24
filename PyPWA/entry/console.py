@@ -55,7 +55,7 @@ def start_console_general_simulator():
                 stream.write(config.example_function())
         else:
             the_data = PyPWA.data.file_manager.MemoryInterface()
-            the_config = the_data.parse(configuration[0])
+            the_config = the_data.parse(args.configuration)
             cwd = os.getcwd()
             sys.stderr.write("\x1b[2J\x1b[H")
 
