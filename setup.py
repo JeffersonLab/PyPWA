@@ -3,7 +3,7 @@ __license__ = "MIT"
 __version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Beta0"
+__status__ = "Beta0.0.2"
 
 from setuptools import setup, find_packages
 
