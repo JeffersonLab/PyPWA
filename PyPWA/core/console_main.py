@@ -32,7 +32,7 @@ class Fitting(object):
         self.set_up = config["Minuit's Settings"]["Minuit's Set Up"]
         self.ncall = config["Minuit's Settings"]["Minuit's ncall"]
         self.num_threads = config["General Settings"]["Number of Threads"]
-        self.use_qfactor = config["Generated Settings"]["Use QFactor"]
+        self.use_qfactor = config["General Settings"]["Use QFactor"]
         self.cwd = cwd
 
 
