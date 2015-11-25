@@ -165,10 +165,10 @@ import numpy
 def the_function(the_array, the_params): #You can change both the variable names and function name
     the_size = len(the_array.values()[0]) #You can change the variable name here, or set the length of values by hand
     values = numpy.zeros(shape=the_size)
-    for x in range(the_size):
+    for event in range(the_size):
         #Here is where you define your function.
-        #Your array has to have a [x] after it so the for loop can iterate through all the events in the array
-        values[x] = the_param["A1"] + the_array["kvar"][x]
+        #Your array has to have a [event] after it so the for loop can iterate through all the events in the array
+        values[event] = the_params["A1"] + the_array["kvar"][event] #Change "kvar" to the name of your vairable, and "A1" to your parameter
     return values
 
 def the_setup(): #This function can be renamed, but will not be sent any arguments.
