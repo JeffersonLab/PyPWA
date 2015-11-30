@@ -122,27 +122,12 @@ class MaximumLogLikelihoodEstimation(InterfaceCalculation):
             pipe.send("DIE")
 
 
-class AcceptanceRejctionMethod(InterfaceCalculation):
-    """Main Object for Acceptance Rejection Method
-    Args:
-        num_threads (int): Number of processes to use.
-        events (dict): Dictionary of Arrays of events
-        amplitude_function (object): Function that calculates amplitude
-        setup_function (object): Function that runs before any calculation
-        parameters (list): Parameters to use in calcualtion
-    """
-
+class CalculateIntensities(InterfaceCalculation):
     def __init__(self, num_threads, events, amplitude_function, setup_function, parameters ):
         self._num_threads = num_threads
-        self.random = self._random_setup()
         split_events = self._data_setup(events)
         send_to_main, self._recieve_from_process = self._pipe_setup()
         self.processes = self._thread_setup( amplitude_function, setup_function, split_events, parameters, send_to_main )
-
-
-    def _random_setup(self):
-        return random.SystemRandom(time.gmtime())
-
 
     def _data_setup(self, data):
         splitter = PyPWA.proc.calculation_tools.DataSplitter()
@@ -163,16 +148,7 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
 
         return processes
 
-
     def run(self):
-        """Main method that starts processing"""
-        intensities_list, max_intensity = self._intensities()
-        weight_list =  self._weighting(intensities_list, max_intensity)
-        rejection_list = self._rejection_list(weight_list)
-        return rejection_list
-
-
-    def _intensities(self):
         results = []
 
         for count in range(self._num_threads):
@@ -191,11 +167,29 @@ class AcceptanceRejctionMethod(InterfaceCalculation):
         return [intensities_list, max_intensity]
 
 
-    def _weighting(self, intensities_list, max_intensity):
-        return intensities_list / max_intensity
+class AcceptanceRejctionMethod(InterfaceCalculation):
+    """Main Object for Acceptance Rejection Method
+    Args:
+        num_threads (int): Number of processes to use.
+        events (dict): Dictionary of Arrays of events
+        amplitude_function (object): Function that calculates amplitude
+        setup_function (object): Function that runs before any calculation
+        parameters (list): Parameters to use in calcualtion
+    """
 
+    def __init__(self, intensities_list, max_intensity ):
+        self.random = self._random_setup()
+        self._intensities_list = intensities_list
+        self._max_itensity = max_intensity
 
-    def _rejection_list(self, weighted_list):
+    def _random_setup(self):
+        return random.SystemRandom(time.gmtime())
+
+    def run(self):
+        """Main method that starts processing"""
+       
+       weighted_list = self._intensities_list / self._max_intensity
+
         rejection = numpy.zeros(shape=len(weighted_list), dtype=bool)
         for index, event in enumerate(weighted_list):
             if event > self.random.random():
