@@ -91,14 +91,69 @@ class Simulator(object):
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
-        print("Running Simulation")
-        rejection_method = PyPWA.proc.calculation.AcceptanceRejctionMethod( self.num_threads, data, amplitude_function, setup_function, self.parameters)
+        print("Running Intensities")
+        intensities = PyPWA.proc.calculation.CalculateIntensities( self.num_threads, data, amplitude_function, setup_function, self.parameters)
 
-        rejection_list = rejection_method.run()
+        intensities_list, max_intensity = intensities.run()
+
+        print("Running Acceptance Rejection")
+        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod( intensities_list, max_intensity )
+
+        rejection_list = rejection.run()
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list )
 
+class Intensities(object):
+    def __init__(self, config, cwd):
+        self.function_location = config["Intensities Information"]["Function's Location"]
+        self.amplitude_name = config["Intensities Information"]["Processing Name"]
+        self.setup_name = config["Intensities Information"]["Setup Name"]
+        self.parameters = config["Intensities Information"]["Parameters"]
+        self.num_threads = config["Intensities Information"]["Number of Threads"]
+        self.data_location = config["Data Information"]["Monte Carlo Location"]
+        self.save_location = config["Data Information"]["Save Location"]
+        self.cwd = cwd
+
+
+    def start(self):
+        print("Parsing data into memory.\n")
+        data_manager = PyPWA.data.file_manager.MemoryInterface()
+        data = data_manager.parse(self.data_location)
+
+        print("Loading users functions.\n")
+        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
+        amplitude_function = functions.return_amplitude()
+        setup_function = functions.return_setup()
+
+        print("Running Intensities")
+        intensities = PyPWA.proc.calculation.CalculateIntensities( self.num_threads, data, amplitude_function, setup_function, self.parameters)
+
+        intensities_list, max_intensity = intensities.run()
+
+        print("Saving Data")
+        data_manager.write(self.save_location, intensities_list )
+
+
+class Weights(object):
+    def __init__(self, config, cwd):
+        self.max_intensity = config["Max Intensity"]
+        self.intensities_location = config["Intensities Location"]
+        self.cwd = cwd
+
+
+    def start(self):
+        print("Parsing data into memory.\n")
+        data_manager = PyPWA.data.file_manager.MemoryInterface()
+        data = data_manager.parse(self.intensities_location) 
+
+        print("Running Acceptance Rejection")
+        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod( data, self.max_intensity )
+
+        rejection_list = rejection.run()
+
+        print("Saving Data")
+        data_manager.write(self.save_location, rejection_list )
 
 class Configurations(object):
     """Static class that returns the example txt"""
@@ -150,7 +205,28 @@ Simulator Information: #There must be a space bewteen the colon and the data
 Data Information:
     Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
     Save Location : /home/user/foobabar/weights.txt #Where you want to save the weights
-    """
+"""
+
+    @staticmethod
+    def intensities_config():
+        return """\
+Intensities Information : #There must be a space bewteen the colon and the data
+    Function's Location : Example.py   #The python file that has the functions in it
+    Processing Name : the_function  #The name of the processing function
+    Setup Name :  the_setup   #The name of the setup function, called only once before fitting
+    Parameters : { A1: 1, A2: 2, A3: 0.1, A4: -10, A5: -0.00001 }
+    Number of Threads: 2
+Data Information:
+    Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
+    Save Location : /home/user/foobabar/weights.txt #Where you want to save the intensities
+"""
+
+    @staticmethod
+    def weights_config():
+        return """\
+Max Intensity : 2.78964398923 #The max intensity for the entire data range.
+Intensities Location :  /home/user/foobar/data.txt #The location of the intensities
+"""
 
 
     @staticmethod
