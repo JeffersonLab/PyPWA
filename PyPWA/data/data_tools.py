@@ -1,6 +1,8 @@
 """
 Holds various tools needed by the Data module.
 """
+import os
+import numpy
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
@@ -9,7 +11,6 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import os, numpy
 
 class DataTypeSearch(object):
     """
@@ -24,13 +25,10 @@ class DataTypeSearch(object):
 
         Args:
             file_location (str): The file that is to be parsed
-
         Returns:
             str: Type of File
-
         Raises:
             TypeError: If the file type can't be found
-
         See Also:
             Supported Data formats
         """
@@ -49,8 +47,8 @@ class DataTypeSearch(object):
 
         raise TypeError("File Type not known!")
 
-
-    def _extension_test(self,file_location):
+    @staticmethod
+    def _extension_test(file_location):
         """Attempts to find type based on file extension.
         Args:
             file_location (str): the file path
@@ -70,8 +68,8 @@ class DataTypeSearch(object):
         else:
             return False
 
-
-    def _character_test(self, file_location):
+    @staticmethod
+    def _character_test(file_location):
         """Checks for single line boolean data type.
         Args:
             file_location (str): the path to the file
@@ -96,7 +94,7 @@ class DataTypeSearch(object):
         except:
             return 0
 
-
+    @staticmethod
     def _line_test(self, file_location):
         """
         Loads the first line and checks it for patterns to
@@ -125,8 +123,8 @@ class DataTypeWrite(object):
     """
     Returns which writer to use based on the data.
     """
-
-    def search(self, data, new = False):
+    @staticmethod
+    def search(data, new=False):
         """Returns best writter based on data
         Args:
             data (object): The data that needs to be written
