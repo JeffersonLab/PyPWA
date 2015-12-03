@@ -37,10 +37,6 @@ class DataTypeSearch(object):
         if result:
             return result
 
-        result = self._character_test(file_location)
-        if result:
-            return result
-
         result = self._line_test(file_location)
         if result:
             return result
@@ -57,45 +53,19 @@ class DataTypeSearch(object):
             bool: False if no type is found
         """
 
-        file_extenstion = os.path.splitext(file_location)[1].lower()
+        file_extension = os.path.splitext(file_location)[1].lower()
 
-        if file_extenstion == ".csv":
-            return "KvCsv"
-        elif file_extenstion == ".tsv":
-            return "KvTsv"
-        elif file_extenstion == ".yml":
-            return "Yaml"
+        if file_extension in ( ".csv", ".tsv"):
+            return "sv"
+        elif file_extension == ".yml":
+            return "yaml"
+        elif file_extension == ".pwa":
+            return "pwa"
         else:
             return False
 
     @staticmethod
-    def _character_test(file_location):
-        """Checks for single line boolean data type.
-        Args:
-            file_location (str): the path to the file
-        Returns:
-            str: Type of file if found.
-            bool: False if no type is found
-        """
-
-        characters = []
-
-        with open(file_location, "r") as stream:
-            for x in range(25):
-                characters.append(stream.read(1))
-
-        try:
-            for character in characters:
-                if not int(character) < 2:
-                    return 0
-                else:
-                    pass
-            return "NewWeights"
-        except:
-            return 0
-
-    @staticmethod
-    def _line_test(self, file_location):
+    def _line_test(file_location):
         """
         Loads the first line and checks it for patterns to
         try to determine the type.
@@ -109,12 +79,8 @@ class DataTypeSearch(object):
         with open(file_location, "r") as stream:
             first_line = stream.readline().strip("\n")
 
-        if "=" in first_line:
-            return "Kv"
-        elif len(first_line) > 1:
-            return "Qf"
-        elif len(first_line) == 1:
-            return "OldWeights"
+        if "=" in first_line or len(first_line) >= 1:
+            return "kv"
         else:
             return 0
 
@@ -124,23 +90,45 @@ class DataTypeWrite(object):
     Returns which writer to use based on the data.
     """
     @staticmethod
-    def search(data, new=False):
-        """Returns best writter based on data
+    def search(file_location):
+        """Returns best writer based on data
         Args:
-            data (object): The data that needs to be written
-            new (optional[bool]): Default is False, choose to write data new format.
+            file_location (str):
+        Returns:
+            str:
         """
-        if type(data) == dict:
-            data_type = "Kv"
-        elif type(data) == numpy.ndarray:
-            if data.dtype == bool:
-                data_type = "OldWeights"
-            else:
-                data_type = "Qfactor"
+        file_extension = os.path.splitext(file_location)[1].lower()
 
-        if new:
-            if data_type == "Kv":
-                data_type == "KvTsv"
-            elif data_type == "OldWeights":
-                data_type == "NewWeights"
-        return data_type
+        if file_extension in (".tsv", ".csv"):
+            return "sv"
+        elif file_extension == ".yml":
+            return "yaml"
+        elif file_extension == ".pwa":
+            return "pwa"
+        else:
+            return "kv"
+
+
+class DataTypes(object):
+
+    def type(self, data):
+        if isinstance(data, numpy.ndarray):
+            return self._arrays(data)
+        elif isinstance(data):
+            return self._dicts(data)
+
+    @staticmethod
+    def _dicts(data):
+        keys = data.keys()
+        if isinstance(data[keys[0]], numpy.ndarray):
+            return "dictofarrays"
+        else:
+            return "dictofdicts"
+
+    @staticmethod
+    def _arrays(data):
+        if isinstance(data[0], numpy.bool):
+            return "listofbools"
+        else:
+            return "listoffloats"
+
