@@ -9,9 +9,9 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import warnings
 import PyPWA.data.memory_wrapper
 import PyPWA.data.data_tools
+import PyPWA.data.cache
 
 
 class MemoryInterface(object):
@@ -31,6 +31,13 @@ class MemoryInterface(object):
         Returns:
             Object: Data that was parsed from the disk.
         """
+
+        if self.cache:
+            caching = PyPWA.data.cache.StandardCache()
+            data = caching.check_cache(file_location)
+            if data:
+                return data
+
         tester = PyPWA.data.data_tools.DataTypeSearch()
         data_type = tester.search(file_location)
 
@@ -46,12 +53,13 @@ class MemoryInterface(object):
             raise TypeError("{0} data type is not known!".format(data_type))
 
         data = reader.parse(file_location)
+
         if self.cache:
-            warnings.warn("Caching is currently not ready!")
+            cache_write = PyPWA.data.cache.StandardCache()
+            cache_write.make_cache(file_location, data)
         return data
 
-    @staticmethod
-    def write(file_location, the_data):
+    def write(self, file_location, the_data):
         """Writes data to disk from memory.
         Args:
             file_location (str): The path to the file.
@@ -70,3 +78,8 @@ class MemoryInterface(object):
             writer = PyPWA.data.memory_wrapper.Kv()
 
         writer.write(file_location, the_data)
+
+        if self.cache:
+            cache_write = PyPWA.data.cache.StandardCache()
+            cache_write.make_cache(file_location, the_data)
+
