@@ -1,6 +1,8 @@
 """
 Main objects for console PyPWA tools
 """
+import PyPWA.data.file_manager, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
+import numpy
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond"]
 __license__ = "MIT"
@@ -9,7 +11,6 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import PyPWA.data.file_manager, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
 
 class Fitting(object):
     """Main General Fitting Object
@@ -35,7 +36,6 @@ class Fitting(object):
         self.use_qfactor = config["General Settings"]["Use QFactor"]
         self.cwd = cwd
 
-
     def start(self):
         """Starts fitting process"""
 
@@ -49,12 +49,17 @@ class Fitting(object):
             qfactor = numpy.ones(shape=len(data.values()[0]))
 
         print("Loading users function.\n")
-        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name)
+        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
+                                                                 self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
-        calc = PyPWA.proc.calculation.MaximumLogLikelihoodEstimation(self.num_threads, self.parameters, data, accepted, qfactor, self.generated_length, amplitude_function, setup_function)
-        minimalization = PyPWA.proc.calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy, self.set_up, self.ncall)
+        calc = PyPWA.proc.calculation.MaximumLogLikelihoodEstimation(self.num_threads, self.parameters, data, accepted,
+                                                                     qfactor, self.generated_length, amplitude_function,
+                                                                     setup_function)
+
+        minimalization = PyPWA.proc.calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings,
+                                                                  self.strategy, self.set_up, self.ncall)
 
         print("Starting minimalization.\n")
         minimalization.min()
@@ -78,31 +83,33 @@ class Simulator(object):
         self.save_location = config["Data Information"]["Save Location"]
         self.cwd = cwd
 
-
     def start(self):
         """Starts Rejection"""
 
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.file_manager.MemoryInterface()
+        data_manager = PyPWA.data.file_manager.MemoryInterface(True)
         data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
-        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
+        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
+                                                                 self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
         print("Running Intensities")
-        intensities = PyPWA.proc.calculation.CalculateIntensities( self.num_threads, data, amplitude_function, setup_function, self.parameters)
+        intensities = PyPWA.proc.calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
+                                                                   setup_function, self.parameters)
 
         intensities_list, max_intensity = intensities.run()
 
         print("Running Acceptance Rejection")
-        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod( intensities_list, max_intensity )
+        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod(intensities_list, max_intensity)
 
         rejection_list = rejection.run()
 
         print("Saving Data")
-        data_manager.write(self.save_location, rejection_list )
+        data_manager.write(self.save_location, rejection_list)
+
 
 class Intensities(object):
     def __init__(self, config, cwd):
@@ -115,24 +122,25 @@ class Intensities(object):
         self.save_location = config["Data Information"]["Save Location"]
         self.cwd = cwd
 
-
     def start(self):
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.file_manager.MemoryInterface()
+        data_manager = PyPWA.data.file_manager.MemoryInterface(True)
         data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
-        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name, self.setup_name )
+        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
+                                                                 self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
         print("Running Intensities")
-        intensities = PyPWA.proc.calculation.CalculateIntensities( self.num_threads, data, amplitude_function, setup_function, self.parameters)
+        intensities = PyPWA.proc.calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
+                                                                   setup_function, self.parameters)
 
         intensities_list, max_intensity = intensities.run()
 
         print("Saving Data")
-        data_manager.write(self.save_location, intensities_list )
+        data_manager.write(self.save_location, intensities_list)
 
 
 class Weights(object):
@@ -141,19 +149,19 @@ class Weights(object):
         self.intensities_location = config["Intensities Location"]
         self.cwd = cwd
 
-
     def start(self):
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.file_manager.MemoryInterface()
+        data_manager = PyPWA.data.file_manager.MemoryInterface(True)
         data = data_manager.parse(self.intensities_location) 
 
         print("Running Acceptance Rejection")
-        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod( data, self.max_intensity )
+        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod(data, self.max_intensity)
 
         rejection_list = rejection.run()
 
         print("Saving Data")
-        data_manager.write(self.save_location, rejection_list )
+        data_manager.write(self.save_location, rejection_list)
+
 
 class Configurations(object):
     """Static class that returns the example txt"""
@@ -188,7 +196,6 @@ General Settings:
     Use QFactor: True   #Boolean, using Qfactor or not
 """
 
-
     @staticmethod
     def simulator_config():
         """
@@ -204,7 +211,7 @@ Simulator Information: #There must be a space bewteen the colon and the data
     Number of Threads: 2
 Data Information:
     Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
-    Save Location : /home/user/foobabar/weights.txt #Where you want to save the weights
+    Save Location : /home/user/foobar/weights.txt #Where you want to save the weights
 """
 
     @staticmethod
@@ -218,7 +225,7 @@ Intensities Information : #There must be a space bewteen the colon and the data
     Number of Threads: 2
 Data Information:
     Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
-    Save Location : /home/user/foobabar/weights.txt #Where you want to save the intensities
+    Save Location : /home/user/foobar/weights.txt #Where you want to save the intensities
 """
 
     @staticmethod
@@ -226,8 +233,8 @@ Data Information:
         return """\
 Max Intensity : 2.78964398923 #The max intensity for the entire data range.
 Intensities Location :  /home/user/foobar/data.txt #The location of the intensities
+Save Location: /home/user/foobar/weights.txt #The location of where to save the data for
 """
-
 
     @staticmethod
     def example_function():
