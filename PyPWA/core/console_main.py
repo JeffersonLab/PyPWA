@@ -1,8 +1,7 @@
 """
 Main objects for console PyPWA tools
 """
-import PyPWA.data.file_manager, PyPWA.proc.calculation_tools, PyPWA.proc.calculation
-import numpy
+
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones", "Josh Pond"]
 __license__ = "MIT"
@@ -11,6 +10,13 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
+import os
+import warnings
+
+import numpy
+
+import PyPWA.data.file_manager
+from PyPWA.proc import calculation_tools, calculation
 
 class Fitting(object):
     """Main General Fitting Object
@@ -43,26 +49,57 @@ class Fitting(object):
         parse = PyPWA.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
         accepted = parse.parse(self.accepted_location)
+
+        new_data = {}
+        new_accepted = {}
+
+        if "QFactor" in data and os.path.isfile(self.qfactor_location) and self.use_qfactor:
+            qfactor = parse.parse(self.use_qfactor)
+            if qfactor != data["QFactor"]:
+                raise Exception("Two different QFactors were provided! Remove a QFactor set and retry.")
+
         if self.use_qfactor:
-            qfactor = parse.parse(self.qfactor_location)
+            if "QFactor" in data:
+                new_data["QFactor"] = data["QFactor"]
+                data.pop("QFactor")
+            elif os.path.isfile(self.qfactor_location):
+                new_data["QFactor"] = parse.parse(self.qfactor_location)
+            else:
+                warnings.warn("QFactor data not found! Continuing on without QFactor.")
+                new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
         else:
-            qfactor = numpy.ones(shape=len(data.values()[0]))
+            new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
+
+        if "BinN" in data:
+            new_data["BinN"] = data["BinN"]
+            data.pop("BinN")
+        else:
+            new_data["BinN"] = numpy.ones(shape=len(data[data.keys()[0]]))
+
+        new_data["data"] = data
+
+        if "BinN" in accepted:
+            new_accepted["BinN"] = accepted["BinN"]
+            accepted.pop("BinN")
+        else:
+            new_accepted["BinN"] = numpy.ones(shape=len(accepted[accepted.keys()[0]]))
+
+        new_accepted["data"] = accepted
 
         print("Loading users function.\n")
-        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
-                                                                 self.setup_name)
+        functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
+                                                      self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
-        calc = PyPWA.proc.calculation.MaximumLogLikelihoodEstimation(self.num_threads, self.parameters, data, accepted,
-                                                                     qfactor, self.generated_length, amplitude_function,
-                                                                     setup_function)
+        calc = calculation.MaximumLogLikelihoodEstimation(self.num_threads, self.parameters, new_data, new_accepted,
+                                                          self.generated_length, amplitude_function, setup_function)
 
-        minimalization = PyPWA.proc.calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings,
-                                                                  self.strategy, self.set_up, self.ncall)
+        minimization = calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy,
+                                                     self.set_up, self.ncall)
 
-        print("Starting minimalization.\n")
-        minimalization.min()
+        print("Starting minimization.\n")
+        minimization.min()
         calc.stop()
 
 
@@ -91,21 +128,21 @@ class Simulator(object):
         data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
-        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
+        functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                                  self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
         print("Running Intensities")
-        intensities = PyPWA.proc.calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
-                                                                   setup_function, self.parameters)
+        intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
+                                                                  setup_function, self.parameters)
 
-        intensities_list, max_intensity = intensities.run()
+        intensities_list, max_intensity = intensities.run
 
         print("Running Acceptance Rejection")
-        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod(intensities_list, max_intensity)
+        rejection = calculation.AcceptanceRejectionMethod(intensities_list, max_intensity)
 
-        rejection_list = rejection.run()
+        rejection_list = rejection.run
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list)
@@ -128,16 +165,16 @@ class Intensities(object):
         data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
-        functions = PyPWA.proc.calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
+        functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                                  self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
         print("Running Intensities")
-        intensities = PyPWA.proc.calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
+        intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
                                                                    setup_function, self.parameters)
 
-        intensities_list, max_intensity = intensities.run()
+        intensities_list, max_intensity = intensities.run
 
         print("Saving Data")
         data_manager.write(self.save_location, intensities_list)
@@ -147,6 +184,7 @@ class Weights(object):
     def __init__(self, config, cwd):
         self.max_intensity = config["Max Intensity"]
         self.intensities_location = config["Intensities Location"]
+        self.save_location = config["Save Location"]
         self.cwd = cwd
 
     def start(self):
@@ -155,9 +193,9 @@ class Weights(object):
         data = data_manager.parse(self.intensities_location) 
 
         print("Running Acceptance Rejection")
-        rejection = PyPWA.proc.calculation.AcceptanceRejctionMethod(data, self.max_intensity)
+        rejection = calculation.AcceptanceRejectionMethod(data, self.max_intensity)
 
-        rejection_list = rejection.run()
+        rejection_list = rejection.run
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list)
@@ -169,7 +207,7 @@ class Configurations(object):
     @staticmethod
     def fitting_config():
         """
-        Retruns:
+        Returns:
             str: Example.yml for GeneralFitting
         """
         return """\
@@ -181,7 +219,7 @@ Likelihood Information: #There must be a space bewteen the colon and the data
 Data Information:
     Data Location : /home/user/foobar/data.txt #The location of the data
     Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt   #The location of the Accepted Monte Carlo
-    QFactor List Location : /home/foobar/fit/Qfactor.txt #The location of the Qfactors
+    QFactor List Location : /home/foobar/fit/Qfactor.txt #The location of the QFactors
 Minuit's Settings:
     Minuit's Initial Settings : { A1: 1, limit_A1: [0, 2500], # You can arrange this value however you would like as long as the each line ends in either a "," or a "}"
         A2: 2, limit_A2: [-2,3],
