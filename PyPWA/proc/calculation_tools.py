@@ -142,7 +142,9 @@ class DictionarySplitter(object):
                 for index in range(num_chunks):
                     split_dictionary[index][data] = numpy.array_split(dictionary[data], num_chunks)[index]
             elif isinstance(dictionary[data], dict):
-                for key in data:
+                for index in range(num_chunks):
+                    split_dictionary[index][data] = {}
+                for key in dictionary[data]:
                     for index in range(num_chunks):
                         split_dictionary[index][data][key] = numpy.array_split(dictionary[data][key], num_chunks)[index]
         return split_dictionary
