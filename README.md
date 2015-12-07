@@ -1,19 +1,19 @@
-PyPWA
-=====
+# PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=release-v2.0.0b1)](https://travis-ci.org/JeffersonLab/PyPWA)
+
 
 JLab PWA software infrastructure
 
 A software framework used to perform Partial Wave and Amplitude Analysis (PWA) with the goal of extracting resonance information from multiparticle final states
 
 
-Current Status
-------
+## Current Status
+
 
 Currently the PyPWA package is being restructured into a proper python package complete with setup tools.
 As of right now only the GeneralShell has been adapted to the packaging utility, and all other tools live in limbo and are usable as before. Everything in limbo is untouched.
 
-General Shell
-------
+## General Shell
+
 
 The new General Shell is iminuit based threaded fitting tool, it is designed to run from your machines path or from a virtualenv.
 
