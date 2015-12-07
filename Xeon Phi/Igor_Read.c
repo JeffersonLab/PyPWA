@@ -31,7 +31,7 @@ tseconds = (double)(mytime.tv_sec + mytime.tv_usec*1.0e-6);
 return( tseconds );
 }
 
-#define FLOPS_ARRAY_SIZE 137137 //
+#define FLOPS_ARRAY_SIZE 137137 //total number of events. Technically not supposed to hardcode but this is a test
 #define MAXFLOPS_ITERS 100000
 #define LOOP_COUNT 128
 #define FLOPSPERCALC 2
@@ -44,9 +44,8 @@ double sum = 0;
 int x;
 int numthreads;
 
-omp_set_num_threads(122);
-kmp_set_defaults("KMP_AFFINITY=scatter");
-#pragma omp parallel for
+//kmp_set_defaults("KMP_AFFINITY=scatter");
+//#pragma omp parallel for
 for(x = 0; x<FLOPS_ARRAY_SIZE; x++)
 {
 sum += pow(log(cabs(A[x])),2);
@@ -72,11 +71,11 @@ int main(int argc, char *argv[])
 	myfile=fopen("space_delimited_data_stup.txt","r");
 	double s,t,u,p;
 	
-	for(x=0;x<
+	for(x=0;x<FLOPS_ARRAY_SIZE;x++)
 	{
 		printf("in the loop\r\n");
 		//printf("this is new\r\n");
-		if(x==0) numthreads = omp_get_num_threads();
+		//if(x==0) numthreads = omp_get_num_threads();
 		fscanf(myfile,"%lf",&s);
 		//printf("line read\r\n");
 		fscanf(myfile,"%lf",&t);
