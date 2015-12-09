@@ -46,7 +46,7 @@ class MaximumLogLikelihoodEstimation(object):
                            receive_from_main)
 
     def _data_setup(self, data, accepted):
-        splitter = calculation_tools.DataSplitter()
+        splitter = calculation_tools.DictionarySplitter()
         split_data = splitter.split(data, self._num_threads)
         split_accepted = splitter.split(accepted, self._num_threads)
         return [split_data, split_accepted]
@@ -130,7 +130,7 @@ class CalculateIntensities(object):
         self.processes = self._thread_setup(amplitude_function, setup_function, split_events, parameters, send_to_main)
 
     def _data_setup(self, data):
-        splitter = calculation_tools.DataSplitter()
+        splitter = calculation_tools.DictionarySplitter()
         return splitter.split(data, self._num_threads)
 
     def _pipe_setup(self):
