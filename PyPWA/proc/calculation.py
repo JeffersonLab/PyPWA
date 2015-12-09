@@ -9,6 +9,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
+from abc import abstractmethod, ABCMeta
 import random
 import time
 
@@ -165,6 +166,45 @@ class MaximumLogLikelihoodUnextendedEstimation(AbstractFitting):
 
         for process in processes:
             process.start()
+
+
+class ChiSquaredTest(AbstractFitting):
+    """Object that handles the Maximum-Likelihood Estimation
+
+    All arguments are in the order of their use inside the init method.
+
+    Args:
+        num_threads (int): Number of processes to use.
+        parameter_names (list): Parameters to use in calculation
+        data (dict): Dictionary of arrays with data events
+        amplitude_function (function): Function that calculates amplitude
+        setup_function (function): Function that runs before any calculation
+        real_value (numpy.float64): The true value of the function.
+    """
+
+    def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function, real_value):
+        super(ChiSquaredTest).__init__(num_threads, parameter_names)
+        split_data = self._data_setup(data)
+        self.real_value = real_value
+
+        self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
+
+    @staticmethod
+    def _thread_setup(amplitude_function, setup_function, data, send_to_main, receive_from_main):
+
+        processes = []
+
+        for count, pipe in enumerate(zip(send_to_main, receive_from_main)):
+                processes.append(
+                    process_calculation.LoopingIntensity(amplitude_function, setup_function, data[count], pipe[0],
+                                                         pipe[1])
+                )
+
+        for process in processes:
+            process.start()
+
+    def final_calc(self, values):
+        return ((numpy.sum(values) - self.real_value)**2) / self.real_value
 
 
 class CalculateIntensities(object):

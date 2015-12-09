@@ -31,6 +31,12 @@ class Fitting(object):
         self.function_location = config["Likelihood Information"]["Function's Location"]
         self.amplitude_name = config["Likelihood Information"]["Processing Name"]
         self.setup_name = config["Likelihood Information"]["Setup Name"]
+        self.likelihood = config["Likelihood Information"]["Likelihood"]
+        if "Real Value" in config["Likelihood Information"]:
+            self.real_value = config["Likelihood Information"]["Real Value"]
+        else:
+            self.real_value = None
+
         self.data_location = config["Data Information"]["Data Location"]
 
         if "Accepted Monte Carlo Location" in config["Data Information"]:
@@ -102,13 +108,19 @@ class Fitting(object):
         amplitude_function = functions.return_amplitude
         setup_function = functions.return_setup
 
-        if isinstance(self.accepted_location, type(None)):
-            calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
-                                                                        amplitude_function, setup_function)
-        else:
-            calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
-                                                                      new_accepted, self.generated_length,
-                                                                      amplitude_function, setup_function)
+        if self.likelihood == "likelihood":
+            if isinstance(self.accepted_location, type(None)):
+                calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                            amplitude_function, setup_function)
+            else:
+                calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                          new_accepted, self.generated_length,
+                                                                          amplitude_function, setup_function)
+
+        elif self.likelihood == "chisquared":
+            calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
+                                              setup_function, self.real_value)
+
 
         minimization = calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                      self.set_up, self.ncall)
@@ -231,6 +243,8 @@ Likelihood Information: #There must be a space between the colon and the data
     Function's Location : Example.py   #The python file that has the functions in it
     Processing Name : the_function  #The name of the processing function
     Setup Name :  the_setup   #The name of the setup function, called only once before fitting
+    Likelihood : # likelihood / chisquared # Choose type of function to set
+#    Real Value : 12.5461656 #chisquared real value
 Data Information:
     Data Location : /home/user/foobar/data.txt #The location of the data
 #    Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt  # Optional, Path to your accepted data
