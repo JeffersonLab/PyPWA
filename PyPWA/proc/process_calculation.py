@@ -178,12 +178,6 @@ class ExtendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         self._data = data
         self._accepted = accepted
 
-    def processing(self):
-        super(ExtendedLikelihoodAmplitude, self).processing()
-
-    def setup(self):
-        super(ExtendedLikelihoodAmplitude, self).setup()
-
     def likelihood(self, parameters):
         """Calculates the likelihood function
         Args:
