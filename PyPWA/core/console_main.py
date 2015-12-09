@@ -99,8 +99,8 @@ class Fitting(object):
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
-        amplitude_function = functions.return_amplitude()
-        setup_function = functions.return_setup()
+        amplitude_function = functions.return_amplitude
+        setup_function = functions.return_setup
 
         if isinstance(self.accepted_location, type(None)):
             calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,

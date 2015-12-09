@@ -150,7 +150,7 @@ class ExtendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         processed_data = self._amplitude_function(self._data["data"], parameters)
         processed_accepted = self._amplitude_function(self._accepted["data"], parameters)
         return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data))) + \
-                (self._processed * self._accepted["BinN"] * numpy.sum(processed_accepted))
+                (self._processed * numpy.sum(self._accepted["BinN"] * processed_accepted))
 
 
 class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
