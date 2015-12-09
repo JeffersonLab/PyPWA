@@ -11,6 +11,7 @@ __status__ = "Beta0"
 
 import random
 import time
+from abc import ABCMeta
 
 import numpy
 
