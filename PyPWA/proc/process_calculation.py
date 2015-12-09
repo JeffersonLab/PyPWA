@@ -83,6 +83,42 @@ class RejectionAcceptanceAmplitude(AbstractProcess):
         self._looping = False
 
 
+class ChiSquaredAmplitude(AbstractProcess):
+
+    def __init__(self, amplitude_function, setup_function, data, accepted, send, receive):
+        super(ChiSquaredAmplitude).__init__()
+        self.amplitude = amplitude_function
+        self.setup = setup_function
+        self.data = data
+        self.accepted = accepted
+        self.send = send
+        self.receive = receive
+
+    def _pipe_send(self, data):
+        self.send.send(data)
+
+    def _pipe_recv(self):
+        return self.receive.recv()
+
+    def setup(self):
+        self.setup()
+
+    def processing(self):
+        received = self._pipe_recv()
+        if received == "DIE":
+            self._looping = False
+        else:
+            self.chi(received)
+
+    def chi(self, received):
+        processed_data = self.amplitude(self.data, received)
+        processed_acceptance = self.amplitude(self.accepted, received)
+
+        value = ((processed_data - processed_acceptance)**2) / processed_data
+
+        self._pipe_send(value)
+
+
 class AbstractLikelihoodAmplitude(AbstractProcess):
     """Abstract Likelihood that handles all the processing except the likelihood
     Attributes:
