@@ -12,6 +12,7 @@ __status__ = "Beta0"
 from abc import ABCMeta, abstractmethod
 import multiprocessing
 import numpy
+import warnings
 
 
 class AbstractProcess(multiprocessing.Process):
@@ -68,6 +69,8 @@ class RejectionAcceptanceAmplitude(AbstractProcess):
         self._parameters = parameters
         self._send = send
         self._id = the_id
+        warnings.warn("RejectionAcceptanceAmplitude is being depreciated, use LoopingIntensity instead",
+                      DeprecationWarning)
 
     def setup(self):
         """Runs the setup function"""
@@ -83,16 +86,20 @@ class RejectionAcceptanceAmplitude(AbstractProcess):
         self._looping = False
 
 
-class ChiSquaredAmplitude(AbstractProcess):
+class LoopingIntensity(AbstractProcess):
 
-    def __init__(self, amplitude_function, setup_function, data, accepted, send, receive):
-        super(ChiSquaredAmplitude).__init__()
+    def __init__(self, amplitude_function, setup_function, data, send, receive, the_id=None):
+        super(LoopingIntensity).__init__()
         self.amplitude = amplitude_function
-        self.setup = setup_function
+        self.setup_function = setup_function
         self.data = data
-        self.accepted = accepted
         self.send = send
         self.receive = receive
+        if isinstance(the_id, int):
+            self.the_id = the_id
+            self.tracked = True
+        else:
+            self.tracked = False
 
     def _pipe_send(self, data):
         self.send.send(data)
@@ -101,22 +108,19 @@ class ChiSquaredAmplitude(AbstractProcess):
         return self.receive.recv()
 
     def setup(self):
-        self.setup()
+        self.setup_function()
 
     def processing(self):
         received = self._pipe_recv()
         if received == "DIE":
             self._looping = False
         else:
-            self.chi(received)
-
-    def chi(self, received):
-        processed_data = self.amplitude(self.data, received)
-        processed_acceptance = self.amplitude(self.accepted, received)
-
-        value = ((processed_data - processed_acceptance)**2) / processed_data
-
-        self._pipe_send(value)
+            intensity = self.amplitude(self.data, received)
+            if self.tracked:
+                values = [self.the_id, intensity]
+            else:
+                values = intensity
+            self._pipe_send(values)
 
 
 class AbstractLikelihoodAmplitude(AbstractProcess):
