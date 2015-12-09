@@ -18,6 +18,7 @@ import numpy
 import PyPWA.data.file_manager
 from PyPWA.proc import calculation_tools, calculation
 
+
 class Fitting(object):
     """Main General Fitting Object
     Args:
@@ -31,15 +32,23 @@ class Fitting(object):
         self.amplitude_name = config["Likelihood Information"]["Processing Name"]
         self.setup_name = config["Likelihood Information"]["Setup Name"]
         self.data_location = config["Data Information"]["Data Location"]
-        self.accepted_location = config["Data Information"]["Accepted Monte Carlo Location"]
-        self.qfactor_location = config["Data Information"]["QFactor List Location"]
+
+        if "Accepted Monte Carlo Location" in config["Data Information"]:
+            self.accepted_location = config["Data Information"]["Accepted Monte Carlo Location"]
+        else:
+            self.accepted_location = None
+
+        if "QFactor List Location" in config["Data Information"]:
+            self.QFactor_location = config["Data Information"]["QFactor List Location"]
+        else:
+            self.QFactor_location = None
+
         self.initial_settings = config["Minuit's Settings"]["Minuit's Initial Settings"]
         self.parameters = config["Minuit's Settings"]["Minuit's Parameters"]
         self.strategy = config["Minuit's Settings"]["Minuit's Strategy"]
         self.set_up = config["Minuit's Settings"]["Minuit's Set Up"]
         self.ncall = config["Minuit's Settings"]["Minuit's ncall"]
         self.num_threads = config["General Settings"]["Number of Threads"]
-        self.use_qfactor = config["General Settings"]["Use QFactor"]
         self.cwd = cwd
 
     def start(self):
@@ -48,26 +57,26 @@ class Fitting(object):
         print("Parsing files into memory.\n")
         parse = PyPWA.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
-        accepted = parse.parse(self.accepted_location)
+
+        if not isinstance(self.accepted_location, type(None)):
+            accepted = parse.parse(self.accepted_location)
 
         new_data = {}
         new_accepted = {}
 
-        if "QFactor" in data and os.path.isfile(self.qfactor_location) and self.use_qfactor:
-            qfactor = parse.parse(self.use_qfactor)
-            if qfactor != data["QFactor"]:
-                raise Exception("Two different QFactors were provided! Remove a QFactor set and retry.")
+        if not isinstance(self.QFactor_location, type(None)):
+            if "QFactor" in data and os.path.isfile(self.QFactor_location):
+                QFactor = parse.parse(self.QFactor_location)
+                if QFactor != data["QFactor"]:
+                    raise Exception("Two different QFactors were provided! Remove a QFactor set and retry.")
 
-        if self.use_qfactor:
-            if "QFactor" in data:
-                new_data["QFactor"] = data["QFactor"]
-                data.pop("QFactor")
-            elif os.path.isfile(self.qfactor_location):
-                new_data["QFactor"] = parse.parse(self.qfactor_location)
-            else:
-                warnings.warn("QFactor data not found! Continuing on without QFactor.")
-                new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
+        if "QFactor" in data:
+            new_data["QFactor"] = data["QFactor"]
+            data.pop("QFactor")
+        elif isinstance(self.QFactor_location, type(None)) and os.path.isfile(self.QFactor_location):
+            new_data["QFactor"] = parse.parse(self.QFactor_location)
         else:
+            warnings.warn("QFactor data not found! Continuing on without QFactor.")
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
         if "BinN" in data:
@@ -78,22 +87,28 @@ class Fitting(object):
 
         new_data["data"] = data
 
-        if "BinN" in accepted:
-            new_accepted["BinN"] = accepted["BinN"]
-            accepted.pop("BinN")
-        else:
-            new_accepted["BinN"] = numpy.ones(shape=len(accepted[accepted.keys()[0]]))
+        if not isinstance(self.accepted_location, type(None)):
+            if "BinN" in accepted:
+                new_accepted["BinN"] = accepted["BinN"]
+                accepted.pop("BinN")
+            else:
+                new_accepted["BinN"] = numpy.ones(shape=len(accepted[accepted.keys()[0]]))
 
         new_accepted["data"] = accepted
 
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
-        amplitude_function = functions.return_amplitude()
-        setup_function = functions.return_setup()
+        amplitude_function = functions.return_amplitude
+        setup_function = functions.return_setup
 
-        calc = calculation.MaximumLogLikelihoodEstimation(self.num_threads, self.parameters, new_data, new_accepted,
-                                                          self.generated_length, amplitude_function, setup_function)
+        if isinstance(self.accepted_location, type(None)):
+            calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                        amplitude_function, setup_function)
+        else:
+            calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                      new_accepted, self.generated_length,
+                                                                      amplitude_function, setup_function)
 
         minimization = calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                      self.set_up, self.ncall)
@@ -129,13 +144,13 @@ class Simulator(object):
 
         print("Loading users functions.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
-                                                                 self.setup_name)
+                                                      self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
         print("Running Intensities")
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
-                                                                  setup_function, self.parameters)
+                                                       setup_function, self.parameters)
 
         intensities_list, max_intensity = intensities.run
 
@@ -166,13 +181,13 @@ class Intensities(object):
 
         print("Loading users functions.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
-                                                                 self.setup_name)
+                                                      self.setup_name)
         amplitude_function = functions.return_amplitude()
         setup_function = functions.return_setup()
 
         print("Running Intensities")
-        intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
-                                                                   setup_function, self.parameters)
+        intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function, setup_function,
+                                                       self.parameters)
 
         intensities_list, max_intensity = intensities.run
 
@@ -211,15 +226,15 @@ class Configurations(object):
             str: Example.yml for GeneralFitting
         """
         return """\
-Likelihood Information: #There must be a space bewteen the colon and the data
+Likelihood Information: #There must be a space between the colon and the data
     Generated Length : 10000   #Number of Generated events
     Function's Location : Example.py   #The python file that has the functions in it
     Processing Name : the_function  #The name of the processing function
     Setup Name :  the_setup   #The name of the setup function, called only once before fitting
 Data Information:
     Data Location : /home/user/foobar/data.txt #The location of the data
-    Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt   #The location of the Accepted Monte Carlo
-    QFactor List Location : /home/foobar/fit/Qfactor.txt #The location of the QFactors
+#    Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt  # Optional, Path to your accepted data
+#    QFactor List Location : /home/foobar/fit/Qfactor.txt #Optional, The location of the QFactors
 Minuit's Settings:
     Minuit's Initial Settings : { A1: 1, limit_A1: [0, 2500], # You can arrange this value however you would like as long as the each line ends in either a "," or a "}"
         A2: 2, limit_A2: [-2,3],
@@ -231,7 +246,6 @@ Minuit's Settings:
     Minuit's ncall: 1000
 General Settings:
     Number of Threads: 1   #Number of threads to use. Set to one for debug
-    Use QFactor: True   #Boolean, using Qfactor or not
 """
 
     @staticmethod
