@@ -9,6 +9,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
+from abc import abstractmethod, ABCMeta
 import random
 import time
 
@@ -17,7 +18,73 @@ import numpy
 from PyPWA.proc import calculation_tools, process_calculation, process_communication
 
 
-class MaximumLogLikelihoodEstimation(object):
+class AbstractFitting:
+    __metaclass__ = ABCMeta
+
+    """Object that handles the Maximum-Likelihood Estimation
+
+    All arguments are in the order of their use inside the init method.
+
+    Args:
+        num_threads (int): Number of processes to use.
+        parameter_names (list): Parameters to use in calculation
+    """
+
+    def __init__(self, num_threads, parameter_names):
+
+        self._num_threads = num_threads
+        self._parameter_names = parameter_names
+        self._send_to_process, self.receive_from_main, self.send_to_main, self._receive_from_process = \
+            self._pipe_setup()
+
+    def _data_setup(self, data):
+        splitter = calculation_tools.DictionarySplitter()
+        split_data = splitter.split(data, self._num_threads)
+        return split_data
+
+    def _pipe_setup(self):
+        pipe_communication = process_communication.ProcessPipes()
+
+        send_to_process, receive_from_main = pipe_communication.return_pipes(self._num_threads)
+        send_to_main, receive_from_process = pipe_communication.return_pipes(self._num_threads)
+
+        return [send_to_process, receive_from_main, send_to_main, receive_from_process]
+
+    def run(self, *args):
+        """
+        This is the function is called by minuit and acts as a wrapper for the users function
+        Args:
+            *args: The parameters in list format
+        Returns:
+            float: The final value from the likelihood function
+        """
+
+        parameters_with_values = {}
+        for parameter, arg in zip(self._parameter_names, args):
+            parameters_with_values[parameter] = arg
+
+        for pipe in self._send_to_process:
+            pipe.send(parameters_with_values)
+
+        values = numpy.zeros(shape=self._num_threads)
+
+        for index, pipe in enumerate(self._receive_from_process):
+            values[index] = pipe.recv()
+
+        final_value = self.final_calc(values)
+        print(final_value)
+        return final_value
+
+    def final_calc(self, values):
+        return numpy.sum(values)
+
+    def stop(self):
+        """Shuts down processes"""
+        for pipe in self._send_to_process:
+            pipe.send("DIE")
+
+
+class MaximumLogLikelihoodExtendedEstimation(AbstractFitting):
     """Object that handles the Maximum-Likelihood Estimation
 
     All arguments are in the order of their use inside the init method.
@@ -34,30 +101,14 @@ class MaximumLogLikelihoodEstimation(object):
 
     def __init__(self, num_threads, parameter_names, data, accepted, generated_length, amplitude_function,
                  setup_function):
+        super(MaximumLogLikelihoodExtendedEstimation).__init__(num_threads, parameter_names)
 
-        self._num_threads = num_threads
-        self._parameter_names = parameter_names
-        self._send_to_process, receive_from_main, send_to_main, self._receive_from_process = self._pipe_setup()
-
-        split_data, split_accepted = self._data_setup(data, accepted)
+        split_data = self._data_setup(data)
+        split_accepted = self._data_setup(accepted)
         processed = self._preprocessed(generated_length)
 
-        self._thread_setup(amplitude_function, setup_function, processed, split_data, split_accepted, send_to_main,
-                           receive_from_main)
-
-    def _data_setup(self, data, accepted):
-        splitter = calculation_tools.DictionarySplitter()
-        split_data = splitter.split(data, self._num_threads)
-        split_accepted = splitter.split(accepted, self._num_threads)
-        return [split_data, split_accepted]
-
-    def _pipe_setup(self):
-        pipe_communication = process_communication.ProcessPipes()
-
-        send_to_process, receive_from_main = pipe_communication.return_pipes(self._num_threads)
-        send_to_main, receive_from_process = pipe_communication.return_pipes(self._num_threads)
-
-        return [send_to_process, receive_from_main, send_to_main, receive_from_process]
+        self._thread_setup(amplitude_function, setup_function, processed, split_data, split_accepted, self.send_to_main,
+                           self.receive_from_main)
 
     @staticmethod
     def _preprocessed(generated_length):
@@ -82,35 +133,78 @@ class MaximumLogLikelihoodEstimation(object):
         for process in processes:
             process.start()
 
-    def run(self, *args):
-        """
-        This is the function is called by minuit and acts as a wrapper for the users function
-        Args:
-            *args: The parameters in list format
-        Returns:
-            float: The final value from the likelihood function
-        """
 
-        parameters_with_values = {}
-        for parameter, arg in zip(self._parameter_names, args):
-            parameters_with_values[parameter] = arg
+class MaximumLogLikelihoodUnextendedEstimation(AbstractFitting):
+    """Object that handles the Maximum-Likelihood Estimation
 
-        for pipe in self._send_to_process:
-            pipe.send(parameters_with_values)
+    All arguments are in the order of their use inside the init method.
 
-        values = numpy.zeros(shape=self._num_threads)
+    Args:
+        num_threads (int): Number of processes to use.
+        parameter_names (list): Parameters to use in calculation
+        data (dict): Dictionary of arrays with data events
+        amplitude_function (object): Function that calculates amplitude
+        setup_function (object): Function that runs before any calculation
+    """
 
-        for index, pipe in enumerate(self._receive_from_process):
-            values[index] = pipe.recv()
+    def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function):
+        super(MaximumLogLikelihoodUnextendedEstimation).__init__(num_threads, parameter_names)
+        split_data = self._data_setup(data)
 
-        final_value = numpy.sum(values)
-        print(final_value)
-        return final_value
+        self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
 
-    def stop(self):
-        """Shuts down processes"""
-        for pipe in self._send_to_process:
-            pipe.send("DIE")
+    @staticmethod
+    def _thread_setup(amplitude_function, setup_function, data, send_to_main, receive_from_main):
+
+        processes = []
+
+        for count, pipe in enumerate(zip(send_to_main, receive_from_main)):
+                processes.append(
+                    process_calculation.UnextendedLikelihoodAmplitude(amplitude_function, setup_function, data[count],
+                                                                      pipe[0], pipe[1])
+                )
+
+        for process in processes:
+            process.start()
+
+
+class ChiSquaredTest(AbstractFitting):
+    """Object that handles the Maximum-Likelihood Estimation
+
+    All arguments are in the order of their use inside the init method.
+
+    Args:
+        num_threads (int): Number of processes to use.
+        parameter_names (list): Parameters to use in calculation
+        data (dict): Dictionary of arrays with data events
+        amplitude_function (function): Function that calculates amplitude
+        setup_function (function): Function that runs before any calculation
+        real_value (numpy.float64): The true value of the function.
+    """
+
+    def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function, real_value):
+        super(ChiSquaredTest).__init__(num_threads, parameter_names)
+        split_data = self._data_setup(data)
+        self.real_value = real_value
+
+        self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
+
+    @staticmethod
+    def _thread_setup(amplitude_function, setup_function, data, send_to_main, receive_from_main):
+
+        processes = []
+
+        for count, pipe in enumerate(zip(send_to_main, receive_from_main)):
+                processes.append(
+                    process_calculation.LoopingIntensity(amplitude_function, setup_function, data[count], pipe[0],
+                                                         pipe[1])
+                )
+
+        for process in processes:
+            process.start()
+
+    def final_calc(self, values):
+        return ((numpy.sum(values) - self.real_value)**2) / self.real_value
 
 
 class CalculateIntensities(object):
