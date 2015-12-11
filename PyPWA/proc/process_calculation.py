@@ -220,7 +220,7 @@ class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
 class ChiSquared(AbstractLikelihoodAmplitude):
 
     def __init__(self, amplitude_function, setup_function, data, send, receive):
-        super(ChiSquared).__init__(setup_function, send, receive)
+        super(ChiSquared, self).__init__(setup_function, send, receive)
         self._amplitude_function = amplitude_function
         self._data = data
 
