@@ -231,5 +231,5 @@ class ChiSquared(AbstractLikelihoodAmplitude):
             if self._data["BinN"][index] == 0:
                 pass
             else:
-                chi += ((processed_data[index] - self._data["BinN"])**2) / self._data["BinN"][index]
+                chi += ((processed_data[index] - self._data["BinN"][index])**2) / self._data["BinN"][index]
         return chi
