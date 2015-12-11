@@ -174,4 +174,12 @@ class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
             parameters (dict): dictionary of the arguments to be sent to the function
         """
         processed_data = self._amplitude_function(self._data["data"], parameters)
-        return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data)))
+        value = numpy.float64(0.0)
+
+        for index in range(len(processed_data)):
+            if self._data["BinN"] == 0:
+                pass
+            else:
+                value += self._data["QFactor"][index] * self._data["BinN"][index] * numpy.log(processed_data[index])
+
+        return -value
