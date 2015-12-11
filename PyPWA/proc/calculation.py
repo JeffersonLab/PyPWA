@@ -101,7 +101,7 @@ class MaximumLogLikelihoodExtendedEstimation(AbstractFitting):
 
     def __init__(self, num_threads, parameter_names, data, accepted, generated_length, amplitude_function,
                  setup_function):
-        super(MaximumLogLikelihoodExtendedEstimation).__init__(num_threads, parameter_names)
+        super(MaximumLogLikelihoodExtendedEstimation, self).__init__(num_threads, parameter_names)
 
         split_data = self._data_setup(data)
         split_accepted = self._data_setup(accepted)
@@ -148,7 +148,7 @@ class MaximumLogLikelihoodUnextendedEstimation(AbstractFitting):
     """
 
     def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function):
-        super(MaximumLogLikelihoodUnextendedEstimation).__init__(num_threads, parameter_names)
+        super(MaximumLogLikelihoodUnextendedEstimation, self).__init__(num_threads, parameter_names)
         split_data = self._data_setup(data)
 
         self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
@@ -182,7 +182,7 @@ class ChiSquaredTest(AbstractFitting):
     """
 
     def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function):
-        super(ChiSquaredTest).__init__(num_threads, parameter_names)
+        super(ChiSquaredTest, self).__init__(num_threads, parameter_names)
         split_data = self._data_setup(data)
 
         self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
