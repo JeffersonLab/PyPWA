@@ -47,3 +47,53 @@ class TestRejectionAcceptanceMethod(unittest.TestCase):
 
         numpy.testing.assert_array_almost_equal(received[1], expected)
         self.assertEqual(received[0], 0)
+
+
+class TestExtendedLikelihoodAmplitude(unittest.TestCase):
+    def test(self):
+        global data
+        global accept
+
+        processed = 1/200
+
+        processed_data = the_function(data["data"], {"A1": 5.341})
+        processed_accepted = the_function(accept["data"], {"A1": 5.341})
+
+        expected = -(numpy.sum(data["QFactor"] * data["BinN"] * numpy.log(processed_data))) + \
+                    (processed * numpy.sum(accept["BinN"] * processed_accepted))
+
+        send_to, receive_from = process_communication.ProcessPipes.return_pipes(2)
+
+        process = process_calculation.ExtendedLikelihoodAmplitude(the_function, the_setup, processed, data, accept,
+                                                                  send_to[0], receive_from[1])
+        process.start()
+
+        send_to[1].send({"A1": 5.341})
+
+        value = receive_from[0].recv()
+
+        send_to[1].send("DIE")
+
+        numpy.testing.assert_almost_equal(value, expected)
+
+
+class TestUnextendedLikelihodAmplitude(unittest.TestCase):
+    def test(self):
+        global data
+        global accept
+
+        processed_data = the_function(data["data"], {"A1": 5.341})
+        expected = -(numpy.sum(data["QFactor"] * data["BinN"] * numpy.log(processed_data)))
+
+        send_to, receive_from = process_communication.ProcessPipes.return_pipes(2)
+
+        process = process_calculation.UnextendedLikelihoodAmplitude(the_function, the_setup, data, send_to[0], receive_from[1])
+        process.start()
+
+        send_to[1].send({"A1": 5.341})
+        value = receive_from[0].recv()
+        send_to[1].send("DIE")
+
+        numpy.testing.assert_almost_equal(value, expected)
+
+
