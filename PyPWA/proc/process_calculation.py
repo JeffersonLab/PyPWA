@@ -215,3 +215,21 @@ class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         """
         processed_data = self._amplitude_function(self._data["data"], parameters)
         return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data)))
+
+
+class ChiSquared(AbstractLikelihoodAmplitude):
+
+    def __init__(self, amplitude_function, setup_function, data, send, receive):
+        super(ChiSquared).__init__(setup_function, send, receive)
+        self._amplitude_function = amplitude_function
+        self._data = data
+
+    def likelihood(self, parameters):
+        processed_data = self._amplitude_function(self._data["data"], parameters)
+        chi = numpy.float64(0.0)
+        for index in range(len(processed_data)):
+            if self._data["BinN"][index] == 0:
+                pass
+            else:
+                chi += ((processed_data[index] - self._data["BinN"])**2) / self._data["BinN"][index]
+        return chi
