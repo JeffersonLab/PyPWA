@@ -179,13 +179,11 @@ class ChiSquaredTest(AbstractFitting):
         data (dict): Dictionary of arrays with data events
         amplitude_function (function): Function that calculates amplitude
         setup_function (function): Function that runs before any calculation
-        real_value (numpy.float64): The true value of the function.
     """
 
-    def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function, real_value):
+    def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function):
         super(ChiSquaredTest).__init__(num_threads, parameter_names)
         split_data = self._data_setup(data)
-        self.real_value = real_value
 
         self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
 
@@ -196,15 +194,11 @@ class ChiSquaredTest(AbstractFitting):
 
         for count, pipe in enumerate(zip(send_to_main, receive_from_main)):
                 processes.append(
-                    process_calculation.LoopingIntensity(amplitude_function, setup_function, data[count], pipe[0],
-                                                         pipe[1])
+                    process_calculation.ChiSquared(amplitude_function, setup_function, data[count], pipe[0], pipe[1])
                 )
 
         for process in processes:
             process.start()
-
-    def final_calc(self, values):
-        return ((numpy.sum(values) - self.real_value)**2) / self.real_value
 
 
 class CalculateIntensities(object):
