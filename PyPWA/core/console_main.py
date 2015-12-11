@@ -75,8 +75,9 @@ class Fitting(object):
         if "QFactor" in data:
             new_data["QFactor"] = data["QFactor"]
             data.pop("QFactor")
-        elif isinstance(self.QFactor_location, type(None)) and os.path.isfile(self.QFactor_location):
-            new_data["QFactor"] = parse.parse(self.QFactor_location)
+        elif not isinstance(self.QFactor_location, type(None)):
+            if os.path.isfile(self.QFactor_location):
+                new_data["QFactor"] = parse.parse(self.QFactor_location)
         else:
             warnings.warn("QFactor data not found! Continuing on without QFactor.")
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
@@ -95,6 +96,8 @@ class Fitting(object):
                 accepted.pop("BinN")
             else:
                 new_accepted["BinN"] = numpy.ones(shape=len(accepted[accepted.keys()[0]]))
+        else:
+            accepted = 0
 
         new_accepted["data"] = accepted
 
