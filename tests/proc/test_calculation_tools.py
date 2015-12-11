@@ -1,14 +1,17 @@
 import unittest
+import os
 import numpy
 import PyPWA.proc.calculation_tools
 
 data = {
-    'BinN': numpy.array([0.24418789,  0.10050128,  0.9089618,  0.40875684,  0.53606013, 0.52099577]),
-    'QFactor': numpy.array([0.49851558,  0.73195453,  0.7000174,  0.0933503,  0.63582723, 0.26120629]),
+    'BinN': numpy.array([0.24418789, 0.10050128, 0.9089618, 0.40875684, 0.53606013, 0.52099577]),
+    'QFactor': numpy.array([0.49851558, 0.73195453, 0.7000174, 0.0933503, 0.63582723, 0.26120629]),
     'data': {
-        'x': numpy.array([0.16308575,  0.12278721,  0.47615786,  0.6785825,  0.81275147, 0.93995425])
+        'x': numpy.array([0.16308575, 0.12278721, 0.47615786, 0.6785825, 0.81275147, 0.93995425])
     }
 }
+
+# Testing DictionarySplitter
 
 
 class TestNoSplit(unittest.TestCase):
@@ -39,17 +42,17 @@ class TestSplitByTwo(unittest.TestCase):
 
         expected = [
             {
-                'BinN': numpy.array([0.24418789,  0.10050128,  0.9089618]),
-                'QFactor': numpy.array([0.49851558,  0.73195453,  0.7000174]),
+                'BinN': numpy.array([0.24418789, 0.10050128, 0.9089618]),
+                'QFactor': numpy.array([0.49851558, 0.73195453, 0.7000174]),
                 'data': {
-                    'x': numpy.array([0.16308575,  0.12278721,  0.47615786])
+                    'x': numpy.array([0.16308575, 0.12278721, 0.47615786])
                 }
             },
             {
-                'BinN': numpy.array([0.40875684,  0.53606013,  0.52099577]),
-                'QFactor': numpy.array([0.0933503,  0.63582723,  0.26120629]),
+                'BinN': numpy.array([0.40875684, 0.53606013, 0.52099577]),
+                'QFactor': numpy.array([0.0933503, 0.63582723, 0.26120629]),
                 'data': {
-                    'x': numpy.array([0.6785825,  0.81275147,  0.93995425])
+                    'x': numpy.array([0.6785825, 0.81275147, 0.93995425])
                 }
             }
         ]
