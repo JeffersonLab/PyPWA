@@ -32,10 +32,6 @@ class Fitting(object):
         self.amplitude_name = config["Likelihood Information"]["Processing Name"]
         self.setup_name = config["Likelihood Information"]["Setup Name"]
         self.likelihood = config["Likelihood Information"]["Likelihood"]
-        if "Real Value" in config["Likelihood Information"]:
-            self.real_value = config["Likelihood Information"]["Real Value"]
-        else:
-            self.real_value = None
 
         self.data_location = config["Data Information"]["Data Location"]
 
@@ -119,8 +115,7 @@ class Fitting(object):
 
         elif self.likelihood == "chisquared":
             calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
-                                              setup_function, self.real_value)
-
+                                              setup_function)
 
         minimization = calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                      self.set_up, self.ncall)
@@ -244,7 +239,6 @@ Likelihood Information: #There must be a space between the colon and the data
     Processing Name : the_function  #The name of the processing function
     Setup Name :  the_setup   #The name of the setup function, called only once before fitting
     Likelihood : # likelihood / chisquared # Choose type of function to set
-#    Real Value : 12.5461656 #chisquared real value
 Data Information:
     Data Location : /home/user/foobar/data.txt #The location of the data
 #    Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt  # Optional, Path to your accepted data
