@@ -18,7 +18,7 @@ import numpy
 from PyPWA.proc import calculation_tools, process_calculation, process_communication
 
 
-class AbstractFitting:
+class AbstractFitting(object):
     __metaclass__ = ABCMeta
 
     """Object that handles the Maximum-Likelihood Estimation
