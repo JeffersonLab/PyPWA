@@ -217,7 +217,7 @@ class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         value = numpy.float64(0.0)
 
         for index in range(len(processed_data)):
-            if self._data["BinN"] == 0:
+            if self._data["BinN"][index] == 0:
                 pass
             else:
                 value += self._data["QFactor"][index] * self._data["BinN"][index] * numpy.log(processed_data[index])
