@@ -61,9 +61,9 @@ class DictOfArrays(KvInterface):
         kvars = data.keys()
 
         with open(file_location, "w") as stream:
-            for event in range(len(data[kvars[0]])):
+            for event in range(len(list(data)[0])):
                 line = ""
-                for kvar in range(len(kvars)):
+                for kvar in range(len(list(kvars))):
                     if kvar > 0:
                         line += ","
                     line += "{0}={1}".format(kvars[kvar], str(data[kvars[kvar]][event]))
@@ -99,7 +99,7 @@ class ListOfFloats(KvInterface):
         """
         with open(file_location, "w") as stream:
             for event in data:
-                stream.write(str(data) + "\n")
+                stream.write(str(event) + "\n")
 
 
 class ListOfBooleans(KvInterface):
@@ -118,7 +118,7 @@ class ListOfBooleans(KvInterface):
         weights = numpy.zeros(shape=file_length, dtype=bool)
 
         for index, weight in enumerate(fileinput.input(file_location)):
-            weights[index] = weight
+            weights[index] = int(weight)
 
         return weights
 
