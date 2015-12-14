@@ -43,7 +43,7 @@ class TestListOfFloats(unittest.TestCase):
         kv_loader.write(TEST_KV_FLOAT_FILE, data)
         loaded = kv_loader.parse(TEST_KV_FLOAT_FILE)
 
-        open(TEST_KV_FLOAT_FILE, "w").close()
+        os.remove(TEST_KV_FLOAT_FILE)
 
         numpy.testing.assert_array_almost_equal(data, loaded)
 
@@ -55,6 +55,6 @@ class TestListOfBooleans(unittest.TestCase):
         kv_loader.write(TEST_KV_BOOL_FILE, data)
         loaded = kv_loader.parse(TEST_KV_BOOL_FILE)
 
-        open(TEST_KV_BOOL_FILE, "w").close()
+        os.remove(TEST_KV_BOOL_FILE)
 
         numpy.testing.assert_array_almost_equal(loaded, data)
