@@ -1,7 +1,8 @@
 import numpy
 
+
 def the_function(the_array, the_params):
-    the_size = len(the_array.values()[0])
+    the_size = len(the_array[list(the_array)[0]])
     values = numpy.zeros(shape=the_size)
     for event in range(the_size):
         values[event] = the_params["A1"] * the_array["x"][event]
