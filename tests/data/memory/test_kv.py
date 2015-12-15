@@ -20,20 +20,18 @@ class TestReadDictOfArrays(unittest.TestCase):
         self.assertAlmostEqual(data["QFactor"][9], 0.762221, 5)
         self.assertEqual(len(list(data)), 6)
 
-"""
-class TestDictOfArrays(unittest.TestCase):
-    def test(self):
-        dictionary = {"something": numpy.random.rand(10), "else": numpy.random.rand(10)}
 
-        kv_loader = PyPWA.data.memory.kv.DictOfArrays()
+def test_dict_of_arrays_write_and_read():
+    dictionary = {"something": numpy.random.rand(10), "else": numpy.random.rand(10)}
 
-        kv_loader.write(TEST_KV_DICT_FILE_2, dictionary)
+    kv_loader = PyPWA.data.memory.kv.DictOfArrays()
 
-        loaded = kv_loader.parse(TEST_KV_DICT_FILE_2)
+    kv_loader.write(TEST_KV_DICT_FILE_2, dictionary)
 
-        numpy.testing.assert_array_almost_equal(dictionary["something"], loaded["something"])
-        numpy.testing.assert_array_almost_equal(dictionary["else"], loaded["else"])
-"""
+    loaded = kv_loader.parse(TEST_KV_DICT_FILE_2)
+
+    numpy.testing.assert_array_almost_equal(dictionary["something"], loaded["something"])
+    numpy.testing.assert_array_almost_equal(dictionary["else"], loaded["else"])
 
 
 class TestListOfFloats(unittest.TestCase):

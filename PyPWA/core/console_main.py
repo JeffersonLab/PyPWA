@@ -148,7 +148,7 @@ class Fitting(object):
         table_fancy = tabulate.tabulate(covariance, y_true, "fancy_grid", numalign="center")
         table = tabulate.tabulate(covariance, y_true, "grid", numalign="center")
 
-        print table_fancy
+        print(table_fancy)
         with open( self.save_location + ".txt", "w") as stream:
             stream.write("Covariance.\n")
             stream.write(table)
