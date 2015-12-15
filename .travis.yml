@@ -10,7 +10,8 @@ python:
 install:
   - "python setup.py install"
   - "pip install coveralls"
-script: "coverage run --source=PyPWA setup.py test"
+  - "pip install pytest-cov"
+script: "py.test --cov=PyPWA tests/"
 after_success:
   - coveralls
 notifications:
