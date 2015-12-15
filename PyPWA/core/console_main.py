@@ -76,7 +76,7 @@ class Fitting(object):
         if "QFactor" in data:
             new_data["QFactor"] = data["QFactor"]
             data.pop("QFactor")
-        elif isinstance(self.QFactor_location, type(None)) and os.path.isfile(self.QFactor_location):
+        elif not isinstance(self.QFactor_location, type(None)):
             new_data["QFactor"] = parse.parse(self.QFactor_location)
         else:
             warnings.warn("QFactor data not found! Continuing on without QFactor.")
@@ -97,7 +97,7 @@ class Fitting(object):
             else:
                 new_accepted["BinN"] = numpy.ones(shape=len(accepted[accepted.keys()[0]]))
 
-        new_accepted["data"] = accepted
+            new_accepted["data"] = accepted
 
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
@@ -176,8 +176,8 @@ class Simulator(object):
         print("Loading users functions.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
-        amplitude_function = functions.return_amplitude()
-        setup_function = functions.return_setup()
+        amplitude_function = functions.return_amplitude
+        setup_function = functions.return_setup
 
         print("Running Intensities")
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
@@ -213,8 +213,8 @@ class Intensities(object):
         print("Loading users functions.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
-        amplitude_function = functions.return_amplitude()
-        setup_function = functions.return_setup()
+        amplitude_function = functions.return_amplitude
+        setup_function = functions.return_setup
 
         print("Running Intensities")
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function, setup_function,
