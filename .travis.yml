@@ -15,6 +15,7 @@ script: "py.test --cov=PyPWA tests/"
 after_success:
   - coveralls
 notifications:
-  slack:
+  email:
     on_success: change
     on_failure: change
+
