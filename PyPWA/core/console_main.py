@@ -192,12 +192,12 @@ class Simulator(object):
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
                                                        setup_function, self.parameters)
 
-        intensities_list, max_intensity = intensities.run
+        intensities_list, max_intensity = intensities.run()
 
         print("Running Acceptance Rejection")
         rejection = calculation.AcceptanceRejectionMethod(intensities_list, max_intensity)
 
-        rejection_list = rejection.run
+        rejection_list = rejection.run()
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list)
@@ -229,7 +229,7 @@ class Intensities(object):
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function, setup_function,
                                                        self.parameters)
 
-        intensities_list, max_intensity = intensities.run
+        intensities_list, max_intensity = intensities.run()
 
         print("Saving Data")
         data_manager.write(self.save_location, intensities_list)
@@ -250,7 +250,7 @@ class Weights(object):
         print("Running Acceptance Rejection")
         rejection = calculation.AcceptanceRejectionMethod(data, self.max_intensity)
 
-        rejection_list = rejection.run
+        rejection_list = rejection.run()
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list)
