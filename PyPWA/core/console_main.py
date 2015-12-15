@@ -79,8 +79,7 @@ class Fitting(object):
             new_data["QFactor"] = data["QFactor"]
             data.pop("QFactor")
         elif not isinstance(self.QFactor_location, type(None)):
-            if os.path.isfile(self.QFactor_location):
-                new_data["QFactor"] = parse.parse(self.QFactor_location)
+            new_data["QFactor"] = parse.parse(self.QFactor_location)
         else:
             warnings.warn("QFactor data not found! Continuing on without QFactor.")
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
@@ -186,8 +185,8 @@ class Simulator(object):
         print("Loading users functions.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
-        amplitude_function = functions.return_amplitude()
-        setup_function = functions.return_setup()
+        amplitude_function = functions.return_amplitude
+        setup_function = functions.return_setup
 
         print("Running Intensities")
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
@@ -223,8 +222,8 @@ class Intensities(object):
         print("Loading users functions.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
-        amplitude_function = functions.return_amplitude()
-        setup_function = functions.return_setup()
+        amplitude_function = functions.return_amplitude
+        setup_function = functions.return_setup
 
         print("Running Intensities")
         intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function, setup_function,
