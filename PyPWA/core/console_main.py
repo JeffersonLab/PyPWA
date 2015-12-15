@@ -14,6 +14,7 @@ import os
 import warnings
 
 import numpy
+import tabulate
 
 import PyPWA.data.file_manager
 from PyPWA.proc import calculation_tools, calculation
@@ -42,6 +43,8 @@ class Fitting(object):
             self.QFactor_location = config["Data Information"]["QFactor List Location"]
         else:
             self.QFactor_location = None
+
+        self.save_location = config["Data Information"]["Save Name"]
 
         self.initial_settings = config["Minuit's Settings"]["Minuit's Initial Settings"]
         self.parameters = config["Minuit's Settings"]["Minuit's Parameters"]
@@ -116,6 +119,34 @@ class Fitting(object):
         print("Starting minimization.\n")
         minimization.min()
         calc.stop()
+        print("Covariance.\n")
+        the_x = []
+        the_y = []
+        for field in minimization.covariance:
+            the_x.append(field[0])
+            the_y.append(field[1])
+
+        x_true = set(the_x)
+        y_true = set(the_y)
+
+        covariance = []
+        for x in x_true:
+            holding = [x]
+            for y in y_true:
+                holding.append(minimization.covariance[(x, y)])
+            covariance.append(holding)
+
+        table_fancy = tabulate.tabulate(covariance, y_true, "fancy_grid", numalign="center")
+        table = tabulate.tabulate(covariance, y_true, "grid", numalign="center")
+
+        print table_fancy
+        with open( self.save_location + ".txt", "w") as stream:
+            stream.write("Covariance.\n")
+            stream.write(table)
+            stream.write("\n")
+            stream.write("fval: "+str(minimization.fval))
+
+        numpy.save(self.save_location + ".npy", minimization.covariance)
 
 
 class Simulator(object):
@@ -235,6 +266,7 @@ Data Information:
     Data Location : /home/user/foobar/data.txt #The location of the data
 #    Accepted Monte Carlo Location: /home/foobar/fit/AccMonCar.txt  # Optional, Path to your accepted data
 #    QFactor List Location : /home/foobar/fit/Qfactor.txt #Optional, The location of the QFactors
+    Save Name : output #Will make a file called output.txt and output.npy
 Minuit's Settings:
     Minuit's Initial Settings : { A1: 1, limit_A1: [0, 2500], # You can arrange this value however you would like as long as the each line ends in either a "," or a "}"
         A2: 2, limit_A2: [-2,3],
