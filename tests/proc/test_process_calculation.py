@@ -90,10 +90,13 @@ def test_unextended_binned_value():
 
 def test_abstract_calls():
     abstract_one = process_calculation.AbstractProcess()
-    abstract_one.setup()
-    abstract_one.processing()
+    with pytest.raises(NotImplementedError):
+        abstract_one.setup()
+    with pytest.raises(NotImplementedError):
+        abstract_one.processing()
 
     send_to, receive_from = process_communication.ProcessPipes.return_pipes(2)
 
     abstract_two = process_calculation.AbstractLikelihoodAmplitude(the_setup, send_to[0], receive_from[1])
-    abstract_two.likelihood({"A1": 5.341})
+    with pytest.raises(NotImplementedError):
+        abstract_two.likelihood({"A1": 5.341})
