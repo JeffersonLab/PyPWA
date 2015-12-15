@@ -162,7 +162,8 @@ class Fitting(object):
             stream.write("\n")
             stream.write("fval: "+str(minimization.fval))
 
-        numpy.save(self.save_location + ".npy", {"covariance":minimization.covariance, "fval":minimization.fval})
+        numpy.save(self.save_location + ".npy", {"covariance": minimization.covariance, "fval": minimization.fval,
+                                                 "values": minimization.values})
 
 
 class Simulator(object):

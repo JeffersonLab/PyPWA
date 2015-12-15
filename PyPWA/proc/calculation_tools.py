@@ -29,6 +29,7 @@ class Minimalizer(object):
     def __init__(self, calc_function, parameters, settings, strategy, set_up, ncall):
         self.fval = 0
         self.covariance = 0
+        self.values = 0
         self._calc_function = calc_function
         self._parameters = parameters
         self._settings = settings
@@ -44,6 +45,7 @@ class Minimalizer(object):
         minimal.migrad(ncall=self._ncall)
         self.fval = minimal.fval
         self.covariance = minimal.covariance
+        self.values = minimal.values
 
 
 class FunctionLoading(object):
