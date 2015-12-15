@@ -29,7 +29,8 @@ setup(
     install_requires=[
         "iminuit<2.0",
         "numpy<2.0",
-        "pyyaml<4"
+        "pyyaml<4",
+        "tabulate"
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
