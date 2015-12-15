@@ -1,4 +1,5 @@
 import unittest
+import pytest
 import numpy
 from PyPWA.proc import process_calculation, process_communication
 
@@ -73,7 +74,7 @@ class TestExtendedLikelihoodAmplitude(unittest.TestCase):
         numpy.testing.assert_almost_equal(value, expected)
 
 
-class TestUnextendedLikelihodAmplitude(unittest.TestCase):
+class TestUnextendedLikelihoodAmplitude(unittest.TestCase):
     def test(self):
         processed_data = the_function(data["data"], {"A1": 5.341})
         expected = -(numpy.sum(data["QFactor"] * data["BinN"] * numpy.log(processed_data)))
