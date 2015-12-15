@@ -2,7 +2,18 @@ sudo: false
 language: python
 cache: pip
 python:
+  - "2.6"
   - "2.7"
+  - "3.3"
+  - "3.4"
   - "3.5"
-install: "python setup.py develop"
-script: "python setup.py test"
+install:
+  - "python setup.py install"
+  - "pip install coveralls"
+script: "coverage run --source=PyPWA setup.py test"
+after_success:
+  - coveralls
+notifications:
+  slack:
+    on_success: change
+    on_failure: change
