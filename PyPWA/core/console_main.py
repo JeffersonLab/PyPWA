@@ -139,14 +139,21 @@ class Fitting(object):
         table_fancy = tabulate.tabulate(covariance, y_true, "fancy_grid", numalign="center")
         table = tabulate.tabulate(covariance, y_true, "grid", numalign="center")
 
-        print(table_fancy)
+        try:
+            print(table_fancy)
+        except UnicodeEncodeError:
+            try:
+                print(table)
+            except:
+                pass
+
         with open( self.save_location + ".txt", "w") as stream:
             stream.write("Covariance.\n")
             stream.write(table)
             stream.write("\n")
             stream.write("fval: "+str(minimization.fval))
 
-        numpy.save(self.save_location + ".npy", minimization.covariance)
+        numpy.save(self.save_location + ".npy", {"covariance":minimization.covariance, "fval":minimization.fval})
 
 
 class Simulator(object):
