@@ -55,12 +55,12 @@ class DictOfArrays(KvInterface):
             data (dict): dict of numpy arrays
         """
 
-        kvars = data.keys()
+        kvars = list(data)
 
         with open(file_location, "w") as stream:
-            for event in range(len(list(data)[0])+1):
+            for event in range(len(data[kvars[0]])):
                 line = ""
-                for kvar in range(len(list(kvars))):
+                for kvar in range(len(kvars)):
                     if kvar > 0:
                         line += ","
                     line += "{0}={1}".format(kvars[kvar], str(data[kvars[kvar]][event]))
