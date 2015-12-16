@@ -4,12 +4,12 @@ import numpy
 
 class KvInterface(object):
 
-    def parse(cls, file_location):
-        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
+    def parse(self, file_location):
+        raise NotImplementedError("Class %s doesn't implement parse()" % self.__class__.__name__ )
 
     @staticmethod
     def write(file_location, data):
-        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
+        raise NotImplementedError("Object doesn't implement write()")
 
     @staticmethod
     def file_length(file_location):
