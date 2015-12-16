@@ -9,8 +9,8 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import data_tools
-from memory import sv, kv
+import PyPWA.data.data_tools as data_tools
+from PyPWA.data.memory import sv, kv
 import os
 import yaml
 
@@ -35,15 +35,15 @@ class Kv(DataInterface):
             first_line = stream.readline()
 
         if "=" in first_line:
-            data = kv.DictOfArrays()
+            reader = kv.DictOfArrays()
         elif len(first_line.strip("\n")) == 1:
-            data = kv.ListOfBooleans()
+            reader = kv.ListOfBooleans()
         elif len(first_line.strip("\n")) > 1:
-            data = kv.ListOfFloats()
+            reader = kv.ListOfFloats()
         else:
             raise TypeError("Unknown data type for {0} !".format(file_location))
 
-        return data.parse(file_location)
+        return reader.parse(file_location)
 
     @staticmethod
     def write(file_location, data):
@@ -51,15 +51,15 @@ class Kv(DataInterface):
         the_type = data_check.type(data)
 
         if the_type == "dictofarrays":
-            data = kv.DictOfArrays()
+            writer = kv.DictOfArrays()
         elif the_type == "listofbools":
-            data = kv.ListOfBooleans()
+            writer = kv.ListOfBooleans()
         elif the_type == "listoffloats":
-            data = kv.ListOfFloats()
+            writer = kv.ListOfFloats()
         else:
             raise TypeError("Unknown type {0} !".format(the_type))
 
-        data.write(file_location, data)
+        writer.write(file_location, data)
 
 
 class Sv(DataInterface):
