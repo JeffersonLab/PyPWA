@@ -15,9 +15,10 @@ before_install:
   - "pip install coverage"
   - "pip install pytest"
   - "pip install pytest-runner"
+  - "pip install pytest-cov"
 install:
   - "pip install -e ."
-script: "coverage run --source PyPWA -m py.test"
+script: "py.test --cov=PyPWA tests/"
 after_success:
   - ls -a
   - coveralls
