@@ -16,12 +16,12 @@ before_install:
   - "pip install pytest"
   - "pip install pytest-runner"
 install:
-  - "pip install ."
+  - "pip install -e ."
 script: "coverage run --source PyPWA -m py.test"
 after_success:
   - ls -a
   - coveralls
-  - cat .coverage
+  - more .coverage
 notifications:
   email:
     on_success: change
