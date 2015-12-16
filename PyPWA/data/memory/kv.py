@@ -1,18 +1,15 @@
-from abc import ABCMeta, abstractmethod
 import fileinput
 import numpy
 
 
-class KvInterface:
-    __metaclass__ = ABCMeta
+class KvInterface(object):
 
-    @abstractmethod
     def parse(cls, file_location):
-        pass
+        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
 
-    @abstractmethod
+    @staticmethod
     def write(file_location, data):
-        pass
+        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
 
     @staticmethod
     def file_length(file_location):
@@ -61,7 +58,7 @@ class DictOfArrays(KvInterface):
         kvars = data.keys()
 
         with open(file_location, "w") as stream:
-            for event in range(len(list(data)[0])):
+            for event in range(len(list(data)[0])+1):
                 line = ""
                 for kvar in range(len(list(kvars))):
                     if kvar > 0:
@@ -95,7 +92,7 @@ class ListOfFloats(KvInterface):
         """Writes Arrays to disk as floats
         Args:
             file_location (str): Path to file
-            data (numpy.ndaray): Data to be written to disk
+            data (numpy.ndarray): Data to be written to disk
         """
         with open(file_location, "w") as stream:
             for event in data:
