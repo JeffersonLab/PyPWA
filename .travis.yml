@@ -11,13 +11,14 @@ before_install:
   - python --version
   - uname -a
   - ls -a
-install:
-  - "python setup.py install"
   - "pip install coveralls"
   - "pip install coverage"
+  - "pip install pytest"
   - "pip install pytest-runner"
   - "pip install pytest-cov"
-script: "py.test --cov-config .coveragerc --cov=./PyPWA tests/"
+install:
+  - "python setup.py install"
+script: "py.test --cov-report= --cov-config .coveragerc --cov=./PyPWA/ ./tests/"
 after_success:
   - ls -a
   - coveralls
