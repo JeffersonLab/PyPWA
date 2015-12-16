@@ -11,22 +11,20 @@ __status__ = "Beta0"
 
 import data_tools
 from memory import sv, kv
-from abc import ABCMeta, abstractmethod
 import os
 import yaml
 
 
-class DataInterface:
+class DataInterface(object):
     """Interface for Data Objects"""
-    __metaclass__ = ABCMeta
 
-    @abstractmethod
+    @staticmethod
     def parse(file_location):
-        pass
+        raise NotImplementedError("Object doesn't implement parse()")
 
-    @abstractmethod
+    @staticmethod
     def write(file_location, data):
-        pass
+        raise NotImplementedError("Object doesn't implement write()")
 
 
 class Kv(DataInterface):
@@ -75,13 +73,13 @@ class Sv(DataInterface):
         elif file_ext == ".csv":
             parser = sv.SvParser(",")
         else:
-            raise TypeError("Variable seperated files must end in .tsv or .csv!")
+            raise TypeError("Variable separated files must end in .tsv or .csv!")
 
         return parser.reader(file_location)
 
     @staticmethod
     def write(file_location, data):
-        raise NotImplementedError("Writing of Variable Seperated files is not yet supported")
+        raise NotImplementedError("Writing of Variable Separated files is not yet supported")
 
 
 class Binary(DataInterface):
