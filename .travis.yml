@@ -10,15 +10,18 @@ python:
 before_install:
   - python --version
   - uname -a
-  - ls
+  - ls -a
 install:
   - "python setup.py install"
   - "pip install coveralls"
+  - "pip install coverage"
   - "pip install pytest-runner"
   - "pip install pytest-cov"
-script: "py.test --cov-config .coveragerc --cov=PyPWA"
+script: "py.test --cov-config .coveragerc --cov=./PyPWA tests/"
 after_success:
+  - ls -a
   - coveralls
+  - cat .coverage
 notifications:
   email:
     on_success: change
