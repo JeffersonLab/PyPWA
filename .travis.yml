@@ -11,7 +11,8 @@ install:
   - "python setup.py install"
   - "pip install coveralls"
   - "pip install pytest-cov"
-script: "py.test --cov=PyPWA tests/"
+  - "pip install pytest-runner"
+script: "coverage setup.py tests"
 after_success:
   - coveralls
 notifications:
