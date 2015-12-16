@@ -22,7 +22,7 @@ script: "py.test --cov=PyPWA tests/"
 after_success:
   - ls -a
   - coveralls
-  - more .coverage
+  - cat .coverage
 notifications:
   email:
     on_success: change
