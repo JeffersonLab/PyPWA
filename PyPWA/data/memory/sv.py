@@ -32,4 +32,4 @@ class SvParser(object):
         else:
             lect = "excel"
 
-        raise NotImplementedError("Writing of Variable Seperated Values is unsupported at this time")
+        raise NotImplementedError("Writing of Variable Separated Values is unsupported at this time")
