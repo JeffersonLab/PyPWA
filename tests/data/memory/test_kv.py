@@ -32,6 +32,7 @@ def test_dict_of_arrays_write_and_read():
 
     numpy.testing.assert_array_almost_equal(dictionary["something"], loaded["something"])
     numpy.testing.assert_array_almost_equal(dictionary["else"], loaded["else"])
+    os.remove(TEST_KV_DICT_FILE_2)
 
 
 class TestListOfFloats(unittest.TestCase):
