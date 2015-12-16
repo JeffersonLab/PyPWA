@@ -12,7 +12,7 @@ install:
   - "pip install coveralls"
   - "pip install pytest-cov"
   - "pip install pytest-runner"
-script: "coverage run setup.py tests"
+script: "coverage run setup.py test"
 after_success:
   - coveralls
 notifications:
