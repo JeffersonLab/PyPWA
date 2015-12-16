@@ -10,9 +10,9 @@ python:
 install:
   - "python setup.py install"
   - "pip install coveralls"
-  - "pip install pytest-cov"
   - "pip install pytest-runner"
-script: "coverage run setup.py test"
+  - "pip install pytest-cov"
+script: "py.test --cov-config .coveragerc --cov=PyPWA"
 after_success:
   - coveralls
 notifications:
