@@ -4,6 +4,8 @@ import numpy
 import os
 
 TEMP_KV_FILE = os.path.join(os.path.dirname(__file__), "memory/test_docs/kv_test_data_tmp.txt")
+TEMP_KV_FLOAT_FILE = os.path.join(os.path.dirname(__file__), "memory/test_docs/kv_floats_test_data.txt")
+TEMP_KV_BOOL_FILE = os.path.join(os.path.dirname(__file__), "memory/test_docs/kv_bool_test_data.txt")
 
 
 def test_abstract_methods():
@@ -27,3 +29,10 @@ def test_kv_interface():
 
     numpy.testing.assert_array_almost_equal(data["something"], read["something"])
     os.remove(TEMP_KV_FILE)
+
+    read_float = kv_interface.parse(TEMP_KV_FLOAT_FILE)
+    assert read_float[5] == 0.888493, "Expecting 0.888493, got {0} instead!".format(read_float[5])
+
+    read_bool = kv_interface.parse(TEMP_KV_BOOL_FILE)
+
+    assert read_bool[2] == False, "Expecting False, got {0} instead!".format(read_bool[2])
