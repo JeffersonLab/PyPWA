@@ -26,10 +26,4 @@ class SvParser(object):
         return parsed
 
     def writer(self, file_location, data):
-
-        if self.delimiter == "\t":
-            lect = "excel-tab"
-        else:
-            lect = "excel"
-
         raise NotImplementedError("Writing of Variable Separated Values is unsupported at this time")
