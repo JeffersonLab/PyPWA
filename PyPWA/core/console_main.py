@@ -113,48 +113,50 @@ class Fitting(object):
                                                                       new_accepted, self.generated_length,
                                                                       amplitude_function, setup_function)
 
-        minimization = calculation_tools.Minimalizer(calc.run, self.parameters, self.initial_settings, self.strategy,
-                                                     self.set_up, self.ncall)
+        minimization = calculation_tools.Minimizer(calc.run, self.parameters, self.initial_settings, self.strategy,
+                                                   self.set_up, self.ncall)
 
         print("Starting minimization.\n")
         minimization.min()
         calc.stop()
-        print("Covariance.\n")
-        the_x = []
-        the_y = []
-        for field in minimization.covariance:
-            the_x.append(field[0])
-            the_y.append(field[1])
 
-        x_true = set(the_x)
-        y_true = set(the_y)
+        if not isinstance(minimization.covariance, type(None)):
+            print("Covariance.\n")
+            the_x = []
+            the_y = []
+            for field in minimization.covariance:
+                the_x.append(field[0])
+                the_y.append(field[1])
 
-        covariance = []
-        for x in x_true:
-            holding = [x]
-            for y in y_true:
-                holding.append(minimization.covariance[(x, y)])
-            covariance.append(holding)
+            x_true = set(the_x)
+            y_true = set(the_y)
 
-        table_fancy = tabulate.tabulate(covariance, y_true, "fancy_grid", numalign="center")
-        table = tabulate.tabulate(covariance, y_true, "grid", numalign="center")
+            covariance = []
+            for x in x_true:
+                holding = [x]
+                for y in y_true:
+                    holding.append(minimization.covariance[(x, y)])
+                covariance.append(holding)
 
-        try:
-            print(table_fancy)
-        except UnicodeEncodeError:
+            table_fancy = tabulate.tabulate(covariance, y_true, "fancy_grid", numalign="center")
+            table = tabulate.tabulate(covariance, y_true, "grid", numalign="center")
+
             try:
-                print(table)
-            except:
-                pass
+                print(table_fancy)
+            except UnicodeEncodeError:
+                try:
+                    print(table)
+                except:
+                    pass
 
-        with open( self.save_location + ".txt", "w") as stream:
-            stream.write("Covariance.\n")
-            stream.write(table)
-            stream.write("\n")
-            stream.write("fval: "+str(minimization.fval))
+            with open( self.save_location + ".txt", "w") as stream:
+                stream.write("Covariance.\n")
+                stream.write(table)
+                stream.write("\n")
+                stream.write("fval: "+str(minimization.fval))
 
-        numpy.save(self.save_location + ".npy", {"covariance": minimization.covariance, "fval": minimization.fval,
-                                                 "values": minimization.values})
+            numpy.save(self.save_location + ".npy", {"covariance": minimization.covariance, "fval": minimization.fval,
+                                                     "values": minimization.values})
 
 
 class Simulator(object):
@@ -350,3 +352,5 @@ def the_setup(): #This function can be renamed, but will not be sent any argumen
     #This function will be ran once before the data is Minuit begins.
     pass
 """
+# I hate this file too
+
