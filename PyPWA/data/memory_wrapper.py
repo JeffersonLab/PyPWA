@@ -9,24 +9,22 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import data_tools
-from memory import sv, kv
-from abc import ABCMeta, abstractmethod
+import PyPWA.data.data_tools as data_tools
+from PyPWA.data.memory import sv, kv
 import os
 import yaml
 
 
-class DataInterface:
+class DataInterface(object):
     """Interface for Data Objects"""
-    __metaclass__ = ABCMeta
 
-    @abstractmethod
+    @staticmethod
     def parse(file_location):
-        pass
+        raise NotImplementedError("Object doesn't implement parse()")
 
-    @abstractmethod
+    @staticmethod
     def write(file_location, data):
-        pass
+        raise NotImplementedError("Object doesn't implement write()")
 
 
 class Kv(DataInterface):
@@ -37,15 +35,15 @@ class Kv(DataInterface):
             first_line = stream.readline()
 
         if "=" in first_line:
-            data = kv.DictOfArrays()
+            reader = kv.DictOfArrays()
         elif len(first_line.strip("\n")) == 1:
-            data = kv.ListOfBooleans()
+            reader = kv.ListOfBooleans()
         elif len(first_line.strip("\n")) > 1:
-            data = kv.ListOfFloats()
+            reader = kv.ListOfFloats()
         else:
             raise TypeError("Unknown data type for {0} !".format(file_location))
 
-        return data.parse(file_location)
+        return reader.parse(file_location)
 
     @staticmethod
     def write(file_location, data):
@@ -53,15 +51,15 @@ class Kv(DataInterface):
         the_type = data_check.type(data)
 
         if the_type == "dictofarrays":
-            data = kv.DictOfArrays()
+            writer = kv.DictOfArrays()
         elif the_type == "listofbools":
-            data = kv.ListOfBooleans()
+            writer = kv.ListOfBooleans()
         elif the_type == "listoffloats":
-            data = kv.ListOfFloats()
+            writer = kv.ListOfFloats()
         else:
             raise TypeError("Unknown type {0} !".format(the_type))
 
-        data.write(file_location, data)
+        writer.write(file_location, data)
 
 
 class Sv(DataInterface):
@@ -75,13 +73,13 @@ class Sv(DataInterface):
         elif file_ext == ".csv":
             parser = sv.SvParser(",")
         else:
-            raise TypeError("Variable seperated files must end in .tsv or .csv!")
+            raise TypeError("Variable separated files must end in .tsv or .csv!")
 
         return parser.reader(file_location)
 
     @staticmethod
     def write(file_location, data):
-        raise NotImplementedError("Writing of Variable Seperated files is not yet supported")
+        raise NotImplementedError("Writing of Variable Separated files is not yet supported")
 
 
 class Binary(DataInterface):

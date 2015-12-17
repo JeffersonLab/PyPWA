@@ -15,7 +15,7 @@ import sys
 import warnings
 
 
-class Minimalizer(object):
+class Minimizer(object):
     """Object based off of iminuit, provides an easy way to run minimalization
     Args:
         calc_function (function): function that holds the calculations.
@@ -38,7 +38,7 @@ class Minimalizer(object):
         self._ncall = ncall
 
     def min(self):
-        """Method to call to start minimalization process"""
+        """Method to call to start minimization process"""
         minimal = iminuit.Minuit(self._calc_function, forced_parameters=self._parameters, **self._settings )
         minimal.set_strategy(self._strategy)
         minimal.set_up(self._set_up)
@@ -86,7 +86,7 @@ class FunctionLoading(object):
         try:
             setup_function = getattr(imported, setup_name)
         except AttributeError:
-            warnings.warn(("Setup fucntion {0} was not found in {1},"
+            warnings.warn(("Setup function  {0} was not found in {1},"
                            "going without setup function").format(setup_name, function_location), UserWarning)
 
             def empty():

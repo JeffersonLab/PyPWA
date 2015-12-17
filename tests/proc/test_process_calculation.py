@@ -3,7 +3,7 @@ import numpy
 from PyPWA.proc import process_calculation, process_communication
 
 
-def the_function(the_array, the_params):
+def process_function(the_array, the_params):
     the_size = len(the_array[list(the_array)[0]])
     values = numpy.zeros(shape=the_size)
     for event in range(the_size):
@@ -11,10 +11,10 @@ def the_function(the_array, the_params):
     return values
 
 
-def the_setup():
+def setup():
     pass
 
-data = {
+DATA = {
     'BinN': numpy.array([0.24418789, 0.10050128, 0.0, 0.40875684, 0.53606013, 0.0]),
     'QFactor': numpy.array([0.49851558, 0.73195453, 0.7000174, 0.0933503, 0.63582723, 0.26120629]),
     'data': {
@@ -22,7 +22,7 @@ data = {
     }
 }
 
-accept = {
+ACCEPTED = {
     'BinN': numpy.array([0.0, 0.80065876, 0.39763468, 0.17696008, 0.0, 0.71206781]),
     'QFactor': numpy.array([0.81609241, 0.94909706, 0.90525941, 0.90906724, 0.28092015, 0.5138446]),
     'data': {
@@ -30,18 +30,16 @@ accept = {
     }
 }
 
+SEND_TO, RECEIVE_FROM = process_communication.ProcessPipes.return_pipes(2)
+
 
 def test_rejection_acceptance_method_value():
-
     expected = numpy.array([0.87104099, 0.65580649, 2.54315913, 3.62430913, 4.3409056, 5.02029565])
-
-    send_to, receive_from = process_communication.ProcessPipes.return_pipes(1)
-
-    process = process_calculation.RejectionAcceptanceAmplitude(the_function, the_setup, data["data"],
-                                                               {"A1": 5.341}, send_to[0], 0)
+    process = process_calculation.RejectionAcceptanceAmplitude(process_function, setup, DATA["data"],
+                                                               {"A1": 5.341}, SEND_TO[0], 0)
 
     process.start()
-    received = receive_from[0].recv()
+    received = RECEIVE_FROM[0].recv()
 
     numpy.testing.assert_array_almost_equal(received[1], expected)
     assert received[0] == 0
@@ -50,40 +48,36 @@ def test_rejection_acceptance_method_value():
 def test_extended_binned_likelihood():
     processed = 1/200
 
-    processed_data = the_function(data["data"], {"A1": 5.341})
-    processed_accepted = the_function(accept["data"], {"A1": 5.341})
+    processed_data = process_function(DATA["data"], {"A1": 5.341})
+    processed_accepted = process_function(ACCEPTED["data"], {"A1": 5.341})
 
-    expected = -(numpy.sum(data["QFactor"] * data["BinN"] * numpy.log(processed_data))) + \
-                (processed * numpy.sum(accept["BinN"] * processed_accepted))
+    expected = -(numpy.sum(DATA["QFactor"] * DATA["BinN"] * numpy.log(processed_data))) + \
+                (processed * numpy.sum(ACCEPTED["BinN"] * processed_accepted))
 
-    send_to, receive_from = process_communication.ProcessPipes.return_pipes(2)
-
-    process = process_calculation.ExtendedLikelihoodAmplitude(the_function, the_setup, processed, data, accept,
-                                                              send_to[0], receive_from[1])
+    process = process_calculation.ExtendedLikelihoodAmplitude(process_function, setup, processed, DATA, ACCEPTED,
+                                                              SEND_TO[0], RECEIVE_FROM[1])
     process.start()
 
-    send_to[1].send({"A1": 5.341})
+    SEND_TO[1].send({"A1": 5.341})
 
-    value = receive_from[0].recv()
+    value = RECEIVE_FROM[0].recv()
 
-    send_to[1].send("DIE")
+    SEND_TO[1].send("DIE")  # I <3 telling processes to die
 
     numpy.testing.assert_almost_equal(value, expected)
 
 
 def test_unextended_binned_value():
-    processed_data = the_function(data["data"], {"A1": 5.341})
-    expected = -(numpy.sum(data["QFactor"] * data["BinN"] * numpy.log(processed_data)))
+    processed_data = process_function(DATA["data"], {"A1": 5.341})
+    expected = -(numpy.sum(DATA["QFactor"] * DATA["BinN"] * numpy.log(processed_data)))
 
-    send_to, receive_from = process_communication.ProcessPipes.return_pipes(2)
-
-    process = process_calculation.UnextendedLikelihoodAmplitude(the_function, the_setup, data, send_to[0],
-                                                                receive_from[1])
+    process = process_calculation.UnextendedLikelihoodAmplitude(process_function, setup, DATA, SEND_TO[0],
+                                                                RECEIVE_FROM[1])
     process.start()
 
-    send_to[1].send({"A1": 5.341})
-    value = receive_from[0].recv()
-    send_to[1].send("DIE")
+    SEND_TO[1].send({"A1": 5.341})
+    value = RECEIVE_FROM[0].recv()
+    SEND_TO[1].send("DIE")
 
     numpy.testing.assert_almost_equal(value, expected)
 
@@ -95,8 +89,6 @@ def test_abstract_calls():
     with pytest.raises(NotImplementedError):
         abstract_one.processing()
 
-    send_to, receive_from = process_communication.ProcessPipes.return_pipes(2)
-
-    abstract_two = process_calculation.AbstractLikelihoodAmplitude(the_setup, send_to[0], receive_from[1])
+    abstract_two = process_calculation.AbstractLikelihoodAmplitude(setup, SEND_TO[0], RECEIVE_FROM[1])
     with pytest.raises(NotImplementedError):
         abstract_two.likelihood({"A1": 5.341})

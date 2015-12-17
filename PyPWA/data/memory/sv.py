@@ -14,7 +14,7 @@ class SvParser(object):
         with open(file_location, "rt") as stream:
             sv = csv.reader(stream, delimiter=self.delimiter)
 
-            elements = sv.next()
+            elements = next(sv)
             parsed = {}
             for element in elements:
                 parsed[element] = numpy.zeros(shape=line_count, dtype="float64")
@@ -26,10 +26,4 @@ class SvParser(object):
         return parsed
 
     def writer(self, file_location, data):
-
-        if self.delimiter == "\t":
-            lect = "excel-tab"
-        else:
-            lect = "excel"
-
-        raise NotImplementedError("Writing of Variable Seperated Values is unsupported at this time")
+        raise NotImplementedError("Writing of Variable Separated Values is unsupported at this time")

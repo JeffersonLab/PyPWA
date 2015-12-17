@@ -32,6 +32,8 @@ setup(
         "pyyaml<4",
         "tabulate"
     ],
+    setup_requires=['pytest-runner', 'pytest-cov'],
+    tests_require=['pytest'],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
