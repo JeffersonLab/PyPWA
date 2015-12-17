@@ -14,7 +14,7 @@ class SvParser(object):
         with open(file_location, "rt") as stream:
             sv = csv.reader(stream, delimiter=self.delimiter)
 
-            elements = sv.next()
+            elements = next(sv)
             parsed = {}
             for element in elements:
                 parsed[element] = numpy.zeros(shape=line_count, dtype="float64")
