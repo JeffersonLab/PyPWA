@@ -1,18 +1,15 @@
-from abc import ABCMeta, abstractmethod
 import fileinput
 import numpy
 
 
-class KvInterface:
-    __metaclass__ = ABCMeta
+class KvInterface(object):
 
-    @abstractmethod
-    def parse(cls, file_location):
-        pass
+    def parse(self, file_location):
+        raise NotImplementedError("Class %s doesn't implement parse()" % self.__class__.__name__ )
 
-    @abstractmethod
+    @staticmethod
     def write(file_location, data):
-        pass
+        raise NotImplementedError("Object doesn't implement write()")
 
     @staticmethod
     def file_length(file_location):
@@ -58,7 +55,7 @@ class DictOfArrays(KvInterface):
             data (dict): dict of numpy arrays
         """
 
-        kvars = data.keys()
+        kvars = list(data)
 
         with open(file_location, "w") as stream:
             for event in range(len(data[kvars[0]])):
@@ -95,11 +92,11 @@ class ListOfFloats(KvInterface):
         """Writes Arrays to disk as floats
         Args:
             file_location (str): Path to file
-            data (numpy.ndaray): Data to be written to disk
+            data (numpy.ndarray): Data to be written to disk
         """
         with open(file_location, "w") as stream:
             for event in data:
-                stream.write(str(data) + "\n")
+                stream.write(str(event) + "\n")
 
 
 class ListOfBooleans(KvInterface):
@@ -118,7 +115,7 @@ class ListOfBooleans(KvInterface):
         weights = numpy.zeros(shape=file_length, dtype=bool)
 
         for index, weight in enumerate(fileinput.input(file_location)):
-            weights[index] = weight
+            weights[index] = int(weight)
 
         return weights
 

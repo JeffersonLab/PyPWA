@@ -9,7 +9,12 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import  os, sys, argparse, PyPWA.data.file_manager, PyPWA.core.console_main
+import os
+import sys
+import argparse
+import PyPWA.data.file_manager
+import PyPWA.core.console_main
+
 
 def start_console(desc):
     """Entry point for GeneralFitting"""
@@ -29,7 +34,7 @@ def start_data(configuration):
     the_config = the_data.parse(configuration)
     cwd = os.getcwd()
     sys.stderr.write("\x1b[2J\x1b[H")
-    return [ cwd, the_config ]
+    return [cwd, the_config]
 
 
 def start_console_general_fitting():
@@ -42,7 +47,7 @@ def start_console_general_fitting():
         with open(os.getcwd() + "/Example.py", "w") as stream:
             stream.write(config.example_function())
     else:
-        cwd, the_config = start_data()
+        cwd, the_config = start_data(args.configuration)
 
         fitting = PyPWA.core.console_main.Fitting(the_config, cwd)
         fitting.start()

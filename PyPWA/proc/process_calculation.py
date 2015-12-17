@@ -9,9 +9,9 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-from abc import ABCMeta, abstractmethod
 import multiprocessing
 import numpy
+import warnings
 
 
 class AbstractProcess(multiprocessing.Process):
@@ -20,7 +20,6 @@ class AbstractProcess(multiprocessing.Process):
         _looping  Defines if if to continue _looping, is set to true
         daemon   If process is bool, is set to true.
     """
-    __metaclass__ = ABCMeta
 
     _looping = True
     daemon = True
@@ -38,15 +37,13 @@ class AbstractProcess(multiprocessing.Process):
                 return 0
         return 0
 
-    @abstractmethod
     def setup(self):
         """Initial setup for processes"""
-        pass
+        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
 
-    @abstractmethod
     def processing(self):
         """Actual function for processing"""
-        pass
+        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
 
 
 class RejectionAcceptanceAmplitude(AbstractProcess):
@@ -68,19 +65,54 @@ class RejectionAcceptanceAmplitude(AbstractProcess):
         self._parameters = parameters
         self._send = send
         self._id = the_id
+        warnings.warn("RejectionAcceptanceAmplitude is being depreciated, use LoopingIntensity instead",
+                      DeprecationWarning)
 
     def setup(self):
         """Runs the setup function"""
         self._setup_function()
 
-    def _pipe_send(self, data):
-        """Sends the data back to the main thread"""
-        self._send.send(data)
-
     def processing(self):
         """Processes data"""
-        self._pipe_send([self._id, self._amplitude_function(self._data, self._parameters)])
+        self._send.send([self._id, self._amplitude_function(self._data, self._parameters)])
         self._looping = False
+
+
+class LoopingIntensity(AbstractProcess):
+
+    def __init__(self, amplitude_function, setup_function, data, send, receive, the_id=None):
+        super(LoopingIntensity).__init__()
+        self.amplitude = amplitude_function
+        self.setup_function = setup_function
+        self.data = data
+        self.send = send
+        self.receive = receive
+        if isinstance(the_id, int):
+            self.the_id = the_id
+            self.tracked = True
+        else:
+            self.tracked = False
+
+    def _pipe_send(self, data):
+        self.send.send(data)
+
+    def _pipe_recv(self):
+        return self.receive.recv()
+
+    def setup(self):
+        self.setup_function()
+
+    def processing(self):
+        received = self._pipe_recv()
+        if received == "DIE":
+            self._looping = False
+        else:
+            intensity = self.amplitude(self.data, received)
+            if self.tracked:
+                values = [self.the_id, intensity]
+            else:
+                values = intensity
+            self._pipe_send(values)
 
 
 class AbstractLikelihoodAmplitude(AbstractProcess):
@@ -101,26 +133,17 @@ class AbstractLikelihoodAmplitude(AbstractProcess):
         """Runs the setup function"""
         self._setup_function()
 
-    def _pipe_send(self, data):
-        """Handles sending data over pipe"""
-        self._send.send(data)
-
-    def _pipe_receive(self):
-        """Handles receiving data from pipe"""
-        return self._receive.recv()
-
     def processing(self):
         """Processes the data"""
-        parameters = self._pipe_receive()
+        parameters = self._receive.recv()
         if parameters == "DIE":
             self._looping = False
         else:
             result = self.likelihood(parameters)
-            self._pipe_send(result)
+            self._send.send(result)
 
-    @abstractmethod
     def likelihood(self, parameters):
-        pass
+        raise NotImplementedError("Class %s doesn't implement aMethod()" % self.__class__.__name__)
 
 
 class ExtendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
@@ -150,7 +173,7 @@ class ExtendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         processed_data = self._amplitude_function(self._data["data"], parameters)
         processed_accepted = self._amplitude_function(self._accepted["data"], parameters)
         return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data))) + \
-                (self._processed * self._accepted["BinN"] * numpy.sum(processed_accepted))
+                (self._processed * numpy.sum(self._accepted["BinN"] * processed_accepted))
 
 
 class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
@@ -174,4 +197,31 @@ class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
             parameters (dict): dictionary of the arguments to be sent to the function
         """
         processed_data = self._amplitude_function(self._data["data"], parameters)
-        return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data)))
+        value = numpy.float64(0.0)
+
+        for index in range(len(processed_data)):
+            if self._data["BinN"][index] == 0:
+                pass
+            else:
+                value += (numpy.sum(self._data["QFactor"][index] * self._data["BinN"][index] *
+                                    numpy.log(processed_data[index])))
+
+        return -value
+
+
+class ChiSquared(AbstractLikelihoodAmplitude):
+
+    def __init__(self, amplitude_function, setup_function, data, send, receive):
+        super(ChiSquared, self).__init__(setup_function, send, receive)
+        self._amplitude_function = amplitude_function
+        self._data = data
+
+    def likelihood(self, parameters):
+        processed_data = self._amplitude_function(self._data["data"], parameters)
+        chi = numpy.float64(0.0)
+        for index in range(len(processed_data)):
+            if self._data["BinN"][index] == 0:
+                pass
+            else:
+                chi += ((processed_data[index] - self._data["BinN"][index])**2) / self._data["BinN"][index]
+        return chi

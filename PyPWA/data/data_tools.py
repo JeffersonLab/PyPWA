@@ -114,20 +114,20 @@ class DataTypes(object):
     def type(self, data):
         if isinstance(data, numpy.ndarray):
             return self._arrays(data)
-        elif isinstance(data):
+        elif isinstance(data, dict):
             return self._dicts(data)
 
     @staticmethod
     def _dicts(data):
-        keys = data.keys()
-        if isinstance(data[keys[0]], numpy.ndarray):
-            return "dictofarrays"
-        else:
-            return "dictofdicts"
+
+        for key in data:
+            if isinstance(data[key], dict):
+                return "dictofdicts"
+        return "dictofarrays"
 
     @staticmethod
     def _arrays(data):
-        if isinstance(data[0], numpy.bool):
+        if isinstance(data[0], numpy.bool_):
             return "listofbools"
         else:
             return "listoffloats"
