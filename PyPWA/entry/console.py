@@ -21,7 +21,7 @@ def start_console(desc):
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument("configuration", type=str, default="", nargs="?")
     parser.add_argument("--WriteConfig", "-wc", action="store_true", help="Write an example configuration to the current working directory" )
-    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b0)")
+    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b1)")
     args = parser.parse_args()
     if args.WriteConfig == False and args.configuration == '':
         parser.print_help()
@@ -58,9 +58,9 @@ def start_console_general_simulator():
     parser = argparse.ArgumentParser(description="Simulation Using the Acceptance Rejection Method")
     parser.add_argument("configuration", type=str, default="", nargs="?")
     parser.add_argument("--WriteConfig", "-wc", action="store_true", help="Write an example configuration to the current working directory" )
-    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b0)")
+    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b1)")
     args = parser.parse_args()
-    if args.WriteConfig == False and args.configuration == '':
+    if args.WriteConfig is False and args.configuration == '':
         parser.print_help()
     else:
         if args.WriteConfig:
@@ -84,9 +84,9 @@ def start_console_general_intensities():
     parser = argparse.ArgumentParser(description="Generate Intensities")
     parser.add_argument("configuration", type=str, default="", nargs="?")
     parser.add_argument("--WriteConfig", "-wc", action="store_true", help="Write an example configuration to the current working directory" )
-    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b0)")
+    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b1)")
     args = parser.parse_args()
-    if args.WriteConfig == False and args.configuration == '':
+    if args.WriteConfig is False and args.configuration == '':
         parser.print_help()
     else:
         if args.WriteConfig:
@@ -110,9 +110,9 @@ def start_console_general_weighting():
     parser = argparse.ArgumentParser(description="Generate Weights")
     parser.add_argument("configuration", type=str, default="", nargs="?")
     parser.add_argument("--WriteConfig", "-wc", action="store_true", help="Write an example configuration to the current working directory" )
-    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b0)")
+    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b1)")
     args = parser.parse_args()
-    if args.WriteConfig == False and args.configuration == '':
+    if args.WriteConfig is False and args.configuration == '':
         parser.print_help()
     else:
         if args.WriteConfig:
@@ -129,4 +129,28 @@ def start_console_general_weighting():
             simulating.start()
 
 
-#I hate this file
+def start_console_general_chisquared():
+    """Entry point for GenerateWeights"""
+    parser = argparse.ArgumentParser(description="Generate Weights")
+    parser.add_argument("configuration", type=str, default="", nargs="?")
+    parser.add_argument("--WriteConfig", "-wc", action="store_true", help="Write an example configuration to the current working directory" )
+    parser.add_argument("--Version", "-V", action="version", version="%(prog)s (version 2.0.0b1)")
+    args = parser.parse_args()
+    if args.WriteConfig is False and args.configuration == '':
+        parser.print_help()
+    else:
+        if args.WriteConfig:
+            config = PyPWA.core.console_main.Configurations()
+            with open(os.getcwd() + "/Example.yml", "w") as stream:
+                stream.write(config.chi_config())
+        else:
+            the_data = PyPWA.data.file_manager.MemoryInterface()
+            the_config = the_data.parse(args.configuration)
+            cwd = os.getcwd()
+            sys.stderr.write("\x1b[2J\x1b[H")
+
+            simulating = PyPWA.core.console_main.Chi(the_config, cwd)
+            simulating.start()
+
+
+# I hate this file

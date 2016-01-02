@@ -9,6 +9,7 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
+from abc import abstractmethod, ABCMeta
 import random
 import time
 from abc import ABCMeta
@@ -18,7 +19,7 @@ import numpy
 from PyPWA.proc import calculation_tools, process_calculation, process_communication
 
 
-class AbstractFitting:
+class AbstractFitting(object):
     __metaclass__ = ABCMeta
 
     """Object that handles the Maximum-Likelihood Estimation
@@ -162,6 +163,39 @@ class MaximumLogLikelihoodUnextendedEstimation(AbstractFitting):
                 processes.append(
                     process_calculation.UnextendedLikelihoodAmplitude(amplitude_function, setup_function, data[count],
                                                                       pipe[0], pipe[1])
+                )
+
+        for process in processes:
+            process.start()
+
+
+class ChiSquaredTest(AbstractFitting):
+    """Object that handles the Maximum-Likelihood Estimation
+
+    All arguments are in the order of their use inside the init method.
+
+    Args:
+        num_threads (int): Number of processes to use.
+        parameter_names (list): Parameters to use in calculation
+        data (dict): Dictionary of arrays with data events
+        amplitude_function (function): Function that calculates amplitude
+        setup_function (function): Function that runs before any calculation
+    """
+
+    def __init__(self, num_threads, parameter_names, data, amplitude_function, setup_function):
+        super(ChiSquaredTest, self).__init__(num_threads, parameter_names)
+        split_data = self._data_setup(data)
+
+        self._thread_setup(amplitude_function, setup_function, split_data, self.send_to_main, self.receive_from_main)
+
+    @staticmethod
+    def _thread_setup(amplitude_function, setup_function, data, send_to_main, receive_from_main):
+
+        processes = []
+
+        for count, pipe in enumerate(zip(send_to_main, receive_from_main)):
+                processes.append(
+                    process_calculation.ChiSquared(amplitude_function, setup_function, data[count], pipe[0], pipe[1])
                 )
 
         for process in processes:
