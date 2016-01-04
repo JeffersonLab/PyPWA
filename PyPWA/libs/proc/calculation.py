@@ -9,14 +9,13 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-from abc import abstractmethod, ABCMeta
 import random
 import time
-from abc import ABCMeta
 
 import numpy
+from abc import ABCMeta
 
-from PyPWA.proc import calculation_tools, process_calculation, process_communication
+from PyPWA.libs.proc import calculation_tools, process_calculation, process_communication
 
 
 class AbstractFitting(object):

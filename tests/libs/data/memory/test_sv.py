@@ -1,6 +1,7 @@
-import pytest
-import PyPWA.data.memory.sv as sv
 import os
+import pytest
+
+import PyPWA.libs.data.memory.sv as sv
 
 TEST_SV = os.path.join(os.path.dirname(__file__), "test_docs/sv_test_data.csv")
 CSV_HANDLER = sv.SvParser(",")

@@ -1,6 +1,7 @@
-import pytest
 import numpy
-from PyPWA.proc import process_calculation, process_communication
+import pytest
+
+from PyPWA.libs.proc import process_calculation, process_communication
 
 
 def process_function(the_array, the_params):

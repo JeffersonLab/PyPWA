@@ -9,10 +9,11 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import PyPWA.data.data_tools as data_tools
-from PyPWA.data.memory import sv, kv
 import os
 import yaml
+
+import PyPWA.libs.data.data_tools as data_tools
+from PyPWA.libs.data.memory import sv, kv
 
 
 class DataInterface(object):

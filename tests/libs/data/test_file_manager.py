@@ -1,6 +1,7 @@
-import PyPWA.data.file_manager as file_manager
-import os
 import numpy
+import os
+
+import PyPWA.libs.data.file_manager as file_manager
 
 MANAGER = file_manager.MemoryInterface()
 

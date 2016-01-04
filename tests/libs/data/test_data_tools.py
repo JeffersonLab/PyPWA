@@ -1,6 +1,7 @@
-import PyPWA.data.data_tools as data_tools
 import numpy
 import os
+
+import PyPWA.libs.data.data_tools as data_tools
 
 DATA_TYPE_FILE = os.path.join(os.path.dirname(__file__), "memory/test_docs/kv_test_data.txt")
 

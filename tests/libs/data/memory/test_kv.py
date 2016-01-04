@@ -1,7 +1,8 @@
+import numpy
 import os
 import pytest
-import PyPWA.data.memory.kv
-import numpy
+
+import PyPWA.libs.data.memory.kv
 
 TEST_KV_DICT_FILE = os.path.join(os.path.dirname(__file__), "test_docs/kv_test_data.txt")
 TEST_KV_DICT_FILE_2 = os.path.join(os.path.dirname(__file__), "test_docs/kv_test_data2.txt")
@@ -11,7 +12,7 @@ TEST_KV_BOOL_FILE = os.path.join(os.path.dirname(__file__), "test_docs/kv_test_b
 
 
 def test_read_dict_of_arrays():
-    kv_loader = PyPWA.data.memory.kv.DictOfArrays()
+    kv_loader = PyPWA.libs.data.memory.kv.DictOfArrays()
 
     data = kv_loader.parse(TEST_KV_DICT_FILE)
 
@@ -23,7 +24,7 @@ def test_read_dict_of_arrays():
 def test_dict_of_arrays_write_and_read():
     dictionary = {"something": numpy.random.rand(10), "else": numpy.random.rand(10)}
 
-    kv_loader = PyPWA.data.memory.kv.DictOfArrays()
+    kv_loader = PyPWA.libs.data.memory.kv.DictOfArrays()
 
     kv_loader.write(TEST_KV_DICT_FILE_2, dictionary)
 
@@ -36,7 +37,7 @@ def test_dict_of_arrays_write_and_read():
 
 def test_list_of_floats():
     data = numpy.random.rand(50)
-    kv_loader = PyPWA.data.memory.kv.ListOfFloats()
+    kv_loader = PyPWA.libs.data.memory.kv.ListOfFloats()
     kv_loader.write(TEST_KV_FLOAT_FILE, data)
     loaded = kv_loader.parse(TEST_KV_FLOAT_FILE)
 
@@ -47,7 +48,7 @@ def test_list_of_floats():
 
 def test_list_of_booleans():
     data = numpy.random.choice([True, False], 50)
-    kv_loader = PyPWA.data.memory.kv.ListOfBooleans()
+    kv_loader = PyPWA.libs.data.memory.kv.ListOfBooleans()
     kv_loader.write(TEST_KV_BOOL_FILE, data)
     loaded = kv_loader.parse(TEST_KV_BOOL_FILE)
 
@@ -57,10 +58,10 @@ def test_list_of_booleans():
 
 
 def test_abstract_methods():
-    abstract = PyPWA.data.memory.kv.KvInterface()
+    abstract = PyPWA.libs.data.memory.kv.KvInterface()
     with pytest.raises(NotImplementedError):
         abstract.parse(TEST_KV_DICT_FILE)
     with pytest.raises(NotImplementedError):
         abstract.write(TEST_KV_DICT_FILE_2, {"something": 1})
     with pytest.raises(NotImplementedError):
-        PyPWA.data.memory.kv.KvInterface.write(TEST_KV_DICT_FILE_2, {"something": 1})
+        PyPWA.libs.data.memory.kv.KvInterface.write(TEST_KV_DICT_FILE_2, {"something": 1})

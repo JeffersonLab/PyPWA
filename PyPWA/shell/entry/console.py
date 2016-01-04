@@ -9,11 +9,13 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import os
-import sys
 import argparse
-import PyPWA.data.file_manager
-import PyPWA.core.console_main
+import sys
+
+import os
+
+import PyPWA.libs.data.file_manager
+import PyPWA.shell.core.console_main
 
 
 def start_console(desc):
@@ -30,7 +32,7 @@ def start_console(desc):
 
 
 def start_data(configuration):
-    the_data = PyPWA.data.file_manager.MemoryInterface()
+    the_data = PyPWA.libs.data.file_manager.MemoryInterface()
     the_config = the_data.parse(configuration)
     cwd = os.getcwd()
     sys.stderr.write("\x1b[2J\x1b[H")
@@ -41,7 +43,7 @@ def start_console_general_fitting():
     args = start_console("Fitting using the Maximum-Likelihood ")
 
     if args.WriteConfig:
-        config = PyPWA.core.console_main.Configurations()
+        config = PyPWA.shell.core.console_main.Configurations()
         with open(os.getcwd() + "/Example.yml", "w") as stream:
             stream.write(config.fitting_config())
         with open(os.getcwd() + "/Example.py", "w") as stream:
@@ -49,7 +51,7 @@ def start_console_general_fitting():
     else:
         cwd, the_config = start_data(args.configuration)
 
-        fitting = PyPWA.core.console_main.Fitting(the_config, cwd)
+        fitting = PyPWA.shell.core.console_main.Fitting(the_config, cwd)
         fitting.start()
 
 
@@ -64,18 +66,18 @@ def start_console_general_simulator():
         parser.print_help()
     else:
         if args.WriteConfig:
-            config = PyPWA.core.console_main.Configurations()
+            config = PyPWA.shell.core.console_main.Configurations()
             with open(os.getcwd() + "/Example.yml", "w") as stream:
                 stream.write(config.simulator_config())
             with open(os.getcwd() + "/Example.py", "w") as stream:
                 stream.write(config.example_function())
         else:
-            the_data = PyPWA.data.file_manager.MemoryInterface()
+            the_data = PyPWA.libs.data.file_manager.MemoryInterface()
             the_config = the_data.parse(args.configuration)
             cwd = os.getcwd()
             sys.stderr.write("\x1b[2J\x1b[H")
 
-            simulating = PyPWA.core.console_main.Simulator(the_config, cwd)
+            simulating = PyPWA.shell.core.console_main.Simulator(the_config, cwd)
             simulating.start()
 
 
@@ -90,18 +92,18 @@ def start_console_general_intensities():
         parser.print_help()
     else:
         if args.WriteConfig:
-            config = PyPWA.core.console_main.Configurations()
+            config = PyPWA.shell.core.console_main.Configurations()
             with open(os.getcwd() + "/Example.yml", "w") as stream:
                 stream.write(config.intensities_config())
             with open(os.getcwd() + "/Example.py", "w") as stream:
                 stream.write(config.example_function())
         else:
-            the_data = PyPWA.data.file_manager.MemoryInterface()
+            the_data = PyPWA.libs.data.file_manager.MemoryInterface()
             the_config = the_data.parse(args.configuration)
             cwd = os.getcwd()
             sys.stderr.write("\x1b[2J\x1b[H")
 
-            simulating = PyPWA.core.console_main.Intensities(the_config, cwd)
+            simulating = PyPWA.shell.core.console_main.Intensities(the_config, cwd)
             simulating.start()
 
 
@@ -116,16 +118,16 @@ def start_console_general_weighting():
         parser.print_help()
     else:
         if args.WriteConfig:
-            config = PyPWA.core.console_main.Configurations()
+            config = PyPWA.shell.core.console_main.Configurations()
             with open(os.getcwd() + "/Example.yml", "w") as stream:
                 stream.write(config.simulator_config())
         else:
-            the_data = PyPWA.data.file_manager.MemoryInterface()
+            the_data = PyPWA.libs.data.file_manager.MemoryInterface()
             the_config = the_data.parse(args.configuration)
             cwd = os.getcwd()
             sys.stderr.write("\x1b[2J\x1b[H")
 
-            simulating = PyPWA.core.console_main.Weights(the_config, cwd)
+            simulating = PyPWA.shell.core.console_main.Weights(the_config, cwd)
             simulating.start()
 
 
@@ -140,16 +142,16 @@ def start_console_general_chisquared():
         parser.print_help()
     else:
         if args.WriteConfig:
-            config = PyPWA.core.console_main.Configurations()
+            config = PyPWA.shell.core.console_main.Configurations()
             with open(os.getcwd() + "/Example.yml", "w") as stream:
                 stream.write(config.chi_config())
         else:
-            the_data = PyPWA.data.file_manager.MemoryInterface()
+            the_data = PyPWA.libs.data.file_manager.MemoryInterface()
             the_config = the_data.parse(args.configuration)
             cwd = os.getcwd()
             sys.stderr.write("\x1b[2J\x1b[H")
 
-            simulating = PyPWA.core.console_main.Chi(the_config, cwd)
+            simulating = PyPWA.shell.core.console_main.Chi(the_config, cwd)
             simulating.start()
 
 

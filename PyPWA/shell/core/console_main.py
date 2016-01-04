@@ -10,14 +10,14 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import os
-import warnings
-
 import numpy
+import os
 import tabulate
+import warnings
+from PyPWA.proc import calculation_tools
 
-import PyPWA.data.file_manager
-from PyPWA.proc import calculation_tools, calculation
+import PyPWA.libs.data.file_manager
+from PyPWA.libs.proc import calculation
 
 
 class Fitting(object):
@@ -59,7 +59,7 @@ class Fitting(object):
         """Starts fitting process"""
 
         print("Parsing files into memory.\n")
-        parse = PyPWA.data.file_manager.MemoryInterface()
+        parse = PyPWA.libs.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
 
         if not isinstance(self.accepted_location, type(None)):
@@ -201,7 +201,7 @@ class Chi(object):
         """Starts fitting process"""
 
         print("Parsing files into memory.\n")
-        parse = PyPWA.data.file_manager.MemoryInterface()
+        parse = PyPWA.libs.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
 
         if not isinstance(self.accepted_location, type(None)):
@@ -311,7 +311,7 @@ class Simulator(object):
         """Starts Rejection"""
 
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.file_manager.MemoryInterface(True)
+        data_manager = PyPWA.libs.data.file_manager.MemoryInterface(True)
         data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
@@ -348,7 +348,7 @@ class Intensities(object):
 
     def start(self):
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.file_manager.MemoryInterface(True)
+        data_manager = PyPWA.libs.data.file_manager.MemoryInterface(True)
         data = data_manager.parse(self.data_location)
 
         print("Loading users functions.\n")
@@ -376,7 +376,7 @@ class Weights(object):
 
     def start(self):
         print("Parsing data into memory.\n")
-        data_manager = PyPWA.data.file_manager.MemoryInterface(True)
+        data_manager = PyPWA.libs.data.file_manager.MemoryInterface(True)
         data = data_manager.parse(self.intensities_location) 
 
         print("Running Acceptance Rejection")
