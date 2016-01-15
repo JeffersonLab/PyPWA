@@ -8,24 +8,74 @@ __version__ = "2.0.0"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
-from PyPWA.libs.wrappers import start_builder
+from PyPWA.libs.wrappers import StartBuilder
 
 
-@start_builder
-def likelihood_fitting():
-    pass
+@StartBuilder()
+def likelihood_fitting(*args):
+    description = u"""Amplitude Fitting using the Likelihood Estimation Method."""
+    configuration = {
+        "Description": description,
+        "Calculation": example.example,
+        "Configuration": example.example,
+        "Python File": example.example,
+        "AdvancedHelp": False,
+        "Extras": args
+    }
+    return configuration
 
 
-@start_builder
-def simulator():
-    pass
+@StartBuilder()
+def simulator(*args):
+    description = u"""Simulation using the the Acceptance Reject Method"""
+    configuration = {
+        "Description": description,
+        "Calculation": example.example,
+        "Configuration": example.example,
+        "Python File": example.example,
+        "AdvancedHelp": False,
+        "Extras": args
+    }
+    return configuration
 
 
-@start_builder
-def intensities():
-    pass
+@StartBuilder()
+def intensities(*args):
+    description = u"""Generates the Intensities for Rejection Method"""
+    configuration = {
+        "Description": description,
+        "Calculation": example.example,
+        "Configuration": example.example,
+        "Python File": example.example,
+        "AdvancedHelp": False,
+        "Extras": args
+    }
+    return configuration
 
 
-@start_builder
-def chi_squared():
-    pass
+@StartBuilder()
+def rejection_method(*args):
+    description = u"""Takes generated intensities to run through the Rejection Method"""
+    configuration = {
+        "Description": description,
+        "Calculation": example.example,
+        "Configuration": example.example,
+        "Python File": example.example,
+        "AdvancedHelp": False,
+        "Extras": args
+    }
+    return configuration
+
+
+@StartBuilder()
+def chi_squared(*args):
+    description = u"""Amplitude Fitting using the ChiSquared Method"""
+    configuration = {
+        "Description": description,
+        "Calculation": example.example,
+        "Configuration": example.example,
+        "Python File": example.example,
+        "AdvancedHelp": False,
+        "Extras": args
+    }
+    return configuration
