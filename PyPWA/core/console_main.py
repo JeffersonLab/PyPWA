@@ -202,11 +202,7 @@ class Chi(object):
         parse = PyPWA.data.file_manager.MemoryInterface()
         data = parse.parse(self.data_location)
 
-        if not isinstance(self.accepted_location, type(None)):
-            accepted = parse.parse(self.accepted_location)
-
         new_data = {}
-        new_accepted = {}
 
         if not isinstance(self.QFactor_location, type(None)):
             if "QFactor" in data and os.path.isfile(self.QFactor_location):
