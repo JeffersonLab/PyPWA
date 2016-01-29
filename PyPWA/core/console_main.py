@@ -108,18 +108,17 @@ class Fitting(object):
         amplitude_function = functions.return_amplitude
         setup_function = functions.return_setup
 
-        if self.likelihood == "likelihood":
-            if isinstance(self.accepted_location, type(None)):
-                calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
-                                                                            amplitude_function, setup_function)
-            else:
-                calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
-                                                                          new_accepted, self.generated_length,
-                                                                          amplitude_function, setup_function)
 
-        elif self.likelihood == "chisquared":
-            calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
-                                              setup_function)
+        if isinstance(self.accepted_location, type(None)):
+            calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                        amplitude_function, setup_function)
+        else:
+            calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                      new_accepted, self.generated_length,
+                                                                      amplitude_function, setup_function)
+
+        calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
+                                          setup_function)
 
         minimization = calculation_tools.Minimizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                    self.set_up, self.ncall)
@@ -175,10 +174,9 @@ class Chi(object):
     """
 
     def __init__(self, config, cwd):
-        self.generated_length = config["Likelihood Information"]["Generated Length"]
-        self.function_location = config["Likelihood Information"]["Function's Location"]
-        self.amplitude_name = config["Likelihood Information"]["Processing Name"]
-        self.setup_name = config["Likelihood Information"]["Setup Name"]
+        self.function_location = config["ChiSquared Information"]["Function's Location"]
+        self.amplitude_name = config["ChiSquared Information"]["Processing Name"]
+        self.setup_name = config["ChiSquared Information"]["Setup Name"]
 
         self.data_location = config["Data Information"]["Data Location"]
 
@@ -225,11 +223,8 @@ class Chi(object):
             warnings.warn("QFactor data not found! Continuing on without QFactor.")
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
-        if "BinN" in data:
-            new_data["BinN"] = data["BinN"]
-            data.pop("BinN")
-        else:
-            new_data["BinN"] = numpy.ones(shape=len(data[data.keys()[0]]))
+        new_data["BinN"] = data["BinN"]
+        data.pop("BinN")
 
         new_data["data"] = data
 
