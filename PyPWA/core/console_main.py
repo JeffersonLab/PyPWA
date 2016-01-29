@@ -489,7 +489,7 @@ Save Location: /home/user/foobar/weights.txt #The location of where to save the 
 import numpy
 
 def the_function(the_array, the_params): #You can change both the variable names and function name
-    the_size = len(the_array[list(the_array)[0]) #You can change the variable name here, or set the length of values by hand
+    the_size = len(the_array[list(the_array)[0]]) #You can change the variable name here, or set the length of values by hand
     values = numpy.zeros(shape=the_size)
     for event in range(the_size):
         #Here is where you define your function.
