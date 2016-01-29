@@ -18,6 +18,27 @@ from abc import ABCMeta
 from PyPWA.libs.proc import calculation_tools, process_calculation, process_communication
 
 
+class SimplexCommunication(object):
+    def __init__(self):
+        self.something = "I do things"
+
+    def run(self):
+        return self.something
+
+
+class DuplexCommunication(object):
+    def __init__(self):
+        self.something = "I do more things"
+
+    def run(self):
+        return self.something
+
+
+class CalculationBuilder(object):
+    def __init__(self, duplex):
+        self.duplex = duplex
+
+
 class AbstractFitting(object):
     __metaclass__ = ABCMeta
 
