@@ -228,7 +228,6 @@ class Chi(object):
 
         new_data["data"] = data
 
-        new_accepted["data"] = accepted
 
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
