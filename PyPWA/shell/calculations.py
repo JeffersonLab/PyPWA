@@ -35,10 +35,10 @@ class UnextendedLikelihoodAmplitude(object):
 class Chi(object):
     def likelihood(self, parameters):
         processed_data = self._amplitude_function(self._data["data"], parameters)
-        chi = numpy.float64(0.0)
+        χ = numpy.float64(0.0)
         for index in range(len(processed_data)):
             if self._data["BinN"][index] == 0:
                 pass
             else:
-                chi += ((processed_data[index] - self._data["BinN"][index])**2) / self._data["BinN"][index]
-        return chi
+                χ += ((processed_data[index] - self._data["BinN"][index])**2) / self._data["BinN"][index]
+        return χ
