@@ -14,11 +14,11 @@ import numpy
 import warnings
 
 
-class LoopingProcess(multiprocessing.Process):
+class DuplexProcess(multiprocessing.Process):
     daemon = True
 
     def __init__(self, kernel, communication):
-        super(LoopingProcess, self).__init__()
+        super(DuplexProcess, self).__init__()
         self.kernel = kernel
         self.communication = communication
 
@@ -33,11 +33,11 @@ class LoopingProcess(multiprocessing.Process):
         return 0
 
 
-class SingleProcess(multiprocessing.Process):
+class SimplexProcess(multiprocessing.Process):
     daemon = True
 
     def __init__(self, single_kernel, communication):
-        super(SingleProcess, self).__init__()
+        super(SimplexProcess, self).__init__()
         self.kernel = single_kernel
         self.communication = communication
 
