@@ -9,8 +9,8 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import PyPWA.libs.data.cache
 import PyPWA.libs.data.data_tools
+import PyPWA.libs.data.memory.cache
 import PyPWA.libs.data.memory_wrapper
 
 
@@ -33,7 +33,7 @@ class MemoryInterface(object):
         """
 
         if self.cache:
-            caching = PyPWA.libs.data.cache.StandardCache()
+            caching = PyPWA.libs.data.memory.cache.StandardCache()
             data = caching.check_cache(file_location)
             if data:
                 return data
@@ -55,7 +55,7 @@ class MemoryInterface(object):
         data = reader.parse(file_location)
 
         if self.cache:
-            cache_write = PyPWA.libs.data.cache.StandardCache()
+            cache_write = PyPWA.libs.data.memory.cache.StandardCache()
             cache_write.make_cache(file_location, data)
         return data
 
@@ -80,6 +80,5 @@ class MemoryInterface(object):
         writer.write(file_location, the_data)
 
         if self.cache:
-            cache_write = PyPWA.libs.data.cache.StandardCache()
+            cache_write = PyPWA.libs.data.memory.cache.StandardCache()
             cache_write.make_cache(file_location, the_data)
-
