@@ -31,7 +31,8 @@ setup(
         "iminuit<2.0",
         "numpy<2.0",
         "pyyaml<4",
-        "tabulate"
+        "tabulate",
+        "appdirs"
     ],
     setup_requires=['pytest-runner', 'pytest-cov'],
     tests_require=['pytest'],
