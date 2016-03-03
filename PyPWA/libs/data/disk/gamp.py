@@ -1,6 +1,7 @@
 import collections
 import numpy
 import fileinput
+import io
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
@@ -84,6 +85,28 @@ class GampReader(object):
                                          numpy.float64(the_list[3]), numpy.float64(the_list[4]),
                                          numpy.float64(the_list[5]))
         return particle
+
+    def __del__(self):
+        self._file.close()
+
+
+class GampWriter(object):
+
+    def __init__(self, gamp_file):
+        self._file = io.open(gamp_file, "w")
+
+    def __del__(self):
+        self._file.close()
+
+    def write_event(self, event):
+        self._file.write(str(len(event))+"\n")
+
+        for particle in event:
+            self._file.write(str(particle.id) + " " + str(particle.charge) + " " + str(particle.x) + " " +
+                             str(particle.y) + " " + str(particle.z) + " " + str(particle.energy) + "\n")
+
+    def close(self):
+        self._file.close()
 
 
 class GampEvent(collections.deque):
