@@ -29,5 +29,5 @@ def test_cache_loop():  # I will think of a better way to do this eventually
 
     returned_data = cache.read_cache(TEST_KV_DICT_FILE)
 
-    os.remove(os.path.join(os.path.dirname(__file__), "test_docs/.kv_test_data.pickle"))
+    assert returned_data != False
     numpy.testing.assert_array_equal(data["ctAD"], returned_data["ctAD"])
