@@ -1,5 +1,5 @@
 import csv
-import fileinput
+import io
 import numpy
 
 
@@ -8,10 +8,11 @@ class SvParser(object):
         self.delimiter = delimiter
 
     def reader(self, file_location):
-        for line_count, throw in enumerate(fileinput.input(file_location)):
-            pass
+        with io.open(file_location, "rt") as stream:
+            for line_count, throw in enumerate(stream):
+                pass
 
-        with open(file_location, "rt") as stream:
+        with io.open(file_location, "rt") as stream:
             sv = csv.reader(stream, delimiter=self.delimiter)
 
             elements = next(sv)
