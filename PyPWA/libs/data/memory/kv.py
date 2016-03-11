@@ -1,4 +1,4 @@
-import fileinput
+import io
 import numpy
 
 
@@ -13,7 +13,7 @@ class KvInterface(object):
 
     @staticmethod
     def file_length(file_location):
-        with fileinput.input(file_location) as stream:
+        with io.open(file_location) as stream:
             for file_length, line in enumerate(stream):
                 pass
         return file_length + 1
@@ -40,7 +40,7 @@ class DictOfArrays(KvInterface):
         for x in range(len(first_line.split(","))):
             parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(shape=file_length, dtype="float64")
 
-        with fileinput.input(file_location) as stream:
+        with io.open(file_location) as stream:
             for index, line in enumerate(stream):
 
                 for particle_count in range(len(line.split(","))):
@@ -84,7 +84,7 @@ class ListOfFloats(KvInterface):
 
         parsed = numpy.zeros(shape=file_length, dtype="float64")
 
-        with fileinput.input(file_location) as stream:
+        with io.open(file_location) as stream:
             for count, line in enumerate(stream):
                 parsed[count] = line.strip("\n")
         return parsed
@@ -116,7 +116,7 @@ class ListOfBooleans(KvInterface):
 
         weights = numpy.zeros(shape=file_length, dtype=bool)
 
-        with fileinput.input(file_location) as stream:
+        with io.open(file_location) as stream:
             for index, weight in enumerate(stream):
                 weights[index] = int(weight)
 
