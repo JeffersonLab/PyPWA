@@ -29,11 +29,13 @@ class MemoryCache(object):
         self.logger.debug("Cache location is set to {0}".format(the_pickle))
 
         file_hash = self._file_hash(file_location)
+        self.logger.info("Found SHA512 hash for {0}".format(file_location))
         self.logger.debug("File Hash is set to {0}".format(file_hash))
 
         new_data = {"hash": file_hash, "data": data}
 
         try:
+            self.logger.info("Attempting to make cache for {0}".format(file_location))
             self._write_pickle(the_pickle, new_data)
         except Exception as Error:
             self.logger.warning(Error)
@@ -54,6 +56,7 @@ class MemoryCache(object):
         self.logger.debug("File hash is set to {0}".format(file_hash))
 
         try:
+            self.logger.info("Attempting to load {0}".format(the_location))
             returned_data = self._load_pickle(the_location)
         except Exception as Error:
             self.logger.warning(Error)
@@ -67,6 +70,7 @@ class MemoryCache(object):
                 return False
 
         if returned_data["hash"] == file_hash:
+            self.logger.info("Cache Hashes match!")
             return returned_data["data"]
         else:
             self.logger.warning("File hash has changed.")
