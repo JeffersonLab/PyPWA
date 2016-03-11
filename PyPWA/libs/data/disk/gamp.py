@@ -60,10 +60,13 @@ class GampReader(object):
     def _start_input(self):
         if self._file:
             self._file.close()
-        self._file = fileinput.FileInput(files=self._the_file)
+        self._file = io.open(self._the_file, "rt")
 
     def reset(self):
         self._start_input()
+
+    def __next__(self):
+        self.next_event
 
     @property
     def next_event(self):
