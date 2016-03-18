@@ -1,0 +1,30 @@
+sudo: false
+language: python
+cache: pip
+python:
+  - "2.6"
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+before_install:
+  - python --version
+  - uname -a
+  - ls -a
+  - "pip install coveralls"
+  - "pip install coverage"
+  - "pip install pytest"
+  - "pip install pytest-runner"
+  - "pip install pytest-cov"
+install:
+  - "pip install -e ."
+script: "py.test --cov=PyPWA tests/"
+after_success:
+  - ls -a
+  - coveralls
+  - head .coverage
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+

@@ -1,19 +1,22 @@
-PyPWA
-=====
-
-JLab PWA software infrastructure
-
-A software framework used to perform Partial Wave and Amplitude Analysis (PWA) with the goal of extracting resonance information from multiparticle final states
+# PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=release-v2.0.0b1)](https://travis-ci.org/JeffersonLab/PyPWA)
+A python based software framework designed to perform Partial Wave and Amplitude Analysis with the goal of extracting resonance information from multiparticle final states. Supports the Un/Extended Un/Binned likelihood maximum estimation, Acceptance Rejection Method, and ISOBAR Model.
 
 
-Current Status
-------
+## Current Status
+Currently we are attempting to port all previously written tools into a object oriented package that can be easily installed and used on any posix system.
+- [X] General Fitting Port
+- [X] General Simulator Port
+- [X] Multiprocessing implemented
+- [X] Tests implemented
+- [X] Automated Documentation
+- [ ] Xeon Phi support offloading
+- [ ] Gamp Masker Implemented
+- [ ] ISOBAR Port
+- [ ] PBS Support
+- [ ] Tkinter replaced by PyQt4
+- [ ] Support Gamp Data
 
-Currently the PyPWA package is being restructured into a proper python package complete with setup tools.
-As of right now only the GeneralShell has been adapted to the packaging utility, and all other tools live in limbo and are usable as before. Everything in limbo is untouched.
-
-General Shell
-------
+## General Shell
 
 The new General Shell is iminuit based threaded fitting tool, it is designed to run from your machines path or from a virtualenv.
 

@@ -1,6 +1,11 @@
 """
 Cache objects for data module are stored here.
 """
+from abc import ABCMeta
+import pickle
+import fileinput
+import hashlib
+import os
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
@@ -9,54 +14,63 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import pickle, hashlib, os
 
-class StandardCache(object):
-    """
-    This is a horribly written object, please ignore. It currently is unimplemented.
+class AbstractCache:
+    __metaclass__ = ABCMeta
 
-    Todo:
-        Write a propper init, imply
-    """
-
-    def __init__(self):
-        raise NotImplemented
-
-
-    def find_hash(self, the_file):
+    @staticmethod
+    def find_hash(the_file):
         """ Iterates over file and returns the hash
         Args:
             the_file (str): the file you want to be loaded.
         Returns:
             str: sha256 hash of file
         """
-        try:
-            with open(the_file, "r") as a_file:
-                for line in a_file.readlines():
-                    line = line.strip("\n")
-                    the_hash = hashlib.sha256(line)
-        except IOError:
-            raise AttributeError(the_file + " doesn't exsist. Please check your configuration and try again.")
+        for line in fileinput.input(the_file):
+            the_hash = hashlib.sha256(line.strip("\n"))
+
         return the_hash.hexdigest()
 
 
-    def cache_location(self, file_location):
+class StandardCache(AbstractCache):
+
+    def check_cache(self, file_location):
+        path_cache = self._cache_location(file_location)
+
+        try:
+            data = self._load_cache(path_cache)
+        except:
+            return False
+
+        file_hash = self.find_hash(file_location)
+
+        if data["hash"] == file_hash:
+            return data["data"]
+        else:
+            return False
+
+    def make_cache(self, file_location, data):
+        path_cache = self._cache_location(file_location)
+        file_hash = self.find_hash(file_location)
+
+        cache = {"data": data, "hash": file_hash}
+
+        self._write_cache(path_cache, cache)
+
+    @staticmethod
+    def _cache_location(file_location):
         """ Determines where to store cache
         Args:
             file_location (str): the location of the original file.
         Returns:
             str: Absolute location of where to store the cache
         """
-        the_path = file_location.split("/")
-        path_length = len(the_path) - 1
-        file_name = the_path[path_length]
-        file_name = os.path.splitext(file_name)[0]
-        file_name = "." + file_name + ".pickle-cache"
-        the_path[path_length] = file_name
-        return "/".join(the_path)
+        file_name = os.path.splitext(os.path.basename(file_location))[0]
+        pickle_name = "." + file_name + ".pickle-cache"
+        return pickle_name
 
-
-    def make_cache(self, data, the_file):
+    @staticmethod
+    def _write_cache(the_file, data):
         """Pickles the data to file.
         Args:
             data: Anything that needs to be cached
@@ -65,22 +79,14 @@ class StandardCache(object):
         with open(the_file, "wb") as a_file:
             pickle.dump(data, a_file, protocol=pickle.HIGHEST_PROTOCOL)
 
-
-    def load_cache(self, the_file):
+    @staticmethod
+    def _load_cache(the_file):
         """Attempts to load the cache from file,
         Args:
             the_file (str): location of the cache
         Returns:
-            object: Whatever was stored in the cache
+            dict: {"hash": hash of file, "data": data that was cached}
         """
-        try:
-            with open(the_file, "r")  as a_file:
-                cache = pickle.load(a_file)
-            self.cache_success = True
-            return cache
-        except EOFError:
-            self.cache_success = False
-            return {"files_hash":0}
-        except IOError:
-            self.cache_success = False
-            return {"files_hash":0}
+        with open(the_file, "r") as stream:
+            cache = pickle.load(stream)
+        return cache

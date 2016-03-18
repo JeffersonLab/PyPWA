@@ -1,5 +1,5 @@
 """
-Handles comunication for processes
+Handles communication for processes
 """
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
@@ -9,24 +9,25 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-from abc import ABCMeta, abstractmethod
 import multiprocessing
+
 
 class ProcessPipes(object):
     """Sets up pipes for Processes"""
 
-    def return_pipes(self, num_pipes):
+    @staticmethod
+    def return_pipes(num_pipes):
         """Returns pipes
         Args:
             num_pipes (int): Number of pipes to return
         Returns:
-            list of lists: [[send pipes], [recieve pipes] ]
+            list of lists: [[send pipes], [receive pipes] ]
         """
         send_to = []
-        recieve_from = []
+        receive_from = []
 
         for x in range(num_pipes):
-            recieve, send = multiprocessing.Pipe(False)
+            receive, send = multiprocessing.Pipe(False)
             send_to.append(send)
-            recieve_from.append(recieve)
-        return [ send_to, recieve_from ]
+            receive_from.append(receive)
+        return [send_to, receive_from]

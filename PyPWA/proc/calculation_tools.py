@@ -9,20 +9,27 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import iminuit, warnings, sys, numpy
+import iminuit
+import numpy
+import sys
+import warnings
 
-class Minimalizer(object):
+
+class Minimizer(object):
     """Object based off of iminuit, provides an easy way to run minimalization
     Args:
-        calc_function (object): function that holds the calculations.
+        calc_function (function): function that holds the calculations.
         parameters (list): List of the parameters
         settings (dict): Dictionary of the settings for iminuit
-        strategy (int): Iminuits strategy
+        strategy (int): iminuit's strategy
         set_up (int): Todo
         ncall (int): Max number of calls
     """
 
     def __init__(self, calc_function, parameters, settings, strategy, set_up, ncall):
+        self.fval = 0
+        self.covariance = 0
+        self.values = 0
         self._calc_function = calc_function
         self._parameters = parameters
         self._settings = settings
@@ -30,13 +37,15 @@ class Minimalizer(object):
         self._set_up = set_up
         self._ncall = ncall
 
-
     def min(self):
-        """Method to call to start minimalization process"""
+        """Method to call to start minimization process"""
         minimal = iminuit.Minuit(self._calc_function, forced_parameters=self._parameters, **self._settings )
         minimal.set_strategy(self._strategy)
         minimal.set_up(self._set_up)
         minimal.migrad(ncall=self._ncall)
+        self.fval = minimal.fval
+        self.covariance = minimal.covariance
+        self.values = minimal.values
 
 
 class FunctionLoading(object):
@@ -48,11 +57,12 @@ class FunctionLoading(object):
         setup_name (str): Name of Setup function.
     """
 
-    def __init__(self, cwd, function_location, function_name, setup_name ):
-        self._users_amplitude, self._users_setup = self._import_function(cwd, function_location, function_name, setup_name)
+    def __init__(self, cwd, function_location, function_name, setup_name):
+        self._users_amplitude, self._users_setup = self._import_function(cwd, function_location, function_name,
+                                                                         setup_name)
 
-
-    def _import_function(self, cwd, function_location, function_name, setup_name):
+    @staticmethod
+    def _import_function(cwd, function_location, function_name, setup_name):
         """Imports and sets up functions for usage.
         Args:
             cwd (str): Path to folder with the functions
@@ -76,76 +86,71 @@ class FunctionLoading(object):
         try:
             setup_function = getattr(imported, setup_name)
         except AttributeError:
-            warnings.warn("Setup fucntion {0} was not found in {1}, going without setup function".format(setup_function, function_location ), UserWarning)
-            def empty(): pass
+            warnings.warn(("Setup function  {0} was not found in {1},"
+                           "going without setup function").format(setup_name, function_location), UserWarning)
+
+            def empty():
+                pass
             setup_function = empty
 
-        return [ users_amplitude, setup_function ]
+        return [users_amplitude, setup_function]
 
-
+    @property
     def return_amplitude(self):
-        """Retuns amplitude
+        """Returns amplitude
         Returns:
-            object: Amplitude Function
+            function: Amplitude Function
         """
         return self._users_amplitude
 
-
+    @property
     def return_setup(self):
         """Returns setup
         Returns:
-            object: Setup Function
+            function: Setup Function
         """
         return self._users_setup
 
 
-class DataSplitter(object):
+class DictionarySplitter(object):
     """Splits data up depending on time into defined number of chunks"""
 
     def split(self, data, num_chunks):
         """Entry point for object.
         Args:
-            data (object): Data to be split up
+            data (dict/float): Data to be split up
             num_chunks (int): Number of chunks to return
-        Retuns:
-            list: Each index is a chunck of the returned data in order
+        Returns:
+            list: Each index is a chunk of the returned data in order
         """
         if num_chunks == 1:
             return [data]
 
         if type(data) == dict:
             return self._dictionary_split(data, num_chunks)
-        elif type(data) == numpy.ndarray:
-            return self._array_split(data, num_chunks)
 
-        return self._split_data
-
-
-    def _dictionary_split(self, dictionary, num_chunks):
+    @staticmethod
+    def _dictionary_split(dictionary, num_chunks):
         """Splits dictionary into user defined number of chunks
         Args:
             dictionary (dict): Dictionary of arrays that needs to be split
             num_chunks (int): Number of chunks
         Returns:
-            list: Each index is a chunck of the returned data in order
+            list: Each index is a chunk of the returned data in order
         """
         split_dictionary = []
 
         for x in range(num_chunks):
             split_dictionary.append({})
 
-        for key in dictionary:
-            for index in range(num_chunks):
-                split_dictionary[index][key] = numpy.array_split(dictionary[key],(num_chunks))[index]
+        for data in dictionary:
+            if isinstance(dictionary[data], numpy.ndarray):
+                for index in range(num_chunks):
+                    split_dictionary[index][data] = numpy.array_split(dictionary[data], num_chunks)[index]
+            elif isinstance(dictionary[data], dict):
+                for index in range(num_chunks):
+                    split_dictionary[index][data] = {}
+                for key in dictionary[data]:
+                    for index in range(num_chunks):
+                        split_dictionary[index][data][key] = numpy.array_split(dictionary[data][key], num_chunks)[index]
         return split_dictionary
-
-
-    def _array_split(self, array, num_chunks):
-        """Splits arrays into a list of arrays
-        Args:
-            array (numpy.ndarray): Array to split
-            num_chunks (int): Number of chunks
-        Returns:
-            list: List of numpy arrays
-        """
-        return numpy.array_split(array, num_chunks)
