@@ -117,9 +117,6 @@ class Fitting(object):
                                                                       new_accepted, self.generated_length,
                                                                       amplitude_function, setup_function)
 
-        calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
-                                          setup_function)
-
         minimization = calculation_tools.Minimizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                    self.set_up, self.ncall)
 
