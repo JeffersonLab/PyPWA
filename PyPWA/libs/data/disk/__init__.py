@@ -1,3 +1,12 @@
+"""Objects for reading data from disk
+
+All modules in this package are designed and optimized to read
+specific data from the disk including GAMP events. This data
+reading method will be slower than traditional memory based
+methods but should be more resource efficient.
+Best used for data that is too large for your memory and
+can not be used in place of memory based functions.
+"""
 
 from PyPWA import VERSION, LICENSE, STATUS
 
