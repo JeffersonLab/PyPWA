@@ -1,19 +1,22 @@
 """
 A collection of file handlers for PyPWA
 """
-__author__ = "Mark Jones"
-__credits__ = ["Mark Jones", "Josh Pond"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "Beta0"
 
 import os
+
 import yaml
 
 import PyPWA.libs.data.data_tools as data_tools
+from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.libs.data.memory import sv, kv
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class DataInterface(object):

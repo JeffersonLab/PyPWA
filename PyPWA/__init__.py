@@ -6,7 +6,7 @@ Current there is a multiprocessing tool for both the Acceptance
 Rejection Model, and the Maximum-Likelihood Estimation for fitting.
 
 The tools work with Kinematic Variables defined in standard text files,
-Comma Seperated Variables, and Tab Seperated Variables.
+Comma Separated Variables, and Tab Seperated Variables.
 
 Example:
     For both the GeneralFitting and the GeneralSimulator you should
@@ -18,3 +18,15 @@ Example:
     configuration file, run [tool] <configuration>.yml, ie:
         $ GeneralFitting Example.yml
 """
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__license__ = "MIT"
+__email__ = "maj@jlab.org"
+__status__ = "development"
+__maintainer__ = ["Mark Jones"]
+__version__ = "2.0.0b2"
+
+VERSION = __version__
+STATUS = __status__
+LICENSE = __license__

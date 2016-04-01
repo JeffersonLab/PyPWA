@@ -1,15 +1,20 @@
 """
 Holds various tools needed by the Data module.
 """
+
 import os
+
 import numpy
-__author__ = "Mark Jones"
+
+from PyPWA import VERSION, LICENSE, STATUS
+
+__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
+__maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
-__status__ = "Beta0"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class DataTypeSearch(object):

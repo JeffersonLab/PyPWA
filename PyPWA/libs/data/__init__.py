@@ -14,3 +14,13 @@ Examples:
         file = PyPWA.data.file_manager.MemoryInterface()
         file.write(path_to_file, the_data)
 """
+
+from PyPWA import VERSION, LICENSE, STATUS
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION

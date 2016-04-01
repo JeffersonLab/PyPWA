@@ -2,22 +2,24 @@
 Main objects for console PyPWA tools
 """
 
-__author__ = "Mark Jones"
-__credits__ = ["Mark Jones", "Josh Pond"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "Beta0"
+import os
+import warnings
 
 import numpy
-import os
 import tabulate
-import warnings
 from PyPWA.proc import calculation_tools
 
 import PyPWA.libs.data.file_manager
+from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.libs.proc import calculation
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class Fitting(object):

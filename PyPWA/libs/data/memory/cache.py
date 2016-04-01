@@ -1,20 +1,24 @@
 """
 Cache objects for data module are stored here.
 """
-import pickle
-import io
-import hashlib
-import os
-import appdirs
-import logging
 
-__author__ = "Mark Jones"
+import hashlib
+import io
+import logging
+import os
+import pickle
+
+import appdirs
+
+from PyPWA import VERSION, LICENSE, STATUS
+
+__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
+__maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
-__status__ = "Beta0"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class MemoryCache(object):

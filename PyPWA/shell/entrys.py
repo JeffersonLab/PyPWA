@@ -1,14 +1,17 @@
 """
 Entry point for console GeneralShell
 """
-__author__ = "Mark Jones"
-__credits__ = ["Mark Jones"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "Beta0"
+
+from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.libs.wrappers import StartBuilder
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 @StartBuilder()

@@ -1,17 +1,19 @@
 """
 Main Objects for the data module.
 """
-__author__ = "Mark Jones"
-__credits__ = ["Mark Jones"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "Beta0"
 
 import PyPWA.libs.data.data_tools
 import PyPWA.libs.data.memory.cache
 import PyPWA.libs.data.memory_wrapper
+from PyPWA import VERSION, LICENSE, STATUS
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class MemoryInterface(object):
