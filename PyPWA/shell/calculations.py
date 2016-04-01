@@ -2,43 +2,40 @@ import numpy
 
 
 class ExtendedLikelihoodAmplitude(object):
-    def likelihood(self, parameters):
-        """Calculates the likelihood function
+    def __init__(self, generated_length):
+        self._processed = 1.0/generated_length
+
+    def likelihood(self, data, accepted, qfactor):
+        """Calculates the extended likelihood function
         Args:
-            parameters (dict): dictionary of the arguments to be sent to the function
+            data:
+            accepted:
+            qfactor:
         """
-        processed_data = self._amplitude_function(self._data["data"], parameters)
-        processed_accepted = self._amplitude_function(self._accepted["data"], parameters)
-        return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data))) + \
-                (self._processed * numpy.sum(self._accepted["BinN"] * processed_accepted))
+        masked_data = numpy.ma.masked_equal(data, 0)
+        masked_accepted = numpy.ma.masked_equal(accepted, 0)
+        return -(numpy.sum(qfactor * numpy.ma.log(masked_data))) + (self._processed * numpy.ma.sum(masked_accepted))
 
 
 class UnextendedLikelihoodAmplitude(object):
-    def likelihood(self, parameters):
-        """Calculates the likelihood function
+    def likelihood(self, data, binned, qfactor):
+        """Calculates the binned likelihood function
         Args:
-            parameters (dict): dictionary of the arguments to be sent to the function
+            data:
+            binned:
+            qfactor:
         """
-        processed_data = self._amplitude_function(self._data["data"], parameters)
-        value = numpy.float64(0.0)
-
-        for index in range(len(processed_data)):
-            if self._data["BinN"][index] == 0:
-                pass
-            else:
-                value += (numpy.sum(self._data["QFactor"][index] * self._data["BinN"][index] *
-                                    numpy.log(processed_data[index])))
-
-        return -value
+        masked_data = numpy.ma.masked_equal(data, 0)
+        return -(numpy.ma.sum(qfactor * binned * numpy.ma.log(masked_data)))
 
 
 class Chi(object):
-    def likelihood(self, parameters):
-        processed_data = self._amplitude_function(self._data["data"], parameters)
-        χ = numpy.float64(0.0)
-        for index in range(len(processed_data)):
-            if self._data["BinN"][index] == 0:
-                pass
-            else:
-                χ += ((processed_data[index] - self._data["BinN"][index])**2) / self._data["BinN"][index]
-        return χ
+    def likelihood(self, data, binned, qfactor):
+        """Calculates the ChiSquare function
+        Args:
+            data:
+            binned:
+            qfactor:
+        """
+        masked_data = numpy.ma.masked_equal(data, 0)
+        return ((masked_data - binned)**2) / binned
