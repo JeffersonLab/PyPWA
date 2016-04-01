@@ -84,21 +84,12 @@ class Fitting(object):
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
         if "BinN" in data:
-            new_data["BinN"] = data["BinN"]
+            new_data["BinN"] = numpy.ma.masked_equal(data["BinN"], 0)
             data.pop("BinN")
         else:
             new_data["BinN"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
         new_data["data"] = data
-
-        if not isinstance(self.accepted_location, type(None)):
-            if "BinN" in accepted:
-                new_accepted["BinN"] = accepted["BinN"]
-                accepted.pop("BinN")
-            else:
-                new_accepted["BinN"] = numpy.ones(shape=len(accepted[accepted.keys()[0]]))
-        else:
-            accepted = 0
 
         new_accepted["data"] = accepted
 
@@ -216,7 +207,7 @@ class Chi(object):
             warnings.warn("QFactor data not found! Continuing on without QFactor.")
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
-        new_data["BinN"] = data["BinN"]
+        new_data["BinN"] = numpy.ma.masked_equal(data["BinN"],0)
         data.pop("BinN")
 
         new_data["data"] = data
