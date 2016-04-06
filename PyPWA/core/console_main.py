@@ -15,6 +15,7 @@ import os
 import tabulate
 import warnings
 import logging
+import sys
 
 import PyPWA.data.file_manager
 from PyPWA.proc import calculation_tools, calculation
@@ -24,12 +25,18 @@ class ConfigLogging(object):
     def __init__(self, level):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.StreamHandler)
+        handler = logging.StreamHandler(sys.stderr)
+
         if level == "info":
-            self._logger.setLevel(logging.INFO)
+            handler.setLevel(logging.INFO)
         elif level == "debug":
-            self._logger.setLevel(logging.DEBUG)
+            handler.setLevel(logging.DEBUG)
         else:
-            self._logger.setLevel(logging.WARNING)
+            handler.setLevel(logging.WARNING)
+
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        self._logger.addHandler(handler)
 
     @property
     def return_logger(self):
