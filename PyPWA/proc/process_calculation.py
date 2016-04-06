@@ -12,6 +12,7 @@ __status__ = "Beta0"
 import multiprocessing
 import numpy
 import warnings
+import logging
 
 
 class AbstractProcess(multiprocessing.Process):
@@ -164,16 +165,34 @@ class ExtendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         self._processed = processed
         self._data = data
         self._accepted = accepted
+        numpy.seterr(divide="raise")
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler)
+        self._fallback = False
 
     def likelihood(self, parameters):
         """Calculates the likelihood function
         Args:
             parameters (dict): dictionary of the arguments to be sent to the function
         """
-        processed_data = numpy.ma.masked_equal(self._amplitude_function(self._data["data"], parameters), 0)
-        processed_accepted = numpy.ma.masked_equal(self._amplitude_function(self._accepted["data"], parameters),0)
-        return -(numpy.ma.sum(self._data["QFactor"] * numpy.ma.log(processed_data))) + \
-                (self._processed * numpy.ma.sum(processed_accepted))
+        if not self._fallback:
+            try:
+                processed_data = self._amplitude_function(self._data["data"], parameters)
+                processed_accepted = self._amplitude_function(self._accepted["data"], parameters)
+                return -(numpy.sum(self._data["QFactor"] * numpy.log(processed_data))) + \
+                        (self._processed * numpy.sum(processed_accepted))
+            except FloatingPointError:
+                self._logger.warn("Found zeros in data, falling back to masked arrays.")
+                self._fallback = True
+                processed_data = numpy.ma.masked_equal(self._amplitude_function(self._data["data"], parameters), 0)
+                processed_accepted = numpy.ma.masked_equal(self._amplitude_function(self._accepted["data"], parameters), 0)
+                return -(numpy.ma.sum(self._data["QFactor"] * numpy.ma.log(processed_data))) + \
+                        (self._processed * numpy.ma.sum(processed_accepted))
+        else:
+            processed_data = numpy.ma.masked_equal(self._amplitude_function(self._data["data"], parameters), 0)
+            processed_accepted = numpy.ma.masked_equal(self._amplitude_function(self._accepted["data"], parameters), 0)
+            return -(numpy.ma.sum(self._data["QFactor"] * numpy.ma.log(processed_data))) + \
+                    (self._processed * numpy.ma.sum(processed_accepted))
 
 
 class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
@@ -190,14 +209,28 @@ class UnextendedLikelihoodAmplitude(AbstractLikelihoodAmplitude):
         super(UnextendedLikelihoodAmplitude, self).__init__(setup_function, send, receive)
         self._amplitude_function = amplitude_function
         self._data = data
+        self._logging = logging.getLogger(__name__)
+        self._logging.addHandler(logging.NullHandler)
+        self._fallback = False
+        numpy.seterr(divide='raise')
 
     def likelihood(self, parameters):
         """Calculates the likelihood function
         Args:
             parameters (dict): dictionary of the arguments to be sent to the function
         """
-        processed_data = numpy.ma.masked_equal(self._amplitude_function(self._data["data"], parameters), 0)
-        return -(numpy.ma.sum(self._data["QFactor"] * self._data["BinN"] * numpy.ma.log(processed_data)))
+        if not self._fallback:
+            try:
+                processed_data = self._amplitude_function(self._data["data"], parameters)
+                return -(numpy.sum(self._data["QFactor"] * self._data["BinN"] * numpy.log(processed_data)))
+            except FloatingPointError:
+                self._fallback = True
+                self._logging.warn("Found Zeros in Data, falling back to masked")
+                processed_data = numpy.ma.masked_equal(self._amplitude_function(self._data["data"], parameters), 0)
+                return -(numpy.ma.sum(self._data["QFactor"] * self._data["BinN"] * numpy.ma.log(processed_data)))
+        else:
+            processed_data = numpy.ma.masked_equal(self._amplitude_function(self._data["data"], parameters), 0)
+            return -(numpy.ma.sum(self._data["QFactor"] * self._data["BinN"] * numpy.ma.log(processed_data)))
 
 
 class ChiSquared(AbstractLikelihoodAmplitude):
@@ -206,6 +239,8 @@ class ChiSquared(AbstractLikelihoodAmplitude):
         super(ChiSquared, self).__init__(setup_function, send, receive)
         self._amplitude_function = amplitude_function
         self._data = data
+        self._logging = logging.getLogger(__name__)
+        self._logging.addHandler(logging.NullHandler)
 
     def likelihood(self, parameters):
         processed_data = self._amplitude_function(self._data["data"], parameters)
