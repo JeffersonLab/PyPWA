@@ -24,15 +24,17 @@ from PyPWA.proc import calculation_tools, calculation
 class ConfigLogging(object):
     def __init__(self, level):
         self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.StreamHandler)
         handler = logging.StreamHandler(sys.stderr)
 
         if level == "info":
             handler.setLevel(logging.INFO)
+            self._logger.setLevel(logging.INFO)
         elif level == "debug":
             handler.setLevel(logging.DEBUG)
+            self._logger.setLevel(logging.DEBUG)
         else:
             handler.setLevel(logging.WARNING)
+            self._logger.setLevel(logging.WARNING)
 
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
@@ -53,29 +55,40 @@ class Fitting(object):
     def __init__(self, config, cwd):
         the_logging = ConfigLogging(config["General Settings"]["Logging Level"])
         self._logger = the_logging.return_logger
-
         self.generated_length = config["Likelihood Information"]["Generated Length"]
+        self._logger.debug("Found Generated Length {0}.".format(self.generated_length))
         self.function_location = config["Likelihood Information"]["Function's Location"]
+        self._logger.debug("Found function location {0}.".format(self.function_location))
         self.amplitude_name = config["Likelihood Information"]["Processing Name"]
+        self._logger.debug("Found amplitude name {0}.".format(self.amplitude_name))
         self.setup_name = config["Likelihood Information"]["Setup Name"]
+        self._logger.debug("Found setup name {0}.".format(self.setup_name))
 
         self.data_location = config["Data Information"]["Data Location"]
+        self._logger.debug("Found data location {0}.".format(self.data_location))
 
         if "Accepted Monte Carlo Location" in config["Data Information"]:
             self.accepted_location = config["Data Information"]["Accepted Monte Carlo Location"]
+            self._logger.debug("Found accepted location {0}.".format(self.accepted_location))
         else:
+            self._logger.info("Failed to find accepted data.")
             self.accepted_location = None
 
         if "QFactor List Location" in config["Data Information"]:
             self.QFactor_location = config["Data Information"]["QFactor List Location"]
+            self._logger.debug("Found QFactor location {0}.".format(self.QFactor_location))
         else:
+            self._logger.debug("Didn't find QFactor in config")
             self.QFactor_location = None
 
         self.save_location = config["Data Information"]["Save Name"]
-
+        self._logger.debug("Found save location")
         self.initial_settings = config["Minuit's Settings"]["Minuit's Initial Settings"]
+        self._logger.debug("Found minuet config {0}.".format(self.initial_settings))
         self.parameters = config["Minuit's Settings"]["Minuit's Parameters"]
+        self._logger.debug("Found {0} parameters.".format(self.parameters))
         self.strategy = config["Minuit's Settings"]["Minuit's Strategy"]
+        self._logger.debug("Found {0} strategy.".format(self.strategy))
         self.set_up = config["Minuit's Settings"]["Minuit's Set Up"]
         self.ncall = config["Minuit's Settings"]["Minuit's ncall"]
         self.num_threads = config["General Settings"]["Number of Threads"]
@@ -124,14 +137,16 @@ class Fitting(object):
 
         new_data["data"] = data
 
-        new_accepted["data"] = accepted
+        try:
+            new_accepted["data"] = accepted
+        except UnboundLocalError:
+            pass
 
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
                                                       self.setup_name)
         amplitude_function = functions.return_amplitude
         setup_function = functions.return_setup
-
 
         if isinstance(self.accepted_location, type(None)):
             self._logger.info("Using Unextended Likelihood")
