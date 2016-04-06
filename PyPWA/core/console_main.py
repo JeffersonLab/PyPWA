@@ -10,14 +10,30 @@ __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "Beta0"
 
-import os
-import warnings
-
 import numpy
+import os
 import tabulate
+import warnings
+import logging
 
 import PyPWA.data.file_manager
 from PyPWA.proc import calculation_tools, calculation
+
+
+class ConfigLogging(object):
+    def __init__(self, level):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.StreamHandler)
+        if level == "info":
+            self._logger.setLevel(logging.INFO)
+        elif level == "debug":
+            self._logger.setLevel(logging.DEBUG)
+        else:
+            self._logger.setLevel(logging.WARNING)
+
+    @property
+    def return_logger(self):
+        return self._logger
 
 
 class Fitting(object):
@@ -28,6 +44,9 @@ class Fitting(object):
     """
 
     def __init__(self, config, cwd):
+        the_logging = ConfigLogging(config["General Settings"]["Logging Level"])
+        self._logger = the_logging.return_logger
+
         self.generated_length = config["Likelihood Information"]["Generated Length"]
         self.function_location = config["Likelihood Information"]["Function's Location"]
         self.amplitude_name = config["Likelihood Information"]["Processing Name"]
@@ -71,10 +90,12 @@ class Fitting(object):
         if not isinstance(self.QFactor_location, type(None)):
             if "QFactor" in data and os.path.isfile(self.QFactor_location):
                 QFactor = parse.parse(self.QFactor_location)
+                self._logger.info("Loading QFactor from file.")
                 if QFactor != data["QFactor"]:
                     raise Exception("Two different QFactors were provided! Remove a QFactor set and retry.")
 
         if "QFactor" in data:
+            self._logger.info("Extracting QFactor from ")
             new_data["QFactor"] = data["QFactor"]
             data.pop("QFactor")
         elif not isinstance(self.QFactor_location, type(None)):
@@ -84,7 +105,12 @@ class Fitting(object):
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
         if "BinN" in data:
-            new_data["BinN"] = numpy.ma.masked_equal(data["BinN"], 0)
+            if data["BinN"].any(0):
+                self._logger.info("Found zeros in Bin, using Masks")
+                new_data["BinN"] = numpy.ma.masked_equal(data["BinN"], 0)
+            else:
+                self._logger.info("Found no zeros in Bin, not using masks.")
+                new_data["BinN"] = data["BinN"]
             data.pop("BinN")
         else:
             new_data["BinN"] = numpy.ones(shape=len(data[data.keys()[0]]))
@@ -101,9 +127,11 @@ class Fitting(object):
 
 
         if isinstance(self.accepted_location, type(None)):
+            self._logger.info("Using Unextended Likelihood")
             calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
                                                                         amplitude_function, setup_function)
         else:
+            self._logger.info("Using Extended Likelihood")
             calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
                                                                       new_accepted, self.generated_length,
                                                                       amplitude_function, setup_function)
@@ -162,6 +190,9 @@ class Chi(object):
     """
 
     def __init__(self, config, cwd):
+        the_logging = ConfigLogging(config["General Settings"]["Logging Level"])
+        self._logger = the_logging.return_logger
+
         self.function_location = config["ChiSquared Information"]["Function's Location"]
         self.amplitude_name = config["ChiSquared Information"]["Processing Name"]
         self.setup_name = config["ChiSquared Information"]["Setup Name"]
@@ -276,6 +307,8 @@ class Simulator(object):
     """
 
     def __init__(self, config, cwd):
+        the_logging = ConfigLogging(config["General Settings"]["Logging Level"])
+        self._logger = the_logging.return_logger
         self.function_location = config["Simulator Information"]["Function's Location"]
         self.amplitude_name = config["Simulator Information"]["Processing Name"]
         self.setup_name = config["Simulator Information"]["Setup Name"]
@@ -314,7 +347,10 @@ class Simulator(object):
 
 
 class Intensities(object):
+
     def __init__(self, config, cwd):
+        the_logging = ConfigLogging(config["General Settings"]["Logging Level"])
+        self._logger = the_logging.return_logger
         self.function_location = config["Intensities Information"]["Function's Location"]
         self.amplitude_name = config["Intensities Information"]["Processing Name"]
         self.setup_name = config["Intensities Information"]["Setup Name"]
@@ -347,6 +383,8 @@ class Intensities(object):
 
 class Weights(object):
     def __init__(self, config, cwd):
+        the_logging = ConfigLogging(config["General Settings"]["Logging Level"])
+        self._logger = the_logging.return_logger
         self.max_intensity = config["Max Intensity"]
         self.intensities_location = config["Intensities Location"]
         self.save_location = config["Save Location"]
@@ -397,6 +435,7 @@ Minuit's Settings:
     Minuit's ncall: 1000
 General Settings:
     Number of Threads: 1   #Number of threads to use. Set to one for debug
+    Logging Level: warn  #Supports debug info warn
 """
 
     @staticmethod
@@ -425,6 +464,7 @@ Minuit's Settings:
     Minuit's ncall: 1000
 General Settings:
     Number of Threads: 1   #Number of threads to use. Set to one for debug
+    Logging Level: warn  #Supports debug info warn
 """
 
     @staticmethod
@@ -443,6 +483,8 @@ Simulator Information: #There must be a space bewteen the colon and the data
 Data Information:
     Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
     Save Location : /home/user/foobar/weights.txt #Where you want to save the weights
+General Settings:
+    Logging Level: warn  #Supports debug info warn
 """
 
     @staticmethod
@@ -457,6 +499,8 @@ Intensities Information : #There must be a space bewteen the colon and the data
 Data Information:
     Monte Carlo Location : /home/user/foobar/data.txt #The location of the data
     Save Location : /home/user/foobar/weights.txt #Where you want to save the intensities
+General Settings:
+    Logging Level: warn  #Supports debug info warn
 """
 
     @staticmethod
@@ -465,6 +509,8 @@ Data Information:
 Max Intensity : 2.78964398923 #The max intensity for the entire data range.
 Intensities Location :  /home/user/foobar/data.txt #The location of the intensities
 Save Location: /home/user/foobar/weights.txt #The location of where to save the data for
+General Settings:
+    Logging Level: warn  #Supports debug info warn
 """
 
     @staticmethod
