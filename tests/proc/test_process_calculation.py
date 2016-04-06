@@ -45,14 +45,14 @@ def test_rejection_acceptance_method_value():
     assert received[0] == 0
 
 
-def test_extended_binned_likelihood():
+def test_extended_likelihood():
     processed = 1/200
 
     processed_data = process_function(DATA["data"], {"A1": 5.341})
     processed_accepted = process_function(ACCEPTED["data"], {"A1": 5.341})
 
-    expected = -(numpy.sum(DATA["QFactor"] * DATA["BinN"] * numpy.log(processed_data))) + \
-                (processed * numpy.sum(ACCEPTED["BinN"] * processed_accepted))
+    expected = -(numpy.sum(DATA["QFactor"] * numpy.log(processed_data))) + \
+                (processed * numpy.sum(processed_accepted))
 
     process = process_calculation.ExtendedLikelihoodAmplitude(process_function, setup, processed, DATA, ACCEPTED,
                                                               SEND_TO[0], RECEIVE_FROM[1])
