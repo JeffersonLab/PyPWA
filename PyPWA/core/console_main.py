@@ -90,8 +90,11 @@ class Fitting(object):
         self.strategy = config["Minuit's Settings"]["Minuit's Strategy"]
         self._logger.debug("Found {0} strategy.".format(self.strategy))
         self.set_up = config["Minuit's Settings"]["Minuit's Set Up"]
+        self._logger.debug("Found {0} for minuit's set up.".format(self.set_up))
         self.ncall = config["Minuit's Settings"]["Minuit's ncall"]
+        self._logger.debug("Found {0} as ncall.".format(self.ncall))
         self.num_threads = config["General Settings"]["Number of Threads"]
+        self._logger.debug("Using {0} number of thread(s)".format(self.num_threads))
         self.cwd = cwd
 
     def start(self):
@@ -102,23 +105,18 @@ class Fitting(object):
         data = parse.parse(self.data_location)
 
         if not isinstance(self.accepted_location, type(None)):
+            self._logger.info("Parsing accepted data.")
             accepted = parse.parse(self.accepted_location)
 
         new_data = {}
         new_accepted = {}
 
-        if not isinstance(self.QFactor_location, type(None)):
-            if "QFactor" in data and os.path.isfile(self.QFactor_location):
-                QFactor = parse.parse(self.QFactor_location)
-                self._logger.info("Loading QFactor from file.")
-                if QFactor != data["QFactor"]:
-                    raise Exception("Two different QFactors were provided! Remove a QFactor set and retry.")
-
         if "QFactor" in data:
-            self._logger.info("Extracting QFactor from ")
+            self._logger.info("Extracting QFactor from Data")
             new_data["QFactor"] = data["QFactor"]
             data.pop("QFactor")
         elif not isinstance(self.QFactor_location, type(None)):
+            self._logger.info("Loading QFactor from file.")
             new_data["QFactor"] = parse.parse(self.QFactor_location)
         else:
             warnings.warn("QFactor data not found! Continuing on without QFactor.")
@@ -133,6 +131,7 @@ class Fitting(object):
                 new_data["BinN"] = data["BinN"]
             data.pop("BinN")
         else:
+            self._logger.info("No bins found, filling with ones.")
             new_data["BinN"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
         new_data["data"] = data
@@ -140,7 +139,8 @@ class Fitting(object):
         try:
             new_accepted["data"] = accepted
         except UnboundLocalError:
-            pass
+            self._logger.info("Didn't find accepted data, continuing without it.")
+
 
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
@@ -191,8 +191,8 @@ class Fitting(object):
             except UnicodeEncodeError:
                 try:
                     print(table)
-                except:
-                    pass
+                except Exception as error:
+                    self._logger.exception(error)
 
             with open( self.save_location + ".txt", "w") as stream:
                 stream.write("Covariance.\n")
@@ -244,12 +244,6 @@ class Chi(object):
         data = parse.parse(self.data_location)
 
         new_data = {}
-
-        if not isinstance(self.QFactor_location, type(None)):
-            if "QFactor" in data and os.path.isfile(self.QFactor_location):
-                QFactor = parse.parse(self.QFactor_location)
-                if QFactor != data["QFactor"]:
-                    raise Exception("Two different QFactors were provided! Remove a QFactor set and retry.")
 
         if "QFactor" in data:
             new_data["QFactor"] = data["QFactor"]
