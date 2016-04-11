@@ -1,4 +1,8 @@
+"""Stores memory data objects.
 
+These objects load in data from disk from a variety of formats
+into the memory to be used by various objects within the program.
+"""
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]

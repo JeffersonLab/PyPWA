@@ -22,13 +22,32 @@ __version__ = VERSION
 
 
 class MemoryCache(object):
-    """Just like the old one, but new!"""
+    """Just like the old one, but new!
+
+    This object caches data stored in the memory on disk in
+    a format that can be quickly loaded too and from disk to RAM
+    quickly. Also contains logic that will help determine if the
+    the contents of the file has changed from the last cache.
+
+    #TODO Split this object into multiple different objects.
+    """
 
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.logger.addHandler(logging.NullHandler())
 
     def make_cache(self, data, file_location, pickle_location=False):
+        """Makes the cache.
+        Makes and hashes the cache with data that was loaded from
+        disk.
+
+        Args:
+            data (dict): Contains the dict of the arrays.
+            file_location (str): The location of the original file.
+            pickle_location (Optional[str]): Where to write the cache.
+        Raises:
+            CacheFailed: Unable to write data to disk.
+        """
         the_pickle = pickle_location or self._find_location(file_location)
         self.logger.debug("Cache location is set to {0}".format(the_pickle))
 
@@ -53,6 +72,17 @@ class MemoryCache(object):
                 raise CacheFailed("Failed to write cache!")
 
     def read_cache(self, file_location, pickle_location=False):
+        """Reads the cache.
+        Parses the cache from the file and checks the cache's hash with
+        the hash recovered from the data file.
+
+        Args:
+            file_location (str): The location of the original file.
+            pickle_location (Optional[str]): The location of the cache.
+        Returns:
+            bool: False if unsuccessful
+            dict: Dictionary of Arrays if successful.
+        """
         the_location = pickle_location or self._find_location(file_location)
         self.logger.debug("Cache location set to {0}".format(the_location))
 
@@ -83,7 +113,17 @@ class MemoryCache(object):
 
     @staticmethod
     def _find_location(file_location, fallback=False):
-        file_name = "." + os.path.splitext(os.path.basename(file_location))[0] + ".pickle"
+        """Returns the cache location.
+        Searches for the location of the cache, will first return the location of the
+        OSes user cache location, then will return the location of the data with caches.
+
+        Args:
+            file_location (str): The location of the data.
+            fallback (bool): True to put the method into fallback to return the data location, false to us OS location.
+        Returns:
+            str: The location of the cache.
+        """
+        file_name = os.path.splitext(os.path.basename(file_location))[0] + ".pickle"
         if os.path.exists(appdirs.user_cache_dir()) and not fallback:
             if not os.path.exists(appdirs.user_cache_dir("PyPWA", "Jlab")):
                 os.makedirs(appdirs.user_cache_dir("PyPWA", "Jlab"))
@@ -93,6 +133,14 @@ class MemoryCache(object):
 
     @staticmethod
     def _file_hash(the_file):
+        """Finds the hash of the file.
+        Loads the contents of the file to create a SHA512 sum of the file.
+
+        Args:
+            the_file (str): Location of the data file.
+        Returns:
+            str: The SHA512 sum of the file.
+        """
         the_hash = hashlib.sha512()
         with io.open(the_file, "rb") as stream:
             for chunk in iter(lambda: stream.read(4096), b""):
@@ -101,16 +149,35 @@ class MemoryCache(object):
 
     @staticmethod
     def _load_pickle(pickle_location):
+        """Loads the cache from file.
+
+        Args:
+            pickle_location (str): The location of the cache on disk.
+        Returns:
+            unknown: The contents of the cache, hopefully a dictionary of arrays.
+        """
         return pickle.load(io.open(pickle_location, "rb"))
 
     @staticmethod
     def _write_pickle(pickle_location, data):
+        """Writes the data into a cache.
+
+        Args:
+            pickle_location (str): The location of the cache.
+            data (dict): A dictionary of arrays to be written to disk.
+        """
         pickle.dump(data, io.open(pickle_location, "wb"), protocol=pickle.HIGHEST_PROTOCOL)
 
 
 class CacheFailed(Exception):
+    """
+    The Exception for when the Cache Writing has Failed.
+    """
     pass
 
 
 class NoCachePath(Exception):
+    """
+    The Exception for when the object was unable to determine a writable path for the cache.
+    """
     pass

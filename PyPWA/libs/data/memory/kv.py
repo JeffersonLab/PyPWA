@@ -17,7 +17,7 @@ __version__ = VERSION
 class KvInterface(object):
 
     def parse(self, file_location):
-        raise NotImplementedError("Class %s doesn't implement parse()" % self.__class__.__name__ )
+        raise NotImplementedError("Class %s doesn't implement parse()" % self.__class__.__name__)
 
     @staticmethod
     def write(file_location, data):
@@ -25,6 +25,13 @@ class KvInterface(object):
 
     @staticmethod
     def file_length(file_location):
+        """Determines the number of lines in the file.
+
+        Args:
+            file_location (str): The file to check for line count.
+        Returns:
+            int: The number of lines.
+        """
         with io.open(file_location) as stream:
             for file_length, line in enumerate(stream):
                 pass
