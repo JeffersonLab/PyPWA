@@ -132,7 +132,7 @@ gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_
 
 if args.weighted_mask != "":
     if args.weighted_out != "":
-    	print "masking wn!"
+        print "masking wn!"
         gM.maskWN()
     else:
         print "Need a filepath to save new weighted file to."
