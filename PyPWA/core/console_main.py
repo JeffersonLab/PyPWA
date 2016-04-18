@@ -84,7 +84,7 @@ class Fitting(object):
         self.save_location = config["Data Information"]["Save Name"]
         self._logger.debug("Found save location")
         self.initial_settings = config["Minuit's Settings"]["Minuit's Initial Settings"]
-        self._logger.debug("Found minuet config {0}.".format(self.initial_settings))
+        self._logger.debug("Found minuit config {0}.".format(self.initial_settings))
         self.parameters = config["Minuit's Settings"]["Minuit's Parameters"]
         self._logger.debug("Found {0} parameters.".format(self.parameters))
         self.strategy = config["Minuit's Settings"]["Minuit's Strategy"]
@@ -119,7 +119,7 @@ class Fitting(object):
             self._logger.info("Loading QFactor from file.")
             new_data["QFactor"] = parse.parse(self.QFactor_location)
         else:
-            warnings.warn("QFactor data not found! Continuing on without QFactor.")
+            self._logger.info("QFactor data not found! Continuing on without QFactor.")
             new_data["QFactor"] = numpy.ones(shape=len(data[data.keys()[0]]))
 
         if "BinN" in data:
@@ -140,7 +140,6 @@ class Fitting(object):
             new_accepted["data"] = accepted
         except UnboundLocalError:
             self._logger.info("Didn't find accepted data, continuing without it.")
-
 
         print("Loading users function.\n")
         functions = calculation_tools.FunctionLoading(self.cwd, self.function_location, self.amplitude_name,
