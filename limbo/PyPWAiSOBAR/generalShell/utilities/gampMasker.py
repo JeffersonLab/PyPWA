@@ -39,8 +39,8 @@ class gampMasker (object):
     def maskPF(self):
         with open(args.accepted_out,'w+')as pfOut:
             if "gamp" in self.File:
-            	n = 0
-            	print self.gampList.shape[0]
+                n = 0
+                print self.gampList.shape[0]
                 for n in range(self.gampList.shape[0]):
   #              for n in range(len(self.gampList)):
                     pfEvent = self.gampT.writeEvent(self.gampList[n,:,:])
@@ -106,57 +106,58 @@ class gampMasker (object):
                                 mkOut.write(str(i)+"="+str(mkEvent.pop(i))+"\n")
 
 
-parser = argparse.ArgumentParser(description="""A tool for producing gamp files from phase space using pre-calculated mask files.""")
-parser.add_argument("file",help="The full filepath/name of the gamp or text file to be masked.",default="")
-parser.add_argument("-pf","--acceptance_mask",help="The full filepath/name of the pf acceptance (.txt) file to use.",default="")
-parser.add_argument("-pfOut","--accepted_out",help="The full filepath/name of the accepted output file.",default="./pf_Out")
-parser.add_argument("-w","--weighted_mask",help="The full filepath/name of the weight mask (.npy) file to use.",default="")
-parser.add_argument("-wOut","--weighted_out",help="The full filepath/name of the weighted output file.",default="./weight_Out")
-parser.add_argument("-b","--both_masks",help="Use both the acceptance and weighted masks.",action="store_true")
-parser.add_argument("-bOut","--both_out",help="The full filepath/name of the accepted and weighted output file.",default="./acc_weight_Out")
-parser.add_argument("-c","--custom_mask",help="Use a custom mask.",action="store_true")
-args = parser.parse_args()
+def run_gamp_masker():
+    parser = argparse.ArgumentParser(description="""A tool for producing gamp files from phase space using pre-calculated mask files.""")
+    parser.add_argument("file",help="The full filepath/name of the gamp or text file to be masked.",default="")
+    parser.add_argument("-pf","--acceptance_mask",help="The full filepath/name of the pf acceptance (.txt) file to use.",default="")
+    parser.add_argument("-pfOut","--accepted_out",help="The full filepath/name of the accepted output file.",default="./pf_Out")
+    parser.add_argument("-w","--weighted_mask",help="The full filepath/name of the weight mask (.npy) file to use.",default="")
+    parser.add_argument("-wOut","--weighted_out",help="The full filepath/name of the weighted output file.",default="./weight_Out")
+    parser.add_argument("-b","--both_masks",help="Use both the acceptance and weighted masks.",action="store_true")
+    parser.add_argument("-bOut","--both_out",help="The full filepath/name of the accepted and weighted output file.",default="./acc_weight_Out")
+    parser.add_argument("-c","--custom_mask",help="Use a custom mask.",action="store_true")
+    args = parser.parse_args()
 
-gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
+    gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
-if args.acceptance_mask != "":
-    if args.accepted_out != "":
-        print "masking pf!"
-        gM.maskPF()
-    else:
-        print "Need a filepath to save new accepted file to."
-        exit()
+    if args.acceptance_mask != "":
+        if args.accepted_out != "":
+            print "masking pf!"
+            gM.maskPF()
+        else:
+            print "Need a filepath to save new accepted file to."
+            exit()
 
 
-gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
+    gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
-if args.weighted_mask != "":
-    if args.weighted_out != "":
-        print "masking wn!"
-        gM.maskWN()
-    else:
-        print "Need a filepath to save new weighted file to."
-        exit()
-
-gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
-
-if args.both_masks:
-    if args.accepted_out != "":
+    if args.weighted_mask != "":
         if args.weighted_out != "":
-            print "masking both!"
-            gM.maskBoth()
+            print "masking wn!"
+            gM.maskWN()
         else:
             print "Need a filepath to save new weighted file to."
             exit()
 
-    else:
-        print "Need a filepath to save new accepted file to."
-        exit()
+    gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
+
+    if args.both_masks:
+        if args.accepted_out != "":
+            if args.weighted_out != "":
+                print "masking both!"
+                gM.maskBoth()
+            else:
+                print "Need a filepath to save new weighted file to."
+                exit()
+
+        else:
+            print "Need a filepath to save new accepted file to."
+            exit()
 
 
-gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
+    gM = gampMasker(File=args.file,pfFile=args.acceptance_mask,wnFile=args.weighted_mask)
 
-if args.custom_mask:
-    print "masking any!"
-    gM.maskAny()
+    if args.custom_mask:
+        print "masking any!"
+        gM.maskAny()
 
