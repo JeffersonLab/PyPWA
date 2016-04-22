@@ -19,7 +19,7 @@ class SvParser(object):
     Object for reading and writing delimiter separated data files.
     """
 
-    def reader(self, file_location):
+    def parse(self, file_location):
         """Reads a delimiter separated file containing data from disk.
 
         Args:
@@ -48,7 +48,7 @@ class SvParser(object):
 
         return parsed
 
-    def writer(self, file_location, data):
+    def write(self, file_location, data):
         """Writes the data from memory to file.
 
         Args:
@@ -57,19 +57,19 @@ class SvParser(object):
         """
         extension = file_location.split(".")[-1]
 
-        if extension == ".tsv":
-            dialect = csv.excel_tab
+        if extension == "tsv":
+            the_dialect = csv.excel_tab
         else:
-            dialect = csv.excel
+            the_dialect = csv.excel
 
         with io.open(file_location, "wt") as stream:
             field_names = list(data.keys())
 
-            writer = csv.DictWriter(stream, fieldnames=field_names, dialect=dialect)
+            writer = csv.DictWriter(stream, fieldnames=field_names, dialect=the_dialect)
             writer.writeheader()
 
             for index in range(len(data[field_names[0]])):
                 temp = {}
                 for field in field_names:
-                    temp[field] = data[field][index]
+                    temp[field] = repr(data[field][index])
                 writer.writerow(temp)
