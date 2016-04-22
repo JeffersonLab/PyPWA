@@ -23,7 +23,7 @@ setup(
         "numexpr"
     ],
     entry_points={
-        "console_scripts": "GampMasker = PyPWAiSOBAR.generalShell.utilities.gampMasker"
+        "console_scripts": "GampMasker = PyPWAiSOBAR.generalShell.utilities.gampMasker:run_gamp_masker"
     }
 )
 
