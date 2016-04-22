@@ -359,6 +359,7 @@ class Simulator(object):
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list)
+        numpy.save(self.save_location.strip(".txt")+".npy", rejection_list)
 
 
 class Intensities(object):
@@ -417,6 +418,7 @@ class Weights(object):
 
         print("Saving Data")
         data_manager.write(self.save_location, rejection_list)
+        numpy.save(self.save_location.strip(".txt")+".npy", rejection_list)
 
 
 class Configurations(object):
