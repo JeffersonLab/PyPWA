@@ -238,4 +238,4 @@ class ChiSquared(AbstractLikelihoodAmplitude):
 
     def likelihood(self, parameters):
         processed_data = self._amplitude_function(self._data["data"], parameters)
-        return ((processed_data - self._data["BinN"])**2) / self._data["BinN"]
+        return numpy.sum(((processed_data - self._data["BinN"])**2) / self._data["BinN"])
