@@ -50,3 +50,32 @@ class Chi(object):
         """
         masked_data = numpy.ma.masked_equal(data, 0)
         return ((masked_data - binned)**2) / binned
+
+
+class FittingRunKernel(object):
+    def __init__(self, num_processes, parameter_names):
+        self._num_processes = num_processes
+        self._parameter_names = parameter_names
+
+    def run(self, coms, *args):
+        """
+        This is the function is called by minuit and acts as a wrapper for the users function
+        Args:
+            *args: The parameters in list format
+        Returns:
+            float: The final value from the likelihood function
+        """
+
+        parameters_with_values = {}
+        for parameter, arg in zip(self._parameter_names, args):
+            parameters_with_values[parameter] = arg
+
+        for pipe in coms:
+            pipe.send(parameters_with_values)
+
+        values = numpy.zeros(shape=self._num_processes)
+
+        for index, pipe in enumerate(coms):
+            values[index] = pipe.recieve()
+
+        return numpy.sum(values)
