@@ -14,7 +14,7 @@ __email__ = "maj@jlab.org"
 __status__ = "development"
 
 
-class SingleFactory(object):
+class SimplexFactory(object):
     """Makes simplex pipe objects
     This object returns the requested amount of simplex
     pipes that can be used for inter-process communication.
@@ -43,8 +43,8 @@ class SingleFactory(object):
 
         for pipe in range(self.count):
             receive, send = multiprocessing.Pipe(False)
-            self._sends[pipe] = SingleSend(send)
-            self._receives[pipe] = SingleReceive(receive)
+            self._sends[pipe] = SimplexSend(send)
+            self._receives[pipe] = SimplexReceive(receive)
 
         return self.pipes
 
@@ -94,7 +94,16 @@ class DuplexFactory(object):
         return [self._main, self._process]
 
 
-class SingleSend(object):
+class CommunicationInterface(object):
+
+    def send(self, data):
+        raise NotImplementedError
+
+    def receive(self):
+        raise NotImplementedError
+
+
+class SimplexSend(CommunicationInterface):
     """Simple Send object
     Args:
         send_pipe (multiprocessing.Pipe): The pipe that can be used to send data
@@ -110,8 +119,15 @@ class SingleSend(object):
         """
         self.send_pipe.send(data)
 
+    def receive(self):
+        """Null Call to receive method.
+        Raises:
+            SimplexError: Simplex object can only send data.
+        """
+        raise SimplexError("Communication Object is Simplex and doesn't support the receive method.")
 
-class SingleReceive(object):
+
+class SimplexReceive(CommunicationInterface):
     """Simple Receive object
     Args:
         receive_pipe (multiprocessing.Pipe): The pipe that can be used to receive data
@@ -119,6 +135,13 @@ class SingleReceive(object):
 
     def __init__(self, receive_pipe):
         self.receive_pipe = receive_pipe
+
+    def send(self, data):
+        """Null call to send method.
+        Raises:
+            SimplexError: Simplex object can only receive.
+        """
+        raise SimplexError("Communication Object is Simplex and doesn't support the send method.")
 
     def receive(self):
         """Call to fetch data from the pipe.
@@ -128,7 +151,7 @@ class SingleReceive(object):
         return self.receive_pipe.recv()
 
 
-class DuplexCommunication(object):
+class DuplexCommunication(CommunicationInterface):
     """
     The Duplex communication object, use for inter-communication between the threads.
 
@@ -154,3 +177,12 @@ class DuplexCommunication(object):
             object: Any data that can be pickled.
         """
         return self.receive_pipe.recv()
+
+
+class SimplexError(Exception):
+    """
+    The SimplexError is a simple exception that is thrown when someone
+    calls a simplex as a duplex object. Helps the interface determine whether
+    the directions of the communication object. This may go away in the future.
+    """
+    pass
