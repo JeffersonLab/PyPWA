@@ -1,7 +1,7 @@
 import numpy
 import os
 
-import PyPWA.libs.proc.calculation_tools as calculation_tools
+import PyPWA.libs.process.utilities as calculation_tools
 
 DATA = {
     'BinN': numpy.array([0.24418789, 0.10050128, 0.9089618, 0.40875684, 0.53606013, 0.52099577]),

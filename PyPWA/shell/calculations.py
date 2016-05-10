@@ -23,21 +23,30 @@ class ExtendedLikelihoodAmplitude(object):
             accepted:
             qfactor:
         """
-        masked_data = numpy.ma.masked_equal(data, 0)
-        masked_accepted = numpy.ma.masked_equal(accepted, 0)
-        return -(numpy.sum(qfactor * numpy.ma.log(masked_data))) + (self._processed * numpy.ma.sum(masked_accepted))
+        try:
+            value = -(numpy.sum(qfactor * numpy.log(data))) + (self._processed * numpy.sum(accepted))
+        except ZeroDivisionError:
+            value = numpy.NaN
+
+        return value
 
 
 class UnextendedLikelihoodAmplitude(object):
-    def likelihood(self, data, binned, qfactor):
+
+    @staticmethod
+    def likelihood(data, binned, q_factor):
         """Calculates the binned likelihood function
         Args:
             data:
             binned:
-            qfactor:
+            q_factor:
         """
-        masked_data = numpy.ma.masked_equal(data, 0)
-        return -(numpy.ma.sum(qfactor * binned * numpy.ma.log(masked_data)))
+        try:
+            value = -(numpy.sum(q_factor * binned * numpy.log(data)))
+        except ZeroDivisionError:
+            value = numpy.NaN
+
+        return value
 
 
 class Chi(object):

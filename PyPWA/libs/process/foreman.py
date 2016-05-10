@@ -2,7 +2,7 @@
 Multiprocessing Calculation
 """
 import logging
-from PyPWA.libs.proc import processes, communication
+from PyPWA.libs.process import processes, communication
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"

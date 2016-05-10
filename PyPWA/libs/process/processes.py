@@ -2,7 +2,7 @@
 Actual process objects are defined here
 """
 import multiprocessing
-from PyPWA.libs.proc import communication
+from PyPWA.libs.process import communication
 
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
