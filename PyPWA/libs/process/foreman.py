@@ -2,7 +2,7 @@
 Multiprocessing Calculation
 """
 import logging
-from PyPWA.libs.process import processes, communication
+from PyPWA.libs.process import processing, communication
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
@@ -113,10 +113,10 @@ class CalculationForeman(object):
         """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
-            return processes.DuplexCalculationFactory(self._process_kernel, self._num_processes)
+            return processing.DuplexCalculationFactory(self._process_kernel, self._num_processes)
         else:
             self._logger.debug("Building Simplex Processes.")
-            return processes.SimplexCalculationFactory(self._process_kernel, self._num_processes)
+            return processing.SimplexCalculationFactory(self._process_kernel, self._num_processes)
 
     def build(self):
         """
