@@ -2,7 +2,7 @@
 Multiprocessing Calculation
 """
 import logging
-from PyPWA.libs.proc import process_calculation, process_communication
+from PyPWA.libs.proc import processes, communication
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
 __license__ = "MIT"
@@ -23,7 +23,7 @@ class ProcessInterface(object):
 
         Args:
             interface_kernel: Object with a run method to be used to handle returned data.
-            process_com (list[process_communication.CommunicationInterface]): Objects needed to exchange data with the processes.
+            process_com (list[communication.CommunicationInterface]): Objects needed to exchange data with the processes.
             processes (list[multiprocessing.Process]): List of the processing processes.
         """
         self._logger = logging.getLogger(__name__)
@@ -109,14 +109,14 @@ class CalculationForeman(object):
     def _make_process(self):
         """Calls the factory objects to generate the processes
         Returns:
-            list[list[process_communication.CommunicationInterface],list[process_calculation.Process]]
+            list[list[communication.CommunicationInterface],list[process_calculation.Process]]
         """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
-            return process_calculation.DuplexCalculationFactory(self._process_kernel, self._num_processes)
+            return processes.DuplexCalculationFactory(self._process_kernel, self._num_processes)
         else:
             self._logger.debug("Building Simplex Processes.")
-            return process_calculation.SimplexCalculationFactory(self._process_kernel, self._num_processes)
+            return processes.SimplexCalculationFactory(self._process_kernel, self._num_processes)
 
     def build(self):
         """

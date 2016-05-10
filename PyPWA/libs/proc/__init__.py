@@ -1,7 +1,7 @@
 """
 This is the builtin plugin for Multiprocessing, it makes a handful of assumptions but it works.
 """
-from PyPWA.libs.proc.calculation import CalculationForeman
+from PyPWA.libs.proc.foreman import CalculationForeman
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
