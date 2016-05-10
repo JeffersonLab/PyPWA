@@ -15,6 +15,9 @@ import sys
 import warnings
 
 
+# TODO move this worthless pile of code.
+
+
 class Minimizer(object):
     """Object based off of iminuit, provides an easy way to run minimalization
     Args:
