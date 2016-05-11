@@ -3,7 +3,7 @@ Entry point for console GeneralShell
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.libs.wrappers import StartBuilder
+from PyPWA.configuratr.wrappers import StartBuilder
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
