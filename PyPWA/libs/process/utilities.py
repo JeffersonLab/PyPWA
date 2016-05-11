@@ -1,65 +1,125 @@
-"""
-Tools needed for the various Amplitude analysing utilities.
-"""
+# The MIT License (MIT)
+#
+# Copyright (c) 2014-2016 JLab.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 
-import numpy
+"""
+This file holds the kernels that need to be extended so that other plugins and
+developers can use the process method.
+"""
+from PyPWA.libs.process import communication
+from PyPWA import VERSION, LICENSE, STATUS
 
-__author__ = "Mark Jones"
+__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
+__maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
-__status__ = "Beta0"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class AbstractInterface(object):
-    pass
 
-
-class AbstractProcess(object):
-    pass
-
-
-class DictionarySplitter(object):
-    """Splits data up depending on time into defined number of chunks"""
-
-    def split(self, data, num_chunks):
-        """Entry point for object.
-        Args:
-            data (dict/float): Data to be split up
-            num_chunks (int): Number of chunks to return
-        Returns:
-            list: Each index is a chunk of the returned data in order
+    def __init__(self, is_duplex):
         """
-        if num_chunks == 1:
-            return [data]
+        This is kernel that will run inside the Interface object, this object
+        will be called every time the run method of the interface is called.
 
-        if type(data) == dict:
-            return self._dictionary_split(data, num_chunks)
-
-    @staticmethod
-    def _dictionary_split(dictionary, num_chunks):
-        """Splits dictionary into user defined number of chunks
+        Note:
+            This might be replaced through extension, we might require
+            developers in the future to extend the Interface directly and define
+            the run object.
         Args:
-            dictionary (dict): Dictionary of arrays that needs to be split
-            num_chunks (int): Number of chunks
-        Returns:
-            list: Each index is a chunk of the returned data in order
+            is_duplex (bool): Defines whether the object is duplex or not.
+                Is needed so that the foreman knows to call for duplex or
+                simplex processes. True if is duplex, False for simplex.
         """
-        split_dictionary = []
+        self.is_duplex = is_duplex
 
-        for x in range(num_chunks):
-            split_dictionary.append({})
+    def run(self, communicator, args):
+        """
+        Method that is called by the interface. This will be the method that
+        you will use when you want to call something that
+        Args:
+            communicator (communication.CommunicationInterface): This is how the
+                interface will communicate to the threads. If duplex is
+                set to true this will be able to send and receive data, if
+                is false than will be able to receive data only.
+            args: This will be whatever you sent to the run method, whatever
+                you sent to the method will be packaged together here as a
+                list.
 
-        for data in dictionary:
-            if isinstance(dictionary[data], numpy.ndarray):
-                for index in range(num_chunks):
-                    split_dictionary[index][data] = numpy.array_split(dictionary[data], num_chunks)[index]
-            elif isinstance(dictionary[data], dict):
-                for index in range(num_chunks):
-                    split_dictionary[index][data] = {}
-                for key in dictionary[data]:
-                    for index in range(num_chunks):
-                        split_dictionary[index][data][key] = numpy.array_split(dictionary[data][key], num_chunks)[index]
-        return split_dictionary
+        Returns:
+            This can return whatever the developer needs it to return, there
+            are no limitations.
+
+        Raises:
+            NotImplementedError: This is raised if this method isn't overwritten
+            by the developer before the method is sent to the Interface Object.
+        """
+        raise NotImplementedError("The run method must be extended!")
+
+
+class AbstractKernel(object):
+    """
+    This is the main kernel that is used inside the process. This kernel needs
+    to be nested with all the information that it needs in order to run before
+    it is sent to the foreman to be nested inside the processes.
+    """
+
+    def setup(self):  # TODO(maj@jlab.org) Discuss with others about return
+        # function before the initial launch of PyPWA 2.
+        """
+        This method will be called once before any processing occurs, if there
+        is any logic that needs to be executed once per thread to set up the
+        process before any processing occurs that logic needs to be placed
+        here.
+
+        Note:
+            This might have a return value of 1 for failure in the future and
+            a value of 0 for success so that the process can crash silently and
+            handle the error properly. This will be discussed further.
+
+        Returns:
+            Nothing. No return value will be handled here.
+        Raises:
+            NotImplementedError: This will be raised if the developer failed to
+                extend the method.
+        """
+        raise NotImplementedError("The setup method must be extended!")
+
+    def process(self, data):
+        """
+        This method will be called every single time the process receives data
+        from the main process.
+
+        Args:
+            data: Anything that you sent out to all threads will come through
+                here.
+
+        Returns:
+            Anything that is pickle-able that you want to send back to your
+            main thread. This excludes things like functions and objects.
+        Raises:
+            NotImplementedError: This will be raised if the developer failed to
+                extend the method.
+        """
+        raise NotImplementedError("The process method must be extended!")
