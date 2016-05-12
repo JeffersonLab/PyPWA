@@ -21,7 +21,10 @@
 # THE SOFTWARE.
 
 """
-Multiprocessing Calculation
+This is the main file for the process plugin. This plugin contains all the logic
+needed to generate offload processes and worker processes, this is all done by
+extending the kernels with your needed information then passing those kernels
+back to the Foreman.
 """
 
 import logging
@@ -160,12 +163,10 @@ class CalculationForeman(object):
         """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
-            return _processing.DuplexCalculationFactory(self._process_kernel,
-                                                        self._num_processes)
+            return _processing.DuplexCalculationFactory(self._process_kernel)
         else:
             self._logger.debug("Building Simplex Processes.")
-            return _processing.SimplexCalculationFactory(self._process_kernel,
-                                                         self._num_processes)
+            return _processing.SimplexCalculationFactory(self._process_kernel)
 
     def build(self):
         """

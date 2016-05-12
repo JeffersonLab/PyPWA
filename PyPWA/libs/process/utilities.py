@@ -44,11 +44,6 @@ class AbstractInterface(object):
         This is kernel that will run inside the Interface object, this object
         will be called every time the run method of the interface is called.
 
-        Note:
-            This might be replaced through extension, we might require
-            developers in the future to extend the Interface directly and define
-            the run object.
-
         Args:
             is_duplex (bool): Defines whether the object is duplex or not.
                 Is needed so that the foreman knows to call for duplex or
@@ -108,14 +103,14 @@ class AbstractKernel(object):
         """
         raise NotImplementedError("The setup method must be extended!")
 
-    def process(self, data):
+    def process(self, data=False):
         """
         This method will be called every single time the process receives data
         from the main process.
 
         Args:
-            data: Anything that you sent out to all threads will come through
-                here.
+            data (Optional): Anything that you sent out to all threads will come
+                through here.
 
         Returns:
             Anything that is pickle-able that you want to send back to your

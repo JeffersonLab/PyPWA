@@ -21,8 +21,16 @@
 # THE SOFTWARE.
 
 """
-This is the builtin plugin for Multiprocessing, it makes a handful of
-assumptions but it works.
+This is the builtin plugin for Multiprocessing, it works by taking the
+users kernels and interface and nesting them into their own individual processes
+and the interface that is connected to them, then returns that interface so that
+the user can manipulate those processes.
+
+Example:
+    foreman = CalculationForeman(AbstractInterface, AbstractKernels)
+    foreman.build()
+    interface = foreman.fetch_interface()
+    processed_value = interface.run("Your args)
 """
 
 from PyPWA.libs.process.foreman import CalculationForeman
