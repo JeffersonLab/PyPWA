@@ -7,7 +7,7 @@ import logging
 import numpy
 import pytest
 
-import PyPWA.libs.process.communication
+import PyPWA.libs.process._communication
 
 __author__ = "Mark Jones"
 __credits__ = ["Mark Jones"]
@@ -32,7 +32,7 @@ def test_duplex_factory():
     the pipes return the wrong data.
     """
     logger.debug("Loading the duplex factory.")
-    the_big_factory = PyPWA.libs.process.communication.DuplexFactory(300)
+    the_big_factory = PyPWA.libs.process._communication._DuplexFactory(300)
     logger.debug("Starting the build process.")
     pipes = the_big_factory.build()
 
@@ -62,7 +62,7 @@ def test_single_factory():
     the pipes is returned on the correct end.
     """
     logger.debug("Loading the singles factory.")
-    the_single_factory = PyPWA.libs.process.communication.SimplexFactory(300)
+    the_single_factory = PyPWA.libs.process._communication._SimplexFactory(300)
     logger.debug("Starting the build process.")
     pipes = the_single_factory.build()
 
@@ -84,11 +84,11 @@ def test_simplex_error():
     Returns:
 
     """
-    sends = PyPWA.libs.process.communication.SimplexSend(1)
-    receives = PyPWA.libs.process.communication.SimplexReceive(1)
+    sends = PyPWA.libs.process._communication._SimplexSend(1)
+    receives = PyPWA.libs.process._communication._SimplexReceive(1)
 
-    with pytest.raises(PyPWA.libs.process.communication.SimplexError):
+    with pytest.raises(PyPWA.libs.process._communication._SimplexError):
         sends.receive()
 
-    with pytest.raises(PyPWA.libs.process.communication.SimplexError):
+    with pytest.raises(PyPWA.libs.process._communication._SimplexError):
         receives.send(1)

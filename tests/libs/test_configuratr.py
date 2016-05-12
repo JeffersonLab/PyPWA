@@ -1,4 +1,4 @@
-import PyPWA.libs.configuratr
+import PyPWA.configuratr
 
 DATA_CONFIG = {
     "Data Location": "/some/data/location.tsv",
@@ -13,7 +13,7 @@ BROKEN_DATA_CONFIG = ["not a dict", 5]
 
 
 def test_data_configuratr():
-    configuratr = PyPWA.libs.configuratr.DataConfiguratr(DATA_CONFIG)
+    configuratr = PyPWA.configuratr.DataConfiguratr(DATA_CONFIG)
 
     assert configuratr.data_location() == "/some/data/location.tsv"
     assert configuratr.monte_carlo_location == "/some/other/data/location.tsv"

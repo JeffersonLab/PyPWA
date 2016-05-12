@@ -1,7 +1,7 @@
 import numpy
 import pytest
 
-from PyPWA.libs.process import processes, communication
+from PyPWA.libs.process import _processing, _communication
 
 
 def process_function(the_array, the_params):
@@ -31,13 +31,13 @@ ACCEPTED = {
     }
 }
 
-SEND_TO, RECEIVE_FROM = communication.ProcessPipes.return_pipes(2)
+SEND_TO, RECEIVE_FROM = _communication.ProcessPipes.return_pipes(2)
 
 
 def test_rejection_acceptance_method_value():
     expected = numpy.array([0.87104099, 0.65580649, 2.54315913, 3.62430913, 4.3409056, 5.02029565])
-    process = processes.RejectionAcceptanceAmplitude(process_function, setup, DATA["data"],
-                                                     {"A1": 5.341}, SEND_TO[0], 0)
+    process = _processing.RejectionAcceptanceAmplitude(process_function, setup, DATA["data"],
+                                                       {"A1": 5.341}, SEND_TO[0], 0)
 
     process.start()
     received = RECEIVE_FROM[0].recv()
@@ -55,8 +55,8 @@ def test_extended_binned_likelihood():
     expected = -(numpy.sum(DATA["QFactor"] * DATA["BinN"] * numpy.log(processed_data))) + \
                 (processed * numpy.sum(ACCEPTED["BinN"] * processed_accepted))
 
-    process = processes.ExtendedLikelihoodAmplitude(process_function, setup, processed, DATA, ACCEPTED,
-                                                    SEND_TO[0], RECEIVE_FROM[1])
+    process = _processing.ExtendedLikelihoodAmplitude(process_function, setup, processed, DATA, ACCEPTED,
+                                                      SEND_TO[0], RECEIVE_FROM[1])
     process.start()
 
     SEND_TO[1].send({"A1": 5.341})
@@ -72,8 +72,8 @@ def test_unextended_binned_value():
     processed_data = process_function(DATA["data"], {"A1": 5.341})
     expected = -(numpy.sum(DATA["QFactor"] * DATA["BinN"] * numpy.log(processed_data)))
 
-    process = processes.UnextendedLikelihoodAmplitude(process_function, setup, DATA, SEND_TO[0],
-                                                      RECEIVE_FROM[1])
+    process = _processing.UnextendedLikelihoodAmplitude(process_function, setup, DATA, SEND_TO[0],
+                                                        RECEIVE_FROM[1])
     process.start()
 
     SEND_TO[1].send({"A1": 5.341})
@@ -84,12 +84,12 @@ def test_unextended_binned_value():
 
 
 def test_abstract_calls():
-    abstract_one = processes.AbstractProcess()
+    abstract_one = _processing.AbstractProcess()
     with pytest.raises(NotImplementedError):
         abstract_one.setup()
     with pytest.raises(NotImplementedError):
         abstract_one.processing()
 
-    abstract_two = processes.AbstractLikelihoodAmplitude(setup, SEND_TO[0], RECEIVE_FROM[1])
+    abstract_two = _processing.AbstractLikelihoodAmplitude(setup, SEND_TO[0], RECEIVE_FROM[1])
     with pytest.raises(NotImplementedError):
         abstract_two.likelihood({"A1": 5.341})
