@@ -58,7 +58,7 @@ class KvInterface(object):
         Determines the number of lines in the file.
 
         Args:
-            file_location (str): The file to check for line count.
+            file_location (str): The file to check for line _count.
 
         Returns:
             int: The number of lines.
