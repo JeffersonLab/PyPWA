@@ -29,8 +29,8 @@ import os
 import yaml
 
 import PyPWA.libs.data.data_tools as data_tools
-from PyPWA.libs.data.memory import sv, kv
 from PyPWA import VERSION, LICENSE, STATUS
+from libs.data.builtin import sv, kv
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
