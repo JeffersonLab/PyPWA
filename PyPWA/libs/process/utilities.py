@@ -25,7 +25,7 @@ This file holds the kernels that need to be extended so that other plugins and
 developers can use the process method.
 """
 
-from PyPWA.libs.process import communication
+from PyPWA.libs.process import _communication
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -62,7 +62,7 @@ class AbstractInterface(object):
         you will use when you want to call something that
 
         Args:
-            communicator (communication.CommunicationInterface): This is how the
+            communicator (_communication.CommunicationInterface): This is how the
                 interface will communicate to the threads. If duplex is set to
                 true this will be able to send and receive data, if is false
                 than will be able to receive data only.

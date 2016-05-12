@@ -26,7 +26,7 @@ Actual process objects are defined here
 
 import multiprocessing
 
-from PyPWA.libs.process import communication
+from PyPWA.libs.process import _communication
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -81,7 +81,7 @@ class SimplexCalculationFactory(object):
         self._receives = []
 
     def build(self):
-        sends, self._receives = communication.SimplexFactory(self._count)
+        sends, self._receives = _communication.SimplexFactory(self._count)
 
         for kernel, send in zip(self._kernel, sends):
             self._processes.append(SimplexProcess(kernel, send))
@@ -101,7 +101,7 @@ class DuplexCalculationFactory(object):
         self._main_com = []
 
     def build(self):
-        self._main_com, process_com = communication.DuplexFactory(self._count)
+        self._main_com, process_com = _communication.DuplexFactory(self._count)
 
         for kernel, process_com in zip(self._kernel, process_com):
             self._processes.append(DuplexProcess(kernel, process_com))
