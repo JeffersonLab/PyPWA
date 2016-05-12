@@ -26,9 +26,11 @@ location. This is an internal file only, and should be only be used by the
 configuratr.
 """
 
+from __future__ import absolute_import
+
 import sys
 import logging
-import warnings
+import os
 
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -40,69 +42,56 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+# Define the logger for the entire page since there are no objects here.
+_LOGGER = logging.getLogger(__name__)
+_LOGGER.addHandler(logging.NullHandler())
 
-class _FunctionLoading(object):
-    def __init__(self, cwd, function_location, function_name, setup_name):
-        """
-        This object loads the users python files into the program to be
-        executed. I can not stress enough to verify the code before you import
-        it, and do not import random python files you found online. Files with
-        malicious intent can easily do permanent damage to your machine and
-        your data. Use unverified code at your own risk!
 
-        Args:
-            cwd (str): The root directory where the files are held.
-            function_location (str): The path to the python file.
-            function_name (str): The name of the function that you want to load.
-            setup_name (str): The name of the function you want to call before
-                you execute your main function.
-        """
-        self._logger = logging.getLogger(__name__)
-        self._users_amplitude, self._users_setup = self._import_function(
-            cwd, function_location, function_name, setup_name
-        )
+def import_object(file_location, object_name, cwd=False):
+    """
+    Takes a single file, imports it, then returns whatever the requested object
+    was for the program or user to manipulate however they need.
 
-    @staticmethod
-    def _import_function(cwd, function_location, function_name, setup_name):
-        """
-        Imports and sets up functions for usage.
+    Args:
+        file_location (str): The location to the file that needs to be imported.
+        object_name (str): The name of the python object that needs to be
+            imported.
+        cwd (Optional[str]): The root directory of the file.
 
-        Args:
-            cwd (str): Path to folder with the functions
-            function_location (str): Path to the file
-            function_name (str): Name of Amplitude function
-            setup_name (str): Name of Setup function.
+    Returns:
+        The object that was called during the extraction process.
 
-        Returns:
-            list: [ amplitude function, setup function ]
-        """
-        sys.path.append(cwd)
-        try:
-            imported = __import__(function_location.strip(".py"))
-        except ImportError:
-            raise
+    Note:
+        This file might support a list for the object_name in the future so that
+        you can import multiple objects from the same file.
+    """
+    if not cwd:
+        _LOGGER.debug("Common Working Directory not found, using path from the "
+                      "provided file location.")
+        cwd = _cwd_from_path(file_location)
 
-        try:
-            users_amplitude = getattr(imported, function_name)
-        except:
-            raise
+    # Here I take the cwd that was either found or provided, then I append that
+    # base directory to Python's path. After that I import the entire file
+    # into a variable so that I can extract the needed object out into its own
+    # variable that will be returned to the calling method.
+    sys.path.append(cwd)
+    imported = __import__(os.path.basename(file_location).strip(".py"))
+    loaded_object = getattr(imported, object_name)
+    return loaded_object
 
-        try:
-            setup_function = getattr(imported, setup_name)
-        except AttributeError:
-            warnings.warn(("Setup function  {0} was not found in {1},"
-                           "going without setup function").format(setup_name, function_location), UserWarning)
 
-            def empty():
-                pass
-            setup_function = empty
+def _cwd_from_path(file_location):
+    """
+    This internal function specifically extracts the common working directory
+    of the file that needs to be loaded from the path of the file. It does it
+    by finding the absolute path of the file, then striping the file from the
+    path.
 
-        return [users_amplitude, setup_function]
+    Args:
+        file_location (str): The path to the file.
 
-    @property
-    def return_amplitude(self):
-        return self._users_amplitude
+    Returns:
+        str: The full path to the folder including the file.
+    """
+    return os.path.dirname(os.path.abspath(file_location))
 
-    @property
-    def return_setup(self):
-        return self._users_setup
