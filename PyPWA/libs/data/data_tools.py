@@ -1,3 +1,25 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2014-2016 JLab.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 """
 Holds various tools needed by the Data module.
 """
@@ -30,10 +52,13 @@ class DataTypeSearch(object):
 
         Args:
             file_location (str): The file that is to be parsed
+
         Returns:
             str: Type of File
+
         Raises:
             TypeError: If the file type can't be found
+
         See Also:
             Supported Data formats
         """
@@ -50,9 +75,12 @@ class DataTypeSearch(object):
 
     @staticmethod
     def _extension_test(file_location):
-        """Attempts to find type based on file extension.
+        """
+        Attempts to find type based on file extension.
+
         Args:
             file_location (str): the file path
+
         Returns:
             str: Type of file if found.
             bool: False if no type is found
@@ -77,6 +105,7 @@ class DataTypeSearch(object):
 
         Args:
             file_location (str): the path to the file
+
         Returns:
             str: Type of file if found.
             bool: False if no type is found
@@ -96,9 +125,12 @@ class DataTypeWrite(object):
     """
     @staticmethod
     def search(file_location):
-        """Returns best writer based on data
+        """
+        Returns best writer based on data
+
         Args:
             file_location (str):
+
         Returns:
             str:
         """
@@ -136,4 +168,3 @@ class DataTypes(object):
             return "listofbools"
         else:
             return "listoffloats"
-

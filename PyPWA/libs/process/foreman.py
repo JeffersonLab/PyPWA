@@ -23,6 +23,7 @@
 """
 Multiprocessing Calculation
 """
+
 import logging
 
 from PyPWA.libs.process import processing
@@ -40,7 +41,7 @@ __version__ = VERSION
 
 class ProcessInterface(object):
     def __init__(self, interface_kernel, process_com, processes, duplex):
-        """The Interface to the process.
+        """
         This object provides all the functions necessary to determine the state
         of the processes and to pass information to the processes. This is the
         main object that the program and users will use to access the processes.
@@ -61,7 +62,7 @@ class ProcessInterface(object):
         self._duplex = duplex
 
     def run(self, *args):
-        """The wrapping method for the process_kernel
+        """
         This is the wrapping method for the process kernel, it passes the
         communication and the received arguments to the kernel, then saves the
         value that was returned so that it can be called at a later time if
@@ -77,14 +78,18 @@ class ProcessInterface(object):
 
     @property
     def previous_value(self):
-        """Returns the previous value calculated from the processes.
+        """
+        Returns the previous value calculated from the processes.
+
         Returns:
             Last value calculated from the processes.
         """
         return self._held_value
 
     def stop(self, force=False):
-        """The method used to kill processes.
+        """
+        The method used to kill processes.
+
         Args:
             force (Optional[bool]): Set to true if you want to force the
                 processes to stop.
@@ -100,16 +105,18 @@ class ProcessInterface(object):
                 for process in self._processes:
                     process.terminate()
             else:
-                self._logger.warn("The communication object is Simplex, can not"
-                                  " shut down processes. You must execute the "
-                                  "processes and fetch the value from the "
-                                  "interface before simplex functions will "
-                                  "shutdown, or force the thread to die. "
-                                  "[EXPERIMENTAL]")
+                self._logger.warn(
+                    "The communication object is Simplex, can not shut down "
+                    "processes. You must execute the processes and fetch the "
+                    "value from the interface before simplex functions will "
+                    "shutdown, or force the thread to die. [EXPERIMENTAL]"
+                )
 
     @property
     def is_alive(self):
-        """Method to check the status of the process.
+        """
+        Method to check the status of the process.
+
         Returns:
             bool: True if the processes are still spawned, False if they have
                 terminated.
@@ -125,13 +132,14 @@ class ProcessInterface(object):
 
 class CalculationForeman(object):
     def __init__(self, interface_kernel, process_kernel):
-        """The Foreman for the Multiprocessing Plugin.
+        """
         This is the main object for the Process Plugin. All this object needs
         is an appropriately set up interface kernel and process kernel in order
         to function.
+
         Args:
-            interface_kernel (AbstractKernel): The object that will be used to process
-                the data returned from the processes.
+            interface_kernel (AbstractKernel): The object that will be used to
+                process the data returned from the processes.
             process_kernel (list[object]): The objects that will be seeded into
                 the processes to execute the data
         """
@@ -143,7 +151,9 @@ class CalculationForeman(object):
         self._interface = False
 
     def _make_process(self):
-        """Calls the factory objects to generate the processes
+        """
+        Calls the factory objects to generate the processes
+
         Returns:
             list[list[communication.CommunicationInterface],list[process_calculation.Process]]
         """
@@ -165,7 +175,9 @@ class CalculationForeman(object):
                                            self._duplex)
 
     def fetch_interface(self):
-        """Returns the built Process Interface
+        """
+        Returns the built Process Interface
+
         Returns:
              False: Interface hasn't been built yet.
              ProcessInterface: If the interface has been built.

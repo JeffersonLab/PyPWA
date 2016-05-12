@@ -34,7 +34,9 @@ __version__ = VERSION
 
 
 class Minimizer(object):
-    """Object based off of iminuit, provides an easy way to run minimization
+    """
+    Object based off of iminuit, provides an easy way to run minimization
+
     Args:
         calc_function (function): function that holds the calculations.
         parameters (list): List of the parameters
@@ -57,7 +59,9 @@ class Minimizer(object):
         self._ncall = ncall
 
     def min(self):
-        """Method to call to start minimization process"""
+        """
+        Method to call to start minimization process
+        """
         minimal = iminuit.Minuit(
             self._calc_function,
             forced_parameters=self._parameters,

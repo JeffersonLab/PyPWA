@@ -24,6 +24,7 @@
 This is the builtin plugin for Multiprocessing, it makes a handful of
 assumptions but it works.
 """
+
 from PyPWA.libs.process.foreman import CalculationForeman
 from PyPWA import VERSION, LICENSE, STATUS
 

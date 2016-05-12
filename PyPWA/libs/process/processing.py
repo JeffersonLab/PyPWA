@@ -23,7 +23,9 @@
 """
 Actual process objects are defined here
 """
+
 import multiprocessing
+
 from PyPWA.libs.process import communication
 from PyPWA import VERSION, LICENSE, STATUS
 

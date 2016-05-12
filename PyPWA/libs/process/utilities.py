@@ -24,6 +24,7 @@
 This file holds the kernels that need to be extended so that other plugins and
 developers can use the process method.
 """
+
 from PyPWA.libs.process import communication
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -47,6 +48,7 @@ class AbstractInterface(object):
             This might be replaced through extension, we might require
             developers in the future to extend the Interface directly and define
             the run object.
+
         Args:
             is_duplex (bool): Defines whether the object is duplex or not.
                 Is needed so that the foreman knows to call for duplex or
@@ -58,14 +60,14 @@ class AbstractInterface(object):
         """
         Method that is called by the interface. This will be the method that
         you will use when you want to call something that
+
         Args:
             communicator (communication.CommunicationInterface): This is how the
-                interface will communicate to the threads. If duplex is
-                set to true this will be able to send and receive data, if
-                is false than will be able to receive data only.
+                interface will communicate to the threads. If duplex is set to
+                true this will be able to send and receive data, if is false
+                than will be able to receive data only.
             args: This will be whatever you sent to the run method, whatever
-                you sent to the method will be packaged together here as a
-                list.
+                you sent to the method will be packaged together here as a list.
 
         Returns:
             This can return whatever the developer needs it to return, there
@@ -85,7 +87,7 @@ class AbstractKernel(object):
     it is sent to the foreman to be nested inside the processes.
     """
 
-    def setup(self):  # TODO(maj@jlab.org) Discuss with others about return
+    def setup(self):
         # function before the initial launch of PyPWA 2.
         """
         This method will be called once before any processing occurs, if there
@@ -100,6 +102,7 @@ class AbstractKernel(object):
 
         Returns:
             Nothing. No return value will be handled here.
+
         Raises:
             NotImplementedError: This will be raised if the developer failed to
                 extend the method.
@@ -118,6 +121,7 @@ class AbstractKernel(object):
         Returns:
             Anything that is pickle-able that you want to send back to your
             main thread. This excludes things like functions and objects.
+
         Raises:
             NotImplementedError: This will be raised if the developer failed to
                 extend the method.

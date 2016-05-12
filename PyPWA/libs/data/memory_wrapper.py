@@ -1,3 +1,25 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2014-2016 JLab.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 """
 A collection of file handlers for PyPWA
 """
@@ -7,8 +29,8 @@ import os
 import yaml
 
 import PyPWA.libs.data.data_tools as data_tools
-from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.libs.data.memory import sv, kv
+from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -20,7 +42,9 @@ __version__ = VERSION
 
 
 class DataInterface(object):
-    """Interface for Data Objects"""
+    """
+    Interface for Data Objects
+    """
 
     @staticmethod
     def parse(file_location):
@@ -72,18 +96,12 @@ class Sv(DataInterface):
     def parse(file_location):
         file_ext = os.path.splitext(file_location)[1]
 
-        if file_ext == ".tsv":
-            parser = sv.SvParser("\t")
-        elif file_ext == ".csv":
-            parser = sv.SvParser(",")
-        else:
-            raise TypeError("Variable separated files must end in .tsv or .csv!")
-
-        return parser.reader(file_location)
+        return sv.SvParser.parse(file_location)
 
     @staticmethod
     def write(file_location, data):
-        raise NotImplementedError("Writing of Variable Separated files is not yet supported")
+        raise NotImplementedError("Writing of Variable Separated files is not "
+                                  "yet supported")
 
 
 class Binary(DataInterface):
@@ -92,13 +110,18 @@ class Binary(DataInterface):
 
 
 class Yaml(DataInterface):
-    """YAML Parsing Object"""
+    """
+    YAML Parsing Object
+    """
 
     @staticmethod
     def parse(file_location):
-        """Parses Yaml configuration files from disk
+        """
+        Parses Yaml configuration files from disk
+
         Args:
             file_location (str): Path to the file
+
         Returns:
             dict: The values stored in a multidimensional dictionary
         """
@@ -108,7 +131,9 @@ class Yaml(DataInterface):
 
     @staticmethod
     def write(file_location, data):
-        """Writes YAML Configs to disk
+        """
+        Writes YAML Configs to disk
+
         Args:
             file_location (str): Path to the file
             data (dict): Dictionary to write.

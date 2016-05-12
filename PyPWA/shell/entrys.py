@@ -1,3 +1,25 @@
+# The MIT License (MIT)
+#
+# Copyright (c) 2014-2016 JLab.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
 """
 Entry point for console GeneralShell
 """
@@ -16,7 +38,7 @@ __version__ = VERSION
 
 @StartBuilder()
 def likelihood_fitting(*args):
-    description = u"""Amplitude Fitting using the Likelihood Estimation Method."""
+    description = u"Amplitude Fitting using the Likelihood Estimation Method."
     configuration = {
         "Description": description,
         "Calculation": example.example,
@@ -30,7 +52,7 @@ def likelihood_fitting(*args):
 
 @StartBuilder()
 def simulator(*args):
-    description = u"""Simulation using the the Acceptance Reject Method"""
+    description = u"Simulation using the the Acceptance Reject Method"
     configuration = {
         "Description": description,
         "Calculation": example.example,
@@ -44,7 +66,7 @@ def simulator(*args):
 
 @StartBuilder()
 def intensities(*args):
-    description = u"""Generates the Intensities for Rejection Method"""
+    description = u"Generates the Intensities for Rejection Method"
     configuration = {
         "Description": description,
         "Calculation": example.example,
@@ -58,7 +80,8 @@ def intensities(*args):
 
 @StartBuilder()
 def rejection_method(*args):
-    description = u"""Takes generated intensities to run through the Rejection Method"""
+    description = u"Takes generated intensities to run through the " \
+                  u"Rejection Method"
     configuration = {
         "Description": description,
         "Calculation": example.example,
@@ -72,7 +95,7 @@ def rejection_method(*args):
 
 @StartBuilder()
 def chi_squared(*args):
-    description = u"""Amplitude Fitting using the ChiSquared Method"""
+    description = u"Amplitude Fitting using the ChiSquared Method"
     configuration = {
         "Description": description,
         "Calculation": example.example,
