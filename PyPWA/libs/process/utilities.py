@@ -62,7 +62,7 @@ class AbstractInterface(object):
         you will use when you want to call something that
 
         Args:
-            communicator (_communication.CommunicationInterface): This is how the
+            communicator (_communication._CommunicationInterface): This is how the
                 interface will communicate to the threads. If duplex is set to
                 true this will be able to send and receive data, if is false
                 than will be able to receive data only.
@@ -88,7 +88,6 @@ class AbstractKernel(object):
     """
 
     def setup(self):
-        # function before the initial launch of PyPWA 2.
         """
         This method will be called once before any processing occurs, if there
         is any logic that needs to be executed once per thread to set up the

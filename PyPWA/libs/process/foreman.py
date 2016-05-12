@@ -28,6 +28,7 @@ import logging
 
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import _communication
+from PyPWA.libs.process import utilities
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -39,7 +40,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class ProcessInterface(object):
+class _ProcessInterface(object):
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
         This object provides all the functions necessary to determine the state
@@ -49,7 +50,7 @@ class ProcessInterface(object):
         Args:
             interface_kernel: Object with a run method to be used to handle
                 returned data.
-            process_com (list[_communication.CommunicationInterface]): Objects
+            process_com (list[_communication._CommunicationInterface]): Objects
                 needed to exchange data with the processes.
             processes (list[multiprocessing.Process]): List of the processing
                 processes.
@@ -138,10 +139,10 @@ class CalculationForeman(object):
         to function.
 
         Args:
-            interface_kernel (AbstractKernel): The object that will be used to
-                process the data returned from the processes.
-            process_kernel (list[object]): The objects that will be seeded into
-                the processes to execute the data
+            interface_kernel (utilities.AbstractInterface): The object that will
+                be used to process the data returned from the processes.
+            process_kernel (list[utilities.AbstractKernel]): The objects that
+                will be seeded into the processes to execute the data.
         """
         self._logger = logging.getLogger(__name__)
         self._num_processes = len(process_kernel)
@@ -155,7 +156,7 @@ class CalculationForeman(object):
         Calls the factory objects to generate the processes
 
         Returns:
-            list[list[_communication.CommunicationInterface],list[process_calculation.Process]]
+            list[list[_communication._CommunicationInterface],list[process_calculation.Process]]
         """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
@@ -171,8 +172,8 @@ class CalculationForeman(object):
         Simple method that sets up and builds all the processes needed.
         """
         process, com = self._make_process()
-        self._interface = ProcessInterface(self._interface_kernel, com, process,
-                                           self._duplex)
+        self._interface = _ProcessInterface(self._interface_kernel, com, process,
+                                            self._duplex)
 
     def fetch_interface(self):
         """
@@ -180,7 +181,7 @@ class CalculationForeman(object):
 
         Returns:
              False: Interface hasn't been built yet.
-             ProcessInterface: If the interface has been built.
+             _ProcessInterface: If the interface has been built.
         """
         if isinstance(self._interface, bool):
             self._logger.warn("Process Interface was called before it was "

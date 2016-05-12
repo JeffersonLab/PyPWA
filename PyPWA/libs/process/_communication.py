@@ -38,7 +38,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class SimplexFactory(object):
+class _SimplexFactory(object):
     def __init__(self, count):
         """
         This object returns the requested amount of simplex pipes that can be
@@ -68,8 +68,8 @@ class SimplexFactory(object):
 
         for pipe in range(self.count):
             receive, send = multiprocessing.Pipe(False)
-            self._sends[pipe] = SimplexSend(send)
-            self._receives[pipe] = SimplexReceive(receive)
+            self._sends[pipe] = _SimplexSend(send)
+            self._receives[pipe] = _SimplexReceive(receive)
 
         return self.pipes
 
@@ -79,12 +79,12 @@ class SimplexFactory(object):
         Call to return the pipes.
 
         Returns:
-            list[list[SimplexSend],list[SimplexReceive]]
+            list[list[_SimplexSend],list[_SimplexReceive]]
         """
         return [self._sends, self._receives]
 
 
-class DuplexFactory(object):
+class _DuplexFactory(object):
     def __init__(self, count):
         """
         This object returns the requested amount of duplex pipes that can be
@@ -106,7 +106,7 @@ class DuplexFactory(object):
         processes.
 
         Returns:
-            list [list[DuplexCommunication],list[DuplexCommunication]]
+            list [list[_DuplexCommunication],list[_DuplexCommunication]]
         """
         self._main = [0] * self.count
         self._process = [0] * self.count
@@ -115,8 +115,8 @@ class DuplexFactory(object):
             receive_one, send_one = multiprocessing.Pipe(False)
             receive_two, send_two = multiprocessing.Pipe(False)
 
-            self._main[pipe] = DuplexCommunication(send_one, receive_two)
-            self._process[pipe] = DuplexCommunication(send_two, receive_one)
+            self._main[pipe] = _DuplexCommunication(send_one, receive_two)
+            self._process[pipe] = _DuplexCommunication(send_two, receive_one)
         return self.pipes
 
     @property
@@ -125,12 +125,12 @@ class DuplexFactory(object):
         Call to return the pipes.
 
         Returns:
-            list[list[DuplexCommunication],list[DuplexCommunication]]
+            list[list[_DuplexCommunication],list[_DuplexCommunication]]
         """
         return [self._main, self._process]
 
 
-class CommunicationInterface(object):
+class _CommunicationInterface(object):
 
     def send(self, data):
         raise NotImplementedError
@@ -139,7 +139,7 @@ class CommunicationInterface(object):
         raise NotImplementedError
 
 
-class SimplexSend(CommunicationInterface):
+class _SimplexSend(_CommunicationInterface):
     def __init__(self, send_pipe):
         """
         Simple Send object
@@ -166,11 +166,11 @@ class SimplexSend(CommunicationInterface):
         Raises:
             SimplexError: Simplex object can only send data.
         """
-        raise SimplexError("Communication Object is Simplex and doesn't support"
+        raise _SimplexError("Communication Object is Simplex and doesn't support"
                            " the receive method.")
 
 
-class SimplexReceive(CommunicationInterface):
+class _SimplexReceive(_CommunicationInterface):
     def __init__(self, receive_pipe):
         """
         Simple Receive object
@@ -188,7 +188,7 @@ class SimplexReceive(CommunicationInterface):
         Raises:
             SimplexError: Simplex object can only receive.
         """
-        raise SimplexError("Communication Object is Simplex and doesn't support"
+        raise _SimplexError("Communication Object is Simplex and doesn't support"
                            " the send method.")
 
     def receive(self):
@@ -201,7 +201,7 @@ class SimplexReceive(CommunicationInterface):
         return self.receive_pipe.recv()
 
 
-class DuplexCommunication(CommunicationInterface):
+class _DuplexCommunication(_CommunicationInterface):
     def __init__(self, send_pipe, receive_pipe):
         """
         The Duplex communication object, use for inter-communication between
@@ -235,7 +235,7 @@ class DuplexCommunication(CommunicationInterface):
         return self.receive_pipe.recv()
 
 
-class SimplexError(Exception):
+class _SimplexError(Exception):
     """
     The SimplexError is a simple exception that is thrown when someone
     calls a simplex as a duplex object. Helps the interface determine whether

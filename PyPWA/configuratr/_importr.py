@@ -41,7 +41,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class FunctionLoading(object):
+class _FunctionLoading(object):
     def __init__(self, cwd, function_location, function_name, setup_name):
         """
         This object loads the users python files into the program to be
