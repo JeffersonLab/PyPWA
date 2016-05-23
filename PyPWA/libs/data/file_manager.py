@@ -27,7 +27,7 @@ Main Objects for the data module.
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.libs.data import data_tools
 from PyPWA.libs.data import memory_wrapper
-from libs.data import cache
+from PyPWA.libs.data import cache
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
