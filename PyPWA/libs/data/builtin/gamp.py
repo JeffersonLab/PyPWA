@@ -62,8 +62,11 @@ class GampReader(object):
         Checks to see if the file is opened, and if it is close it so that it
         may be reopened.
         """
-        if self._file:
-            self._file.close()
+        try:
+            if self._file:
+                self._file.close()
+        except AttributeError:
+            pass
         self._file = io.open(self._the_file, "rt")
 
     def reset(self):
