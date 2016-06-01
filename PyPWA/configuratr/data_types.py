@@ -153,7 +153,11 @@ class GenericEvent(object):
             namedtuple: The final event that is to be sent back.
         """
         if isinstance(data, dict):
+            data["standard_parsed_values"] = self._particle_names
             return self._master_particle(**data)
         else:
-            return self._master_particle(**dict(zip(self._particle_names,
-                                                    data)))
+            return self._master_particle(**dict(zip(self._particle_names +
+                                                    ["standard_parsed_values"],
+                                                    data + self._particle_names)
+                                                )
+                                         )
