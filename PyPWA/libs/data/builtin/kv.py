@@ -1,24 +1,18 @@
-# The MIT License (MIT)
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
 #
-# Copyright (c) 2014-2016 JLab.
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Handles KV to / from memory.
@@ -28,10 +22,12 @@ into memory. This file type is being depreciated for many reasons, and will live
 here until it shrivels away, is completely forgotten, and dies.
 """
 
+import collections
 import io
 
 import numpy
 
+from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -103,7 +99,10 @@ class DictOfArrays(KvInterface):
                     parsed[line.split(",")[particle_count].split(
                         "=")[0]][index] = numpy.float64(line.strip("\n").split(
                         ",")[particle_count].split("=")[1])
-        return parsed
+
+        event = data_types.GenericEvent(list(parsed.keys()))
+        final = event.make_particle(parsed)
+        return final
 
     @staticmethod
     def write(file_location, data):
@@ -112,19 +111,20 @@ class DictOfArrays(KvInterface):
 
         Args:
             file_location (str): path to file
-            data (dict): dict of numpy arrays
+            data (collections.namedtuple): dict of numpy arrays
         """
 
-        kvars = list(data)
+        kvars = data.standard_parsed_values
+        the_data = data._asdict()
 
         with open(file_location, "w") as stream:
-            for event in range(len(data[kvars[0]])):
+            for event in range(len(the_data[kvars[0]])):
                 line = ""
                 for kvar in range(len(kvars)):
                     if kvar > 0:
                         line += ","
                     line += "{0}={1}".format(kvars[kvar], str(
-                        data[kvars[kvar]][event]
+                        the_data[kvars[kvar]][event]
                     ))
                 line += "\n"
                 stream.write(line)
@@ -207,3 +207,65 @@ class ListOfBooleans(KvInterface):
         with open(file_location, "w") as stream:
             for weight in data:
                 stream.write(str(int(weight)) + "\n")
+
+
+class SomewhatIntelligentSelector(KvInterface):
+    """
+    Attempts to select the write object to load and write Expanded Variable
+    Identification Lists to and from the disk. It does this by examining the
+    EVIL data and using its types to select the EVIL object.
+    """
+    def parse(self, file_location):
+        """
+        Reads in EVIL format from disk, searches the first line of data for
+        clues as to the data type. If there are = or , in the first line it
+        assumes its a list of dict, if . then float, and if none of the above
+        pure bool.
+
+        If it doesn't work, perhaps use CSV?
+        Args:
+            file_location (str): The location of the file that needs to be read
+                in from the disk.
+
+        Returns:
+            data_types.GenericEvent:  The data that was parsed from the disk.
+
+        """
+        the_file = io.open(file_location)
+        first_line = the_file.readline()
+        if "=" or "," in first_line:
+            parser = DictOfArrays()
+        elif "." in first_line:
+            parser = ListOfFloats()
+        else:
+            parser = ListOfBooleans()
+
+        return parser.parse(file_location)
+
+    @staticmethod
+    def write(file_location, data):
+        """
+        Writes EVIL data types to disk, detects the data in the same way that
+        parse works, however does it by running the type check against the
+        object that was received.
+
+        Args:
+            file_location (str): Where to write the data.
+            data (collections.namedtuple | numpy.ndarray): The data that needs
+                to be written to disk.
+        """
+        if isinstance(data, dict):
+            writer = DictOfArrays()
+        elif isinstance(data[0], numpy.float64):
+            writer = ListOfFloats()
+        else:
+            writer = ListOfBooleans()
+        writer.write(file_location, data)
+
+metadata_data = {
+    "extension": "txt",
+    "validator": None,
+    "reader": None,
+    "writer": None,
+    "memory": SomewhatIntelligentSelector
+}
