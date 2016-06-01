@@ -1,24 +1,18 @@
-# The MIT License (MIT)
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
 #
-# Copyright (c) 2014-2016 JLab.
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
 #
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Gamp data reading and writing.
@@ -29,11 +23,11 @@ previous loaded events are stored, anything later than that will not be saved
 in memory by these object.
 """
 
-import collections
 import io
 
 import numpy
 
+from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -47,57 +41,19 @@ __version__ = VERSION
 
 class GampReader(object):
 
-    _particles = {
-        1: "Gamma",
-        2: "Positron",
-        3: "Electron",
-        4: "Neutrino",
-        5: "Muon +",
-        6: "Muon -",
-        7: "Pion 0",
-        8: "Pion +",
-        9: "Pion -",
-        10: "Kaon 0 Long",
-        11: "Kaon +",
-        12: "Kaon -",
-        13: "Neutron",
-        14: "Proton",
-        15: "Antiproton",
-        16: "Kaon 0 Short",
-        17: "Eta",
-        18: "Lambda",
-        19: "Sigma +",
-        20: "Sigma 0",
-        21: "Sigma -",
-        22: "Xi 0",
-        23: "Xi -",
-        24: "Omega",
-        25: "Antineutron",
-        26: "Antilambda",
-        27: "Antisigma -",
-        28: "Antisigma 0",
-        29: "Antisigma +",
-        30: "Antixi 0",
-        31: "Antixi +"
-    }
-
-    def __init__(self, gamp_file):
+    def __init__(self, file_location):
         """
         This reads in Gamp events from disk, Gamp events are deque of named
         tuples, each named tuple representing a particle in the event.
 
         Args:
-            gamp_file: (str) Name of the GAMP file, can be any size.
+            file_location (str): Name of the GAMP file, can be any size.
         """
 
         super(GampReader, self).__init__()
-        self._the_file = gamp_file
-        self._file = False
+        self._the_file = file_location
         self._previous_event = None
-        self._particle_master = collections.namedtuple("GampParticle",
-                                                       ["name", "id", "charge",
-                                                        "x", "y", "z", "energy"]
-                                                       )
+        self._particle_master = data_types.GampParticle()
 
         self._start_input()
 
@@ -120,6 +76,9 @@ class GampReader(object):
     def __next__(self):
         return self.next_event
 
+    def __iter__(self):
+        return self.next_event
+
     @property
     def next_event(self):
         """
@@ -133,9 +92,11 @@ class GampReader(object):
             StopIterator: End of file has been found.
         """
         count = int(self._file.readline().strip("\n"))
-        event = collections.deque(maxlen=count)
+        event = data_types.GampEvent(count)
         for index in range(count):
             event.append(self._make_particle(self._file.readline()))
+        if event == "":
+            raise StopIteration
         self._previous_event = event
         return self._previous_event
 
@@ -149,17 +110,16 @@ class GampReader(object):
         tuple to store the various values. All values are numpy data types.
 
         Args:
-            string: The string containing the GAMP Particle
+            string (str): The string containing the GAMP Particle
 
         Returns:
             GampParticle(namedtuple): The particle stored in a namedtuple.
         """
         the_list = string.strip("\n").split(" ")
-        particle = self._particle_master(
-            self._particles[int(the_list[0])], numpy.uint8(the_list[0]),
-            numpy.int8(the_list[1]), numpy.float64(the_list[2]),
-            numpy.float64(the_list[3]), numpy.float64(the_list[4]),
-            numpy.float64(the_list[5])
+        particle = self._particle_master.make_particle(
+            numpy.uint8(the_list[0]), numpy.int8(the_list[1]),
+            numpy.float64(the_list[2]), numpy.float64(the_list[3]),
+            numpy.float64(the_list[4]), numpy.float64(the_list[5])
         )
 
         return particle
@@ -170,61 +130,135 @@ class GampReader(object):
 
 class GampWriter(object):
 
-    def __init__(self, gamp_file):
+    def __init__(self, file_location):
         """
         Takes GAMP events one at a time and attempts to write them in a
         standardized way to file so that other programs can read the output.
 
         Args:
-            gamp_file: (str) Where to write the GAMP data.
+            file_location (str): Where to write the GAMP data.
         """
-        self._file = io.open(gamp_file, "w")
+        self._file = io.open(file_location, "w")
 
     def __del__(self):
         self._file.close()
 
-    def write_event(self, event):
+    def write(self, data):
         """
         Writes the events the disk one event at a time, wont close the disk
         access until the close function is called or until the object is
         deleted.
 
         Args:
-            event: (deque) the file that is to be written to disk.
+            data (deque): the file that is to be written to disk.
         """
-        self._file.write(str(len(event))+"\n")
+        self._file.write(str(len(data))+"\n")
 
-        for particle in event:
-            self._file.write(str(particle.id) + " " + str(particle.charge) + " " + str(particle.x) + " " +
-                             str(particle.y) + " " + str(particle.z) + " " + str(particle.energy) + "\n")
+        for particle in data:
+            self._file.write(str(particle.id) + " " + str(particle.charge) +
+                             " " + str(particle.x) + " " + str(particle.y) +
+                             " " + str(particle.z) + " " +
+                             str(particle.energy) + "\n")
 
     def close(self):
         self._file.close()
 
 
-class GampEvent(collections.deque):
+class GampMemory(object):
+    """
+    Loads GAMP Data into memory to bypass the disk bottleneck with calculations.
+    DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL QUICKLY OVERFILL
+    THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY AND COLLECTIONS OPTIMIZATIONS!
+    """
 
-    def __init__(self, particle_count):
+    def parse(self, file_location):
         """
-        Extends a deque list, adds functions that attempt to help use and test
-        the GampEvents.
-
+        Parses Gamp Files into a single list.
         Args:
-            particle_count: (int) The number of particles in the event.
-        """
-        super(GampEvent, self).__init__(maxlen=particle_count)
-
-    def search(self, query):
-        """
-        Searches for a specific particle based off of the particles name. Not an
-        efficient function or reliable, probably shouldn't be used yet.
-
-        Args:
-            query: (str) The name of the specified particle.
+            file_location (str): The location of the GAMP File.
 
         Returns:
-            GampParticle(namedtuple): The requested particle.
+            list[GampEvent]: A list containing all the GampEvents from the data
+                file.
         """
-        for particle in self:
-            if particle.name == query:
-                return particle
+        reader = GampReader(file_location)
+        events = []
+        for event in reader:
+            events.append(event)
+        return events
+
+    @staticmethod
+    def write(file_location, data):
+        """
+        Writes the GAMP events from memory to disk, this method can be used for
+        single GAMP events but its recommended that you use GampWriter for
+        single GAMP event writing or something similar.
+        Args:
+            file_location (str): The location where to write the GAMP file.
+            data (list): The list containing all the GampEvents that are to be
+                written to disk.
+        """
+        writer = GampWriter(file_location)
+        for event in data:
+            writer.write(event)
+
+
+class GampValidator(object):
+    def __init__(self, file_location, full=False):
+        self._the_file = io.open(file_location, "rt")
+        self._full = full
+
+    def _check_events(self):
+        count = 0
+        while True:
+            if count == 3 and not self._full:
+                return True
+            elif count == 20 and self._full:
+                return True
+            number = self._the_file.readline()
+            try:
+                int(number)
+            except ValueError:
+                return True
+            try:
+                for index in range(int(number)):
+                    if len(self._the_file.readline().split(",")) != 6:
+                        return False
+            except Exception:
+                return False
+
+    def _test_length(self):
+        """
+        Tests to make sure that the first number matches the number of events.
+        I know that this can be made to be better, however it alludes me
+        at this moment.
+
+        Returns:
+            bool: True if passes the test, False otherwise.
+        """
+        while True:
+            number = self._the_file.readline()
+            try:
+                for index in range(int(number)):
+                    if self._the_file.readline() == "":
+                        return True
+            except Exception:
+                return False
+
+    def test(self):
+        if self._full:
+            if not self._test_length():
+                return False
+        if not self._check_events():
+            return False
+        else:
+            return True
+
+
+metadata_data = {
+    "extension": "gamp",
+    "validator": GampValidator,
+    "reader": GampReader,
+    "writer": GampWriter,
+    "memory": GampMemory
+}
