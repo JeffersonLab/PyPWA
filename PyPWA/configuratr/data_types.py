@@ -19,6 +19,7 @@ Provides the data types used throughout the program, from GAMP to Generic
 """
 
 import collections
+import logging
 
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -137,27 +138,33 @@ class GenericEvent(object):
         Args:
             particle_names (list[str]): List of the names of the particles.
         """
-        self._master_particle = collections.namedtuple("GenericEvent",
-                                                       particle_names)
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
 
-        self._particle_names = collections.deque(particle_names)
+        final_particle_names = particle_names + ["standard_parsed_values"]
+
+        self._logger.debug("Final Particle Names inside Generic Event = " +
+                           str(final_particle_names))
+
+        self._master_particle = collections.namedtuple(
+            "GenericEvent", final_particle_names)
+
+        self._particle_names = particle_names
 
     def make_particle(self, data):
         """
         Makes the particle using the data that was sent to the method.
         Args:
-            data (list || dict): The data that is to be loaded into the
+            data (list): The data that is to be loaded into the
                 namedtuple.
 
         Returns:
             namedtuple: The final event that is to be sent back.
         """
-        if isinstance(data, dict):
-            data["standard_parsed_values"] = self._particle_names
-            return self._master_particle(**data)
-        else:
-            return self._master_particle(**dict(zip(self._particle_names +
-                                                    ["standard_parsed_values"],
-                                                    data + self._particle_names)
-                                                )
-                                         )
+        data.append(self._particle_names)
+        names = self._particle_names + ["standard_parsed_values"]
+
+        self._logger.debug("Name Values: " + str(names))
+        self._logger.debug("Data Values: " + str(data))
+
+        return self._master_particle(**dict(zip(names, data)))
