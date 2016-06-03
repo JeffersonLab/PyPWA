@@ -15,18 +15,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Handles KV to / from memory.
+Handles EVIL to / from memory.
 
 The objects in this file are dedicated to reading the EVIL files from disk and
 into memory. This file type is being depreciated for many reasons, and will live
 here until it shrivels away, is completely forgotten, and dies.
+
+EVIL, Expanded Variable Identification Lists, earned their name from their
+inefficient nature when it comes to reading in, writing out, or simply existing,
+its a name given to these EVIL formats out of a mixture of spite and love by
+current and former developers alike.
+
+This format exists currently only as backwards compatibility, and may not be
+bug free or entirely optimized, and may never be. If you are a user trying to
+figure out what you should export your data to, or a developer trying to learn
+the nature of data within PyPWA, you should move your attention to CSV/TSV in
+the SV object and forget that this ever existed.
 """
 
-import collections
 import io
 
 import numpy
 
+from PyPWA.libs.data import exceptions
 from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -101,7 +112,7 @@ class DictOfArrays(KvInterface):
                         ",")[particle_count].split("=")[1])
 
         event = data_types.GenericEvent(list(parsed.keys()))
-        final = event.make_particle(parsed)
+        final = event.make_particle(list[parsed.values()])
         return final
 
     @staticmethod
@@ -231,14 +242,16 @@ class SomewhatIntelligentSelector(KvInterface):
             data_types.GenericEvent:  The data that was parsed from the disk.
 
         """
-        the_file = io.open(file_location)
-        first_line = the_file.readline()
-        if "=" or "," in first_line:
+        validator = EVILValidator(file_location)
+        validator.test()
+        if validator.evil_type == "DictOfArrays":
             parser = DictOfArrays()
-        elif "." in first_line:
+        elif validator.evil_type == "ListOfFloats":
             parser = ListOfFloats()
-        else:
+        elif validator.evil_type == "ListOfBools":
             parser = ListOfBooleans()
+        else:
+            raise RuntimeError("How did you even break this?")
 
         return parser.parse(file_location)
 
@@ -262,10 +275,153 @@ class SomewhatIntelligentSelector(KvInterface):
             writer = ListOfBooleans()
         writer.write(file_location, data)
 
+
+class EVILReader(object):
+
+    def __init__(self, file_location):
+        """
+        Reads in the EVIL Type one event at a time.
+
+        Args:
+            file_location (str): The location of the EVIL file.
+        """
+        self._the_file = file_location
+        self._previous_event = None
+
+        self._start_input()
+
+    def _start_input(self):
+        """
+        This file completely resets the the file handler if it exists and
+        creates it otherwise.
+        """
+        try:
+            if self._file:
+                self._file.close()
+        except AttributeError:
+            validator = EVILValidator(self._the_file)
+            validator.test()
+            self._file_data_type = validator.evil_type
+
+        self._file = io.open(self._the_file, "rt")
+        first_line = self._file.readline()
+
+        self._parameters = []
+        for parameter in first_line.split(","):
+            self._parameters.append(parameter.split("=")[0])
+
+        self._master_particle = data_types.GenericEvent(self._parameters)
+
+    def reset(self):
+        """
+        Wrapper for _start_input
+        """
+        self._start_input()
+
+    def __next__(self):
+        """
+        Wrapper for next_event
+        """
+        return self.next_event
+
+    def __iter__(self):
+        """
+        Wrapper for next_event
+        """
+        return self.next_event
+
+    @property
+    def next_event(self):
+        """
+        Reads in a single line and parses the line into a GenericEvent.
+
+        Returns:
+            PyPWA.configuratr.data_types.GenericEvent: The named tuple that
+                holds the data.
+        """
+        the_line = self._file.readline()
+        vals = []
+
+        for val in the_line.split(","):
+            vals.append(val.split("=")[1])
+
+        self._previous_event = self._master_particle.make_particle(vals)
+        return self._previous_event
+
+
+"""
+class EVILWriter(object):
+
+    def __init__(self, file_location):
+        self._file = io.open(file_location, "wt")
+
+    def write(self, file_location, data):
+        for
+"""
+
+
+class EVILValidator(object):
+
+    def __init__(self, file_location, full=False):
+        """
+        This attempts to validate the files to see if it can be read in by this
+        plugin.
+
+        Args:
+            file_location (str): The location of the file.
+            full (Optional[bool]): Whether or not to do a full test of the file.
+        """
+        self._the_file = io.open(file_location)
+        self._full = full  # This doesn't do anything
+        # EVIL doesn't deserve full tests.
+
+    def _check_data_type(self):
+        """
+        Performs a really simple test to see if its a support format.
+
+        Raises:
+            PyPWA.libs.data.exceptions.IncompatibleData:
+                Raised when the test fails to find a supported format.
+        """
+        test_data = self._the_file.read(100).split("\n")[0]
+        if "=" in test_data and "," in test_data:
+            self._evil_type = "DictOfArrays"
+        elif "." in test_data and len(test_data) > 1:
+            self._evil_type = "ListOfFloats"
+        elif len(test_data) == 1:
+            self._evil_type = "ListOfBools"
+        else:
+            raise exceptions.IncompatibleData("Failed to find a data")
+
+    def test(self):
+        """
+        Runs the various tests included tests.
+        """
+        self._check_data_type()
+
+    @property
+    def evil_type(self):
+        """
+        Property that returns the data type that was detected.
+
+        Returns:
+            str: The type of data the validator detected during its tests.
+        """
+        try:
+            return self._evil_type
+        except NameError:
+            try:
+                self._check_data_type()
+            except exceptions.IncompatibleData:
+                raise ValueError("Data is not of GAMP Type, double check and "
+                                 "try again.")
+            return self._evil_type
+
+
 metadata_data = {
     "extension": "txt",
-    "validator": None,
-    "reader": None,
-    "writer": None,
+    "validator": EVILValidator,
+    "reader": EVILReader,
+    "writer": EVILWriter,
     "memory": SomewhatIntelligentSelector
 }
