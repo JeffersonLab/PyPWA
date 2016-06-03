@@ -27,6 +27,7 @@ import io
 
 import numpy
 
+from PyPWA.libs.data import exceptions
 from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -49,8 +50,6 @@ class GampReader(object):
         Args:
             file_location (str): Name of the GAMP file, can be any size.
         """
-
-        super(GampReader, self).__init__()
         self._the_file = file_location
         self._previous_event = None
         self._particle_master = data_types.GampParticle()
@@ -127,9 +126,6 @@ class GampReader(object):
 
         return particle
 
-    def __del__(self):
-        self._file.close()
-
 
 class GampWriter(object):
 
@@ -142,9 +138,6 @@ class GampWriter(object):
             file_location (str): Where to write the GAMP data.
         """
         self._file = io.open(file_location, "w")
-
-    def __del__(self):
-        self._file.close()
 
     def write(self, data):
         """
@@ -207,28 +200,55 @@ class GampMemory(object):
 
 
 class GampValidator(object):
+
     def __init__(self, file_location, full=False):
+        """
+        Validates the GAMP file to ensure that the file can be read by gamp
+        before actually trying to read it. Also is used for the data plugin
+        to determine which of its plugins to use when its handed a file of an
+        unknown nature.
+
+        Args:
+            file_location (str): The location of the file that needs to be read.
+            full (Optional[bool]): Whether to do a full test of the file or not,
+                useful for debugging unknown issues or complications with
+                reading in GAMP files.
+        """
         self._the_file = io.open(file_location, "rt")
         self._full = full
 
     def _check_events(self):
+        """
+        Checks the events to ensure that the number of particles match the
+        number declared by the event.
+
+        Raises:
+            PyPWA.libs.data.exceptions.IncompatibleData:
+                Raised when the tests fail for this object and the data.
+        """
         count = 0
         while True:
             if count == 3 and not self._full:
-                return True
+                break
             elif count == 20 and self._full:
-                return True
+                break
             number = self._the_file.readline()
             try:
                 int(number)
             except ValueError:
-                return True
+                raise exceptions.IncompatibleData("Expected particle count.")
             try:
                 for index in range(int(number)):
                     if len(self._the_file.readline().split(",")) != 6:
-                        return False
-            except Exception:
-                return False
+                        raise exceptions.IncompatibleData(
+                            "Particle count does not match the number of events"
+                            "read in by the Validator."
+                        )
+            except Exception as Error:
+                raise exceptions.IncompatibleData(
+                    "Unexpected exception raised, caught " + str(Error) +
+                    "where it wasn't expected."
+                )
 
     def _test_length(self):
         """
@@ -236,26 +256,25 @@ class GampValidator(object):
         I know that this can be made to be better, however it alludes me
         at this moment.
 
-        Returns:
-            bool: True if passes the test, False otherwise.
+        Raises:
+            PyPWA.libs.data.exceptions.IncompatibleData:
+                Raised when the tests fail for this object and the data.
         """
         while True:
             number = self._the_file.readline()
             try:
                 for index in range(int(number)):
                     if self._the_file.readline() == "":
-                        return True
-            except Exception:
-                return False
+                        break
+            except Exception as Error:
+                raise exceptions.IncompatibleData(
+                    "Unexpected exception raised, caught " + str(Error) +
+                    "where it wasn't expected."
+                )
 
     def test(self):
-        if self._full:
-            if not self._test_length():
-                return False
-        if not self._check_events():
-            return False
-        else:
-            return True
+        self._test_length()
+        self._check_events()
 
 
 metadata_data = {
