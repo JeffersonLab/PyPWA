@@ -134,6 +134,10 @@ class SvReader(object):
         self._start_input()
 
     def _start_input(self):
+        """
+        Starts the input and configures the reader. Detects the files dialect
+        and plugs the header information into the GenericEvent.
+        """
         if self._file:
             self._file.close()
 
@@ -160,12 +164,60 @@ class SvReader(object):
 
     @property
     def next_event(self):
-        unparsed = list(next(self._reader))
+        """
+        Simple read method that takes the list that is recieved from the CSV
+        reader, translates it from text to numpy.float64, then returns the final
+        data
+
+        Returns:
+            list[numpy.float64]: The data read in from the event.
+        """
+        un_parsed = list(next(self._reader))
         parsed = []
-        for parse in unparsed:
+        for parse in un_parsed:
             parsed.append(numpy.float64(parse))
 
         return self._master_particle.make_particle(parsed)
+
+
+class SvWriter(object):
+
+    def __init__(self, file_location):
+        """
+        Object writes data to file in either a tab separated sheet or a comma
+        separated sheet.
+
+        Args:
+            file_location (str): Location to  write the data to.
+        """
+        self._file = io.open(file_location, "w")
+
+        extension = file_location.split(".")[-1]
+
+        if extension == "tsv":
+            self._dialect = csv.excel_tab
+        else:
+            self._dialect = csv.excel
+
+        self._count = 0
+
+    def write(self, data):
+        """
+        Writes the data to a SV Sheet a single event at a time.
+
+        Args:
+            data (collections.named_tuple): The tuple containing the data that
+                needs to be written.
+        """
+        field_names = list(data._asdict().keys())
+
+        writer = csv.DictWriter(self._file, fieldnames=field_names,
+                                dialect=self._dialect)
+        if self._count == 0:
+            writer.writeheader()
+
+        writer.writerow(data._asdict())
+        self._count += 1
 
 
 metadata_data = {
