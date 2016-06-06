@@ -28,10 +28,12 @@ to disk as of version PyPWA 2.0.0
 """
 
 import csv
+import collections
 import io
 
 import numpy
 
+from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -42,8 +44,10 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+HEADER_SEARCH_BITS = 1024
 
-class SvParser(object):
+
+class SvMemory(object):
     """
     Object for reading and writing delimiter separated data files.
     """
@@ -55,14 +59,15 @@ class SvParser(object):
         Args:
             file_location (str): The file that contain the data to be read.
         Returns:
-            dict: Dictionary of arrays containing the data.
+            collections.namedtuple: The tuple containing the data parsed in from
+                the file.
         """
         with io.open(file_location, "rt") as stream:
             for line_count, throw in enumerate(stream):
                 pass
 
         with io.open(file_location, "rt") as stream:
-            dialect = csv.Sniffer().sniff(stream.read(1024))
+            dialect = csv.Sniffer().sniff(stream.read(HEADER_SEARCH_BITS))
             stream.seek(0)
 
             sv = csv.reader(stream, dialect)
@@ -75,8 +80,10 @@ class SvParser(object):
             for index, row in enumerate(sv):
                 for count in range(len(row)):
                     parsed[elements[count]][index] = row[count]
+        event = data_types.GenericEvent(list(parsed.keys()))
+        final = event.make_particle(list[parsed.values()])
 
-        return parsed
+        return final
 
     def write(self, file_location, data):
         """
@@ -84,7 +91,8 @@ class SvParser(object):
 
         Args:
             file_location  (str): Where to write the data to.
-            data (dict): Dictionary of the arrays containing the data.
+            data (collections.namedtuple): Dictionary of the arrays containing
+                the data.
         """
         extension = file_location.split(".")[-1]
 
@@ -94,14 +102,76 @@ class SvParser(object):
             the_dialect = csv.excel
 
         with io.open(file_location, "wt") as stream:
-            field_names = list(data.keys())
+            field_names = list(data._asdict().keys())
 
             writer = csv.DictWriter(stream, fieldnames=field_names,
                                     dialect=the_dialect)
             writer.writeheader()
 
-            for index in range(len(data[field_names[0]])):
+            for index in range(len(data._asdict()[field_names[0]])):
                 temp = {}
                 for field in field_names:
-                    temp[field] = repr(data[field][index])
+                    temp[field] = repr(data._asdict()[field][index])
                 writer.writerow(temp)
+
+
+class SvReader(object):
+
+    def __init__(self, file_location):
+        """
+        This reads in SV Files a single event at a time from disk, then puts
+        the contents into a GenericEvent Container.
+
+        Args:
+            file_location (str): The location of the file to read in.
+        """
+        self._the_file = file_location
+        self._previous_event = None  # type: collections.namedtuple
+        self._master_particle = False  # type: data_types.GenericEvent
+        self._reader = False  # type: csv.DictReader
+        self._file = False  # type: io.TextIOBase
+
+        self._start_input()
+
+    def _start_input(self):
+        if self._file:
+            self._file.close()
+
+        dialect = csv.Sniffer().sniff(self._file.read(HEADER_SEARCH_BITS))
+        self._file.seek(0)
+
+        self._reader = csv.reader(self._file, dialect)
+
+        elements = next(self._reader)
+        self._master_particle = data_types.GenericEvent(elements)
+
+    def reset(self):
+        """
+        Calls the _start_input method to properly close then reopen the file
+        handle and restart the CSV process.
+        """
+        self._start_input()
+
+    def __next__(self):
+        return self.next_event
+
+    def __iter__(self):
+        return self.next_event
+
+    @property
+    def next_event(self):
+        unparsed = list(next(self._reader))
+        parsed = []
+        for parse in unparsed:
+            parsed.append(numpy.float64(parse))
+
+        return self._master_particle.make_particle(parsed)
+
+
+metadata_data = {
+    "extensions": [".tsv", ".csv"],
+    "validator": SvValidator,
+    "reader": SvReader,
+    "writer": SvWriter,
+    "memory": SvMemory
+}
