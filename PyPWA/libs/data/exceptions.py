@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Holds Data Exceptions
+
 These exceptions are written to help aid the Data module and improve readability
 of the traceback errors without obscuring more complex errors.
 """
