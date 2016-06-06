@@ -349,15 +349,40 @@ class EVILReader(object):
         return self._previous_event
 
 
-"""
 class EVILWriter(object):
 
     def __init__(self, file_location):
+        """
+        Single event writer for EVIL data types. Writes a single event at a time
+        and leaves the file handle open until its explicitly closed by the
+        developer or user.
+
+        Args:
+            file_location (str): Where to write the data.
+        """
         self._file = io.open(file_location, "wt")
 
-    def write(self, file_location, data):
-        for
-"""
+    def write(self, data):
+        """
+        Writes a single event to file at a time.
+
+        Args:
+            data (collections.namedtuple): The namedtuple that contains the
+                data to be writen to the file.
+        """
+        string = ""
+        for key in data._asdict():
+            string += str(key) + "=" + str(data._asdict()[key]) + ","
+        string += "\n"
+
+        self._file.write(string)
+
+    def close(self):
+        """
+        Closes the file safely.
+        """
+        self._file.close()
+
 
 
 class EVILValidator(object):
