@@ -329,6 +329,8 @@ class EVILReader(object):
         elif self._file_data_type == "ListOfFloats":
             self._parameters = ["QFactor"]
 
+        self._file.seek(0)
+
     def _set_data_type(self):
         """
         Sets self._file_data_type using the validator object. Mostly Accurate.
@@ -382,7 +384,7 @@ class EVILReader(object):
             bool: True or False depending on the value of the line that was
                 read.
         """
-        return bool(self._file.readline().strip("\n"))
+        return [bool(self._file.readline().strip("\n"))]
 
     def _read_float(self):
         """
@@ -391,7 +393,7 @@ class EVILReader(object):
         Returns:
             numpy.float64: The value read in from the file.
         """
-        return numpy.float64(self._file.readline().strip("\n"))
+        return [numpy.float64(self._file.readline().strip("\n"))]
 
     def _read_dict(self):
         """
