@@ -299,11 +299,10 @@ class EVILReader(object):
         This file completely resets the the file handler if it exists and
         creates it otherwise.
         """
-        try:
-            if self._file:
-                self._file.close()
-        except AttributeError:
-            pass
+        if self._file:
+            self._file.close()
+
+        self._file = io.open(self._the_file, "rt")
 
         if not isinstance(self._file_data_type, str):
             self._set_data_type()
@@ -311,8 +310,6 @@ class EVILReader(object):
             self._build_params()
         if not self._master_particle:
             self._master_particle = data_types.GenericEvent(self._parameters)
-
-        self._file = io.open(self._the_file, "rt")
 
     def _build_params(self):
         """
