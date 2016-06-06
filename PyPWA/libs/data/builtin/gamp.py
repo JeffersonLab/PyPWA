@@ -23,6 +23,7 @@ previous loaded events are stored, anything later than that will not be saved
 in memory by these object.
 """
 
+import collections
 import io
 
 import numpy
@@ -51,7 +52,7 @@ class GampReader(object):
             file_location (str): Name of the GAMP file, can be any size.
         """
         self._the_file = file_location
-        self._previous_event = None
+        self._previous_event = None  # type: collections.namedtuple
         self._particle_master = data_types.GampParticle()
 
         self._start_input()
