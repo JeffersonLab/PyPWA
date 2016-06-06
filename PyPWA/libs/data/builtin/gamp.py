@@ -215,7 +215,7 @@ class GampValidator(object):
                 useful for debugging unknown issues or complications with
                 reading in GAMP files.
         """
-        self._the_file = io.open(file_location, "rt")
+        self._file = io.open(file_location, "rt")
         self._full = full
 
     def _check_events(self):
@@ -233,14 +233,14 @@ class GampValidator(object):
                 break
             elif count == 20 and self._full:
                 break
-            number = self._the_file.readline()
+            number = self._file.readline()
             try:
                 int(number)
             except ValueError:
                 raise exceptions.IncompatibleData("Expected particle count.")
             try:
                 for index in range(int(number)):
-                    if len(self._the_file.readline().split(",")) != 6:
+                    if len(self._file.readline().split(",")) != 6:
                         raise exceptions.IncompatibleData(
                             "Particle count does not match the number of events"
                             "read in by the Validator."
@@ -262,10 +262,10 @@ class GampValidator(object):
                 Raised when the tests fail for this object and the data.
         """
         while True:
-            number = self._the_file.readline()
+            number = self._file.readline()
             try:
                 for index in range(int(number)):
-                    if self._the_file.readline() == "":
+                    if self._file.readline() == "":
                         break
             except Exception as Error:
                 raise exceptions.IncompatibleData(
