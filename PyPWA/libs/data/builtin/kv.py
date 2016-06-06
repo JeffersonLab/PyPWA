@@ -287,6 +287,10 @@ class EVILReader(object):
         """
         self._the_file = file_location
         self._previous_event = None
+        self._file = False  # type: io.TextIOBase
+        self._parameters = False  # type: list[str]
+        self._file_data_type = False  # type: str
+        self._master_particle = False  # type: data_types.GenericEvent
 
         self._start_input()
 
@@ -299,18 +303,42 @@ class EVILReader(object):
             if self._file:
                 self._file.close()
         except AttributeError:
-            validator = EVILValidator(self._the_file)
-            validator.test()
-            self._file_data_type = validator.evil_type
+            pass
+
+        if not isinstance(self._file_data_type, str):
+            self._set_data_type()
+        if not isinstance(self._parameters, list):
+            self._build_params()
+        if not self._master_particle:
+            self._master_particle = data_types.GenericEvent(self._parameters)
 
         self._file = io.open(self._the_file, "rt")
+
+    def _build_params(self):
+        """
+        Searches for the parameters in the file then sets them to
+        self._parameters.
+        """
         first_line = self._file.readline()
 
-        self._parameters = []
-        for parameter in first_line.split(","):
-            self._parameters.append(parameter.split("=")[0])
+        if self._file_data_type == "DictOfArrays":
+            self._parameters = []
+            for parameter in first_line.split(","):
+                self._parameters.append(parameter.split("=")[0])
 
-        self._master_particle = data_types.GenericEvent(self._parameters)
+        elif self._file_data_type == "ListOfBools":
+            self._parameters = ["rejection_list"]
+
+        elif self._file_data_type == "ListOfFloats":
+            self._parameters = ["QFactor"]
+
+    def _set_data_type(self):
+        """
+        Sets self._file_data_type using the validator object. Mostly Accurate.
+        """
+        validator = EVILValidator(self._the_file)
+        validator.test()
+        self._file_data_type = validator.evil_type
 
     def reset(self):
         """
@@ -339,14 +367,50 @@ class EVILReader(object):
             PyPWA.configuratr.data_types.GenericEvent: The named tuple that
                 holds the data.
         """
-        the_line = self._file.readline()
-        vals = []
+        if self._file_data_type == "DictOfArrays":
+            values = self._read_dict()
+        elif self._file_data_type == "ListOfBools":
+            values = self._read_bool()
+        else:
+            values = self._read_float()
 
-        for val in the_line.split(","):
-            vals.append(val.split("=")[1])
-
-        self._previous_event = self._master_particle.make_particle(vals)
+        self._previous_event = self._master_particle.make_particle(values)
         return self._previous_event
+
+    def _read_bool(self):
+        """
+        Reads a single line and returns the bool value from that line.
+
+        Returns:
+            bool: True or False depending on the value of the line that was
+                read.
+        """
+        return bool(self._file.readline().strip("\n"))
+
+    def _read_float(self):
+        """
+        Reads a single line and returns the float value from the line.
+
+        Returns:
+            numpy.float64: The value read in from the file.
+        """
+        return numpy.float64(self._file.readline().strip("\n"))
+
+    def _read_dict(self):
+        """
+        Reads a single line and returns the list of the values rendered from the
+        file.
+
+        Returns:
+            list[numpy.float64]: The values read in from the file.
+        """
+        the_line = self._file.readline()
+        values = []
+
+        for value in the_line.split(","):
+            values.append(numpy.float64(value.split("=")[1]))
+
+        return values
 
 
 class EVILWriter(object):
