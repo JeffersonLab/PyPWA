@@ -34,6 +34,7 @@ import io
 import numpy
 
 from PyPWA.configuratr import data_types
+from PyPWA.libs.data import exceptions
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -219,6 +220,34 @@ class SvWriter(object):
         writer.writerow(data._asdict())
         self._count += 1
 
+
+class SvValidator(object):
+
+    def __init__(self, file_location, full=False):
+        """
+        Simple testing object that tries to validate the file, ensures that the
+        object can read the file before parsing begins.
+
+        Args:
+            file_location (str): The location of the file that needs to
+                validated.
+            full (bool): Whether the entire file should be tested or not.
+        """
+        self._file = io.open(file_location, "rt")
+        self._full = full
+
+    def _check_header(self):
+        """
+        Simple test to see if the header for the file is a valid CSV Header.
+        """
+        if not csv.Sniffer().has_header(self._file.read(HEADER_SEARCH_BITS)):
+            raise exceptions.IncompatibleData("CSV Module failed to find the "
+                                              "files header in " +
+                                              str(HEADER_SEARCH_BITS) +
+                                              " characters!")
+
+    def test(self):
+        self._check_header()
 
 metadata_data = {
     "extensions": [".tsv", ".csv"],
