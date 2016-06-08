@@ -14,8 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Gamp data reading and writing.
+"""Gamp data reading and writing.
 
 This file holds the Gamp Reader and Gamp Writer. These simply load the data into
 memory one event at a time and write to file one event at a time. Only the
@@ -41,7 +40,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class GampReader(object):
+class GampReader(definitions.TemplateReader):
 
     def __init__(self, file_location):
         """
@@ -51,7 +50,7 @@ class GampReader(object):
         Args:
             file_location (str): Name of the GAMP file, can be any size.
         """
-        self._the_file = file_location
+        super(GampReader, self).__init__(file_location)
         self._previous_event = None  # type: collections.namedtuple
         self._particle_master = data_types.GampParticle()
 
@@ -75,12 +74,6 @@ class GampReader(object):
         reopen it back at the beginning of the file.
         """
         self._start_input()
-
-    def __next__(self):
-        return self.next_event
-
-    def __iter__(self):
-        return self.next_event
 
     @property
     def next_event(self):
@@ -128,7 +121,7 @@ class GampReader(object):
         return particle
 
 
-class GampWriter(object):
+class GampWriter(definitions.TemplateWriter):
 
     def __init__(self, file_location):
         """
@@ -138,6 +131,7 @@ class GampWriter(object):
         Args:
             file_location (str): Where to write the GAMP data.
         """
+        super(GampWriter, self).__init__(file_location)
         self._file = io.open(file_location, "w")
 
     def write(self, data):
@@ -161,7 +155,7 @@ class GampWriter(object):
         self._file.close()
 
 
-class GampMemory(object):
+class GampMemory(definitions.TemplateMemory):
     """
     Loads GAMP Data into memory to bypass the disk bottleneck with calculations.
     DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL QUICKLY OVERFILL
@@ -184,8 +178,7 @@ class GampMemory(object):
             events.append(event)
         return events
 
-    @staticmethod
-    def write(file_location, data):
+    def write(self, file_location, data):
         """
         Writes the GAMP events from memory to disk, this method can be used for
         single GAMP events but its recommended that you use GampWriter for
@@ -200,7 +193,7 @@ class GampMemory(object):
             writer.write(event)
 
 
-class GampValidator(object):
+class GampValidator(definitions.TemplateValidator):
 
     def __init__(self, file_location, full=False):
         """
@@ -215,8 +208,8 @@ class GampValidator(object):
                 useful for debugging unknown issues or complications with
                 reading in GAMP files.
         """
+        super(GampValidator, self).__init__(file_location, full)
         self._file = io.open(file_location, "rt")
-        self._full = full
 
     def _check_events(self):
         """

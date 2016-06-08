@@ -50,13 +50,12 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class KvInterface(object):
+class KvInterface(definitions.TemplateMemory):
 
     def parse(self, file_location):
         raise NotImplementedError()
 
-    @staticmethod
-    def write(file_location, data):
+    def write(self, file_location, data):
         raise NotImplementedError()
 
     @staticmethod
@@ -115,8 +114,7 @@ class DictOfArrays(KvInterface):
         final = event.make_particle(list[parsed.values()])
         return final
 
-    @staticmethod
-    def write(file_location, data):
+    def write(self, file_location, data):
         """
         Writes Classic Kvs to file
 
@@ -166,8 +164,7 @@ class ListOfFloats(KvInterface):
                 parsed[count] = line.strip("\n")
         return parsed
 
-    @staticmethod
-    def write(file_location, data):
+    def write(self, file_location, data):
         """
         Writes Arrays to disk as floats
 
@@ -206,8 +203,7 @@ class ListOfBooleans(KvInterface):
 
         return weights
 
-    @staticmethod
-    def write(file_location, data):
+    def write(self, file_location, data):
         """
         Writes booleans to text file with each weight on a new line
 
@@ -255,8 +251,7 @@ class SomewhatIntelligentSelector(KvInterface):
 
         return parser.parse(file_location)
 
-    @staticmethod
-    def write(file_location, data):
+    def write(self, file_location, data):
         """
         Writes EVIL data types to disk, detects the data in the same way that
         parse works, however does it by running the type check against the
@@ -276,7 +271,7 @@ class SomewhatIntelligentSelector(KvInterface):
         writer.write(file_location, data)
 
 
-class EVILReader(object):
+class EVILReader(definitions.TemplateReader):
 
     def __init__(self, file_location):
         """
@@ -285,7 +280,7 @@ class EVILReader(object):
         Args:
             file_location (str): The location of the EVIL file.
         """
-        self._the_file = file_location
+        super(EVILReader, self).__init__(file_location)
         self._previous_event = None
         self._file = False  # type: io.TextIOBase
         self._parameters = False  # type: list[str]
@@ -345,18 +340,6 @@ class EVILReader(object):
         """
         self._start_input()
 
-    def __next__(self):
-        """
-        Wrapper for next_event
-        """
-        return self.next_event
-
-    def __iter__(self):
-        """
-        Wrapper for next_event
-        """
-        return self.next_event
-
     @property
     def next_event(self):
         """
@@ -375,6 +358,10 @@ class EVILReader(object):
 
         self._previous_event = self._master_particle.make_particle(values)
         return self._previous_event
+
+    @property
+    def previous_event(self):
+        return self.previous_event
 
     def _read_bool(self):
         """
@@ -412,7 +399,7 @@ class EVILReader(object):
         return values
 
 
-class EVILWriter(object):
+class EVILWriter(definitions.TemplateWriter):
 
     def __init__(self, file_location):
         """
@@ -423,6 +410,7 @@ class EVILWriter(object):
         Args:
             file_location (str): Where to write the data.
         """
+        super(EVILWriter, self).__init__(file_location)
         self._file = io.open(file_location, "wt")
 
     def write(self, data):
@@ -447,8 +435,7 @@ class EVILWriter(object):
         self._file.close()
 
 
-
-class EVILValidator(object):
+class EVILValidator(definitions.TemplateValidator):
 
     def __init__(self, file_location, full=False):
         """
@@ -459,9 +446,8 @@ class EVILValidator(object):
             file_location (str): The location of the file.
             full (Optional[bool]): Whether or not to do a full test of the file.
         """
+        super(EVILValidator, self).__init__(file_location, full)
         self._the_file = io.open(file_location)
-        self._full = full  # This doesn't do anything
-        # EVIL doesn't deserve full tests.
 
     def _check_data_type(self):
         """

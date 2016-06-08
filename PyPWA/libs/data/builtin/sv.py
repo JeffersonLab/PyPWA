@@ -42,7 +42,7 @@ __version__ = VERSION
 HEADER_SEARCH_BITS = 1024
 
 
-class SvMemory(object):
+class SvMemory(definitions.TemplateMemory):
     """
     Object for reading and writing delimiter separated data files.
     """
@@ -76,7 +76,7 @@ class SvMemory(object):
                 for count in range(len(row)):
                     parsed[elements[count]][index] = row[count]
         event = data_types.GenericEvent(list(parsed.keys()))
-        final = event.make_particle(list[parsed.values()])
+        final = event.make_particle(list(parsed.values()))
 
         return final
 
@@ -110,7 +110,7 @@ class SvMemory(object):
                 writer.writerow(temp)
 
 
-class SvReader(object):
+class SvReader(definitions.TemplateReader):
 
     def __init__(self, file_location):
         """
@@ -120,7 +120,7 @@ class SvReader(object):
         Args:
             file_location (str): The location of the file to read in.
         """
-        self._the_file = file_location
+        super(SvReader, self).__init__(file_location)
         self._previous_event = None  # type: collections.namedtuple
         self._master_particle = False  # type: data_types.GenericEvent
         self._reader = False  # type: csv.DictReader
@@ -151,12 +151,6 @@ class SvReader(object):
         """
         self._start_input()
 
-    def __next__(self):
-        return self.next_event
-
-    def __iter__(self):
-        return self.next_event
-
     @property
     def next_event(self):
         """
@@ -175,7 +169,7 @@ class SvReader(object):
         return self._master_particle.make_particle(parsed)
 
 
-class SvWriter(object):
+class SvWriter(definitions.TemplateWriter):
 
     def __init__(self, file_location):
         """
@@ -185,6 +179,7 @@ class SvWriter(object):
         Args:
             file_location (str): Location to  write the data to.
         """
+        super(SvWriter, self).__init__(file_location)
         self._file = io.open(file_location, "w")
 
         extension = file_location.split(".")[-1]
@@ -214,8 +209,14 @@ class SvWriter(object):
         writer.writerow(data._asdict())
         self._count += 1
 
+    def close(self):
+        """
+        Properly closes the file handle.
+        """
+        self._file.close()
 
-class SvValidator(object):
+
+class SvValidator(definitions.TemplateValidator):
 
     def __init__(self, file_location, full=False):
         """
@@ -227,8 +228,8 @@ class SvValidator(object):
                 validated.
             full (bool): Whether the entire file should be tested or not.
         """
+        super(SvValidator, self).__init__(file_location, full)
         self._file = io.open(file_location, "rt")
-        self._full = full
 
     def _check_header(self):
         """
