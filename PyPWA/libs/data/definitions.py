@@ -83,6 +83,13 @@ class TemplateReader(object):
     def __iter__(self):
         self.next_event
 
+    @property
+    def previous_event(self):
+        raise NotImplementedError("%s does not overwrite method write. This is"
+                                  "the method that you should overwrite to have"
+                                  "the object return the last value that was"
+                                  "parsed." % self.__class__.__name__)
+
 
 class TemplateWriter(object):
 
