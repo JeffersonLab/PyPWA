@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The Main objects for the Data Plugin
+"""The utility objects for the Data Plugin
 
 This holds all the main objects for the data plugin. This has search functions
 but these objects should never know anything about the data plugin they are
@@ -26,6 +26,7 @@ data to it.
 import logging
 import pkgutil
 
+from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -114,7 +115,46 @@ class FindPlugins(object):
 
 class DataSearch(object):
 
-    def __init__(self):
+    def __init__(self, plugins):
+        """
+        Attempts to search for the correct plugin using the data and the plugins
+        validator.
+
+        Args:
+            plugins (list[module]): The list of the possible plugins that have
+                been loaded.
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
+        self._plugins = plugins
 
+    def search(self, file_location):
+        """
+        Loops through the objects plugin list until it finds a validator that
+        doesn't fail, then returns that plugin.
+
+        Args:
+            file_location (str): The location of the file that needs to be
+                parsed.
+
+        Returns:
+            module: The plugin that should correctly parse the data that is
+                being loaded from the disk.
+
+        Raises:
+            definitions.UnknownData: If no plugin reports that it can read the
+                data then this will be raised to alert the caller that the data
+                is unreadable.
+        """
+        for plugin in self._plugins:
+            try:
+                validator = plugin.metadata_data["validator"](file_location)
+                validator.test()
+                self._logger.info("Found %s will load %s" %
+                                  (plugin.__name__, file_location))
+                return plugin
+            except definitions.IncompatibleData:
+                self._logger.debug("Skipping %s for data %s" %
+                                   (plugin.__name__, file_location))
+        raise definitions.UnknownData("Unable to find a plugin that can load %s"
+                                      % file_location)
