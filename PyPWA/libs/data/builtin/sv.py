@@ -28,7 +28,7 @@ import io
 import numpy
 
 from PyPWA.configuratr import data_types
-from PyPWA.libs.data import exceptions
+from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -235,9 +235,9 @@ class SvValidator(object):
         Simple test to see if the header for the file is a valid CSV Header.
         """
         if not csv.Sniffer().has_header(self._file.read(HEADER_SEARCH_BITS)):
-            raise exceptions.IncompatibleData("CSV Module failed to find the "
+            raise definitions.IncompatibleData("CSV Module failed to find the "
                                               "files header in " +
-                                              str(HEADER_SEARCH_BITS) +
+                                               str(HEADER_SEARCH_BITS) +
                                               " characters!")
 
     def test(self):

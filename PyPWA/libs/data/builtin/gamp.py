@@ -28,7 +28,7 @@ import io
 
 import numpy
 
-from PyPWA.libs.data import exceptions
+from PyPWA.libs.data import definitions
 from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -237,16 +237,16 @@ class GampValidator(object):
             try:
                 int(number)
             except ValueError:
-                raise exceptions.IncompatibleData("Expected particle count.")
+                raise definitions.IncompatibleData("Expected particle count.")
             try:
                 for index in range(int(number)):
                     if len(self._file.readline().split(",")) != 6:
-                        raise exceptions.IncompatibleData(
+                        raise definitions.IncompatibleData(
                             "Particle count does not match the number of events"
                             "read in by the Validator."
                         )
             except Exception as Error:
-                raise exceptions.IncompatibleData(
+                raise definitions.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
                     "where it wasn't expected."
                 )
@@ -268,7 +268,7 @@ class GampValidator(object):
                     if self._file.readline() == "":
                         break
             except Exception as Error:
-                raise exceptions.IncompatibleData(
+                raise definitions.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
                     "where it wasn't expected."
                 )

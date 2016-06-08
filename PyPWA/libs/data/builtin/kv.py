@@ -37,7 +37,7 @@ import io
 
 import numpy
 
-from PyPWA.libs.data import exceptions
+from PyPWA.libs.data import definitions
 from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -479,7 +479,7 @@ class EVILValidator(object):
         elif len(test_data) == 1:
             self._evil_type = "ListOfBools"
         else:
-            raise exceptions.IncompatibleData("Failed to find a data")
+            raise definitions.IncompatibleData("Failed to find a data")
 
     def test(self):
         """
@@ -500,7 +500,7 @@ class EVILValidator(object):
         except NameError:
             try:
                 self._check_data_type()
-            except exceptions.IncompatibleData:
+            except definitions.IncompatibleData:
                 raise ValueError("Data is not of GAMP Type, double check and "
                                  "try again.")
             return self._evil_type
