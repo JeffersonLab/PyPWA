@@ -47,14 +47,14 @@ BUILTIN_PACKAGE_LOCATION = builtin
 
 
 class Options(object):
-    _options = {
+    _options = {  # Holds the default options for the builtin.
         "cache": True,  # Optional
         "clear cache": False,  # Advanced
         "fail": False,  # Advanced
         "user plugin": "cwd=/path/to/file;"  # Advanced
     }
 
-    _template = {
+    _template = {  # Holds the actual expected options and names for the builtin
         "cache": bool,
         "clear cache": bool,
         "fail": bool,
@@ -62,6 +62,9 @@ class Options(object):
     }
 
     def __init__(self):
+        """
+        Option object for the Data Builtin Plugin.
+        """
         header = self._build_empty_options_with_comments()
         self._optional = self._build_optional(header)
         self._advanced = self._build_advanced(header)
@@ -69,6 +72,14 @@ class Options(object):
 
     @staticmethod
     def _build_empty_options_with_comments():
+        """
+        Builds an empty dictionary with all the comments for the builtin
+        data dictionary.
+
+        Returns:
+            ruamel.yaml.comments.CommentedMap: The empty dictionary with the
+                comments.
+        """
         header = ruamel.yaml.comments.CommentedMap()
         content = ruamel.yaml.comments.CommentedMap()
 
@@ -101,10 +112,32 @@ class Options(object):
         return header
 
     def _build_optional(self, header):
+        """
+        Loads the optional data into the dictionary.
+
+        Args:
+            header (ruamel.yaml.comment.CommentedMap): The dictionary with the
+                pre-nested comments.
+
+        Returns:
+            ruamel.yaml.comment.CommentedMap: The dictionary with the optional
+                options.
+        """
         header[MODULE_NAME]["cache"] = self._options["cache"]
         return header
 
     def _build_advanced(self, header):
+        """
+        Loads the optional and advanced data into the dictionary.
+
+        Args:
+            header (ruamel.yaml.comment.CommentedMap): The dictionary with the
+             pre-nested comments.
+
+        Returns:
+            ruamel.yaml.comment.CommentedMap: The dictionary with the optional
+                and advanced options.
+        """
         header = self._build_optional(header)
         header[MODULE_NAME]["clear cache"] = self._options["clear cache"]
         header[MODULE_NAME]["fail"] = self._options["fail"]
