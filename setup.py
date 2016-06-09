@@ -30,9 +30,10 @@ setup(
     install_requires=[
         "iminuit<2.0",
         "numpy<2.0",
-        "pyyaml<4",
+        "ruamel.yaml",
         "tabulate",
-        "appdirs"
+        "appdirs",
+        "fuzzywuzzy"
     ],
     setup_requires=['pytest-runner', 'pytest-cov'],
     tests_require=['pytest'],
@@ -45,7 +46,7 @@ setup(
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
         "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3",
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Scientific/Engineering :: Physics"
     ]
