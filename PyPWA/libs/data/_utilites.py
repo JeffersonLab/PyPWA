@@ -74,10 +74,12 @@ class FindPlugins(object):
     def _import_plugin(self, importer, module):
         """
         Attempts to import the found plugins.
+
         Args:
             importer (importlib.machinery.FileFinder): The initialized importer
                 from pkgutil.
             module (str): The name of the module that needs to be loaded.
+
         Returns:
             module: If the import was successful.
             False: If the import failed.
