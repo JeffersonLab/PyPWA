@@ -38,3 +38,4 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+MODULE_NAME = "Builtin Multiprocessing"
