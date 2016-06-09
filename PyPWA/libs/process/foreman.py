@@ -22,7 +22,11 @@ back to the Foreman.
 """
 
 import logging
+import multiprocessing
 
+import ruamel.yaml.comments
+
+from PyPWA.libs.process import MODULE_NAME
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import _communication
 from PyPWA.libs.process import utilities
@@ -184,3 +188,67 @@ class CalculationForeman(object):
             return False
         else:
             return self._interface
+
+
+class Options(object):
+    _options = {
+        "number of processes": multiprocessing.cpu_count() * 2  # Optional
+        #  We set this two 2 times the number of CPUs to account for
+        #  hyper threading.
+    }
+
+    _template = {
+        "number of processes": int
+    }
+
+    def __init__(self):
+        header = self._build_empty_options_with_comments()
+        self._optional = self._build_optional(header)
+        self._required = header
+
+    @staticmethod
+    def _build_empty_options_with_comments():
+        header = ruamel.yaml.comments.CommentedMap()
+        content = ruamel.yaml.comments.CommentedMap()
+
+        header[MODULE_NAME] = content
+        header.yaml_add_eol_comment("This is the builtin processing plugin,"
+                                    "you can replace this with your own, or"
+                                    " use one of the other options that we "
+                                    "have.", MODULE_NAME)
+        content.yaml_add_eol_comment("This is the max number of processes to"
+                                     " have running at any time in the "
+                                     "program, the hard max will always be"
+                                     "2 * the number of CPUs in your computer"
+                                     "so that we don't resource lock your "
+                                     "computer. Will work on any Intel"
+                                     " or AMD processor, IBMs might have"
+                                     " difficulty here.", "number of "
+                                                          "processes")
+
+        return header
+
+    def _build_optional(self, header):
+        header[MODULE_NAME]["number of processes"] = \
+            self._options["number of processes"]
+        return header
+
+    @property
+    def return_template(self):
+        return self._template
+
+    @property
+    def return_required(self):
+        return self._required
+
+    @property
+    def return_optional(self):
+        return self._optional
+
+    @property
+    def return_advanced(self):
+        return self._optional
+
+    @property
+    def return_defaults(self):
+        return self._options
