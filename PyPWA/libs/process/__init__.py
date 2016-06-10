@@ -27,7 +27,8 @@ Example:
     processed_value = interface.run("Your args)
 """
 
-from PyPWA.libs.process.foreman import CalculationForeman
+from PyPWA.libs.process import _utilities
+from PyPWA.libs.process import foreman
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -38,4 +39,13 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-MODULE_NAME = "Builtin Multiprocessing"
+
+metadata = {
+    "name": _utilities.MODULE_NAME,
+    "provides": "kernel processing",
+    "interface": foreman.CalculationForeman,
+    "kernels": {
+        "interface": _utilities.AbstractInterface,
+        "process":  _utilities.AbstractKernel
+    }
+}
