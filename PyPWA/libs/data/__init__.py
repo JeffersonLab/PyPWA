@@ -30,7 +30,8 @@ Examples:
         file = PyPWA.data.file_manager.MemoryInterface()
         file.write(path_to_file, the_data)
 """
-import PyPWA.libs.data.traffic_cop
+from PyPWA.libs.data import _utilites
+from PyPWA.libs.data import traffic_cop
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -41,12 +42,10 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-MODULE_NAME = "Builtin Parser"
-
 
 metadata = {
-    "name": MODULE_NAME,
-    "options": PyPWA.libs.data.traffic_cop.Options,
+    "name": _utilites.MODULE_NAME,
+    "options": traffic_cop.Options,
     "provides": "data",
-    "data main": PyPWA.libs.data.traffic_cop.TrafficCop
+    "data main": traffic_cop.TrafficCop
 }
