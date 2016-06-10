@@ -36,56 +36,30 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-# Define the logger for the entire page since there are no objects here.
-_LOGGER = logging.getLogger(__name__)
-_LOGGER.addHandler(logging.NullHandler())
 
+class ImportTools(object):
 
-def import_object(file_location, object_name, cwd=False):
-    """
-    Takes a single file, imports it, then returns whatever the requested object
-    was for the program or user to manipulate however they need.
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
 
-    Args:
-        file_location (str): The location to the file that needs to be imported.
-        object_name (str): The name of the python object that needs to be
-            imported.
-        cwd (Optional[str]): The root directory of the file.
+    def import_package(self, folder):
+        self._append_path(folder)
+        return __import__(os.path.basename(folder))
 
-    Returns:
-        The object that was called during the extraction process.
+    def import_object(self, file, object_name):
+        self._append_path(file)
+        imported = self._import_script(file)
+        return self._extract_object(imported, object_name)
 
-    Note:
-        This file might support a list for the object_name in the future so that
-        you can import multiple objects from the same file.
-    """
-    if not cwd:
-        _LOGGER.debug("Common Working Directory not found, using path from the "
-                      "provided file location.")
-        cwd = _cwd_from_path(file_location)
+    def _import_script(self, file):
+        self._append_path(file)
+        return __import__(os.path.basename(file).strip(".py"))
 
-    # Here I take the cwd that was either found or provided, then I append that
-    # base directory to Python's path. After that I import the entire file
-    # into a variable so that I can extract the needed object out into its own
-    # variable that will be returned to the calling method.
-    sys.path.append(cwd)
-    imported = __import__(os.path.basename(file_location).strip(".py"))
-    loaded_object = getattr(imported, object_name)
-    return loaded_object
+    @staticmethod
+    def _extract_object(imported, object_name):
+        return getattr(imported, object_name)
 
-
-def _cwd_from_path(file_location):
-    """
-    This internal function specifically extracts the common working directory
-    of the file that needs to be loaded from the path of the file. It does it
-    by finding the absolute path of the file, then striping the file from the
-    path.
-
-    Args:
-        file_location (str): The path to the file.
-
-    Returns:
-        str: The full path to the folder including the file.
-    """
-    return os.path.dirname(os.path.abspath(file_location))
-
+    @staticmethod
+    def _append_path(file):
+        sys.path.append(os.path.dirname(file))
