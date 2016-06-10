@@ -26,10 +26,10 @@ import multiprocessing
 
 import ruamel.yaml.comments
 
-from PyPWA.libs.process import MODULE_NAME
+
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import _communication
-from PyPWA.libs.process import utilities
+from PyPWA.libs.process import _utilities
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -140,9 +140,9 @@ class CalculationForeman(object):
         to function.
 
         Args:
-            interface_kernel (utilities.AbstractInterface): The object that will
-                be used to process the data returned from the processes.
-            process_kernel (list[utilities.AbstractKernel]): The objects that
+            interface_kernel (_utilities.AbstractInterface): The object that
+                will be used to process the data returned from the processes.
+            process_kernel (list[_utilities.AbstractKernel]): The objects that
                 will be seeded into the processes to execute the data.
         """
         self._logger = logging.getLogger(__name__)
@@ -171,8 +171,8 @@ class CalculationForeman(object):
         Simple method that sets up and builds all the processes needed.
         """
         process, com = self._make_process()
-        self._interface = _ProcessInterface(self._interface_kernel, com, process,
-                                            self._duplex)
+        self._interface = _ProcessInterface(self._interface_kernel, com,
+                                            process, self._duplex)
 
     def fetch_interface(self):
         """
@@ -214,11 +214,11 @@ class Options(object):
         header = ruamel.yaml.comments.CommentedMap()
         content = ruamel.yaml.comments.CommentedMap()
 
-        header[MODULE_NAME] = content
+        header[_utilities.MODULE_NAME] = content
         header.yaml_add_eol_comment("This is the builtin processing plugin,"
                                     "you can replace this with your own, or"
                                     " use one of the other options that we "
-                                    "have.", MODULE_NAME)
+                                    "have.", _utilities.MODULE_NAME)
         content.yaml_add_eol_comment("This is the max number of processes to"
                                      " have running at any time in the "
                                      "program, the hard max will always be"
@@ -244,7 +244,7 @@ class Options(object):
             ruamel.yaml.comments.CommentedMap: The dictionary with the optional
                 fields.
         """
-        header[MODULE_NAME]["number of processes"] = \
+        header[_utilities.MODULE_NAME]["number of processes"] = \
             self._options["number of processes"]
         return header
 
