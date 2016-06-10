@@ -37,6 +37,19 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+"""
+    In true developer fashion, we are lazy and defined the name of this module
+that will be shown to users interfacing with this plugin only once. So here
+exists the name, changing this one line will change the name of the plugin
+throughout the program, and as such will break current configurations.
+
+    I would recommend writing some logic to handle multiple names before
+actually changing this though so that old configuration files will still work
+even without the new name being defined. Lists can hold names, lists can be
+your friend, especially if you fuzz it.
+"""
+MODULE_NAME = "Builtin Parser"  # Name for the module externally.
+
 
 class FindPlugins(object):
 
