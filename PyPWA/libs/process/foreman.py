@@ -202,6 +202,9 @@ class Options(object):
     }
 
     def __init__(self):
+        """
+        Simple Object to hold the options for the Foreman.
+        """
         header = self._build_empty_options_with_comments()
         self._optional = self._build_optional(header)
         self._required = header
@@ -229,6 +232,18 @@ class Options(object):
         return header
 
     def _build_optional(self, header):
+        """
+        Since there is only one option, and its optional, we only have a single
+        building function for the actual options.
+
+        Args:
+            header (ruamel.yaml.comments.CommentedMap): The empty dictionary
+                with the comments included.
+
+        Returns:
+            ruamel.yaml.comments.CommentedMap: The dictionary with the optional
+                fields.
+        """
         header[MODULE_NAME]["number of processes"] = \
             self._options["number of processes"]
         return header
