@@ -29,7 +29,6 @@ import ruamel.yaml
 import ruamel.yaml.comments
 
 from PyPWA.configuratr import tools
-from PyPWA.libs.data import MODULE_NAME
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
@@ -83,10 +82,10 @@ class Options(object):
         header = ruamel.yaml.comments.CommentedMap()
         content = ruamel.yaml.comments.CommentedMap()
 
-        header[MODULE_NAME] = content
+        header[_utilites.MODULE_NAME] = content
         header.yaml_add_eol_comment('This is the builtin data parser, you can '
                                     'replace this with your own data parser if '
-                                    'you wish.', MODULE_NAME)
+                                    'you wish.', _utilites.MODULE_NAME)
 
         content.yaml_add_eol_comment("Should Cache be enabled? The cache will"
                                      "automatically clear if it detects a"
@@ -105,9 +104,9 @@ class Options(object):
                                      "files that are optional will cause the "
                                      "program to stop.", "fail")
         content.yaml_add_eol_comment("A plugin that can be loaded into the "
-                                     "the " + MODULE_NAME + " for parsing,"
-                                     " see the documentation on the " +
-                                     MODULE_NAME + " plugin for more "
+                                     "the " + _utilites.MODULE_NAME + " for "
+                                     "parsing, see the documentation on the " +
+                                     _utilites.MODULE_NAME + " plugin for more "
                                      "information.", "user plugin")
         return header
 
@@ -123,7 +122,7 @@ class Options(object):
             ruamel.yaml.comment.CommentedMap: The dictionary with the optional
                 options.
         """
-        header[MODULE_NAME]["cache"] = self._options["cache"]
+        header[_utilites.MODULE_NAME]["cache"] = self._options["cache"]
         return header
 
     def _build_advanced(self, header):
@@ -139,8 +138,10 @@ class Options(object):
                 and advanced options.
         """
         header = self._build_optional(header)
-        header[MODULE_NAME]["clear cache"] = self._options["clear cache"]
-        header[MODULE_NAME]["fail"] = self._options["fail"]
+        header[_utilites.MODULE_NAME]["clear cache"] = \
+            self._options["clear cache"]
+
+        header[_utilites.MODULE_NAME]["fail"] = self._options["fail"]
         return header
 
     @property
