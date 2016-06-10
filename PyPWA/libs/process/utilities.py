@@ -30,6 +30,15 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+"""
+Since the core requires a name, and we like to keep things as consistent as
+possible, we define the core name here as a global definition that any module
+inside the package can import. This means that if we decide to change the
+name in the future our lives will be much easier.
+"""
+
+MODULE_NAME = "Builtin Multiprocessing"  # The name for the module externally.
+
 
 class AbstractInterface(object):
 
@@ -103,8 +112,8 @@ class AbstractKernel(object):
         from the main process.
 
         Args:
-            data (Optional): Anything that you sent out to all threads will come
-                through here.
+            data (Optional): Anything that you send out to all threads through
+                the interface object will be received here.
 
         Returns:
             Anything that is pickle-able that you want to send back to your
