@@ -40,7 +40,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-metadata = {
+metadata = [{
     "name": _utilities.MODULE_NAME,
     "provides": "kernel processing",
     "interface": foreman.CalculationForeman,
@@ -48,4 +48,4 @@ metadata = {
         "interface": _utilities.AbstractInterface,
         "process":  _utilities.AbstractKernel
     }
-}
+}]
