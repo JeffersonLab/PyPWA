@@ -43,9 +43,9 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-metadata = {
+metadata = [{
     "name": _utilites.MODULE_NAME,
     "options": traffic_cop.Options,
     "provides": "data",
     "data main": traffic_cop.TrafficCop
-}
+}]
