@@ -27,21 +27,22 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Minimizer(object):
-    """
-    Object based off of iminuit, provides an easy way to run minimization
-
-    Args:
-        calc_function (function): function that holds the calculations.
-        parameters (list): List of the parameters
-        settings (dict): Dictionary of the settings for iminuit
-        strategy (int): iminuit's strategy
-        set_up (int): Todo
-        ncall (int): Max number of calls
-    """
+class Minuit(object):
 
     def __init__(self, calc_function, parameters, settings, strategy, set_up,
                  ncall):
+        """
+        Object based off of iminuit, provides an easy way to run minimization
+
+        Args:
+            calc_function (function): function that holds the calculations.
+            parameters (list): List of the parameters
+            settings (dict): Dictionary of the settings for iminuit
+            strategy (int): iminuit's strategy
+            set_up (int): Todo
+            ncall (int): Max number of calls
+        """
+
         self.final_value = 0
         self.covariance = 0
         self.values = 0
@@ -67,3 +68,27 @@ class Minimizer(object):
         self.final_value = minimal.fval
         self.covariance = minimal.covariance
         self.values = minimal.values
+
+
+class MultiNest(object):
+    """
+    This is be elegant and amazing, eventually.
+    """
+
+    builtin_function = u"""\
+The function with all the documentation required to build the parameter space.
+"""
+
+metadata = [{
+        "name": "Minuit",
+        "provides": "minimization",
+        "minimizer": Minuit,
+        "require function": False
+    },
+    {
+        "name": "MultiNest",
+        "provides": "minimization",
+        "minimizer": MultiNest,
+        "require function": MultiNest.builtin_function
+    }
+]
