@@ -21,10 +21,12 @@ requested to determine what information is needed to be loaded and how it needs
 to be structured to be able to function in the users desired way.
 """
 
+import logging
 import argparse
 import os
 import sys
 
+from PyPWA.configuratr import internal_logging
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -36,7 +38,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class StartBuilder(object):
+class StartConfiguratr(object):
     def __init__(self, builder, *args):
         self.builder = builder(args)
 
@@ -68,12 +70,26 @@ class StartBuilder(object):
 
         parser.add_argument("--Version", "-V", action="version",
                             version="%(prog)s (version " + __version__ + ")")
+        parser.add_argument("--verbose", "-v", action="count",
+                            help="Adds logging, defaults to errors, "
+                                 "then setups up on from there. -v will "
+                                 "include warning, -vvv will show debugging.")
+
         if app_config["AdvancedHelp"]:
             parser.add_argument("--AdvancedHelp", "-ah", action="store_true",
                                 help="Prints the in depth advanced help to "
                                      "the terminal")
 
         arguments = parser.parse_args()
+
+        if arguments.verbose == 1:
+            internal_logging.define_logger(logging.WARNING)
+        elif arguments.verbose == 2:
+            internal_logging.define_logger(logging.INFO)
+        elif arguments.verbose >= 3:
+            internal_logging.define_logger(logging.DEBUG)
+        else:
+            internal_logging.define_logger(logging.ERROR)
 
         if app_config["AdvancedHelp"] and arguments.AdvancedHelp:
             raise NotImplementedError("Currently advanced help output is "
