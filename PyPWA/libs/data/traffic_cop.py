@@ -28,7 +28,8 @@ import logging
 import ruamel.yaml
 import ruamel.yaml.comments
 
-from PyPWA.configuratr import tools
+from PyPWA.configuratr import data_types
+from PyPWA.configuratr import settings_aid
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
@@ -165,51 +166,125 @@ class Options(object):
         return self._options
 
 
-class _DataInterface(object):
-
-    def __init__(self):
-        self._is_ready = False
-        self._data_type = None  # type: str
-
-    @property
-    def is_ready(self):
-        return self._is_ready
-
-    @property
-    def wait(self):
-        raise NotImplementedError(str(self.__class__.__name__) + " does not "
-                                  "implement the wait property")
-
-
 class TrafficCop(object):
 
     def __init__(self, settings):
-        fixer = tools.CorrectSettings()
-        options = Options()
-        corrected_settings = fixer.correct_dictionary(settings,
-                                                      options.return_template)
+        """
+        The data plugin.
 
-
-        if isinstance(external_packages, str):
-            packages = [external_packages, BUILTIN_PACKAGE_LOCATION]
-        elif isinstance(external_packages, list):
-            packages = external_packages + [BUILTIN_PACKAGE_LOCATION]
-        else:
-            packages = [BUILTIN_PACKAGE_LOCATION]
-
-        plugins = self._index_packages(packages)
-        self._search = _utilites.DataSearch(plugins)
-
+        Args:
+            settings (dict): The global options.
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
-    @staticmethod
-    def _index_packages(packages):
-        plugins = []
-        loader = _utilites.FindPlugins()
-        for package in packages:
-            plugins.append(loader.find_plugin(package))
+        fixer = settings_aid.CorrectSettings()
+        options = Options()
+        self._corrected_settings = fixer.correct_dictionary(
+            settings, options.return_template)
 
-        return plugins
+        plugin_finder = _utilites.FindPlugins()
+        data_plugins = plugin_finder.find_plugin(builtin)
 
+        self._data_search = _utilites.DataSearch(data_plugins)
 
+    # Going to assume for completions sake that the settings line is just the
+    # file's location. However untrue this may be.
+    def parse(self, settings_line):
+        """
+        Parses a single file into memory then passes that data back to the main
+        object.
+
+        Args:
+            settings_line (str): The unparsed settings from the configuration
+                file.
+
+        Returns:
+            The data that was loaded in from file.
+
+        Raises:
+            definitions.UnknownData: If the loading of the file fails and fail
+                on parse error is set to true then this will be raised.
+        """
+        try:
+            plugin = self._data_search.search(settings_line)
+            parser = plugin.metadata_data["memory"]()
+            return parser.parse(settings_line)
+        except definitions.UnknownData:
+            if self._corrected_settings["fail"]:
+                raise
+            else:
+                return 0
+
+    def write(self, file_location, data):
+        """
+        Writes data from memory into a file.
+
+        Args:
+            file_location (str): The file that needs to be parsed.
+            data (data_types.GenericEvent): The data that needs to be written
+                to disk.
+
+        Raises:
+            definitions.UnknownData: If the loading of the file fails and fail
+                on parse error is set to true then this will be raised.
+        """
+        try:
+            plugin = self._data_search.search(file_location)
+            parser = plugin.metadata_data["memory"]()
+            parser.write(file_location, data)
+        except definitions.UnknownData:
+            if self._corrected_settings["fail"]:
+                raise
+
+    def reader(self, settings_line):
+        """
+        Searches for the correct reader than passes that back to the requesting
+        object.
+
+        Args:
+            settings_line (str): The line that contains the settings.
+
+        Returns:
+            object: The reader that was requested.
+            bool: False if it failed to find a reader.
+
+        Raises:
+            definitions.UnknownData: If the loading of the file fails and fail
+                on parse error is set to true then this will be raised.
+        """
+        try:
+            plugin = self._data_search.search(settings_line)
+            reader = plugin.metadata_data["reader"](settings_line)
+            return reader
+        except definitions.UnknownData:
+            if self._corrected_settings["fail"]:
+                raise
+            else:
+                return 0
+
+    def writer(self, settings_line):
+        """
+        Searches for the correct writer than passes that back to the requesting
+        object.
+
+        Args:
+            settings_line (str): The line that contains the settings.
+
+        Returns:
+            object: The writer that was requested.
+            bool: False if it failed to find a writer
+
+        Raises:
+            definitions.UnknownData: If the loading of the file fails and fail
+                on parse error is set to true then this will be raised.
+        """
+        try:
+            plugin = self._data_search.search(settings_line)
+            writer = plugin.metadata_data["writer"](settings_line)
+            return writer
+        except definitions.UnknownData:
+            if self._corrected_settings["fail"]:
+                raise
+            else:
+                return 0
