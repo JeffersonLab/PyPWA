@@ -272,6 +272,7 @@ class GampValidator(definitions.TemplateValidator):
 
 
 metadata_data = {
+    "name": "gamp",
     "extension": "gamp",
     "validator": GampValidator,
     "reader": GampReader,

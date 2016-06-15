@@ -237,14 +237,15 @@ class SvValidator(definitions.TemplateValidator):
         """
         if not csv.Sniffer().has_header(self._file.read(HEADER_SEARCH_BITS)):
             raise definitions.IncompatibleData("CSV Module failed to find the "
-                                              "files header in " +
+                                               "files header in " +
                                                str(HEADER_SEARCH_BITS) +
-                                              " characters!")
+                                               " characters!")
 
     def test(self):
         self._check_header()
 
 metadata_data = {
+    "name": "Sv",
     "extensions": [".tsv", ".csv"],
     "validator": SvValidator,
     "reader": SvReader,

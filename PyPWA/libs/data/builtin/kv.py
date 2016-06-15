@@ -493,6 +493,7 @@ class EVILValidator(definitions.TemplateValidator):
 
 
 metadata_data = {
+    "name": "EVIL",
     "extension": "txt",
     "validator": EVILValidator,
     "reader": EVILReader,
