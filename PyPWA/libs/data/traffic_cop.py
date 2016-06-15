@@ -28,8 +28,8 @@ import logging
 import ruamel.yaml
 import ruamel.yaml.comments
 
-from PyPWA.configuratr import data_types
-from PyPWA.configuratr import settings_aid
+from PyPWA.configurator import data_types
+from PyPWA.configurator import settings_aid
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin

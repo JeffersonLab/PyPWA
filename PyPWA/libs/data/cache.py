@@ -25,7 +25,7 @@ import io
 import logging
 import pickle
 
-from PyPWA.configuratr import tools, definitions, data_types
+from PyPWA.configurator import tools, definitions, data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
