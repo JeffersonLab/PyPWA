@@ -483,7 +483,7 @@ class EVILValidator(definitions.TemplateValidator):
         """
         try:
             return self._evil_type
-        except NameError:
+        except AttributeError:
             try:
                 self._check_data_type()
             except definitions.IncompatibleData:
