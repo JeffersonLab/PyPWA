@@ -33,7 +33,8 @@ setup(
         "ruamel.yaml",
         "tabulate",
         "appdirs",
-        "fuzzywuzzy"
+        "fuzzywuzzy",
+        "python-Levenshtein"
     ],
     setup_requires=['pytest-runner', 'pytest-cov'],
     tests_require=['pytest'],
