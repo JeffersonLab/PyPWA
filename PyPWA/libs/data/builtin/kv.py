@@ -38,7 +38,7 @@ import io
 import numpy
 
 from PyPWA.libs.data import definitions
-from PyPWA.configuratr import data_types
+from PyPWA.configurator import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
