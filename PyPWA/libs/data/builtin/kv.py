@@ -487,8 +487,8 @@ class EVILValidator(definitions.TemplateValidator):
             try:
                 self._check_data_type()
             except definitions.IncompatibleData:
-                raise ValueError("Data is not of GAMP Type, double check and "
-                                 "try again.")
+                raise IOError("Data is not of EVIL Type, double check and "
+                              "try again.")
             return self._evil_type
 
 
