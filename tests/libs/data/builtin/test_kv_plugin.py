@@ -192,3 +192,17 @@ def test_SomewhatIntelligentSelector_DictValid_ReadWriteTrue():
 
     # Run tests
     numpy.testing.assert_array_almost_equal(loaded.x, written.x)
+
+
+def test_SomewhatIntelligentSelector_StringInvalid_RaiseRuntimeError():
+    """
+    Tests to make sure that it crashes properly when something that isn't
+    supported is sent to the plugin.
+    """
+    # Setup tests
+    x = "A random string that EVIL shouldn't know how to handle"
+    selector = kv.SomewhatIntelligentSelector()
+
+    # Run test
+    with pytest.raises(RuntimeError):
+        selector.write(TEMP_WRITE_LOCATION, x)
