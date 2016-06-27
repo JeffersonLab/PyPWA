@@ -15,13 +15,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module is used to actually processes loaded data.
+This is the builtin plugin for Multiprocessing, it works by taking the
+users kernels and interface and nesting them into their own individual processes
+and the interface that is connected to them, then returns that interface so that
+the user can manipulate those processes.
 
-There entire module is based off of multiprocessing, having objects
-based off of the Process module and Pipe module for effective
-communication.
+Example:
+    foreman = CalculationForeman(AbstractInterface, AbstractKernels)
+    foreman.build()
+    interface = foreman.fetch_interface()
+    processed_value = interface.run("Your args)
 """
 
+from PyPWA.libs.process import _utilities
+from PyPWA.libs.process import foreman
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -32,3 +39,13 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+
+metadata = [{
+    "name": _utilities.MODULE_NAME,
+    "provides": "kernel processing",
+    "interface": foreman.CalculationForeman,
+    "kernels": {
+        "interface": _utilities.AbstractInterface,
+        "process":  _utilities.AbstractKernel
+    }
+}]

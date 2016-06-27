@@ -15,11 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module is used to actually processes loaded data.
-
-There entire module is based off of multiprocessing, having objects
-based off of the Process module and Pipe module for effective
-communication.
+This Module is the main module for all of PyPWA. This module takes a
+configuration file, processes it, then contacts the main module that is
+requested to determine what information is needed to be loaded and how it needs
+to be structured to be able to function in the desired way.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS

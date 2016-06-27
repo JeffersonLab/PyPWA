@@ -2,22 +2,24 @@
 Main objects for console PyPWA tools
 """
 
-__author__ = "Mark Jones"
-__credits__ = ["Mark Jones", "Josh Pond"]
-__license__ = "MIT"
-__version__ = "2.0.0"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "Beta0"
+import os
+import warnings
 
 import numpy
-import os
 import tabulate
-import warnings
 from PyPWA.proc import calculation_tools
 
 import PyPWA.libs.data.file_manager
-from PyPWA.libs.proc import calculation
+from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.libs.process import foreman
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class Fitting(object):
@@ -110,16 +112,16 @@ class Fitting(object):
 
         if self.likelihood == "likelihood":
             if isinstance(self.accepted_location, type(None)):
-                calc = calculation.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
-                                                                            amplitude_function, setup_function)
+                calc = foreman.MaximumLogLikelihoodUnextendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                        amplitude_function, setup_function)
             else:
-                calc = calculation.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
-                                                                          new_accepted, self.generated_length,
-                                                                          amplitude_function, setup_function)
+                calc = foreman.MaximumLogLikelihoodExtendedEstimation(self.num_threads, self.parameters, new_data,
+                                                                      new_accepted, self.generated_length,
+                                                                      amplitude_function, setup_function)
 
         elif self.likelihood == "chisquared":
-            calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
-                                              setup_function)
+            calc = foreman.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
+                                          setup_function)
 
         minimization = calculation_tools.Minimizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                    self.set_up, self.ncall)
@@ -241,8 +243,8 @@ class Chi(object):
         amplitude_function = functions.return_amplitude
         setup_function = functions.return_setup
 
-        calc = calculation.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
-                                          setup_function)
+        calc = foreman.ChiSquaredTest(self.num_threads, self.parameters, new_data, amplitude_function,
+                                      setup_function)
 
         minimization = calculation_tools.Minimizer(calc.run, self.parameters, self.initial_settings, self.strategy,
                                                    self.set_up, self.ncall)
@@ -321,13 +323,13 @@ class Simulator(object):
         setup_function = functions.return_setup
 
         print("Running Intensities")
-        intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function,
-                                                       setup_function, self.parameters)
+        intensities = foreman.CalculateIntensities(self.num_threads, data, amplitude_function,
+                                                   setup_function, self.parameters)
 
         intensities_list, max_intensity = intensities.run()
 
         print("Running Acceptance Rejection")
-        rejection = calculation.AcceptanceRejectionMethod(intensities_list, max_intensity)
+        rejection = foreman.AcceptanceRejectionMethod(intensities_list, max_intensity)
 
         rejection_list = rejection.run()
 
@@ -358,8 +360,8 @@ class Intensities(object):
         setup_function = functions.return_setup
 
         print("Running Intensities")
-        intensities = calculation.CalculateIntensities(self.num_threads, data, amplitude_function, setup_function,
-                                                       self.parameters)
+        intensities = foreman.CalculateIntensities(self.num_threads, data, amplitude_function, setup_function,
+                                                   self.parameters)
 
         intensities_list, max_intensity = intensities.run()
 
@@ -380,7 +382,7 @@ class Weights(object):
         data = data_manager.parse(self.intensities_location) 
 
         print("Running Acceptance Rejection")
-        rejection = calculation.AcceptanceRejectionMethod(data, self.max_intensity)
+        rejection = foreman.AcceptanceRejectionMethod(data, self.max_intensity)
 
         rejection_list = rejection.run()
 

@@ -1,0 +1,10 @@
+* The PyPWA application core, and other portions of the official PyPWA
+  distribution not explicitly licensed otherwise, are licensed under
+  the GNU GENERAL PUBLIC LICENSE v3 -- see the 'COPYING' file in this
+  directory for details.
+
+* Any research data generated, used, or obtained using this program are not
+  not required to be released under the GPLv3 or any other Copyleft licences,
+  however we do request that you cite PyPWA in your research to help promote
+  the program and our efforts to provide a user friendly and efficient way
+  to do Partial Wave Analysis.

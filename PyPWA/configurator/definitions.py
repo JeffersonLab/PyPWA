@@ -14,12 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-This module is used to actually processes loaded data.
+"""Templates and Exceptions for PyPWA
 
-There entire module is based off of multiprocessing, having objects
-based off of the Process module and Pipe module for effective
-communication.
+This file holds all the templates and exceptions used for the entirety of PyPWA
+from the class that need to be extended to build your own plugin and the
+exceptions you should use or try to catch when/if an error occurs.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
@@ -32,3 +31,38 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+
+class NoPath(Exception):
+    """
+    Exception used when unable to find a path.
+    """
+    pass
+
+
+class NoCachePath(NoPath):
+    """
+    The Exception for when the object was unable to determine a writable path
+    for the cache.
+    """
+    pass
+
+
+class NoDataPath(NoPath):
+    """
+    The exception used when unable to find the data path.
+    """
+    pass
+
+
+class NoConfigPath(NoPath):
+    """
+    The exception used when unable to find the config path.
+    """
+    pass
+
+
+class NoLogPath(NoPath):
+    """
+    The exception used when unable to find the log path.
+    """
+    pass

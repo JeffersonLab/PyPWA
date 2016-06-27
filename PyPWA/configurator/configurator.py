@@ -15,13 +15,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module is used to actually processes loaded data.
-
-There entire module is based off of multiprocessing, having objects
-based off of the Process module and Pipe module for effective
-communication.
+This file is the main file for all of PyPWA. This file takes a
+configuration file, processes it, then contacts the main module that is
+requested to determine what information is needed to be loaded and how it needs
+to be structured to be able to function in the users desired way.
 """
 
+import logging
+
+from PyPWA.libs import (process, data, minimizers)
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -32,3 +34,12 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+
+class Configurator(object):
+
+    _builtin_libraries = [process, data, minimizers]
+
+    def __init__(self, starter):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+        self._starter = starter

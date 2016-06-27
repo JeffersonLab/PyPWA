@@ -15,12 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module is used to actually processes loaded data.
-
-There entire module is based off of multiprocessing, having objects
-based off of the Process module and Pipe module for effective
-communication.
+Defines the global logging settings.
 """
+
+import logging
 
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -32,3 +30,13 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+
+def define_logger(level):
+    logger = logging.getLogger()
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s %(name)-12s %(levelname)-8s %("
+                                  "message)s")
+
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(level)
