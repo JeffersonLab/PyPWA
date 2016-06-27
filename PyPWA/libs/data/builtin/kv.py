@@ -303,6 +303,9 @@ class EVILReader(definitions.TemplateReader):
         Args:
             file_location (str): The location of the EVIL file.
         """
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
         super(EVILReader, self).__init__(file_location)
         self._previous_event = None
         self._file = False  # type: io.TextIOBase
@@ -386,6 +389,12 @@ class EVILReader(definitions.TemplateReader):
     def previous_event(self):
         return self.previous_event
 
+    def _read(self):
+        string = self._file.readline().strip("\n").strip(" ")
+        if string == "":
+            raise StopIteration
+        return string
+
     def _read_bool(self):
         """
         Reads a single line and returns the bool value from that line.
@@ -394,7 +403,7 @@ class EVILReader(definitions.TemplateReader):
             bool: True or False depending on the value of the line that was
                 read.
         """
-        return [bool(self._file.readline().strip("\n"))]
+        return [bool(self._read())]
 
     def _read_float(self):
         """
@@ -403,7 +412,7 @@ class EVILReader(definitions.TemplateReader):
         Returns:
             numpy.float64: The value read in from the file.
         """
-        return [numpy.float64(self._file.readline().strip("\n"))]
+        return [numpy.float64(self._read())]
 
     def _read_dict(self):
         """
@@ -413,7 +422,8 @@ class EVILReader(definitions.TemplateReader):
         Returns:
             list[numpy.float64]: The values read in from the file.
         """
-        the_line = self._file.readline()
+        the_line = self._read()
+        self._logger.debug("Found: " + the_line)
         values = []
 
         for value in the_line.split(","):
@@ -444,9 +454,13 @@ class EVILWriter(definitions.TemplateWriter):
             data (collections.namedtuple): The namedtuple that contains the
                 data to be writen to the file.
         """
+        key_count = len(data._asdict()) - 1
         string = ""
-        for key in data._asdict():
-            string += str(key) + "=" + str(data._asdict()[key]) + ","
+        for index, key in enumerate(data._asdict()):
+            if not index == 0 and not index == key_count:
+                string += ","
+            if not key == "standard_parsed_values":
+                string += str(key) + "=" + str(data._asdict()[key])
         string += "\n"
 
         self._file.write(string)
