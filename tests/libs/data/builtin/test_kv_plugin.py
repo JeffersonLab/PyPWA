@@ -24,6 +24,8 @@ See Also:
     PyPWA.libs.data.builtin.kv
 """
 
+import collections
+import logging
 import os
 
 import numpy
@@ -206,3 +208,33 @@ def test_SomewhatIntelligentSelector_StringInvalid_RaiseRuntimeError():
     # Run test
     with pytest.raises(RuntimeError):
         selector.write(TEMP_WRITE_LOCATION, x)
+
+
+def test_EVILIteration_ReadWriteEvents_EventsEqual():
+    """
+    Tests the EVIL Writer and EVIL Reader by generating data then writing that
+    data to disk, reading it back in, then comparing.
+    """
+    particle = data_types.GenericEvent(["x", "y"])
+    data = collections.deque()
+    for number in range(10):
+        data.append(
+            particle.make_particle([numpy.random.rand(), numpy.random.rand()])
+        )
+
+    writer = kv.EVILWriter(TEMP_WRITE_LOCATION)
+    for event in data:
+        writer.write(event)
+
+    writer.close()
+
+    new_data = collections.deque()
+
+    reader = kv.EVILReader(TEMP_WRITE_LOCATION)
+
+    for x in reader:
+        logging.debug(x)
+        new_data.append(x)
+
+    os.remove(TEMP_WRITE_LOCATION)
+    numpy.testing.assert_almost_equal(new_data[0].x, data[0].x)
