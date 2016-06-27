@@ -29,7 +29,7 @@ import os
 import numpy
 import pytest
 
-import PyPWA.configurator.data_types as data_types
+from PyPWA.configurator import data_types
 import PyPWA.libs.data.builtin.kv as kv
 
 __author__ = ["Mark Jones"]
@@ -134,7 +134,17 @@ def test_EVILValidator_CheckFailedType_RaiseIncompatibleData():
 
 
 def EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data):
+    """
+    Simple wrapper to ensure that tests are set up right using the
+    SomewhatIntelligentSelector.
 
+    Args:
+        data: The test data.
+
+    Returns:
+        list[received data, read data]: A list of all the data written into the
+            disk and read from the disk.
+    """
     writer = kv.SomewhatIntelligentSelector()
     writer.write(TEMP_WRITE_LOCATION, data)
     new_data = writer.parse(TEMP_WRITE_LOCATION)
@@ -143,22 +153,42 @@ def EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data):
 
 
 def test_SomewhatIntelligentSelector_FloatValid_ReadWriteTrue():
+    """
+    Tests that floats are written and read correctly
+    """
+    # Setup data and loop it through the read/write function.
     data = numpy.random.rand(2000)
     loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+
+    # Perform the tests
     numpy.testing.assert_array_almost_equal(loaded, written)
+    numpy.testing.assert_almost_equal(written[0], data[0])
+    assert isinstance(written[0], numpy.float64)
 
 
 def test_SomewhatIntelligentSelector_BoolValid_ReadWriteTrue():
+    """
+    Tests that bools are written and read correctly.
+    """
+    # Setup Data
     data = numpy.zeros(2000, dtype=bool)
     for index in range(len(data)):
         data[index] = numpy.random.choice([0, 1])
 
     loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+
+    # Run tests
     numpy.testing.assert_array_equal(loaded, written)
 
 
 def test_SomewhatIntelligentSelector_DictValid_ReadWriteTrue():
+    """
+    Tests that tuples are written and read correctly.
+    """
+    # Setup tests
     x = data_types.GenericEvent(["x", "y"])
     data = x.make_particle([numpy.random.rand(1000), numpy.random.rand(1000)])
     loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
-    numpy.testing.assert_array_almost_equal(loaded, written)
+
+    # Run tests
+    numpy.testing.assert_array_almost_equal(loaded.x, written.x)
