@@ -261,12 +261,14 @@ class SomewhatIntelligentSelector(KvInterface):
             data (collections.namedtuple | numpy.ndarray): The data that needs
                 to be written to disk.
         """
-        if isinstance(data, dict):
+        if isinstance(data, tuple):
             writer = DictOfArrays()
         elif isinstance(data[0], numpy.float64):
             writer = ListOfFloats()
-        else:
+        elif isinstance(data[0], bool):
             writer = ListOfBooleans()
+        else:
+            raise RuntimeError("Data type {0} isn't expected!".format(data))
         writer.write(file_location, data)
 
 
