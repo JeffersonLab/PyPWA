@@ -103,6 +103,7 @@ class DictOfArrays(KvInterface):
                 shape=file_length, dtype="float64"
             )
 
+        # This is ugly don't look.
         with io.open(file_location) as stream:
             for index, line in enumerate(stream):
                 for particle_count in range(len(line.split(","))):
@@ -111,7 +112,7 @@ class DictOfArrays(KvInterface):
                         ",")[particle_count].split("=")[1])
 
         event = data_types.GenericEvent(list(parsed.keys()))
-        final = event.make_particle(list[parsed.values()])
+        final = event.make_particle(list(parsed.values()))
         return final
 
     def write(self, file_location, data):
