@@ -236,7 +236,6 @@ class SomewhatIntelligentSelector(KvInterface):
 
         Returns:
             data_types.GenericEvent:  The data that was parsed from the disk.
-
         """
         validator = EVILValidator(file_location)
         validator.test()
