@@ -26,6 +26,7 @@ See Also:
 
 import os
 
+import numpy
 import pytest
 
 import PyPWA.libs.data.builtin.kv as kv
@@ -59,6 +60,9 @@ SV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/sv_test_data.csv"
 )
 
+TEMP_WRITE_LOCATION = os.path.join(
+    os.path.dirname(__file__), "test_docs/temporary_write_data"
+)
 
 def test_KvInterface_CallAbstractMethods_RaiseNotImplementedError():
     """
@@ -84,7 +88,7 @@ def test_KvInterface_FileLengthMethod_ReturnLengthOfFile():
     assert abstract_object.file_length(KV_FLOAT_DATA) == 12
 
 
-def EVILValidator_CheckType_RetrunType(data, expected_value):
+def EVILValidator_CheckType_ReturnType(data, expected_value):
     """
     Wrapper around Validator method to reduce code reuse.
 
@@ -102,21 +106,21 @@ def test_EVILValidator_CheckEvilDictType_ReturnDictOfArrays():
     """
     Tests that Validator Reads KV_TEST_DATA as DictOfArrays
     """
-    EVILValidator_CheckType_RetrunType(KV_TEST_DATA, "DictOfArrays")
+    EVILValidator_CheckType_ReturnType(KV_TEST_DATA, "DictOfArrays")
 
 
 def test_EVILValidator_CheckEvilBoolType_ReturnListOfBools():
     """
     Tests that Validator Reads KV_BOOL_DATA as ListOfBools
     """
-    EVILValidator_CheckType_RetrunType(KV_BOOL_DATA, "ListOfBools")
+    EVILValidator_CheckType_ReturnType(KV_BOOL_DATA, "ListOfBools")
 
 
 def test_EVILValidator_CheckEvilFloatType_ReturnListOfFloats():
     """
     Tests that Validator Reads KV_FLOAT_DATA as ListOfFloats
     """
-    EVILValidator_CheckType_RetrunType(KV_FLOAT_DATA, "ListOfFloats")
+    EVILValidator_CheckType_ReturnType(KV_FLOAT_DATA, "ListOfFloats")
 
 
 def test_EVILValidator_CheckFailedType_RaiseIncompatibleData():
@@ -124,5 +128,5 @@ def test_EVILValidator_CheckFailedType_RaiseIncompatibleData():
     Tests that Validator fails when reading SV_TEST_DATA
     """
     with pytest.raises(IOError):
-        EVILValidator_CheckType_RetrunType(SV_TEST_DATA, "Something")
+        EVILValidator_CheckType_ReturnType(SV_TEST_DATA, "Something")
 
