@@ -147,7 +147,8 @@ class GenericEvent(object):
                            str(final_particle_names))
 
         self._master_particle = collections.namedtuple(
-            "GenericEvent", final_particle_names)
+            "GenericEvent", final_particle_names
+        )
 
         self._particle_names = particle_names
 
