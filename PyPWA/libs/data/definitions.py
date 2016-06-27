@@ -78,7 +78,7 @@ class TemplateReader(object):
                                   "when its called." % self.__class__.__name__)
 
     def __next__(self):
-        self.next_event
+        return self.next_event
 
     def __iter__(self):
         return self
