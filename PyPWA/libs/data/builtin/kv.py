@@ -34,6 +34,7 @@ the SV object and forget that this ever existed.
 """
 
 import io
+import logging
 
 import numpy
 
@@ -103,13 +104,15 @@ class DictOfArrays(KvInterface):
                 shape=file_length, dtype="float64"
             )
 
-        # This is ugly don't look.
+        # This is ugly, don't look.
         with io.open(file_location) as stream:
             for index, line in enumerate(stream):
                 for particle_count in range(len(line.split(","))):
-                    parsed[line.split(",")[particle_count].split(
-                        "=")[0]][index] = numpy.float64(line.strip("\n").split(
-                        ",")[particle_count].split("=")[1])
+                    parsed[line.split(",")[particle_count].split("=")[0]][
+                        index] = \
+                        numpy.float64(
+                            line.strip("\n").split(",")[
+                                particle_count].split("=")[1])
 
         event = data_types.GenericEvent(list(parsed.keys()))
         final = event.make_particle(list(parsed.values()))
@@ -218,11 +221,16 @@ class ListOfBooleans(KvInterface):
 
 
 class SomewhatIntelligentSelector(KvInterface):
-    """
-    Attempts to select the write object to load and write Expanded Variable
-    Identification Lists to and from the disk. It does this by examining the
-    EVIL data and using its types to select the EVIL object.
-    """
+
+    def __init__(self):
+        """
+        Attempts to select the write object to load and write Expanded Variable
+        Identification Lists to and from the disk. It does this by examining the
+        EVIL data and using its types to select the EVIL object.
+        """
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
     def parse(self, file_location):
         """
         Reads in EVIL format from disk, searches the first line of data for
@@ -259,17 +267,30 @@ class SomewhatIntelligentSelector(KvInterface):
 
         Args:
             file_location (str): Where to write the data.
-            data (collections.namedtuple | numpy.ndarray): The data that needs
-                to be written to disk.
+            data (tuple | numpy.ndarray): The data that needs to be written
+                to disk.
         """
         if isinstance(data, tuple):
+            self._logger.debug("Found type tuple, assuming GenericEvent.")
             writer = DictOfArrays()
         elif isinstance(data[0], numpy.float64):
+            self._logger.debug("Found type float64, assuming float list.")
             writer = ListOfFloats()
-        elif isinstance(data[0], bool):
+        elif isinstance(data[0], numpy.bool_):
+            self._logger.debug("Found type bool, assuming bool list.")
             writer = ListOfBooleans()
         else:
-            raise RuntimeError("Data type {0} isn't expected!".format(data))
+            string = "Data type not expected! Found data type {0}".format(
+                type(data)
+            )
+            try:
+                string += " or type {0}".format(type(data[0]))
+            except IndexError:
+                pass
+            string += "!!"
+
+            self._logger.error(string)
+            raise RuntimeError(string)
         writer.write(file_location, data)
 
 
