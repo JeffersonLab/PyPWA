@@ -53,8 +53,8 @@ setup(
         "fuzzywuzzy",
         "python-Levenshtein"
     ],
-    setup_requires=['pytest-runner', 'pytest-cov'],
-    tests_require=['pytest'],
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest', "pytest-cov", "pytest-logging"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Environment :: Console",
