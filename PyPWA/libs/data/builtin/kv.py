@@ -390,6 +390,15 @@ class EVILReader(definitions.TemplateReader):
         return self.previous_event
 
     def _read(self):
+        """
+        Reads a single line from the file and removes the spaces and newline.
+
+        Raises:
+            StopIteration: Raised when there is no data left in the file.
+
+        Returns:
+            str: The read in line without spaces and newlines.
+        """
         string = self._file.readline().strip("\n").strip(" ")
         if string == "":
             raise StopIteration
