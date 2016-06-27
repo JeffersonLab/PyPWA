@@ -81,7 +81,7 @@ class TemplateReader(object):
         self.next_event
 
     def __iter__(self):
-        self.next_event
+        return self
 
     @property
     def previous_event(self):
