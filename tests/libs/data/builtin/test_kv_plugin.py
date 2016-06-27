@@ -29,6 +29,7 @@ import os
 import numpy
 import pytest
 
+import PyPWA.configurator.data_types as data_types
 import PyPWA.libs.data.builtin.kv as kv
 
 __author__ = ["Mark Jones"]
@@ -63,6 +64,7 @@ SV_TEST_DATA = os.path.join(
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "test_docs/temporary_write_data"
 )
+
 
 def test_KvInterface_CallAbstractMethods_RaiseNotImplementedError():
     """
@@ -130,3 +132,33 @@ def test_EVILValidator_CheckFailedType_RaiseIncompatibleData():
     with pytest.raises(IOError):
         EVILValidator_CheckType_ReturnType(SV_TEST_DATA, "Something")
 
+
+def EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data):
+
+    writer = kv.SomewhatIntelligentSelector()
+    writer.write(TEMP_WRITE_LOCATION, data)
+    new_data = writer.parse(TEMP_WRITE_LOCATION)
+    os.remove(TEMP_WRITE_LOCATION)
+    return [data, new_data]
+
+
+def test_SomewhatIntelligentSelector_FloatValid_ReadWriteTrue():
+    data = numpy.random.rand(2000)
+    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+    numpy.testing.assert_array_almost_equal(loaded, written)
+
+
+def test_SomewhatIntelligentSelector_BoolValid_ReadWriteTrue():
+    data = numpy.zeros(2000, dtype=bool)
+    for index in range(len(data)):
+        data[index] = numpy.random.choice([0, 1])
+
+    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+    numpy.testing.assert_array_equal(loaded, written)
+
+
+def test_SomewhatIntelligentSelector_DictValid_ReadWriteTrue():
+    x = data_types.GenericEvent(["x", "y"])
+    data = x.make_particle([numpy.random.rand(1000), numpy.random.rand(1000)])
+    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+    numpy.testing.assert_array_almost_equal(loaded, written)
