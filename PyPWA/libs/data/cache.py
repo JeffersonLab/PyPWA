@@ -16,8 +16,9 @@
 
 """Memory Caching
 
-The objects in this file are dedicated to saving and writing chunks of memory
-to file for quick loading when the data is loaded into memory again.
+The objects in this file are dedicated to saving and writing chunks of
+memory to file for quick loading when the data is loaded into memory
+again.
 """
 
 import hashlib
@@ -42,10 +43,10 @@ class MemoryCache(object):
         """
         Just like the old one, but new!
 
-        This object caches data stored in the memory on disk in a format that
-        can be quickly loaded too and from disk to RAM quickly. Also contains
-        logic that will help determine if the the contents of the file has
-        changed from the last cache.
+        This object caches data stored in the memory on disk in a format
+        that can be quickly loaded too and from disk to RAM quickly. Also
+        contains logic that will help determine if the the contents of the
+        file has changed from the last cache.
         """
 
         self._logger = logging.getLogger(__name__)
@@ -59,7 +60,8 @@ class MemoryCache(object):
         disk.
 
         Args:
-            data (data_types.GenericEvent): Contains the dict of the arrays.
+            data (data_types.GenericEvent): Contains the dict of the
+                arrays.
             file_location (str): The location of the original file.
 
         Raises:
@@ -72,16 +74,26 @@ class MemoryCache(object):
             self._logger.info("Failed to find cache.")
             raise CacheFailed("No Cache location found!")
 
-        self._logger.debug("Cache location is set to {0}".format(the_pickle))
+        self._logger.debug(
+            "Cache location is set to {0}".format(the_pickle)
+        )
 
         file_hash = self._file_hash(file_location)
 
-        self._logger.info("Found SHA512 hash for {0}".format(file_location))
-        self._logger.debug("File Hash is set to {0}".format(file_hash))
+        self._logger.info(
+            "Found SHA512 hash for {0}".format(file_location)
+        )
+
+        self._logger.debug(
+            "File Hash is set to {0}".format(file_hash)
+        )
 
         new_data = {"hash": file_hash, "data": data}
 
-        self._logger.info("Making cache for {0}".format(file_location))
+        self._logger.info(
+            "Making cache for {0}".format(file_location)
+        )
+
         self._write_pickle(the_pickle, new_data)
 
     def read_cache(self, file_location):
@@ -103,12 +115,20 @@ class MemoryCache(object):
             self._logger.info("Failed to find cache.")
             raise CacheFailed("No Cache location found!")
 
-        self._logger.debug("Cache location set to {0}".format(the_location))
+        self._logger.debug(
+            "Cache location set to {0}".format(the_location)
+        )
 
         file_hash = self._file_hash(file_location)
-        self._logger.debug("File hash is set to {0}".format(file_hash))
 
-        self._logger.info("Attempting to load {0}".format(the_location))
+        self._logger.debug(
+            "File hash is set to {0}".format(file_hash)
+        )
+
+        self._logger.info(
+            "Attempting to load {0}".format(the_location)
+        )
+
         returned_data = self._load_pickle(the_location)
 
         if returned_data["hash"] == file_hash:

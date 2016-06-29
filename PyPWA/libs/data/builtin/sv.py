@@ -16,9 +16,9 @@
 
 """Handles SV to / from memory.
 
-The objects in this file are dedicated to reading SV files to memory and writing
-data to SV to disk. This is the preferred and default method of handling data
-to disk as of version PyPWA 2.0.0
+The objects in this file are dedicated to reading SV files to memory and
+writing data to SV to disk. This is the preferred and default method of
+handling data to disk as of version PyPWA 2.0.0
 """
 
 import csv
@@ -52,10 +52,11 @@ class SvMemory(definitions.TemplateMemory):
         Reads a delimiter separated file containing data from disk.
 
         Args:
-            file_location (str): The file that contain the data to be read.
+            file_location (str): The file that contain the data to be
+                read.
         Returns:
-            collections.namedtuple: The tuple containing the data parsed in from
-                the file.
+            collections.namedtuple: The tuple containing the data parsed
+                in from the file.
         """
         with io.open(file_location, "rt") as stream:
             for line_count, throw in enumerate(stream):
@@ -70,7 +71,9 @@ class SvMemory(definitions.TemplateMemory):
             elements = next(sv)
             parsed = {}
             for element in elements:
-                parsed[element] = numpy.zeros(shape=line_count, dtype="float64")
+                parsed[element] = numpy.zeros(
+                    shape=line_count, dtype="float64"
+                )
 
             for index, row in enumerate(sv):
                 for count in range(len(row)):
@@ -86,8 +89,8 @@ class SvMemory(definitions.TemplateMemory):
 
         Args:
             file_location  (str): Where to write the data to.
-            data (collections.namedtuple): Dictionary of the arrays containing
-                the data.
+            data (collections.namedtuple): Dictionary of the arrays
+                containing the data.
         """
         extension = file_location.split(".")[-1]
 
@@ -114,8 +117,8 @@ class SvReader(definitions.TemplateReader):
 
     def __init__(self, file_location):
         """
-        This reads in SV Files a single event at a time from disk, then puts
-        the contents into a GenericEvent Container.
+        This reads in SV Files a single event at a time from disk, then
+        puts the contents into a GenericEvent Container.
 
         Args:
             file_location (str): The location of the file to read in.
@@ -130,8 +133,8 @@ class SvReader(definitions.TemplateReader):
 
     def _start_input(self):
         """
-        Starts the input and configures the reader. Detects the files dialect
-        and plugs the header information into the GenericEvent.
+        Starts the input and configures the reader. Detects the files
+        dialect and plugs the header information into the GenericEvent.
         """
         if self._file:
             self._file.close()
@@ -146,17 +149,17 @@ class SvReader(definitions.TemplateReader):
 
     def reset(self):
         """
-        Calls the _start_input method to properly close then reopen the file
-        handle and restart the CSV process.
+        Calls the _start_input method to properly close then reopen the
+        file handle and restart the CSV process.
         """
         self._start_input()
 
     @property
     def next_event(self):
         """
-        Simple read method that takes the list that is recieved from the CSV
-        reader, translates it from text to numpy.float64, then returns the final
-        data
+        Simple read method that takes the list that is recieved from the
+        CSV reader, translates it from text to numpy.float64, then returns
+        the final data
 
         Returns:
             list[numpy.float64]: The data read in from the event.
@@ -173,8 +176,8 @@ class SvWriter(definitions.TemplateWriter):
 
     def __init__(self, file_location):
         """
-        Object writes data to file in either a tab separated sheet or a comma
-        separated sheet.
+        Object writes data to file in either a tab separated sheet or a
+        comma separated sheet.
 
         Args:
             file_location (str): Location to  write the data to.
@@ -196,8 +199,8 @@ class SvWriter(definitions.TemplateWriter):
         Writes the data to a SV Sheet a single event at a time.
 
         Args:
-            data (collections.named_tuple): The tuple containing the data that
-                needs to be written.
+            data (collections.named_tuple): The tuple containing the data
+                that needs to be written.
         """
         field_names = list(data._asdict().keys())
 
@@ -220,8 +223,8 @@ class SvValidator(definitions.TemplateValidator):
 
     def __init__(self, file_location, full=False):
         """
-        Simple testing object that tries to validate the file, ensures that the
-        object can read the file before parsing begins.
+        Simple testing object that tries to validate the file, ensures
+        that the object can read the file before parsing begins.
 
         Args:
             file_location (str): The location of the file that needs to
@@ -233,13 +236,16 @@ class SvValidator(definitions.TemplateValidator):
 
     def _check_header(self):
         """
-        Simple test to see if the header for the file is a valid CSV Header.
+        Simple test to see if the header for the file is a valid
+        CSV Header.
         """
-        if not csv.Sniffer().has_header(self._file.read(HEADER_SEARCH_BITS)):
-            raise definitions.IncompatibleData("CSV Module failed to find the "
-                                               "files header in " +
-                                               str(HEADER_SEARCH_BITS) +
-                                               " characters!")
+        if not csv.Sniffer().has_header(
+                self._file.read(HEADER_SEARCH_BITS)
+        ):
+            raise definitions.IncompatibleData(
+                "CSV Module failed to find the files header in " +
+                str(HEADER_SEARCH_BITS) + " characters!"
+            )
 
     def test(self):
         self._check_header()

@@ -17,8 +17,9 @@
 """
 Simple Tests for EVIL Data type
 
-The EVIL data type is a legacy data type originally written for PyPWA Version 1,
-though now considered obsolete we still support it for backwards compatibility.
+The EVIL data type is a legacy data type originally written for PyPWA
+Version 1, though now considered obsolete we still support it for
+backwards compatibility.
 
 See Also:
     PyPWA.libs.data.builtin.kv
@@ -40,8 +41,8 @@ __maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
 
 
-# Define global variables for the entire test file. These files contain the
-# information needed to test the data loader and writer.
+# Define global variables for the entire test file. These files contain
+# the information needed to test the data loader and writer.
 
 KV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/kv_test_data.txt"
@@ -70,8 +71,8 @@ TEMP_WRITE_LOCATION = os.path.join(
 
 def test_KvInterface_CallAbstractMethods_RaiseNotImplementedError():
     """
-    Simple function to ensure that the abstract methods are calling back what
-    we are expecting.
+    Simple function to ensure that the abstract methods are calling back
+    what we are expecting.
     """
     abstract_object = kv.KvInterface()
 
@@ -80,8 +81,8 @@ def test_KvInterface_CallAbstractMethods_RaiseNotImplementedError():
 
     with pytest.raises(NotImplementedError):
         abstract_object.write(KV_WRITE_DATA, 3)
-        # The 3 doesn't matter here as an abstract method doesn't care about
-        # its inputs.
+        # The 3 doesn't matter here as an abstract method doesn't care
+        # about its inputs.
 
 
 def test_KvInterface_FileLengthMethod_ReturnLengthOfFile():
@@ -98,8 +99,8 @@ def EVILValidator_CheckType_ReturnType(data, expected_value):
 
     Args:
         data (str): The location of the file to parse
-        expected_value (str):  The expected data type to be returned from the
-            validator
+        expected_value (str):  The expected data type to be returned from
+            the validator
     """
     evil_validator_test = kv.EVILValidator(data)
     value = evil_validator_test.evil_type
@@ -144,8 +145,8 @@ def EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data):
         data: The test data.
 
     Returns:
-        list[received data, read data]: A list of all the data written into the
-            disk and read from the disk.
+        list[received data, read data]: A list of all the data written
+            into the disk and read from the disk.
     """
     writer = kv.SomewhatIntelligentSelector()
     writer.write(TEMP_WRITE_LOCATION, data)
@@ -160,7 +161,9 @@ def test_SomewhatIntelligentSelector_FloatValid_ReadWriteTrue():
     """
     # Setup data and loop it through the read/write function.
     data = numpy.random.rand(2000)
-    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(
+        data
+    )
 
     # Perform the tests
     numpy.testing.assert_array_almost_equal(loaded, written)
@@ -177,7 +180,9 @@ def test_SomewhatIntelligentSelector_BoolValid_ReadWriteTrue():
     for index in range(len(data)):
         data[index] = numpy.random.choice([0, 1])
 
-    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(
+        data
+    )
 
     # Run tests
     numpy.testing.assert_array_equal(loaded, written)
@@ -189,8 +194,14 @@ def test_SomewhatIntelligentSelector_DictValid_ReadWriteTrue():
     """
     # Setup tests
     x = data_types.GenericEvent(["x", "y"])
-    data = x.make_particle([numpy.random.rand(1000), numpy.random.rand(1000)])
-    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data)
+    data = x.make_particle([
+        numpy.random.rand(1000),
+        numpy.random.rand(1000)]
+    )
+
+    loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(
+        data
+    )
 
     # Run tests
     numpy.testing.assert_array_almost_equal(loaded.x, written.x)
@@ -212,14 +223,17 @@ def test_SomewhatIntelligentSelector_StringInvalid_RaiseRuntimeError():
 
 def test_EVILIteration_ReadWriteEvents_EventsEqual():
     """
-    Tests the EVIL Writer and EVIL Reader by generating data then writing that
-    data to disk, reading it back in, then comparing.
+    Tests the EVIL Writer and EVIL Reader by generating data then writing
+    that data to disk, reading it back in, then comparing.
     """
     particle = data_types.GenericEvent(["x", "y"])
     data = collections.deque()
     for number in range(10):
         data.append(
-            particle.make_particle([numpy.random.rand(), numpy.random.rand()])
+            particle.make_particle([
+                numpy.random.rand(),
+                numpy.random.rand()
+            ])
         )
 
     writer = kv.EVILWriter(TEMP_WRITE_LOCATION)

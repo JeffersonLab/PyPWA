@@ -38,7 +38,7 @@ FUZZY_STRING_CONFIDENCE_LEVEL = 75  # percent from 0 to 100
 
 
 # TODO: Separate logic types into different objects
-# TODO: Add wrapper public objects that can handle the parsing of any settings
+# TODO: Make the Settings more SOLID
 # TODO: Clean up the documentation some.
 # TODO: Make more todos.
 
@@ -47,8 +47,8 @@ class BaseSettings(object):
     """
     Base Object for manipulating the settings dictionaries are loaded from
     the yaml and passed to each of the plugins and modules. Should help
-    simplify the process of parsing arguments and even account for user error
-    to a degree.
+    simplify the process of parsing arguments and even account for user
+    error to a degree.
     """
 
     @staticmethod
@@ -57,7 +57,8 @@ class BaseSettings(object):
         Converts a string to a bool with a level of certainty.
 
         Args:
-            string (str): The string that needs to be converted into a bool.
+            string (str): The string that needs to be converted into a
+                bool.
 
         Returns:
             bool: If the conversion was successful.
@@ -80,7 +81,8 @@ class BaseSettings(object):
         Extracts options from a single string for inline option parsing.
 
         Args:
-            string (str): The string to be rendered by plugins that support it.
+            string (str): The string to be rendered by plugins that
+                support it.
 
         Returns:
             list[str]: The extracted options, unparsed.
@@ -97,18 +99,23 @@ class BaseSettings(object):
         Extracts the options from an unparsed string.
 
         Args:
-            supported_options (list[str]): The list of possible options that are
-                supported.
+            supported_options (list[str]): The list of possible options
+                that are supported.
             options (list[str]): The list of the unparsed options.
 
         Returns:
-            dict: The completely parsed options from the string. Option = Value
+            dict: The completely parsed options from the string.
+                Option = Value
         """
         correct_options = {}
         for possible_option in options:
             option = possible_option.split("=")[0]
             the_value = option.split("=")[1]
-            the_key = fuzzywuzzy.process.extractOne(option, supported_options)
+
+            the_key = fuzzywuzzy.process.extractOne(
+                option, supported_options
+            )
+
             if the_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
                 correct_options[the_key[0]] = the_value
         return correct_options
@@ -124,7 +131,10 @@ class BaseSettings(object):
         Returns:
             str: The corrected value.
         """
-        possible_value = fuzzywuzzy.process.extractOne(value, supported_values)
+        possible_value = fuzzywuzzy.process.extractOne(
+            value, supported_values
+        )
+
         if possible_value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
             return possible_value[0]
         else:
@@ -135,9 +145,10 @@ class BaseSettings(object):
         Corrects the dictionary based off another dictionary.
 
         Args:
-            found_value (string): The parsed dictionary with corrected keys.
-            template_value (type): The template dictionary that contains all the
-                possible options and values/
+            found_value (string): The parsed dictionary with corrected
+                keys.
+            template_value (type): The template dictionary that contains
+                all the possible options and values.
 
         Returns:
             dict: The corrected dictionary.
@@ -161,7 +172,6 @@ class BaseSettings(object):
                     return None
             return None
 
-        # Checks for a list of potential values, then extracts the best match.
         elif isinstance(template_value, list):
             return self._correct_values(template_value, found_value)
         else:
@@ -191,10 +201,16 @@ class CorrectSettings(BaseSettings):
         corrected_dict = {}
         correct_keys = list(template_dictionary.keys())
         for key in the_dictionary:
-            potential_key = fuzzywuzzy.process.extractOne(key, correct_keys)
+            potential_key = fuzzywuzzy.process.extractOne(
+                key, correct_keys
+            )
+
             if potential_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
-                value = self._dict_values(the_dictionary[key],
-                                          template_dictionary[potential_key])
+
+                value = self._dict_values(
+                    the_dictionary[key],
+                    template_dictionary[potential_key]
+                )
 
                 if not isinstance(value, type(None)):
                     corrected_dict[potential_key] = value

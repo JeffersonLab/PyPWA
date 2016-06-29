@@ -16,9 +16,9 @@
 
 """
 This is the builtin plugin for Multiprocessing, it works by taking the
-users kernels and interface and nesting them into their own individual processes
-and the interface that is connected to them, then returns that interface so that
-the user can manipulate those processes.
+users kernels and interface and nesting them into their own individual
+processes and the interface that is connected to them, then returns that
+interface so that the user can manipulate those processes.
 
 Example:
     foreman = CalculationForeman(AbstractInterface, AbstractKernels)

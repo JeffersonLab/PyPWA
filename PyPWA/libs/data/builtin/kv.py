@@ -17,20 +17,20 @@
 """
 Handles EVIL to / from memory.
 
-The objects in this file are dedicated to reading the EVIL files from disk and
-into memory. This file type is being depreciated for many reasons, and will live
-here until it shrivels away, is completely forgotten, and dies.
+The objects in this file are dedicated to reading the EVIL files from disk
+and into memory. This file type is being depreciated for many reasons, and
+will live here until it shrivels away, is completely forgotten, and dies.
 
 EVIL, Expanded Variable Identification Lists, earned their name from their
-inefficient nature when it comes to reading in, writing out, or simply existing,
-its a name given to these EVIL formats out of a mixture of spite and love by
-current and former developers alike.
+inefficient nature when it comes to reading in, writing out, or simply
+existing, its a name given to these EVIL formats out of a mixture of spite
+and love by current and former developers alike.
 
-This format exists currently only as backwards compatibility, and may not be
-bug free or entirely optimized, and may never be. If you are a user trying to
-figure out what you should export your data to, or a developer trying to learn
-the nature of data within PyPWA, you should move your attention to CSV/TSV in
-the SV object and forget that this ever existed.
+This format exists currently only as backwards compatibility, and may not
+be bug free or entirely optimized, and may never be. If you are a user
+trying to figure out what you should export your data to, or a developer
+trying to learn the nature of data within PyPWA, you should move your
+attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
 import io
@@ -224,27 +224,29 @@ class SomewhatIntelligentSelector(KvInterface):
 
     def __init__(self):
         """
-        Attempts to select the write object to load and write Expanded Variable
-        Identification Lists to and from the disk. It does this by examining the
-        EVIL data and using its types to select the EVIL object.
+        Attempts to select the write object to load and write Expanded
+        Variable Identification Lists to and from the disk. It does this
+        by examining the EVIL data and using its types to select the EVIL
+        object.
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
     def parse(self, file_location):
         """
-        Reads in EVIL format from disk, searches the first line of data for
-        clues as to the data type. If there are = or , in the first line it
-        assumes its a list of dict, if . then float, and if none of the above
-        pure bool.
+        Reads in EVIL format from disk, searches the first line of data
+        for clues as to the data type. If there are = or , in the first
+        line it assumes its a list of dict, if . then float, and if none
+        of the above pure bool.
 
         If it doesn't work, perhaps use CSV?
         Args:
-            file_location (str): The location of the file that needs to be read
-                in from the disk.
+            file_location (str): The location of the file that needs to be
+                read in from the disk.
 
         Returns:
-            data_types.GenericEvent:  The data that was parsed from the disk.
+            data_types.GenericEvent:  The data that was parsed from the
+                disk.
         """
         validator = EVILValidator(file_location)
         validator.test()
@@ -261,14 +263,14 @@ class SomewhatIntelligentSelector(KvInterface):
 
     def write(self, file_location, data):
         """
-        Writes EVIL data types to disk, detects the data in the same way that
-        parse works, however does it by running the type check against the
-        object that was received.
+        Writes EVIL data types to disk, detects the data in the same way
+        that parse works, however does it by running the type check
+        against the object that was received.
 
         Args:
             file_location (str): Where to write the data.
-            data (tuple | numpy.ndarray): The data that needs to be written
-                to disk.
+            data (tuple | numpy.ndarray): The data that needs to be
+                written to disk.
         """
         if isinstance(data, tuple):
             self._logger.debug("Found type tuple, assuming GenericEvent.")
@@ -330,7 +332,9 @@ class EVILReader(definitions.TemplateReader):
         if not isinstance(self._parameters, list):
             self._build_params()
         if not self._master_particle:
-            self._master_particle = data_types.GenericEvent(self._parameters)
+            self._master_particle = data_types.GenericEvent(
+                self._parameters
+            )
 
     def _build_params(self):
         """
@@ -354,7 +358,8 @@ class EVILReader(definitions.TemplateReader):
 
     def _set_data_type(self):
         """
-        Sets self._file_data_type using the validator object. Mostly Accurate.
+        Sets self._file_data_type using the validator object. Mostly
+        Accurate.
         """
         validator = EVILValidator(self._the_file)
         validator.test()
@@ -372,8 +377,8 @@ class EVILReader(definitions.TemplateReader):
         Reads in a single line and parses the line into a GenericEvent.
 
         Returns:
-            PyPWA.configuratr.data_types.GenericEvent: The named tuple that
-                holds the data.
+            PyPWA.configuratr.data_types.GenericEvent: The named tuple
+                that holds the data.
         """
         if self._file_data_type == "DictOfArrays":
             values = self._read_dict()
@@ -391,7 +396,8 @@ class EVILReader(definitions.TemplateReader):
 
     def _read(self):
         """
-        Reads a single line from the file and removes the spaces and newline.
+        Reads a single line from the file and removes the spaces and
+        newline.
 
         Raises:
             StopIteration: Raised when there is no data left in the file.
@@ -409,8 +415,8 @@ class EVILReader(definitions.TemplateReader):
         Reads a single line and returns the bool value from that line.
 
         Returns:
-            bool: True or False depending on the value of the line that was
-                read.
+            bool: True or False depending on the value of the line that
+                was read.
         """
         return [bool(self._read())]
 
@@ -425,8 +431,8 @@ class EVILReader(definitions.TemplateReader):
 
     def _read_dict(self):
         """
-        Reads a single line and returns the list of the values rendered from the
-        file.
+        Reads a single line and returns the list of the values rendered
+        from the file.
 
         Returns:
             list[numpy.float64]: The values read in from the file.
@@ -445,9 +451,9 @@ class EVILWriter(definitions.TemplateWriter):
 
     def __init__(self, file_location):
         """
-        Single event writer for EVIL data types. Writes a single event at a time
-        and leaves the file handle open until its explicitly closed by the
-        developer or user.
+        Single event writer for EVIL data types. Writes a single event at
+        a time and leaves the file handle open until its explicitly closed
+        by the developer or user.
 
         Args:
             file_location (str): Where to write the data.
@@ -460,8 +466,8 @@ class EVILWriter(definitions.TemplateWriter):
         Writes a single event to file at a time.
 
         Args:
-            data (collections.namedtuple): The namedtuple that contains the
-                data to be writen to the file.
+            data (collections.namedtuple): The namedtuple that contains
+                the data to be writen to the file.
         """
         key_count = len(data._asdict()) - 1
         string = ""
@@ -485,12 +491,13 @@ class EVILValidator(definitions.TemplateValidator):
 
     def __init__(self, file_location, full=False):
         """
-        This attempts to validate the files to see if it can be read in by this
-        plugin.
+        This attempts to validate the files to see if it can be read in by
+        this plugin.
 
         Args:
             file_location (str): The location of the file.
-            full (Optional[bool]): Whether or not to do a full test of the file.
+            full (Optional[bool]): Whether or not to do a full test of the
+                file.
         """
         super(EVILValidator, self).__init__(file_location, full)
         self._the_file = io.open(file_location)
@@ -533,8 +540,10 @@ class EVILValidator(definitions.TemplateValidator):
             try:
                 self._check_data_type()
             except definitions.IncompatibleData:
-                raise IOError("Data is not of EVIL Type, double check and "
-                              "try again.")
+                raise IOError(
+                    "Data is not of EVIL Type, "
+                    "double check and try again."
+                )
             return self._evil_type
 
 

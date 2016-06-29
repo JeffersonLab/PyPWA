@@ -17,8 +17,8 @@
 """
 This file is the main file for all of PyPWA. This file takes a
 configuration file, processes it, then contacts the main module that is
-requested to determine what information is needed to be loaded and how it needs
-to be structured to be able to function in the users desired way.
+requested to determine what information is needed to be loaded and how it
+needs to be structured to be able to function in the users desired way.
 """
 
 import logging

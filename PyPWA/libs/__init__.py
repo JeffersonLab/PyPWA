@@ -15,8 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module holds the built in Plugins for the program along with various needed
-libraries.
+This module holds the built in Plugins for the program along with various
+needed libraries.
 """
 
 

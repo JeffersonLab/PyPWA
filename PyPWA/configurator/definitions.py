@@ -16,9 +16,9 @@
 
 """Templates and Exceptions for PyPWA
 
-This file holds all the templates and exceptions used for the entirety of PyPWA
-from the class that need to be extended to build your own plugin and the
-exceptions you should use or try to catch when/if an error occurs.
+This file holds all the templates and exceptions used for the entirety of
+PyPWA from the class that need to be extended to build your own plugin and
+the exceptions you should use or try to catch when/if an error occurs.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
@@ -41,8 +41,8 @@ class NoPath(Exception):
 
 class NoCachePath(NoPath):
     """
-    The Exception for when the object was unable to determine a writable path
-    for the cache.
+    The Exception for when the object was unable to determine a writable
+    path for the cache.
     """
     pass
 

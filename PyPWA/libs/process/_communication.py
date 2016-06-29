@@ -15,10 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is an internal file that handles the communication between the main process
-and the children processes. This file contains the factory that is needed to
-build the needed number of pipes, and Duplex and Simplex Objects so that offload
-process and worker processes can be generated.
+This is an internal file that handles the communication between the main
+process and the children processes. This file contains the factory that is
+needed to build the needed number of pipes, and Duplex and Simplex Objects
+so that offload process and worker processes can be generated.
 """
 
 import multiprocessing
@@ -38,8 +38,8 @@ __version__ = VERSION
 class SimplexFactory(object):
     def __init__(self, count):
         """
-        This object returns the requested amount of simplex pipes that can be
-        used for inter-process communication.
+        This object returns the requested amount of simplex pipes that
+        can be used for inter-process communication.
 
         Args:
             count (int): The number of Simplex Processes
@@ -53,8 +53,8 @@ class SimplexFactory(object):
     def build(self):
         """
         When called this method will build the pipes and nest the into the
-        SingleSend and SingleReceive objects to be sent to the main process and
-        sub processes alike.
+        SingleSend and SingleReceive objects to be sent to the main
+        process and sub processes alike.
 
         Returns:
             list[list[SingleSend],list[SingleReceive]]
@@ -84,8 +84,8 @@ class SimplexFactory(object):
 class DuplexFactory(object):
     def __init__(self, count):
         """
-        This object returns the requested amount of duplex pipes that can be
-        used for inter-process communication.
+        This object returns the requested amount of duplex pipes that can
+        be used for inter-process communication.
 
         Args:
             count (int): The number of Duplex Processes.
@@ -98,9 +98,9 @@ class DuplexFactory(object):
 
     def build(self):
         """
-        When called this method will build the pipes and nest them into the
-        DuplexCommunication object to be sent to the main process and sub
-        processes.
+        When called this method will build the pipes and nest them into
+        the DuplexCommunication object to be sent to the main process and
+        sub processes.
 
         Returns:
             list [list[_DuplexCommunication],list[_DuplexCommunication]]
@@ -112,8 +112,14 @@ class DuplexFactory(object):
             receive_one, send_one = multiprocessing.Pipe(False)
             receive_two, send_two = multiprocessing.Pipe(False)
 
-            self._main[pipe] = _DuplexCommunication(send_one, receive_two)
-            self._process[pipe] = _DuplexCommunication(send_two, receive_one)
+            self._main[pipe] = _DuplexCommunication(
+                send_one, receive_two
+            )
+
+            self._process[pipe] = _DuplexCommunication(
+                send_two, receive_one
+            )
+
         return self.pipes
 
     @property
@@ -129,27 +135,32 @@ class DuplexFactory(object):
 
 class _CommunicationInterface(object):
     """
-    This is a simple interface object for the communication objects to ensure
-    that they are functioning in a predictable way. All communication objects
-    extend this object.
+    This is a simple interface object for the communication objects to
+    ensure that they are functioning in a predictable way. All
+    communication objects extend this object.
     """
 
     def send(self, data):
         """
-        Sends data to the opposite process, whether that is the children process
-        or the parent process.
+        Sends data to the opposite process, whether that is the children
+        process or the parent process.
 
         Args:
             data: The data pickle-able the needs to be sent.
 
         Raises:
-            NotImplementedError: If the objects are not replaced before being
-                executed.
+            NotImplementedError: If the objects are not replaced before
+                being executed.
         """
-        raise NotImplementedError("Object fails to override the send method.")
+
+        raise NotImplementedError(
+            "Object fails to override the send method."
+        )
 
     def receive(self):
-        raise NotImplementedError("Object fails to override the receive method")
+        raise NotImplementedError(
+            "Object fails to override the receive method"
+        )
 
 
 class _SimplexSend(_CommunicationInterface):
@@ -179,8 +190,11 @@ class _SimplexSend(_CommunicationInterface):
         Raises:
             SimplexError: Simplex object can only send data.
         """
-        raise SimplexError("Communication Object is Simplex and doesn't "
-                           "support the receive method.")
+
+        raise SimplexError(
+            "Communication Object is Simplex and doesn't support the "
+            "receive method."
+        )
 
 
 class _SimplexReceive(_CommunicationInterface):
@@ -189,8 +203,8 @@ class _SimplexReceive(_CommunicationInterface):
         Simple Receive object
 
         Args:
-            receive_pipe (multiprocessing.Pipe): The pipe that can be used to
-                receive data
+            receive_pipe (multiprocessing.Pipe): The pipe that can be
+                used to receive data
         """
         self.receive_pipe = receive_pipe
 
@@ -201,8 +215,10 @@ class _SimplexReceive(_CommunicationInterface):
         Raises:
             SimplexError: Simplex object can only receive.
         """
-        raise SimplexError("Communication Object is Simplex and doesn't "
-                           "support the send method.")
+        raise SimplexError(
+            "Communication Object is Simplex and doesn't support the send"
+            " method."
+        )
 
     def receive(self):
         """
@@ -217,14 +233,14 @@ class _SimplexReceive(_CommunicationInterface):
 class _DuplexCommunication(_CommunicationInterface):
     def __init__(self, send_pipe, receive_pipe):
         """
-        The Duplex communication object, use for inter-communication between
-        the threads.
+        The Duplex communication object, use for inter-communication
+        between the threads.
 
         Args:
-            send_pipe (multiprocessing.Pipe): The pipe that will be used to
-                send data.
-            receive_pipe (multiprocessing.Pipe): The pipe that will be used to
-                receive data from the adjacent process.
+            send_pipe (multiprocessing.Pipe): The pipe that will be used
+                to send data.
+            receive_pipe (multiprocessing.Pipe): The pipe that will be
+                used to receive data from the adjacent process.
         """
         self.send_pipe = send_pipe
         self.receive_pipe = receive_pipe
@@ -251,7 +267,8 @@ class _DuplexCommunication(_CommunicationInterface):
 class SimplexError(Exception):
     """
     The SimplexError is a simple exception that is thrown when someone
-    calls a simplex as a duplex object. Helps the interface determine whether
-    the directions of the communication object. This may go away in the future.
+    calls a simplex as a duplex object. Helps the interface determine
+    whether the directions of the communication object. This may go away
+    in the future.
     """
     pass
