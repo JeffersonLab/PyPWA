@@ -16,10 +16,10 @@
 
 """Gamp data reading and writing.
 
-This file holds the Gamp Reader and Gamp Writer. These simply load the data into
-memory one event at a time and write to file one event at a time. Only the
-previous loaded events are stored, anything later than that will not be saved
-in memory by these object.
+This file holds the Gamp Reader and Gamp Writer. These simply load the
+data into memory one event at a time and write to file one event at a
+time. Only the previous loaded events are stored, anything later than that
+will not be saved in memory by these object.
 """
 
 import collections
@@ -44,8 +44,9 @@ class GampReader(definitions.TemplateReader):
 
     def __init__(self, file_location):
         """
-        This reads in Gamp events from disk, Gamp events are deque of named
-        tuples, each named tuple representing a particle in the event.
+        This reads in Gamp events from disk, Gamp events are deque of
+        named tuples, each named tuple representing a particle in the
+        event.
 
         Args:
             file_location (str): Name of the GAMP file, can be any size.
@@ -58,8 +59,8 @@ class GampReader(definitions.TemplateReader):
 
     def _start_input(self):
         """
-        Checks to see if the file is opened, and if it is close it so that it
-        may be reopened.
+        Checks to see if the file is opened, and if it is close it so that
+        it may be reopened.
         """
         try:
             if self._file:
@@ -78,8 +79,8 @@ class GampReader(definitions.TemplateReader):
     @property
     def next_event(self):
         """
-        Structures the read in event from the GAMP file into a deque then passes
-        it to the calling function.
+        Structures the read in event from the GAMP file into a deque then
+        passes it to the calling function.
 
         Returns:
             deque: The next deque event.
@@ -102,8 +103,9 @@ class GampReader(definitions.TemplateReader):
 
     def _make_particle(self, string):
         """
-        Takes the string read in from the GAMP event and parses it into a named
-        tuple to store the various values. All values are numpy data types.
+        Takes the string read in from the GAMP event and parses it into a
+        named tuple to store the various values. All values are numpy data
+        types.
 
         Args:
             string (str): The string containing the GAMP Particle
@@ -112,9 +114,13 @@ class GampReader(definitions.TemplateReader):
             GampParticle(namedtuple): The particle stored in a namedtuple.
         """
         the_list = string.strip("\n").split(" ")
+
         particle = self._particle_master.make_particle(
+            # Particle ID, Particle Charge
             numpy.uint8(the_list[0]), numpy.int8(the_list[1]),
+            # Particle X Momentum, Particle Y Momentum
             numpy.float64(the_list[2]), numpy.float64(the_list[3]),
+            # Particle Z Momentum, Particle Energy
             numpy.float64(the_list[4]), numpy.float64(the_list[5])
         )
 
@@ -126,7 +132,8 @@ class GampWriter(definitions.TemplateWriter):
     def __init__(self, file_location):
         """
         Takes GAMP events one at a time and attempts to write them in a
-        standardized way to file so that other programs can read the output.
+        standardized way to file so that other programs can read the
+        output.
 
         Args:
             file_location (str): Where to write the GAMP data.
@@ -136,9 +143,9 @@ class GampWriter(definitions.TemplateWriter):
 
     def write(self, data):
         """
-        Writes the events the disk one event at a time, wont close the disk
-        access until the close function is called or until the object is
-        deleted.
+        Writes the events the disk one event at a time, wont close the
+        disk access until the close function is called or until the object
+        is deleted.
 
         Args:
             data (deque): the file that is to be written to disk.
@@ -146,10 +153,11 @@ class GampWriter(definitions.TemplateWriter):
         self._file.write(str(len(data))+"\n")
 
         for particle in data:
-            self._file.write(str(particle.id) + " " + str(particle.charge) +
-                             " " + str(particle.x) + " " + str(particle.y) +
-                             " " + str(particle.z) + " " +
-                             str(particle.energy) + "\n")
+            self._file.write(
+                str(particle.id) + " " + str(particle.charge) + " " +
+                str(particle.x) + " " + str(particle.y) + " " +
+                str(particle.z) + " " + str(particle.energy) + "\n"
+            )
 
     def close(self):
         self._file.close()
@@ -157,20 +165,23 @@ class GampWriter(definitions.TemplateWriter):
 
 class GampMemory(definitions.TemplateMemory):
     """
-    Loads GAMP Data into memory to bypass the disk bottleneck with calculations.
-    DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL QUICKLY OVERFILL
-    THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY AND COLLECTIONS OPTIMIZATIONS!
+    Loads GAMP Data into memory to bypass the disk bottleneck with
+    calculations.
+    DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL QUICKLY
+    OVERFILL THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY AND COLLECTIONS
+    OPTIMIZATIONS!
     """
 
     def parse(self, file_location):
         """
         Parses Gamp Files into a single list.
+
         Args:
             file_location (str): The location of the GAMP File.
 
         Returns:
-            list[GampEvent]: A list containing all the GampEvents from the data
-                file.
+            list[GampEvent]: A list containing all the GampEvents from the
+                data file.
         """
         reader = GampReader(file_location)
         events = []
@@ -180,13 +191,15 @@ class GampMemory(definitions.TemplateMemory):
 
     def write(self, file_location, data):
         """
-        Writes the GAMP events from memory to disk, this method can be used for
-        single GAMP events but its recommended that you use GampWriter for
-        single GAMP event writing or something similar.
+        Writes the GAMP events from memory to disk, this method can be
+        used for single GAMP events but its recommended that you use
+        GampWriter for single GAMP event writing or something similar.
+
         Args:
-            file_location (str): The location where to write the GAMP file.
-            data (list): The list containing all the GampEvents that are to be
-                written to disk.
+            file_location (str): The location where to write the GAMP
+                file.
+            data (list): The list containing all the GampEvents that are
+                to be written to disk.
         """
         writer = GampWriter(file_location)
         for event in data:
@@ -197,16 +210,17 @@ class GampValidator(definitions.TemplateValidator):
 
     def __init__(self, file_location, full=False):
         """
-        Validates the GAMP file to ensure that the file can be read by gamp
-        before actually trying to read it. Also is used for the data plugin
-        to determine which of its plugins to use when its handed a file of an
-        unknown nature.
+        Validates the GAMP file to ensure that the file can be read by
+        gamp before actually trying to read it. Also is used for the data
+        plugin to determine which of its plugins to use when its handed a
+        file of an unknown nature.
 
         Args:
-            file_location (str): The location of the file that needs to be read.
-            full (Optional[bool]): Whether to do a full test of the file or not,
-                useful for debugging unknown issues or complications with
-                reading in GAMP files.
+            file_location (str): The location of the file that needs to
+                be read.
+            full (Optional[bool]): Whether to do a full test of the file
+                or not, useful for debugging unknown issues or
+                complications with reading in GAMP files.
         """
         super(GampValidator, self).__init__(file_location, full)
         self._file = io.open(file_location, "rt")
@@ -230,14 +244,18 @@ class GampValidator(definitions.TemplateValidator):
             try:
                 int(number)
             except ValueError:
-                raise definitions.IncompatibleData("Expected particle count.")
+                raise definitions.IncompatibleData(
+                    "Expected particle count."
+                )
+
             try:
                 for index in range(int(number)):
                     if len(self._file.readline().split(",")) != 6:
                         raise definitions.IncompatibleData(
-                            "Particle count does not match the number of events"
-                            "read in by the Validator."
+                            "Particle count does not match the number of "
+                            "events read in by the Validator."
                         )
+
             except Exception as Error:
                 raise definitions.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
@@ -246,9 +264,9 @@ class GampValidator(definitions.TemplateValidator):
 
     def _test_length(self):
         """
-        Tests to make sure that the first number matches the number of events.
-        I know that this can be made to be better, however it alludes me
-        at this moment.
+        Tests to make sure that the first number matches the number of
+        events. I know that this can be made to be better, however it
+        alludes me at this moment.
 
         Raises:
             PyPWA.libs.data.exceptions.IncompatibleData:

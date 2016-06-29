@@ -15,10 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is the main file for the process plugin. This plugin contains all the logic
-needed to generate offload processes and worker processes, this is all done by
-extending the kernels with your needed information then passing those kernels
-back to the Foreman.
+This is the main file for the process plugin. This plugin contains all
+the logic needed to generate offload processes and worker processes, this
+is all done by extending the kernels with your needed information then
+passing those kernels back to the Foreman.
 """
 
 import logging
@@ -44,17 +44,18 @@ __version__ = VERSION
 class _ProcessInterface(object):
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
-        This object provides all the functions necessary to determine the state
-        of the processes and to pass information to the processes. This is the
-        main object that the program and users will use to access the processes.
+        This object provides all the functions necessary to determine the
+        state of the processes and to pass information to the processes.
+        This is the main object that the program and users will use to
+        access the processes.
 
         Args:
-            interface_kernel: Object with a run method to be used to handle
-                returned data.
-            process_com (list[_communication._CommunicationInterface]): Objects
-                needed to exchange data with the processes.
-            processes (list[multiprocessing.Process]): List of the processing
-                processes.
+            interface_kernel: Object with a run method to be used to
+                handle returned data.
+            process_com (list[_communication._CommunicationInterface]):
+                Objects needed to exchange data with the processes.
+            processes (list[multiprocessing.Process]): List of the
+                processing processes.
         """
         self._logger = logging.getLogger(__name__)
         self._com = process_com
@@ -66,9 +67,9 @@ class _ProcessInterface(object):
     def run(self, *args):
         """
         This is the wrapping method for the process kernel, it passes the
-        communication and the received arguments to the kernel, then saves the
-        value that was returned so that it can be called at a later time if
-        needed.
+        communication and the received arguments to the kernel, then saves
+        the value that was returned so that it can be called at a later
+        time if needed.
 
         Args:
             *args: The arguments received through the run interface.
@@ -102,16 +103,20 @@ class _ProcessInterface(object):
                 pipe.send("DIE")
         else:
             if force:
-                self._logger.warn("KILLING PROCESSES, THIS IS !EXPERIMENTAL! "
-                                  "AND WILL PROBABLY BREAK THINGS.")
+                self._logger.warn(
+                    "KILLING PROCESSES, THIS IS !EXPERIMENTAL! AND WILL "
+                    "PROBABLY BREAK THINGS."
+                )
+
                 for process in self._processes:
                     process.terminate()
             else:
                 self._logger.warn(
-                    "The communication object is Simplex, can not shut down "
-                    "processes. You must execute the processes and fetch the "
-                    "value from the interface before simplex functions will "
-                    "shutdown, or force the thread to die. [EXPERIMENTAL]"
+                    "The communication object is Simplex, can not shut "
+                    "down processes. You must execute the processes and "
+                    "fetch the value from the interface before simplex "
+                    "functions will shutdown, or force the thread to die "
+                    "[EXPERIMENTAL]"
                 )
 
     @property
@@ -120,30 +125,35 @@ class _ProcessInterface(object):
         Method to check the status of the process.
 
         Returns:
-            bool: True if the processes are still spawned, False if they have
-                terminated.
+            bool: True if the processes are still spawned, False if they
+                have terminated.
         """
         return self._processes[0].is_alive()
 
     def __del__(self):
         if self.is_alive:
-            self._logger.error("GC TRYING TO KILL PROCESS INTERFACE WHILE "
-                               "PROCESSES ARE STILL ALIVE.")
+            self._logger.error(
+                "GC TRYING TO KILL PROCESS INTERFACE WHILE PROCESSES ARE "
+                "STILL ALIVE."
+            )
+
             self.stop(True)
 
 
 class CalculationForeman(object):
     def __init__(self, interface_kernel, process_kernel):
         """
-        This is the main object for the Process Plugin. All this object needs
-        is an appropriately set up interface kernel and process kernel in order
-        to function.
+        This is the main object for the Process Plugin. All this object
+        needs is an appropriately set up interface kernel and process
+        kernel in order to function.
 
         Args:
-            interface_kernel (_utilities.AbstractInterface): The object that
-                will be used to process the data returned from the processes.
-            process_kernel (list[_utilities.AbstractKernel]): The objects that
-                will be seeded into the processes to execute the data.
+            interface_kernel (_utilities.AbstractInterface): The object
+                that will be used to process the data returned from the
+                processes.
+            process_kernel (list[_utilities.AbstractKernel]): The objects
+                that will be seeded into the processes to execute the
+                data.
         """
         self._logger = logging.getLogger(__name__)
         self._num_processes = len(process_kernel)
@@ -157,14 +167,23 @@ class CalculationForeman(object):
         Calls the factory objects to generate the processes
 
         Returns:
-            list[list[_communication._CommunicationInterface],list[process_calculation.Process]]
+            list[
+                list[_communication._CommunicationInterface],
+                list[process_calculation.Process]
+                ]
         """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
-            return _processing.DuplexCalculationFactory(self._process_kernel)
+            return _processing.DuplexCalculationFactory(
+                self._process_kernel
+            )
+
         else:
             self._logger.debug("Building Simplex Processes.")
-            return _processing.SimplexCalculationFactory(self._process_kernel)
+            return _processing.SimplexCalculationFactory(
+                self._process_kernel
+            )
+
 
     def build(self):
         """
@@ -183,8 +202,11 @@ class CalculationForeman(object):
              _ProcessInterface: If the interface has been built.
         """
         if isinstance(self._interface, bool):
-            self._logger.warn("Process Interface was called before it was "
-                              "built!")
+
+            self._logger.warn(
+                "Process Interface was called before it was built!"
+            )
+
             return False
         else:
             return self._interface
@@ -192,7 +214,9 @@ class CalculationForeman(object):
 
 class Options(object):
     _options = {
-        "number of processes": multiprocessing.cpu_count() * 2  # Optional
+
+        # Optional
+        "number of processes": multiprocessing.cpu_count() * 2
         #  We set this two 2 times the number of CPUs to account for
         #  hyper threading.
     }
@@ -215,34 +239,35 @@ class Options(object):
         content = ruamel.yaml.comments.CommentedMap()
 
         header[_utilities.MODULE_NAME] = content
-        header.yaml_add_eol_comment("This is the builtin processing plugin,"
-                                    "you can replace this with your own, or"
-                                    " use one of the other options that we "
-                                    "have.", _utilities.MODULE_NAME)
-        content.yaml_add_eol_comment("This is the max number of processes to"
-                                     " have running at any time in the "
-                                     "program, the hard max will always be"
-                                     "2 * the number of CPUs in your computer"
-                                     "so that we don't resource lock your "
-                                     "computer. Will work on any Intel"
-                                     " or AMD processor, IBMs might have"
-                                     " difficulty here.", "number of "
-                                                          "processes")
+        header.yaml_add_eol_comment(
+            "This is the builtin processing plugin, you can replace this "
+            "with your own, or use one of the other options that we have."
+            , _utilities.MODULE_NAME
+        )
+
+        content.yaml_add_eol_comment(
+            "This is the max number of processes to have running at any "
+            "time in the program, the hard max will always be 2 * the "
+            "number of CPUs in your computer so that we don't resource "
+            "lock your computer. Will work on any Intel  or AMD "
+            "processor, IBMs might have difficulty here.",
+            "number of processes"
+        )
 
         return header
 
     def _build_optional(self, header):
         """
-        Since there is only one option, and its optional, we only have a single
-        building function for the actual options.
+        Since there is only one option, and its optional, we only have a
+        single building function for the actual options.
 
         Args:
-            header (ruamel.yaml.comments.CommentedMap): The empty dictionary
-                with the comments included.
+            header (ruamel.yaml.comments.CommentedMap): The empty
+                dictionary with the comments included.
 
         Returns:
-            ruamel.yaml.comments.CommentedMap: The dictionary with the optional
-                fields.
+            ruamel.yaml.comments.CommentedMap: The dictionary with the
+                optional fields.
         """
         header[_utilities.MODULE_NAME]["number of processes"] = \
             self._options["number of processes"]

@@ -70,42 +70,50 @@ class GampParticle(object):
 
     def __init__(self):
         """
-        Simple object that makes the particles for GAMP. Supplies a static tuple
-        with all fields stored in a read only state.
+        Simple object that makes the particles for GAMP. Supplies a static
+        tuple with all fields stored in a read only state.
         """
-        self._the_particle = collections.namedtuple("GampParticle",
-                                                    ["name", "id", "charge",
-                                                     "x", "y", "z", "energy"]
-                                                    )
+        self._the_particle = collections.namedtuple(
+            "GampParticle",
+            ["name", "id", "charge", "x", "y", "z", "energy"]
+        )
 
-    def make_particle(self, the_id, charge, x, y, z, energy):
+    def make_particle(
+            self, the_id, charge,
+            x_momentum, y_momentum, z_momentum, energy
+    ):
         """
-        Method that builds the particle using the supplied information. Acts as
-        a wrapper around a namedtuple that has some logic to aid in adding
-        information to the particle.
+        Method that builds the particle using the supplied information.
+        Acts as a wrapper around a namedtuple that has some logic to aid
+        in adding information to the particle.
 
         Args:
             the_id: The Particle's ID
             charge: The Charge of the particle.
-            x: The X momentum of the particle.
-            y: The Y momentum of the particle.
-            z: The Z momentum of the particle.
+            x_momentum: The X momentum of the particle.
+            y_momentum: The Y momentum of the particle.
+            z_momentum: The Z momentum of the particle.
             energy: The energy of the particle.
 
         Returns:
-            collections.namedtuple: The particle and its associated information.
+            collections.namedtuple: The particle and its associated
+                information.
 
         """
         name = self._particles[the_id]
-        return self._the_particle(name, the_id, charge, x, y, z, energy)
+
+        return self._the_particle(
+            name, the_id, charge,
+            x_momentum, y_momentum, z_momentum, energy
+        )
 
 
 class GampEvent(collections.deque):
 
     def __init__(self, particle_count):
         """
-        Extends a deque list, adds functions that attempt to help use and test
-        the GampEvents.
+        Extends a deque list, adds functions that attempt to help use and
+        test the GampEvents.
 
         Args:
             particle_count: (int) The number of particles in the event.
@@ -114,8 +122,9 @@ class GampEvent(collections.deque):
 
     def search(self, query):
         """
-        Searches for a specific particle based off of the particles name. Not an
-        efficient function or reliable, probably shouldn't be used yet.
+        Searches for a specific particle based off of the particles name.
+        Not an efficient function or reliable, probably shouldn't be used
+        yet.
 
         Args:
             query: (str) The name of the specified particle.
@@ -132,19 +141,23 @@ class GenericEvent(object):
 
     def __init__(self, particle_names):
         """
-        Makes Generic Event Objects based off of NamedTuples. Should provide
-        a minor improvement in speed without too much change in design.
+        Makes Generic Event Objects based off of NamedTuples. Should
+        provide a minor improvement in speed without too much change in
+        design.
 
         Args:
-            particle_names (list[str]): List of the names of the particles.
+            particle_names (list[str]): List of the names of the
+                particles.
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
         final_particle_names = particle_names + ["standard_parsed_values"]
 
-        self._logger.debug("Final Particle Names inside Generic Event = " +
-                           str(final_particle_names))
+        self._logger.debug(
+            "Final Particle Names inside Generic Event = " +
+            str(final_particle_names)
+        )
 
         self._master_particle = collections.namedtuple(
             "GenericEvent", final_particle_names

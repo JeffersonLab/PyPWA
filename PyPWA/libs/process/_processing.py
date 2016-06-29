@@ -35,22 +35,23 @@ __version__ = VERSION
 
 
 class _DuplexProcess(multiprocessing.Process):
-    daemon = True  # This is set to true so that if the main process dies the
-    # child processes will die as well.
+    daemon = True  # This is set to true so that if the main process
+    # dies the child processes will die as well.
 
     def __init__(self, kernel, communicator):
         """
-        Main object for duplex processes. These processes are worker processes
-        and as such will continue to run indefinitely until they are shut down
-        by the main process or until the main process dies.
+        Main object for duplex processes. These processes are worker
+        processes and as such will continue to run indefinitely until
+        they are shut down by the main process or until the main process
+        dies.
 
         Args:
-            kernel (_utilities.AbstractKernel): The kernel that will hold all the
-                information and logic needed for the process to process the data
-                that it receives from the main process.
-            communicator (_communication._DuplexCommunication): This is the way
-                that the process will communicate with the children and vice
-                versa.
+            kernel (_utilities.AbstractKernel): The kernel that will hold
+                all the information and logic needed for the process to
+                process the data that it receives from the main process.
+            communicator (_communication._DuplexCommunication): This is
+                the way that the process will communicate with the
+                children and vice versa.
         """
         super(_DuplexProcess, self).__init__()
         self._kernel = kernel
@@ -58,8 +59,8 @@ class _DuplexProcess(multiprocessing.Process):
 
     def run(self):
         """
-        This method defines the main loop for the duplex function, this defines
-        how the process works.
+        This method defines the main loop for the duplex function, this
+        defines how the process works.
 
         Returns:
             0: When the process is closed cleanly.
@@ -77,21 +78,22 @@ class _DuplexProcess(multiprocessing.Process):
 
 
 class _SimplexProcess(multiprocessing.Process):
-    daemon = True  # Set to true so that if the main process dies, the children
-    # will die as well.
+    daemon = True  # Set to true so that if the main process dies,
+    # the children will die as well.
 
     def __init__(self, single_kernel, communicator):
         """
-        The simplex process is the simple offload process, anything passed to
-        here will be ran immediately then send to the result back to the main
-        process and die.
+        The simplex process is the simple offload process, anything
+        passed to here will be ran immediately then send to the result
+        back to the main process and die.
 
         Args:
-            single_kernel (_utilities.AbstractKernel): The kernel that will
-                contain all the data and logic needed for the process to
-                function.
-            communicator (_communication._SimplexSend): The only way to send
-                data back to the main process after its been processed.
+            single_kernel (_utilities.AbstractKernel): The kernel that
+                will contain all the data and logic needed for the
+                process to function.
+            communicator (_communication._SimplexSend): The only way to
+                send data back to the main process after its been
+                processed.
         """
         super(_SimplexProcess, self).__init__()
         self._kernel = single_kernel
@@ -99,9 +101,9 @@ class _SimplexProcess(multiprocessing.Process):
 
     def run(self):
         """
-        The main loop for the process. This method is simple as it only calls
-        the setup function from the run kernel, processes the data, then sends
-        that returned data back to the main process.
+        The main loop for the process. This method is simple as it only
+        calls the setup function from the run kernel, processes the data,
+        then sends that returned data back to the main process.
 
         Returns:
             0: On success.
@@ -114,13 +116,13 @@ class _SimplexProcess(multiprocessing.Process):
 class SimplexCalculationFactory(object):
     def __init__(self, kernel):
         """
-        This object builds the required number of offload processes based on the
-        supplied number of kernels.
+        This object builds the required number of offload processes based
+        on the supplied number of kernels.
 
         Args:
-            kernel (list[_utilities.AbstractKernel]): A list of all the kernels
-                that need to be nested into the individual processes. It will be
-                one process per kernel.
+            kernel (list[_utilities.AbstractKernel]): A list of all the
+                kernels that need to be nested into the individual
+                processes. It will be one process per kernel.
         """
         self._kernel = kernel
         self._count = len(kernel)
@@ -132,7 +134,10 @@ class SimplexCalculationFactory(object):
         Call this method to actually build the offload processes.
 
         Returns:
-            list[list[_SimplexProcess],list[_communication._SimplexReceives]]
+            list[
+                list[_SimplexProcess],
+                list[_communication._SimplexReceives]
+                ]
 
         See Also:
             PyPWA.libs.process._communication._SimplexReceives for more
@@ -151,7 +156,10 @@ class SimplexCalculationFactory(object):
         Holds the generated communication and processes.
 
         Returns:
-            list[list[_SimplexProcess], list[_communication._SimplexReceives]]
+            list[
+                list[_SimplexProcess],
+                list[_communication._SimplexReceives]
+                ]
 
         See Also:
             PyPWA.libs.process._communication._SimplexReceives for more
@@ -165,10 +173,10 @@ class DuplexCalculationFactory(object):
         """
         This object generates the needed number of worker processes.
         Args:
-            kernel (list[_utilities.AbstractKernel]): These are the objects that
-                hold all the functioning logic for the processes. This should
-                hold all of the needed data and logic needed for the processes
-                to function.
+            kernel (list[_utilities.AbstractKernel]): These are the
+                objects that hold all the functioning logic for the
+                processes. This should hold all of the needed data and
+                logic needed for the processes to function.
         """
         self._kernel = kernel
         self._count = len(kernel)
@@ -181,13 +189,18 @@ class DuplexCalculationFactory(object):
         processes.
 
         Returns:
-            list[list[_DuplexProcess],list[_communication._DuplexCommunication]]
+            list[
+                list[_DuplexProcess],
+                list[_communication._DuplexCommunication]
+                ]
 
         See Also:
-            PyPWA.libs.process._communication._DuplexCommunication for more
-                information about inter-process communication.
+            PyPWA.libs.process._communication._DuplexCommunication for
+                more information about inter-process communication.
         """
-        self._main_com, process_com = _communication.DuplexFactory(self._count)
+        self._main_com, process_com = _communication.DuplexFactory(
+            self._count
+        )
 
         for kernel, process_com in zip(self._kernel, process_com):
             self._processes.append(_DuplexProcess(kernel, process_com))
@@ -200,10 +213,13 @@ class DuplexCalculationFactory(object):
         Holds the generated communication and processes.
 
         Returns:
-            list[list[_SimplexProcess],list[_communication._DuplexCommunication]]
+            list[
+                list[_SimplexProcess],
+                list[_communication._DuplexCommunication]
+                ]
 
         See Also:
-            PyPWA.libs.process._communication._DuplexCommunication for more
-                information about inter-process communication.
+            PyPWA.libs.process._communication._DuplexCommunication for
+                more information about inter-process communication.
         """
         return [self._processes, self._main_com]

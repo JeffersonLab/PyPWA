@@ -16,11 +16,11 @@
 
 """The utility objects for the Data Plugin
 
-This holds all the main objects for the data plugin. This has search functions
-but these objects should never know anything about the data plugin they are
-trying to load, all it should ever care about is that there is metadata that
-contains enough information about the plugin for this to get started passing
-data to it.
+This holds all the main objects for the data plugin. This has search
+functions but these objects should never know anything about the data
+plugin they are trying to load, all it should ever care about is that
+there is metadata that contains enough information about the plugin for
+this to get started passing data to it.
 """
 
 import logging
@@ -47,14 +47,17 @@ BUILTIN_PACKAGE_LOCATION = builtin
 
 
 class Options(object):
-    _options = {  # Holds the default options for the builtin.
+
+    # Holds the default options for the builtin.
+    _options = {
         "cache": True,  # Optional
         "clear cache": False,  # Advanced
         "fail": False,  # Advanced
         "user plugin": "cwd=/path/to/file;"  # Advanced
     }
 
-    _template = {  # Holds the actual expected options and names for the builtin
+    # Holds the actual expected options and names for the builtin
+    _template = {
         "cache": bool,
         "clear cache": bool,
         "fail": bool,
@@ -77,38 +80,45 @@ class Options(object):
         data dictionary.
 
         Returns:
-            ruamel.yaml.comments.CommentedMap: The empty dictionary with the
-                comments.
+            ruamel.yaml.comments.CommentedMap: The empty dictionary with
+                the comments.
         """
         header = ruamel.yaml.comments.CommentedMap()
         content = ruamel.yaml.comments.CommentedMap()
 
         header[_utilites.MODULE_NAME] = content
-        header.yaml_add_eol_comment('This is the builtin data parser, you can '
-                                    'replace this with your own data parser if '
-                                    'you wish.', _utilites.MODULE_NAME)
+        header.yaml_add_eol_comment(
+            'This is the builtin data parser, you can replace this with '
+            'your own data parser if you wish.', _utilites.MODULE_NAME
+        )
 
-        content.yaml_add_eol_comment("Should Cache be enabled? The cache will"
-                                     "automatically clear if it detects a"
-                                     "change in any of your data and should be"
-                                     "safe to leave enabled.", "cache")
-        content.yaml_add_eol_comment("Should we force the cache to clear? This"
-                                     "will destroy all of your caches, this"
-                                     "means loading your data will take much"
-                                     "longer, its recommended to leave this off"
-                                     "unless you are certain its a cache "
-                                     "issue.", "clear cache")
-        content.yaml_add_eol_comment("Should the program stop if it fails to "
-                                     "load the file? The program will already"
-                                     "fail if the data is needed for parsing"
-                                     "to happen, if this is set to true even"
-                                     "files that are optional will cause the "
-                                     "program to stop.", "fail")
-        content.yaml_add_eol_comment("A plugin that can be loaded into the "
-                                     "the " + _utilites.MODULE_NAME + " for "
-                                     "parsing, see the documentation on the " +
-                                     _utilites.MODULE_NAME + " plugin for more "
-                                     "information.", "user plugin")
+        content.yaml_add_eol_comment(
+            "Should Cache be enabled? The cache will automatically clear "
+            "if it detects a change in any of your data and should be "
+            "safe to leave enabled.", "cache"
+        )
+
+        content.yaml_add_eol_comment(
+            "Should we force the cache to clear? This will destroy all of"
+            " your caches, this means loading your data will take much "
+            "longer, its recommended to leave this off unless you are "
+            "certain its a cache issue.", "clear cache"
+        )
+
+        content.yaml_add_eol_comment(
+            "Should the program stop if it fails to load the file? The "
+            "program will already fail if the data is needed for parsing "
+            "to happen, if this is set to true even files that are "
+            "optional will cause the program to stop.", "fail"
+        )
+
+        content.yaml_add_eol_comment(
+            "A plugin that can be loaded into the the " +
+            _utilites.MODULE_NAME + " for parsing, see the documentation "
+            "on the " + _utilites.MODULE_NAME + " plugin for more "
+            "information.", "user plugin"
+        )
+
         return header
 
     def _build_optional(self, header):
@@ -116,12 +126,12 @@ class Options(object):
         Loads the optional data into the dictionary.
 
         Args:
-            header (ruamel.yaml.comment.CommentedMap): The dictionary with the
-                pre-nested comments.
+            header (ruamel.yaml.comment.CommentedMap): The dictionary with
+                the pre-nested comments.
 
         Returns:
-            ruamel.yaml.comment.CommentedMap: The dictionary with the optional
-                options.
+            ruamel.yaml.comment.CommentedMap: The dictionary with the
+                optional options.
         """
         header[_utilites.MODULE_NAME]["cache"] = self._options["cache"]
         return header
@@ -131,12 +141,12 @@ class Options(object):
         Loads the optional and advanced data into the dictionary.
 
         Args:
-            header (ruamel.yaml.comment.CommentedMap): The dictionary with the
-             pre-nested comments.
+            header (ruamel.yaml.comment.CommentedMap): The dictionary with
+             the pre-nested comments.
 
         Returns:
-            ruamel.yaml.comment.CommentedMap: The dictionary with the optional
-                and advanced options.
+            ruamel.yaml.comment.CommentedMap: The dictionary with the
+                optional and advanced options.
         """
         header = self._build_optional(header)
         header[_utilites.MODULE_NAME]["clear cache"] = \
@@ -188,23 +198,24 @@ class TrafficCop(object):
 
         self._data_search = _utilites.DataSearch(data_plugins)
 
-    # Going to assume for completions sake that the settings line is just the
-    # file's location. However untrue this may be.
+    # Going to assume for completions sake that the settings line is just
+    # the file's location. However untrue this may be.
     def parse(self, settings_line):
         """
-        Parses a single file into memory then passes that data back to the main
-        object.
+        Parses a single file into memory then passes that data back to the
+        main object.
 
         Args:
-            settings_line (str): The unparsed settings from the configuration
-                file.
+            settings_line (str): The unparsed settings from the
+                configuration file.
 
         Returns:
             The data that was loaded in from file.
 
         Raises:
-            definitions.UnknownData: If the loading of the file fails and fail
-                on parse error is set to true then this will be raised.
+            definitions.UnknownData: If the loading of the file fails and
+                fail on parse error is set to true then this will be
+                raised.
         """
         try:
             plugin = self._data_search.search(settings_line)
@@ -222,12 +233,13 @@ class TrafficCop(object):
 
         Args:
             file_location (str): The file that needs to be parsed.
-            data (data_types.GenericEvent): The data that needs to be written
-                to disk.
+            data (data_types.GenericEvent): The data that needs to be
+                written to disk.
 
         Raises:
-            definitions.UnknownData: If the loading of the file fails and fail
-                on parse error is set to true then this will be raised.
+            definitions.UnknownData: If the loading of the file fails and
+                fail on parse error is set to true then this will be
+                raised.
         """
         try:
             plugin = self._data_search.search(file_location)
@@ -239,8 +251,8 @@ class TrafficCop(object):
 
     def reader(self, settings_line):
         """
-        Searches for the correct reader than passes that back to the requesting
-        object.
+        Searches for the correct reader than passes that back to the
+        requesting object.
 
         Args:
             settings_line (str): The line that contains the settings.
@@ -250,8 +262,9 @@ class TrafficCop(object):
             bool: False if it failed to find a reader.
 
         Raises:
-            definitions.UnknownData: If the loading of the file fails and fail
-                on parse error is set to true then this will be raised.
+            definitions.UnknownData: If the loading of the file fails and
+                fail on parse error is set to true then this will be
+                raised.
         """
         try:
             plugin = self._data_search.search(settings_line)
@@ -265,8 +278,8 @@ class TrafficCop(object):
 
     def writer(self, settings_line):
         """
-        Searches for the correct writer than passes that back to the requesting
-        object.
+        Searches for the correct writer than passes that back to the
+        requesting object.
 
         Args:
             settings_line (str): The line that contains the settings.
@@ -276,8 +289,9 @@ class TrafficCop(object):
             bool: False if it failed to find a writer
 
         Raises:
-            definitions.UnknownData: If the loading of the file fails and fail
-                on parse error is set to true then this will be raised.
+            definitions.UnknownData: If the loading of the file fails and
+                fail on parse error is set to true then this will be
+                raised.
         """
         try:
             plugin = self._data_search.search(settings_line)

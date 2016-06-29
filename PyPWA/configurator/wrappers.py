@@ -17,8 +17,8 @@
 """
 This file is the main file for all of PyPWA. This file takes a
 configuration file, processes it, then contacts the main module that is
-requested to determine what information is needed to be loaded and how it needs
-to be structured to be able to function in the users desired way.
+requested to determine what information is needed to be loaded and how it
+needs to be structured to be able to function in the users desired way.
 """
 
 import logging
@@ -49,9 +49,13 @@ class StartConfiguratr(object):
                 return
             arguments = self.parse_arguments(application_configuration)
 
+            self._return_logging_level(arguments.verbose)
+
             if arguments.WriteConfig:
-                self.write_config(application_configuration["Configuration"],
-                                  application_configuration["Python File"])
+                self.write_config(
+                    application_configuration["Configuration"],
+                    application_configuration["Python File"]
+                )
 
             sys.stdout.write("\x1b[2J\x1b[H")
 
@@ -62,43 +66,59 @@ class StartConfiguratr(object):
 
     @staticmethod
     def parse_arguments(app_config):
-        parser = argparse.ArgumentParser(description=app_config["Description"])
-        parser.add_argument("configuration", type=str, default="", nargs="?")
-        parser.add_argument("--WriteConfig", "-wc", action="store_true",
-                            help="Write an example configuration to the current"
-                                 " working directory")
+        parser = argparse.ArgumentParser(
+            description=app_config["Description"]
+        )
 
-        parser.add_argument("--Version", "-V", action="version",
-                            version="%(prog)s (version " + __version__ + ")")
-        parser.add_argument("--verbose", "-v", action="count",
-                            help="Adds logging, defaults to errors, "
-                                 "then setups up on from there. -v will "
-                                 "include warning, -vvv will show debugging.")
+        parser.add_argument(
+            "configuration", type=str, default="", nargs="?"
+        )
+        parser.add_argument(
+            "--WriteConfig", "-wc", action="store_true",
+            help="Write an example configuration to the current working "
+                 "directory"
+        )
+
+        parser.add_argument(
+            "--Version", "-V", action="version",
+            version="%(prog)s (version " + __version__ + ")"
+        )
+
+        parser.add_argument(
+            "--verbose", "-v", action="count",
+            help="Adds logging, defaults to errors, then setups up on "
+                 "from there. -v will include warning, -vvv will show "
+                 "debugging."
+        )
 
         if app_config["AdvancedHelp"]:
-            parser.add_argument("--AdvancedHelp", "-ah", action="store_true",
-                                help="Prints the in depth advanced help to "
-                                     "the terminal")
+            parser.add_argument(
+                "--AdvancedHelp", "-ah", action="store_true",
+                help="Prints the in depth advanced help to the terminal"
+            )
 
         arguments = parser.parse_args()
 
-        if arguments.verbose == 1:
-            internal_logging.define_logger(logging.WARNING)
-        elif arguments.verbose == 2:
-            internal_logging.define_logger(logging.INFO)
-        elif arguments.verbose >= 3:
-            internal_logging.define_logger(logging.DEBUG)
-        else:
-            internal_logging.define_logger(logging.ERROR)
-
         if app_config["AdvancedHelp"] and arguments.AdvancedHelp:
-            raise NotImplementedError("Currently advanced help output is "
-                                      "undeveloped")
+            raise NotImplementedError(
+                "Currently advanced help output is undeveloped"
+            )
 
         if not arguments.WriteConfig and arguments.configuration == "":
             parser.print_help()
 
         return arguments
+
+    @staticmethod
+    def _return_logging_level(count):
+        if count == 1:
+            internal_logging.define_logger(logging.WARNING)
+        elif count == 2:
+            internal_logging.define_logger(logging.INFO)
+        elif count >= 3:
+            internal_logging.define_logger(logging.DEBUG)
+        else:
+            internal_logging.define_logger(logging.ERROR)
 
     @staticmethod
     def write_config(configuration, python, cwd=os.getcwd()):

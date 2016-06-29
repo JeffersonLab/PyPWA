@@ -27,7 +27,7 @@ import logging
 import appdirs
 import numpy
 
-from PyPWA.configuratr import definitions
+from PyPWA.configurator import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -44,11 +44,11 @@ class DataLocation(object):
     def __init__(self):
         """
         Attempts to find the location to store data, cache, or logs. Uses
-        appdirs to determine the location on Mac, Windoze, and Linux, with a
-        builtin fallback to the common working directory if no location could
-        be found.
-        Will throw out a NoPath exception if no writable directory was found
-        including the cwd.
+        appdirs to determine the location on Mac, Windoze, and Linux, with
+        a builtin fallback to the common working directory if no location
+        could be found.
+        Will throw out a NoPath exception if no writable directory was
+        found including the cwd.
         """
         self._cwd = os.getcwd()
 
@@ -72,93 +72,101 @@ class DataLocation(object):
         Finds the location of the cache using appdirs.
 
         Args:
-            file_location (Optional[str]): The location of the file, if blank
-                will simply return the path.
-            extension (Optional[str]): The optional extension, if blank will
-                return the file without an extension.
+            file_location (Optional[str]): The location of the file, if
+                blank will simply return the path.
+            extension (Optional[str]): The optional extension, if blank
+                will return the file without an extension.
 
         Returns:
-            str: The full path to the cache directory optionally with a file
-                name and extension.
+            str: The full path to the cache directory optionally with a
+                file name and extension.
         """
         cache_dir = appdirs.user_cache_dir("PyPWA", "JLab", __version__)
-        return self._start_test(file_location, extension, cache_dir,
-                                definitions.NoCachePath,
-                                "Unable to find an appropriate cache "
-                                "directory.")
+
+        return self._start_test(
+            file_location, extension, cache_dir, definitions.NoCachePath,
+            "Unable to find an appropriate cache directory."
+        )
 
     def find_data_dir(self, file_location=None, extension=None):
         """
         Finds the location of the data using appdirs.
 
         Args:
-            file_location (Optional[str]): The location of the file, if blank
-                will simply return the path.
-            extension (Optional[str]): The optional extension, if blank will
-                return the file without an extension.
+            file_location (Optional[str]): The location of the file, if
+                blank will simply return the path.
+            extension (Optional[str]): The optional extension, if blank
+                will return the file without an extension.
 
         Returns:
-            str: The full path to the data directory optionally with a file
-                name and extension.
+            str: The full path to the data directory optionally with a
+                file name and extension.
         """
         data_dir = appdirs.user_data_dir("PyPWA", "JLab", __version__)
-        return self._start_test(file_location, extension, data_dir,
-                                definitions.NoDataPath,
-                                "Unable to find an appropriate data directory.")
+
+        return self._start_test(
+            file_location, extension, data_dir, definitions.NoDataPath,
+            "Unable to find an appropriate data directory."
+        )
 
     def find_log_dir(self, file_location=None, extension=None):
         """
         Finds the location of the log using appdirs.
 
         Args:
-            file_location (Optional[str]): The location of the file, if blank
-                will simply return the path.
-            extension (Optional[str]): The optional extension, if blank will
-                return the file without an extension.
+            file_location (Optional[str]): The location of the file, if
+                blank will simply return the path.
+            extension (Optional[str]): The optional extension, if blank
+                will return the file without an extension.
 
         Returns:
             str: The full path to the log directory optionally with a file
                 name and extension.
         """
         log_dir = appdirs.user_log_dir("PyPWA", "JLab", __version__)
-        return self._start_test(file_location, extension, log_dir,
-                                definitions.NoLogPath,
-                                "Unable to find log directory.")
+
+        return self._start_test(
+            file_location, extension, log_dir, definitions.NoLogPath,
+            "Unable to find log directory."
+        )
 
     def find_config_dir(self, file_location=None, extension=None):
         """
         Finds the location of the config using appdirs.
 
         Args:
-            file_location (Optional[str]): The location of the file, if blank
-                will simply return the path.
-            extension (Optional[str]): The optional extension, if blank will
-                return the file without an extension.
+            file_location (Optional[str]): The location of the file, if
+                blank will simply return the path.
+            extension (Optional[str]): The optional extension, if blank
+                will return the file without an extension.
 
         Returns:
-            str: The full path to the config directory optionally with a file
-                name and extension.
+            str: The full path to the config directory optionally with a
+                file name and extension.
         """
-        config_dir = appdirs.user_config_dir("PyPWA", "JLab", __version__)
-        return self._start_test(file_location, extension, config_dir,
-                                definitions.NoConfigPath,
-                                "Unable to find config directory.")
+        conf_dir = appdirs.user_config_dir("PyPWA", "JLab", __version__)
+
+        return self._start_test(
+            file_location, extension, conf_dir, definitions.NoConfigPath,
+            "Unable to find config directory."
+        )
 
     def _start_test(self, location, extension, directory, error, message):
         """
-        Starts the test on the directory to ensure that it can be accessed and
-        written to.
+        Starts the test on the directory to ensure that it can be accessed
+        and written to.
 
         Args:
             location (str): The File Name or path to file.
             extension (str): The optional extension.
             directory (str): The directory rendered by appdirs
-            error (definitions.NoPath): The error to throw if no directory can
-                be found.
+            error (definitions.NoPath): The error to throw if no directory
+                can be found.
             message (str): The message paried with the raised error.
 
         Returns:
-            str: The assured directory and optional file name for the data.
+            str: The assured directory and optional file name for the
+                data.
         """
         file_name = self._make_filename(location, extension)
         try:
@@ -219,9 +227,9 @@ class FileHash(object):
 
     def __init__(self):
         """
-        A stream hashing utility! This utility is a simple wrapper around the
-        hashlib library. This utility can make a hash from any stream of data
-        that you hand it from md5 to sha512.
+        A stream hashing utility! This utility is a simple wrapper around
+        the hashlib library. This utility can make a hash from any stream
+        of data that you hand it from md5 to sha512.
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
@@ -315,8 +323,9 @@ class FileHash(object):
 
     def _stream_handle(self, stream, the_hash):
         """
-        The actual method that does the hashing, loads 4096 bit chunks into
-        memory to hash against until there is no data left.
+        The actual method that does the hashing, loads 4096 bit chunks
+        into memory to hash against until there is no data left.
+
         Args:
             stream (io.FileIO): The stream that holds the data that is
             to be hashed.
@@ -333,10 +342,13 @@ class FileHash(object):
         else:
             for chunk in iter(lambda: stream.read(4096), b""):
                 the_hash.update(chunk)
-            self._logger.warning("Stream " + stream.name + "is not seekable, "
-                                 "a crash is probably fixing to happen if the"
-                                 " application is expecting the handle to be "
-                                 " it left it.")
+
+            self._logger.warning(
+                "Stream " + stream.name + "is not seekable, a crash is "
+                "probably fixing to happen if the application is "
+                "expecting the handle to be  it left it."
+            )
+
         return the_hash
 
 
@@ -355,8 +367,8 @@ class DataSplit(object):
             array (numpy.ndarray):  The array that needs to be split.
             num_chunks (int): The number of arrays that are needed
         return:
-            list[numpy.ndarray]: The list of the number of arrays that need
-                to be split.
+            list[numpy.ndarray]: The list of the number of arrays that
+                needs to be split.
         """
 
         return numpy.array_split(array, num_chunks)
@@ -394,7 +406,8 @@ class DataSplit(object):
                 for key in the_dict[data]:
                     for index in range(num_chunks):
                         split_dict[index][data][key] = numpy.array_split(
-                            the_dict[data][key], num_chunks)[index]
+                            the_dict[data][key], num_chunks
+                        )[index]
 
         return split_dict
 
@@ -403,23 +416,25 @@ class ImportTools(object):
 
     def __init__(self):
         """
-        Simple little object that imports objects and packages for use by PyPWA
-        and its tools.
+        Simple little object that imports objects and packages for use by
+        PyPWA and its tools.
 
-        NOTE: ONLY LOAD IN TRUSTED CODE, MALICIOUS CODE CAN AND WILL DO HARM!
+        NOTE:
+            ONLY LOAD IN TRUSTED CODE, MALICIOUS CODE CAN AND WILL DO
+            HARM!
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
     def import_package(self, folder):
         """
-        Imports a package into the interpreter. Specifically folders with an
-        __init__.py should use this. This is useful for packages full of complex
-        plugins or many plugins.
+        Imports a package into the interpreter. Specifically folders with
+        an __init__.py should use this. This is useful for packages full
+        of complex plugins or many plugins.
 
         Args:
-            folder (str): The actual location of the folder that contains the
-                __init__.py that needs to be read in.
+            folder (str): The actual location of the folder that contains
+                the __init__.py that needs to be read in.
 
         Returns:
             module: The package that was loaded in from file.
@@ -429,14 +444,15 @@ class ImportTools(object):
 
     def import_object(self, file, object_name):
         """
-        Imports a single object from a single script or package. Helpful when
-        you are importing a single script file and you have an idea of what
-        you need from that script file.
+        Imports a single object from a single script or package. Helpful
+        when you are importing a single script file and you have an idea
+        of what you need from that script file.
 
         Args:
-            file (str): The file that needs to be imported from the directory.
-            object_name (str): The specific object that needs to be imported
-                from the file.
+            file (str): The file that needs to be imported from the
+                directory.
+            object_name (str): The specific object that needs to be
+                imported from the file.
 
         Returns:
             Whatever was inside the file that you want to extract.
@@ -477,7 +493,8 @@ class ImportTools(object):
     def _append_path(file):
         """
         Appends the path to the file or folder being imported to the
-        interpreters path so that it can find it when the importer calls for it.
+        interpreters path so that it can find it when the importer calls
+            for it.
 
         Args:
             file (str): The path to the file, absolute or relative.
