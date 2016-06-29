@@ -27,7 +27,7 @@ import logging
 import appdirs
 import numpy
 
-from PyPWA.configuratr import definitions
+from PyPWA.configurator import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
