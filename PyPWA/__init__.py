@@ -39,9 +39,9 @@ __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
 __license__ = "GPLv3"
 __email__ = "maj@jlab.org"
-__status__ = "development"
+__status__ = "beta"
 __maintainer__ = ["Mark Jones"]
-__version__ = "2.0.0b2"
+__version__ = "2.0.0-beta.3"
 
 VERSION = __version__
 STATUS = __status__

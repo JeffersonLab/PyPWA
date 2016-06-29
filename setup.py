@@ -18,10 +18,10 @@ from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
 __license__ = "MIT"
-__version__ = "2.0.0"
+__version__ = "2.0.0-beta.2"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Beta0.0.2"
+__status__ = "beta"
 
 
 setup(
