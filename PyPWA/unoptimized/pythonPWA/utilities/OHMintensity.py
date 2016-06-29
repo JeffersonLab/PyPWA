@@ -8,8 +8,8 @@
 
 """
 import numpy
-from pythonPWA.model.complexV import complexV
-from pythonPWA.model.spinDensity import spinDensity
+from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
+from PyPWA.unoptimized.pythonPWA.model.spinDensity import spinDensity
 
 
 class intensity(object):

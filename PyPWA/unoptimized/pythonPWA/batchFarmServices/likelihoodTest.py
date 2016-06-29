@@ -16,12 +16,13 @@ import numpy
 import os
 import sys
 import fileinput
-sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
-from pythonPWA.fileHandlers.getWavesGen import getwaves
-from batchFarmServices.fast_like import FASTLikelihood
-from batchFarmServices.rhoAA import rhoAA
-import fnGenerator
-from iminuit import Minuit
+
+from PyPWA.unoptimized.pythonPWA.fileHandlers.getWavesGen import getwaves
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.fast_like import \
+    FASTLikelihood
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.rhoAA import rhoAA
+from PyPWA.unoptimized.pythonPWA.batchFarmServices import fnGenerator
+
 
 indir = sys.argv[2]
 Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))

@@ -9,9 +9,9 @@
 """
 import numpy
 from math import log 
-from pythonPWA.model.complexV import complexV
-from pythonPWA.model.spinDensity import spinDensity
-from pythonPWA.model.intensity import intensity
+from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
+from PyPWA.unoptimized.pythonPWA.model.spinDensity import spinDensity
+from PyPWA.unoptimized.pythonPWA.model.intensity import intensity
 from random import random
 
 class likelihood(object):
@@ -40,9 +40,9 @@ class likelihood(object):
             for resonance1 in self.resonances:
                 for resonance2 in self.resonances:
                     for wave1 in self.waves:
-						for wave2 in self.waves:
-							if len(self.productionAmplitudes)!=0:
-								ret+=log(self.productionAmplitudes[self.waves.index(wave1)]*numpy.conjugate(self.productionAmplitudes[self.waves.index(wave2)])*wave1.complexamplitudes[eventNumber]*numpy.conjugate(wave2.complexamplitudes[eventNumber])*spinDensity(self.beamPolarization,self.alphaList[eventNumber])[wave1.epsilon,wave2.epsilon])
+                        for wave2 in self.waves:
+                            if len(self.productionAmplitudes)!=0:
+                                ret+=log(self.productionAmplitudes[self.waves.index(wave1)]*numpy.conjugate(self.productionAmplitudes[self.waves.index(wave2)])*wave1.complexamplitudes[eventNumber]*numpy.conjugate(wave2.complexamplitudes[eventNumber])*spinDensity(self.beamPolarization,self.alphaList[eventNumber])[wave1.epsilon,wave2.epsilon])
         return ret
 
 
@@ -63,8 +63,8 @@ class likelihood(object):
     #This calculates only the sums in the right term
     def calcSigmaN(self,mass,eventNumber):
         reN=numpy.complex(0,0)
-        for resonance1 in self.resonances:
-            for resonance2 in self.resonances:
+#        for resonance1 in self.resonances:
+#            for resonance2 in self.resonances:
         for wave1 in self.waves:
             for wave2 in self.waves:
                 if len(self.productionAmplitudes)!=0:
@@ -79,4 +79,3 @@ class likelihood(object):
     def calcneglnL(self, mass, eventNumber, pathA, pathG):
         return -(self.calclogI(mass,eventNumber)) + self.calcN(pathA,pathG,mass,eventNumber)
 
-                                        

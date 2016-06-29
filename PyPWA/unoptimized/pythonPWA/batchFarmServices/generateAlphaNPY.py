@@ -8,10 +8,10 @@
 
 """ 
 import os, sys, numpy
-sys.path.append(os.path.join(sys.argv[4],"pythonPWA"))
-from pythonPWA.utilities.ThreeVec import ThreeVector
-from pythonPWA.utilities.FourVec import FourVector
-from pythonPWA.fileHandlers.gampTranslator import gampTranslator
+from PyPWA.unoptimized.pythonPWA.utilities.ThreeVec import ThreeVector
+from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampTranslator import \
+    gampTranslator
 import math
 
 class generateAlphas(object):

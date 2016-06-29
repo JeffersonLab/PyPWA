@@ -4,11 +4,11 @@ Created on Thu Jun 26 13:48:01 2014
 
 @author: sbramlett
 """
-#import numbers
-import numpy as np
+
 import math
 class ThreeVector(object):
     vec = []
+
     def __init__(self, x = 0, y = 0, z = 0):
         if type(x) is not list:
             self.x = x
@@ -63,7 +63,7 @@ class ThreeVector(object):
             pvec = ThreeVector(px, py, pz)
             return pvec
        else:
-            print n
+            print( n)
             px = self.x * n
             py = self.y * n
             pz = self.z * n

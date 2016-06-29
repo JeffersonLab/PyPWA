@@ -11,8 +11,8 @@ import time
 import io
 import profile
 import numexpr as ne
-sys.path.append("/home/sbramlett/workspace/PythonPWA/bdemello/pythonPWA/pythonPWA/pythonPWA")
-from fileHandlers.gampReader import gampReader
+
+from PyPWA.unoptimized.fileHandlers.gampReader import gampReader
 
 
 ne.set_num_threads(4)
@@ -20,10 +20,10 @@ class gampSlist(object):
     def __init__(self, indir, gfile):
         self.indir = indir
         self.gfile = gfile
-        print time.time()
+        print( time.time())
         igreader=gampReader(gampFile = open(os.path.join(indir,gfile),'r'))
         self.events = igreader.readGamp()
-        print time.time()
+        print( time.time())
         self.eventslist = []
     def generate(self):
         for event in self.events:
@@ -61,7 +61,7 @@ class gampSlist(object):
             #print slist
             #print
             self.eventslist.append(slist)
-        print time.time()
+        print(time.time())
         return self.eventslist
         
     def toFile(self, outputdir, outputFile):

@@ -11,9 +11,10 @@
 import numpy as np
 import math
 import os, sys
-sys.path.append(os.path.join(sys.argv[1],"pythonPWA"))
-from pythonPWA.utilities.FourVec import FourVector
-from pythonPWA.fileHandlers.gampTranslator import gampTranslator
+
+from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampTranslator import \
+    gampTranslator
 """
     This is the PyPWA mass binning utility that simulation/fitting install uses to bin .gamp files in mass. 
 """
@@ -43,7 +44,7 @@ class massBinner(object):
         self.gampT = gampTranslator(os.path.join(self.indir,self.gfile))
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             if self.verb == "v":
-                print "Starting translator, for",self.gfile
+                print( "Starting translator, for",self.gfile )
             self.gampList=self.gampT.translate(os.path.join(self.indir,self.nfile))
         elif os.path.isfile(os.path.join(self.indir,self.nfile)):
             self.gampList=np.load(os.path.join(self.indir,self.nfile))
@@ -99,7 +100,7 @@ class massBinner(object):
         """
         
         if self.verb == "v":
-            print "\nStarting binner"
+            print("\nStarting binner")
         self.binner()
         if os.path.isfile(self.Qfile) and direct == "data":
             Qlist = np.loadtxt(self.Qfile)
@@ -116,9 +117,13 @@ class massBinner(object):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
                     if self.verb == "v" and b ==0:
-                        print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
+                        print("\nWriting "+str(int(self.Control[2]) + (b *
+                                                                       int(
+                                                                           self.Control[4])))+"_MeV"+" directories.")
                     if self.verb == "v" and b !=0:
-                        print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."
+                        print( "Writing "+str(int(self.Control[2]) + (b *
+                                                                      int(
+                                                                          self.Control[4])))+"_MeV"+" directories.")
             elif "simulation" in self.bindir:
                 if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))                    
@@ -128,9 +133,12 @@ class massBinner(object):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","acc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","raw"))
                     if self.verb == "v" and b ==0:
-                        print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
+                        print("\nWriting "+str(int(self.Control[2]) + (b *
+                                                                       int(
+                                                                           self.Control[4])))+"_MeV"+" directories." )
                     if self.verb == "v" and b !=0:
-                        print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."          
+                        print("Writing "+str(int(self.Control[2]) + (b * int(
+                            self.Control[4])))+"_MeV"+" directories.")
         if os.path.isfile(self.Qfile) and direct == "data":
             totNum = 0
             for r in range(self.nBins):
@@ -147,10 +155,13 @@ class massBinner(object):
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
                     nF.write(str(num))
                 if num == 0 or self.verb == "v":
-                    print direct , str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV" , "has" , str(num) , "events."
+                    print(direct , str(int(self.Control[2]) + (r * int(
+                        self.Control[4])))+"_MeV" , "has" , str(num) ,
+                          "events.")
             excluded = self.gampList.shape[0]-totNum
             if self.verb == "v" or excluded != 0:
-                print "Binning Complete, " + str(excluded) + " events not in range."
+                print("Binning Complete, " + str(excluded) + " events not in "
+                                                             "range.")
         elif os.path.isfile(self.pFfile) and direct == "flat":
             totNum = 0
             for r in range(self.nBins):
@@ -167,10 +178,13 @@ class massBinner(object):
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
                     nF.write(str(num))
                 if num == 0 or self.verb == "v":
-                    print direct , str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV" , "has" , str(num) , "events."
+                    print(direct , str(int(self.Control[2]) + (r * int(
+                        self.Control[4])))+"_MeV" , "has" , str(num) ,
+                          "events.")
             excluded = self.gampList.shape[0]-totNum
             if self.verb == "v" or excluded != 0:
-                print "Binning Complete, " + str(excluded) + " events not in range."
+                print("Binning Complete, " + str(excluded) + " events not in "
+                                                             "range.")
         else:
             totNum = 0
             for r in range(self.nBins):
@@ -185,10 +199,13 @@ class massBinner(object):
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
                     nF.write(str(num))
                 if num == 0 or self.verb == "v":
-                    print direct , str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV" , "has" , str(num) , "events."
+                    print( direct , str(int(self.Control[2]) + (r * int(
+                        self.Control[4])))+"_MeV" , "has" , str(num) ,
+                           "events.")
             excluded = self.gampList.shape[0]-totNum
             if self.verb == "v" or excluded != 0:
-                print "Binning Complete, " + str(excluded) + " events not in range."
+                print("Binning Complete, " + str(excluded) + " events not in " \
+                                                             "range.")
 
 if len(sys.argv)==4:
     mB = massBinner(indir=sys.argv[1],bindir=sys.argv[2],gfile=sys.argv[3])

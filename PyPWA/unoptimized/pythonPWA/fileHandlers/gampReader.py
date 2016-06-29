@@ -11,8 +11,8 @@ import sys
 import os
 
 
-from pythonPWA.dataTypes.gampParticle import gampParticle
-from pythonPWA.dataTypes.gampEvent import gampEvent
+from PyPWA.unoptimized.pythonPWA.dataTypes.gampParticle import gampParticle
+from PyPWA.unoptimized.pythonPWA.dataTypes.gampEvent import gampEvent
 
 class gampReader():
     """

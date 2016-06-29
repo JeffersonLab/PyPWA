@@ -83,5 +83,5 @@ if __name__ == '__main__':
     bot = int(Control[3])
     ran = int(Control[4])
     for i in range(top,bot+ran,ran):
-        print "Processing bin",i
+        print( "Processing bin",i)
         submit(gen(str(i)+"_MeV",parseDir(i)))

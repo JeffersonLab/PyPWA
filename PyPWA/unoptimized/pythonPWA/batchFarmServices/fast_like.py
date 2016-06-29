@@ -10,7 +10,7 @@
 
 import numpy as np
 import os
-from pythonPWA.model.complexV import complexV
+from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
 
 class FASTLikelihood(object):
     """
@@ -107,7 +107,7 @@ class FASTLikelihood(object):
         self.productionAmplitudes=paramsList
         self.calcetaX()
         LLog = self.calclnL()    
-        print"LLog:",LLog        
+        print("LLog:",LLog)
         return LLog
     
 

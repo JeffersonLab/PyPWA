@@ -7,8 +7,8 @@ Created on Mon Jun 23 10:15:05 2014
 
 from random import random
 import os
-from pythonPWA.fileHandlers.gampReader import gampReader
-from pythonPWA.model.intensity import intensity
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampReader import gampReader
+from PyPWA.unoptimized.pythonPWA.model.intensity import intensity
 
 
 class dataSimulator(object):

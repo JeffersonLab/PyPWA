@@ -8,8 +8,8 @@
 
 """
 import numpy
-from pythonPWA.model.complexV import complexV
-from pythonPWA.model.spinDensity import spinDensity
+from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
+from PyPWA.unoptimized.pythonPWA.model.spinDensity import spinDensity
 
 class intensity(object):
     """
@@ -74,16 +74,16 @@ class intensity(object):
                                    self.testValues.append([self.waves.index(wave1),self.waves.index(wave2),self.resonances.index(resonance1),self.resonances.index(resonance2),complexV(resonance1,wave1,self.waves,self.normint,mass),complexV(resonance2,wave2,self.waves,self.normint,mass),complexV(resonance1,wave1,self.waves,self.normint,mass)*numpy.conjugate(complexV(resonance2,wave2,self.waves,self.normint,mass))*wave1.complexamplitudes[eventNumber]*numpy.conjugate(wave2.complexamplitudes[eventNumber])*spinDensity(self.beamPolarization,self.alphaList[eventNumber])[wave1.epsilon,wave2.epsilon],wave1.complexamplitudes[eventNumber],wave2.complexamplitudes[eventNumber]]) 
         if self.testWriting==1:
             for items in self.testValues:
-                print"="*10
-                print"wave1",items[0]
+                print("="*10)
+                print("wave1",items[0])
                 
-                print"wave2",items[1]
-                print"resonance1:",items[2]
-                print"resonance2:",items[3]
-                print"v1:",items[4]
-                print"v2:",items[5]
+                print("wave2",items[1])
+                print("resonance1:",items[2])
+                print("resonance2:",items[3])
+                print("v1:",items[4])
+                print("v2:",items[5])
                 
-                print"amplitude1:",items[7]
-                print"amplitude2:",items[8]
-                print"term:",items[6]
+                print("amplitude1:",items[7])
+                print("amplitude2:",items[8])
+                print("term:",items[6])
         return ret

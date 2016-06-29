@@ -88,7 +88,7 @@ TIME: {time}
 COMMAND: {cmd}
         '''.format(**auger_opts))    
                 jsub_file.close()
-                print jsub_filename
+                print(jsub_filename)
                 submit(jsub_filename)
                 #os.remove(jsub_filename)
                 i += 1

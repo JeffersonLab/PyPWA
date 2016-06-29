@@ -25,4 +25,4 @@ for d in os.listdir(os.path.join(topDir,"simulation")):
             iMax[0] = Max
 
 numpy.save(os.path.join(topDir,"simulation","iMax.npy"),iMax)
-print "DONE"
+print( "DONE")

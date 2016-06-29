@@ -9,8 +9,8 @@
 """
 from random import random
 
-from pythonPWA.fileHandlers.gampReader import gampReader
-from pythonPWA.model.intensity import intensity
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampReader import gampReader
+from PyPWA.unoptimized.pythonPWA.model.intensity import intensity
 
 
 class dataSimulator(object):

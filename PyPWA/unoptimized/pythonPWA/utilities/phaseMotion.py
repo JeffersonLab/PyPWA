@@ -50,8 +50,8 @@ def phaseDifference(waves,vList,waveName1,waveName2):
     
     #checking to make sure that filenames are valid
     if index1==None:
-        print"File name 1 not found"
+        print("File name 1 not found")
     if index2==None:
-        print"File name 2 not found"
+        print("File name 2 not found")
         
     return deltaPhi(complexes[index1],complexes[index2])

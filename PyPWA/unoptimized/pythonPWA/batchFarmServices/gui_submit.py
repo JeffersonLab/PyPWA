@@ -67,8 +67,8 @@ def parseDir(directory):
 
 def All(list):
     for d in sorted(os.listdir(os.path.join(os.getcwd(),"MC"))):
-        if not d.isalpha():  		
-	    list.extend([str(d)])
+        if not d.isalpha():
+            list.extend([str(d)])
 
 def Clear(list):
     del list[0:len(list)]
@@ -101,22 +101,22 @@ class Application(tk.Frame):
                 if int(d.strip("_MeV")) < 1520: 
                     add = tk.Button(frame)
                 add["text"] = "add "+str(d)
-            	add["command"] = lambda d=d: submitted.extend([str(d)])
-            	add.pack(side = "top", fill = "both")
+                add["command"] = lambda d=d: submitted.extend([str(d)])
+                add.pack(side = "top", fill = "both")
         for d in sorted(os.listdir(os.path.join(os.getcwd(),"MC"))):
             if not d.isalpha():
                 if int(d.strip("_MeV")) > 1500 and int(d.strip("_MeV")) < 2020: 
                     add = tk.Button(frame1)
-     	        add["text"] = "add "+str(d)
-     	        add["command"] = lambda d=d: submitted.extend([str(d)])
-     	        add.pack(side = "top", fill = "both")	
+                add["text"] = "add "+str(d)
+                add["command"] = lambda d=d: submitted.extend([str(d)])
+                add.pack(side = "top", fill = "both")
         for d in sorted(os.listdir(os.path.join(os.getcwd(),"MC"))):
             if not d.isalpha():
                 if int(d.strip("_MeV")) > 2000 and int(d.strip("_MeV")) < 2520: 
                     add = tk.Button(frame2)
-            	add["text"] = "add "+str(d)
-            	add["command"] = lambda d=d: submitted.extend([str(d)])
-            	add.pack(side = "top", fill = "both")
+                add["text"] = "add "+str(d)
+                add["command"] = lambda d=d: submitted.extend([str(d)])
+                add.pack(side = "top", fill = "both")
       
         self.All = tk.Button(self, text="ALL", fg="purple", command=lambda: All(submitted))        
         self.Clear = tk.Button(self, text="CLEAR"+"\n"+"LIST", fg="red", command=lambda: Clear(submitted))
@@ -143,7 +143,7 @@ if __name__ == '__main__':
     A = str(raw_input("Submit these? (y/n) "))    
     if A.lower() == "y":		
         for d in submitted:
-            print "Processing bin",d
+            print("Processing bin",d)
             submit(gen(d,parseDir(d)))
     else:
         print("Terminated")

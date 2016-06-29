@@ -2,8 +2,8 @@ import re
 import itertools as it
 import os
 
-from pythonPWA.dataTypes.wave import wave
-from pythonPWA.fileHandlers.bampReader import readBamp
+from PyPWA.unoptimized.pythonPWA.dataTypes.wave import wave
+from PyPWA.unoptimized.pythonPWA.fileHandlers.bampReader import readBamp
 
 def getwaves(totalpath):
     """

@@ -11,18 +11,17 @@
 import numpy
 import os
 import sys
-sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
-from pythonPWA.dataTypes.resonance import resonance
-from pythonPWA.fileHandlers.getWavesGen import getwaves
-from pythonPWA.model.normInt import normInt
-from pythonPWA.model.intensity import intensity
-from pythonPWA.fileHandlers.gampReader import gampReader
-from pythonPWA.utilities.dataSimulator import dataSimulator
-from pythonPWA.model.nTrue import nTrueForFixedV1V2 as ntrue
-from pythonPWA.model.nTrue import nTrueForFixedV1V2AndWave as ntrueforwave
-from pythonPWA.model.nExpected import nExpForFixedV1V2 as nExp
-from pythonPWA.model.nExpected import nExpForFixedV1V2AndWave as nExpforwave
-from pythonPWA.model.nTrue import calcStatSquaredError
+from PyPWA.unoptimized.pythonPWA.dataTypes.resonance import resonance
+from PyPWA.unoptimized.pythonPWA.fileHandlers.getWavesGen import getwaves
+from PyPWA.unoptimized.pythonPWA.model.normInt import normInt
+from PyPWA.unoptimized.pythonPWA.model.intensity import intensity
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampReader import gampReader
+from PyPWA.unoptimized.pythonPWA.utilities.dataSimulator import dataSimulator
+from PyPWA.unoptimized.pythonPWA.model.nTrue import nTrueForFixedV1V2 as ntrue
+from PyPWA.unoptimized.pythonPWA.model.nTrue import nTrueForFixedV1V2AndWave as ntrueforwave
+from PyPWA.unoptimized.pythonPWA.model.nExpected import nExpForFixedV1V2 as nExp
+from PyPWA.unoptimized.pythonPWA.model.nExpected import nExpForFixedV1V2AndWave as nExpforwave
+from PyPWA.unoptimized.pythonPWA.model.nTrue import calcStatSquaredError
 import operator
 
 def calcNTrueForDir(dataDir): 
@@ -77,8 +76,8 @@ def calcNTrueForDir(dataDir):
         covarianceMatrix=numpy.load(os.path.join(dataDir,"minuitCovar3.npy"))
         statSquared=calcStatSquaredError(covarianceMatrix,rawNormInt,vList,waves)
         statSquaredEx=calcStatSquaredError(covarianceMatrix,accNormInt,vList,waves)
-        print statSquared
-        print statSquaredEx
+        print(statSquared)
+        print(statSquaredEx)
         errorList.append(numpy.sqrt(statSquared[0,0].real))
         errorListEx.append(numpy.sqrt(statSquaredEx[0,0].real))
     if not os.path.isfile(os.path.join(dataDir,"minuitCovar3.npy")):
@@ -113,7 +112,7 @@ def calcNTrueForDir(dataDir):
 
 retList=[]
 topDir = os.path.join(sys.argv[2],"fitting")
-print"processing", sys.argv[1]
+print("processing", sys.argv[1])
 ret=calcNTrueForDir(os.path.join(topDir,sys.argv[1]+"_MeV"))
 retList.append(ret)
 

@@ -8,8 +8,8 @@
 
 """
 import numpy
-from pythonPWA.model.magV import magV
-from pythonPWA.model.getPhi import getPhi
+from PyPWA.unoptimized.pythonPWA.model.magV import magV
+from PyPWA.unoptimized.pythonPWA.model.getPhi import getPhi
 
 def complexV(resonance,wave,waves,normint,mass):
     """

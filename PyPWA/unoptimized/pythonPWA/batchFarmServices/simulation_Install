@@ -8,7 +8,7 @@ from subprocess import Popen
     as well as all binning in mass as prescribed by the pwa_controls GUI. 
 """
 indir = os.path.split(os.path.split(os.getcwd())[0])[0]
-print "Top Directory: ",indir
+print( "Top Directory: ",indir )
 sys.path.append(os.path.join(indir,"pythonPWA"))
 if not os.path.isfile(os.path.join("Control_List.npy")):
     sp.call(os.path.abspath("pwa_controls"))
@@ -64,11 +64,11 @@ for g in guis:
 cmd = "mv "+indir+"/*.keyfile "+os.path.join(indir,"keyfiles")
 procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
 procx.wait()
-print "Filling keyfiles"
+print( "Filling keyfiles" )
 for fil in os.listdir(indir):
     if ".gamp" in fil:
         cmd = indir+"/scripts/massBinner2.py "+os.path.join(indir)+" "+os.path.join(indir,"simulation")+" "+str(fil).rstrip(".gamp")+" v"
         procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
         procx.wait()
     
-print "Welcome to PyPWA!\nYou are now ready to start Partial Wave Analysis!"
+print( "Welcome to PyPWA!\nYou are now ready to start Partial Wave Analysis!" )

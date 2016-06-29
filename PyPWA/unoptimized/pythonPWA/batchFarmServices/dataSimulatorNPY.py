@@ -9,9 +9,11 @@
 """
 from random import random
 import os, numpy
-from batchFarmServices.rhoAA import rhoAA
-from pythonPWA.fileHandlers.gampTranslator import gampTranslator
-from batchFarmServices.fast_like import FASTLikelihood
+
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampTranslator import \
+    gampTranslator
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.fast_like import \
+    FASTLikelihood
 
 class dataSimulator(object):
     """

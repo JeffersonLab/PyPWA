@@ -8,8 +8,8 @@ import sys
 import Tkinter as tk
 import itertools
 import argparse
-sys.path.append(os.path.join(os.getcwd().strip("GUI"),"pythonPWA"))
-from batchFarmServices.graphicHelp import Help
+
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.graphicHelp import Help
 class graphicPlot(object):
 
     def __init__(self,

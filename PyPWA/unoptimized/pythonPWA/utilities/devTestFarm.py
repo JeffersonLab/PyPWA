@@ -3,13 +3,13 @@ import os
 import sys
 sys.path.append("/u/home/jpond/bdemello/bdemello/pythonPWA/pythonPWA")
 
-from pythonPWA.dataTypes.resonance import resonance
-from pythonPWA.fileHandlers.getWavesGen import getwaves
-from pythonPWA.model.normInt import normInt
-from pythonPWA.model.intensity import intensity
-from pythonPWA.fileHandlers.gampReader import gampReader
+from PyPWA.unoptimized.pythonPWA.dataTypes.resonance import resonance
+from PyPWA.unoptimized.pythonPWA.fileHandlers.getWavesGen import getwaves
+from PyPWA.unoptimized.pythonPWA.model.normInt import normInt
+from PyPWA.unoptimized.pythonPWA.model.intensity import intensity
+from PyPWA.unoptimized.pythonPWA.fileHandlers.gampReader import gampReader
 #from pythonPWA.utilities.dataSimulator import dataSimulator
-from DataSimulatorFarm import dataSimulator
+from PyPWA.unoptimized.pythonPWA.utilities.dataSimulator import dataSimulator
 
 dataDir=os.path.join("/volatile","halld","pippimpi0","data",sys.argv[1]+"_MeV","set_"+sys.argv[2])
 

@@ -1,4 +1,4 @@
-from pythonPWA.utilities.minuitLikelihood import minuitLikelihood
+from PyPWA.unoptimized.pythonPWA.utilities.minuitLikelihood import minuitLikelihood
 import os
 
 class generator(object):

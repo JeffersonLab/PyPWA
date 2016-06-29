@@ -8,7 +8,7 @@
 
 """
 import numpy
-from pythonPWA.model.complexV import complexV
+from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
 
 def nTrue(resonances,waves,mass,normint):
     """
@@ -52,7 +52,7 @@ def nTrueForFixedV1V2(vList,waves,normint):
     for wave1 in waves:
         for wave2 in waves:
             psi=normint[wave1.epsilon,wave2.epsilon,waves.index(wave1),waves.index(wave2)]
-            print"psi:", psi
+            print("psi:", psi)
             ret+=vList[waves.index(wave1)]*numpy.conjugate(vList[waves.index(wave2)])*psi
     return ret.real
     

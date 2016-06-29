@@ -10,15 +10,15 @@
 import numpy
 import os
 import sys
-sys.path.append(os.path.join(sys.argv[2],"pythonPWA"))
-from pythonPWA.fileHandlers.getWavesGen import getwaves
-from batchFarmServices.dataSimulatorNPY import dataSimulator
-from pythonPWA.model.complexV import complexV
-from pythonPWA.dataTypes.resonance import resonance 
-from pythonPWA.model.nTrue import nTrue as ntrue
-from pythonPWA.model.nTrue import nTrueForWave as ntrueforwave
+
+from PyPWA.unoptimized.pythonPWA.fileHandlers.getWavesGen import getwaves
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.dataSimulatorNPY import \
+    dataSimulator
+from PyPWA.unoptimized.pythonPWA.dataTypes.resonance import resonance
+from PyPWA.unoptimized.pythonPWA.model.nTrue import nTrue as ntrue
+from PyPWA.unoptimized.pythonPWA.model.nTrue import nTrueForWave as ntrueforwave
 import operator
-from batchFarmServices.rhoAA import rhoAA
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.rhoAA import rhoAA
 """
     This is the main simualtion program for PyPWA simulation. It creates the iList and the simulated gamp files. It can do this using the 
     fitted V values or from the pre chosen waves and resonences. 

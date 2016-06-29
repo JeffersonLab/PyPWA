@@ -4,12 +4,12 @@ Created on Wed Jun 25 15:13:23 2014
 
 @author: sbramlett
 """
-from FourVec import FourVector
-from ThreeVec import ThreeVector
+from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
+from PyPWA.unoptimized.pythonPWA.utilities.ThreeVec import ThreeVector
 import numpy as np
 import sys, os
 #sys.path.append("/home/sbramlett/workspace/PythonPWA/bdemello/pythonPWA/pythonPWA/pythonPWA/utilities")
-from rotation import rotation
+from PyPWA.unoptimized.pythonPWA.utilities.rotation import rotation
 '''
 can be called 3 ways
 1. with a FourVector

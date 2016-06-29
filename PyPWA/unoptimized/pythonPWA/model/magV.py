@@ -8,7 +8,7 @@
 
 """
 import numpy
-from pythonPWA.utilities.breitWigner import breitWigner
+from PyPWA.unoptimized.pythonPWA.utilities.breitWigner import breitWigner
 
 def magV(mass,resonance,wave,waves,normint):
     """

@@ -6,9 +6,7 @@
 .. moduleauthor:: Joshua Pond <jpond@jlab.org>
 
 
-""" 
-from pythonPWA.utilities.minuitLikelihood import minuitLikelihood
-import os
+"""
 
 class generator(object):
     def __init__(self):

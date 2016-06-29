@@ -1,5 +1,5 @@
 import numpy
-from pythonPWA.model.complexV import complexV
+
 
 def gampLen(path):
     ins = open(path)

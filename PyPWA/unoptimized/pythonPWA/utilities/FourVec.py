@@ -26,7 +26,7 @@ print P4
 P5 = P2 * P1 
 print P5
 """
-from ThreeVec import ThreeVector
+from PyPWA.unoptimized.pythonPWA.utilities.ThreeVec import ThreeVector
 #import LorentzTransform
 
 class FourVector(object):

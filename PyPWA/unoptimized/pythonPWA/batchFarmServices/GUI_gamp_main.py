@@ -91,7 +91,7 @@ MEMORY: {memory}
 COMMAND: {cmd}
     '''.format(**auger_opts))    
                 jsub_file.close()
-                print jsub_filename
+                print(jsub_filename)
                 #if not os.path.isfile(os.path.join(path,os.path.basename(keyfile)).replace('.keyfile','.bamp')):
                 submit(jsub_filename)
                 #os.remove(jsub_filename)                    

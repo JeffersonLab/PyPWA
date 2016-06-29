@@ -9,7 +9,7 @@
 """
 import numpy
 import os
-from pythonPWA.model.spinDensity import spinDensity
+from PyPWA.unoptimized.pythonPWA.model.spinDensity import spinDensity
 
 class normInt():
     """

@@ -39,7 +39,7 @@ if os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
                         proc.wait()                    
             sys.stdout.write(d.rstrip("_MeV")+"\r")
             sys.stdout.flush()
-    print "DONE    "
+    print( "DONE    ")
 elif os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
     for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
         if "_MeV" in d:
@@ -51,4 +51,4 @@ elif os.path.isdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
             proc.wait()                                    
             sys.stdout.write(d.rstrip("_MeV")+"\r")
             sys.stdout.flush()
-    print "DONE    "
+    print( "DONE    ")

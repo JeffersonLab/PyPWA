@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+
 import os
 import numpy,sys
 import subprocess as sp
@@ -8,7 +8,7 @@ from subprocess import Popen
     as well as all binning in mass as prescribed by the pwa_controls GUI. 
 """
 indir = os.path.split(os.path.split(os.getcwd())[0])[0]
-print "Top Directory: ",indir
+print( "Top Directory: ",indir )
 sys.path.append(os.path.join(indir,"pythonPWA"))
 if not os.path.isfile(os.path.join("Control_List.npy")):
     sp.call(os.path.abspath("pwa_controls"))
@@ -64,7 +64,7 @@ for g in guis:
 cmd = "mv "+indir+"/*.keyfile "+os.path.join(indir,"keyfiles")
 procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
 procx.wait()
-print "Filling keyfiles"
+print( "Filling keyfiles")
 Waves = ["wave"+str(i) for i in range(len(os.listdir(os.path.join(indir,"keyfiles"))))]
 if len(Waves) > 0:
     minInit = open(os.path.join(indir,"scripts","minInit.txt"),"w+")
@@ -79,4 +79,4 @@ for fil in os.listdir(indir):
         procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
         procx.wait()
     
-print "Welcome to PyPWA!\nYou are now ready to start Partial Wave Analysis!"
+print("Welcome to PyPWA!\nYou are now ready to start Partial Wave Analysis!")

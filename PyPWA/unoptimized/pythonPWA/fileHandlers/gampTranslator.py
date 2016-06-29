@@ -12,8 +12,8 @@ import sys
 import os
 import numpy
 import fileinput
-from pythonPWA.dataTypes.gampParticle import gampParticle
-from pythonPWA.dataTypes.gampEvent import gampEvent
+from PyPWA.unoptimized.pythonPWA.dataTypes.gampParticle import gampParticle
+from PyPWA.unoptimized.pythonPWA.dataTypes.gampEvent import gampEvent
 class gampTranslator():
     """
     This class is a convience class used to convert a gamp .txt file into a 3 demensional numpy ndarray saved in numpy's .npy file format

@@ -12,10 +12,10 @@ import numpy as np
 import math
 import fileinput
 import os, sys
-sys.path.append(os.path.join(sys.argv[1],"pythonPWA"))
-from pythonPWA.utilities.FourVec import FourVector
-from pythonPWA.dataTypes.gampParticle import gampParticle
-from pythonPWA.dataTypes.gampEvent import gampEvent
+
+from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
+from PyPWA.unoptimized.pythonPWA.dataTypes.gampParticle import gampParticle
+from PyPWA.unoptimized.pythonPWA.dataTypes.gampEvent import gampEvent
 #from pythonPWA.fileHandlers.gampTranslator import gampTranslator
 """
     This is the PyPWA mass binning utility that simulation/fitting install uses to bin .gamp files in mass. 
@@ -101,7 +101,7 @@ class massBinner(object):
         """
         
         if self.verb == "v":
-            print "Starting binner"
+            print( "Starting binner")
         if os.path.isfile(self.Qfile) and direct == "data":
             Qlist = np.loadtxt(self.Qfile)
         elif os.path.isfile(self.pFfile) and direct == "flat":
@@ -117,9 +117,12 @@ class massBinner(object):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
                     if self.verb == "v" and b ==0:
-                        print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
+                        print("\nWriting "+str(int(self.Control[2]) + (b *
+                                                                       int(
+                                                                           self.Control[4])))+"_MeV"+" directories." )
                     if self.verb == "v" and b !=0:
-                        print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."
+                        print("Writing "+str(int(self.Control[2]) + (b * int(
+                            self.Control[4])))+"_MeV"+" directories.")
             elif "simulation" in self.bindir:
                 if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))                    
@@ -129,9 +132,12 @@ class massBinner(object):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","acc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","raw"))
                     if self.verb == "v" and b ==0:
-                        print "\nWriting "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories." 
+                        print("\nWriting "+str(int(self.Control[2]) + (b *
+                                                                        int(
+                                                                            self.Control[4])))+"_MeV"+" directories." )
                     if self.verb == "v" and b !=0:
-                        print "Writing "+str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"+" directories."          
+                        print("Writing "+str(int(self.Control[2]) + (b * int(
+                            self.Control[4])))+"_MeV"+" directories.")
         if os.path.isfile(self.Qfile) and direct == "data":
             nums = np.zeros(shape=[self.nBins])
             numFiles = [open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") for r in range(self.nBins)]
@@ -180,10 +186,13 @@ class massBinner(object):
                 binFiles[k].close()
                 QFiles[k].close()
                 if nums[k] == 0 or self.verb == "v":
-                    print direct , str(int(self.Control[2]) + (k * int(self.Control[4])))+"_MeV" , "has" , str(nums[k]) , "events."
+                    print(direct , str(int(self.Control[2]) + (k * int(
+                        self.Control[4])))+"_MeV" , "has" , str(nums[k]) ,
+                          "events.")
             excluded = n-nums.sum(0)
             if self.verb == "v" or excluded != 0:
-                print "Binning Complete, " + str(excluded) + " events not in range."
+                print("Binning Complete, " + str(excluded) + " events not in "
+                                                             "range.")
         elif os.path.isfile(self.pFfile) and direct == "flat":
             nums = np.zeros(shape=[self.nBins])
             numFiles = [open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") for r in range(self.nBins)]
@@ -232,10 +241,13 @@ class massBinner(object):
                 binFiles[k].close()
                 pfFiles[k].close()
                 if nums[k] == 0 or self.verb == "v":
-                    print direct , str(int(self.Control[2]) + (k * int(self.Control[4])))+"_MeV" , "has" , str(nums[k]) , "events."
+                    print(direct , str(int(self.Control[2]) + (k * int(
+                        self.Control[4])))+"_MeV" , "has" , str(nums[k]) ,
+                          "events.")
             excluded = n-nums.sum(0)
             if self.verb == "v" or excluded != 0:
-                print "Binning Complete, " + str(excluded) + " events not in range."
+                print("Binning Complete, " + str(excluded) + " events not in " \
+                                                             "range.")
         else:
             nums = np.zeros(shape=[self.nBins])
             numFiles = [open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") for r in range(self.nBins)]
@@ -281,10 +293,13 @@ class massBinner(object):
                 numFiles[k].close()
                 binFiles[k].close()
                 if nums[k] == 0 or self.verb == "v":
-                    print direct , str(int(self.Control[2]) + (k * int(self.Control[4])))+"_MeV" , "has" , str(nums[k]) , "events."
+                    print(direct , str(int(self.Control[2]) + (k * int(
+                        self.Control[4])))+"_MeV" , "has" , str(nums[k]) ,
+                          "events.")
             excluded = n-nums.sum(0)
             if self.verb == "v" or excluded != 0:
-                print "Binning Complete, " + str(excluded) + " events not in range."
+                print("Binning Complete, " + str(excluded) + " events not in "
+                                                             "range.")
 
 if len(sys.argv)==4:
     mB = massBinner(indir=sys.argv[1],bindir=sys.argv[2],gfile=sys.argv[3])

@@ -29,14 +29,15 @@ def getDeltaPhis(V, l, ref, sdir):
     #first make sure V is a dictionary and if it isn't, make it one
     if type(V) != dict:
         V = V[()]
-    print V
+    print( V)
     #make sure l is a numpy matrix
     if type(l) != np.matrix:
         l = np.asmatrix(l)
 
     n = len(V) 
     if n%2 != 0:
-        print "Error in Vvalues size: need real and imaginary part for all waves."
+        print( "Error in Vvalues size: need real and imaginary part for all "
+               "waves.")
         sys.exit()
      
     #set v_1 from the reference wave
@@ -131,11 +132,12 @@ def getDPhis(V, ref, sdir):
     
     if type(V) != dict:
         V = V[()]
-    print V
+    print(V)
     n = len(V)
     phi = dict()
     if n%2 != 0:
-        print "Error in Vvalues size: need real and imaginary part for all waves."
+        print("Error in Vvalues size: need real and imaginary part for all "
+              "waves.")
         sys.exit()
         
     num = 0
@@ -200,7 +202,8 @@ def generateDeltaPhis(datadir):
                     getDPhis(Vvalues, j, datadir +"/"+str(i)+"_MeV/")
                 
         else:
-            print "Could not find Vvalues.npy in " + "/" + str(datadir)+"/" +str(i)+"_MeV/, skipping..."
+            print("Could not find Vvalues.npy in " + "/" + str(datadir)+"/"
+                  +str(i)+"_MeV/, skipping...")
             
         
 

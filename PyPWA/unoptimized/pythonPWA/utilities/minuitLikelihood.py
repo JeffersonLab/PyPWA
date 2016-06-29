@@ -7,12 +7,12 @@
 
 
 """
-from pythonPWA.utilities.chunks import chunks
+from PyPWA.unoptimized.pythonPWA.utilities.chunks import chunks
 import numpy
 from math import log 
-from pythonPWA.model.complexV import complexV
-from pythonPWA.model.spinDensity import spinDensity
-from pythonPWA.model.intensity import intensity
+from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
+from PyPWA.unoptimized.pythonPWA.model.spinDensity import spinDensity
+from PyPWA.unoptimized.pythonPWA.model.intensity import intensity
 from random import random
 
 import os
@@ -90,14 +90,18 @@ class minuitLikelihood(object):
                         argret+=arg
             argret=argret.real
             if self.debugPrinting==1:                        
-                print"loop#",n,"="*10
-                print"argval:",arg
-                print"argtype:",type(arg)
-                print"productionAmps1:",self.productionAmplitudes[self.waves.index(wave1)]
-                print"productionAmps2*:",numpy.conjugate(self.productionAmplitudes[self.waves.index(wave2)])
-                print"spinDensityValue:",spinDensity(self.beamPolarization,self.alphaList[n])[wave1.epsilon,wave2.epsilon]
-                print"A1:",wave1.complexamplitudes[n]                        
-                print"A2*:",numpy.conjugate(wave2.complexamplitudes[n])
+                print("loop#",n,"="*10)
+                print("argval:",arg)
+                print("argtype:",type(arg))
+                print("productionAmps1:",self.productionAmplitudes[
+                    self.waves.index(wave1)])
+                print("productionAmps2*:",numpy.conjugate(
+                    self.productionAmplitudes[self.waves.index(wave2)]))
+                print("spinDensityValue:",spinDensity(self.beamPolarization,
+                                                      self.alphaList[n])[
+                    wave1.epsilon,wave2.epsilon])
+                print("A1:",wave1.complexamplitudes[n])
+                print("A2*:",numpy.conjugate(wave2.complexamplitudes[n]))
             if argret > 0.:                        
                 ret+=log(argret)
             
@@ -184,5 +188,5 @@ class minuitLikelihood(object):
 
         #self.productionAmplitudes=[numpy.complex(wave1Re,wave1Im),numpy.complex(wave2Re,wave2Im)]
         LLog =  -(self.calclogI()) + self.calcN()      
-        print"LLog:",LLog        
+        print("LLog:",LLog)
         return LLog
