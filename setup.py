@@ -16,12 +16,12 @@
 
 from setuptools import setup, find_packages
 
-__author__ = "Mark Jones"
+__author__ = ["Mark Jones", "Joshua Pond"]
 __license__ = "MIT"
-__version__ = "2.0.0"
+__version__ = "2.1.0-alpha.1"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Beta0.0.2"
+__status__ = "pre-alpha"
 
 
 setup(
@@ -56,7 +56,7 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest', "pytest-cov", "pytest-logging"],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 2 - Pre-Alpha",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
