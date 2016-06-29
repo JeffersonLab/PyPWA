@@ -1,5 +1,25 @@
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+A Minor rewrite of GampMasker
+"""
+
+
 import argparse
-import builtins
 import os
 import sys
 import fileinput
@@ -13,104 +33,115 @@ from PyPWA import VERSION, STATUS, LICENSE
 
 __author__ = ["Joshua Pond"]
 __credits__ = ["Joshua Pond", "Mark Jones"]
-__license__ = LICENSE
 __maintainer__ = ["Mark Jones"]
-__status__ = STATUS
-__version__ = VERSION
 __email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class GampMasker (object):
 
     def __init__(self, file=None, pf_file=None, wn_file=None):
 
-        self.File=file
-        if "gamp" in self.File:
-            self.gampT = gampTranslator(self.File)
-            if not os.path.isfile(self.File.rstrip(".gamp")+".npy"):
-                numpy.save(self.File.rstrip(".gamp")+".npy",self.gampT.translate(self.File.rstrip(".gamp")+".npy"))
-            self.gampList=numpy.load(self.File.rstrip(".gamp")+".npy")
-        elif "txt" in self.File:
+        self.file = file
+        if "gamp" in self.file:
+            self.gamp_translator = gampTranslator(self.file)
+            if not os.path.isfile(self.file.rstrip(".gamp") + ".npy"):
+                numpy.save(
+                    self.file.rstrip(".gamp") + ".npy",
+                    self.gamp_translator.translate(
+                        self.file.rstrip(".gamp") + ".npy"
+                    )
+                )
+            self.gamp_list = numpy.load(self.file.rstrip(".gamp") + ".npy")
+        elif "txt" in self.file:
             pass
 
-        self.pfFile=pf_file
-        if os.path.isfile(self.pfFile):
-            self.pfList=numpy.loadtxt(self.pfFile)
+        self.pf_file = pf_file
+        if os.path.isfile(self.pf_file):
+            self.pf_list = numpy.loadtxt(self.pf_file)
         else:
-            self.pfList=[0]
+            self.pf_list = [0]
 
-        self.wnFile=wn_file
-        if os.path.isfile(self.wnFile):
-            self.wnList=numpy.load(self.wnFile)
+        self.wn_file = wn_file
+        if os.path.isfile(self.wn_file):
+            self.wn_list = numpy.load(self.wn_file)
         else:
-            self.wnList=[0]
+            self.wn_list = [0]
 
-    def maskPF(self):
-        with open(args.accepted_out,'w+')as pfOut:
-            if "gamp" in self.File:
-                n = 0
-                print(self.gampList.shape[0])
-                for n in range(self.gampList.shape[0]):
-                    pf_event = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(self.pfList[n])==1.0:
+    def mask_pf(self):
+        with open(args.accepted_out, 'w+')as pfOut:
+            if "gamp" in self.file:
+                print(self.gamp_list.shape[0])
+                for index in range(self.gamp_list.shape[0]):
+                    pf_event = self.gamp_translator.writeEvent(
+                        self.gamp_list[index, :, :]
+                    )
+                    if float(self.pf_list[index]) == 1.0:
                         pf_event.writeGamp(pfOut)
 
-            if "txt" in self.File:
-                n = 0
-                for line in fileinput.input([self.File]):
-                    if float(self.pfList[n])==1.0:
+            if "txt" in self.file:
+                for index, line in enumerate(fileinput.input([self.file])):
+                    if float(self.pf_list[index]) == 1.0:
                         pfOut.write(line)
-                    n += 1
 
-    def maskWN(self):
-        with open(args.weighted_out,'w+') as wnOut:
-            if "gamp" in self.File:
-                for n in range(self.gampList.shape[0]):
-                    wn_event = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(self.wnList[n])==1.0:
+    def mask_wn(self):
+        with open(args.weighted_out, 'w+') as wnOut:
+            if "gamp" in self.file:
+                for index in range(self.gamp_list.shape[0]):
+                    wn_event = self.gamp_translator.writeEvent(
+                        self.gamp_list[index, :, :]
+                    )
+                    if float(self.wn_list[index]) == 1.0:
                         wn_event.writeGamp(wnOut)
-            if "txt" in self.File:
-                n = 0
-                for line in fileinput.input([self.File]):
-                    if float(self.wnList[n])==1.0:
+            if "txt" in self.file:
+                for index, line in enumerate(fileinput.input([self.file])):
+                    if float(self.wn_list[index]) == 1.0:
                         wnOut.write(line)
-                    n += 1
 
-    def maskBoth(self):
-        with open(args.both_out,'w+') as btOut:
-            if "gamp" in self.File:
-                for n in range(self.gampList.shape[0]):
-                    bt_event = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
+    def mask_both(self):
+        with open(args.both_out, 'w+') as btOut:
+            if "gamp" in self.file:
+                for index in range(self.gamp_list.shape[0]):
+                    bt_event = self.gamp_translator.writeEvent(
+                        self.gamp_list[index, :, :]
+                    )
+                    if float(self.wn_list[index]) == 1.0 and \
+                       float(self.pf_list[index]) == 1.0:
                         bt_event.writeGamp(btOut)
-            if "txt" in self.File:
-                n = 0
-                for line in fileinput.input([self.File]):
-                    if float(self.wnList[n]) == 1.0 and float(self.pfList[n])==1.0:
+            if "txt" in self.file:
+                for index, line in enumerate(fileinput.input([self.file])):
+                    if float(self.wn_list[index]) == 1.0 and \
+                       float(self.pf_list[index]) == 1.0:
                         btOut.write(line)
-                    n += 1
 
-    def maskAny(self):
+    def mask_any(self):
 
         mask_list = numpy.loadtxt(
-            builtins.input("Where is the custom mask text file? ")
+            input("Where is the custom mask text file? ")
         )
 
-        with open(builtins.input("Where should the new file be saved? "),
-                'w+') as mkOut:
-            for n in range(self.gampList.shape[0]):
-                if "gamp" in self.File:
-                    mk_event = self.gampT.writeEvent(self.gampList[n,:,:])
-                    if float(mask_list[n]) == 1.0:
+        with open(input("Where should the new file be saved? "), 'w+') as mkOut:
+            for index in range(self.gamp_list.shape[0]):
+                if "gamp" in self.file:
+                    mk_event = self.gamp_translator.writeEvent(
+                        self.gamp_list[index, :, :]
+                    )
+                    if float(mask_list[index]) == 1.0:
                         mk_event.writeGamp(mkOut)
-                if "txt" in self.File:
-                    if float(self.mkList[n]) == 1.0:
-                        mk_event = self.gampList[n]
+                if "txt" in self.file:
+                    if float(mask_list[index]) == 1.0:
+                        mk_event = self.gamp_list[index]
                         for i in mk_event.keys():
                             if len(mk_event) > 1:
-                                mkOut.write(str(i)+"="+str(mk_event.pop(i))+",")
+                                mkOut.write(
+                                    str(i) + "=" + str(mk_event.pop(i)) + ","
+                                )
                             elif len(mk_event) == 1:
-                                mkOut.write(str(i)+"="+str(mk_event.pop(i))+"\n")
+                                mkOut.write(
+                                    str(i) + "=" + str(mk_event.pop(i)) + "\n"
+                                )
 
 
 parser = argparse.ArgumentParser(
@@ -168,37 +199,37 @@ parser.add_argument(
 
 args = parser.parse_args()
 
-gM = GampMasker(file=args.file,pf_file=args.acceptance_mask,
+gM = GampMasker(file=args.file, pf_file=args.acceptance_mask,
                 wn_file=args.weighted_mask)
 
 if args.acceptance_mask != "":
     if args.accepted_out != "":
         print("masking pf!")
-        gM.maskPF()
+        gM.mask_pf()
     else:
         print("Need a filepath to save new accepted file to.")
         sys.exit()
 
 
-gM = GampMasker(file=args.file,pf_file=args.acceptance_mask,
+gM = GampMasker(file=args.file, pf_file=args.acceptance_mask,
                 wn_file=args.weighted_mask)
 
 if args.weighted_mask != "":
     if args.weighted_out != "":
         print("masking wn!")
-        gM.maskWN()
+        gM.mask_wn()
     else:
         print("Need a filepath to save new weighted file to.")
         sys.exit()
 
-gM = GampMasker(file=args.file,pf_file=args.acceptance_mask,
+gM = GampMasker(file=args.file, pf_file=args.acceptance_mask,
                 wn_file=args.weighted_mask)
 
 if args.both_masks:
     if args.accepted_out != "":
         if args.weighted_out != "":
             print("masking both!")
-            gM.maskBoth()
+            gM.mask_both()
         else:
             print("Need a filepath to save new weighted file to.")
             sys.exit()
@@ -208,10 +239,9 @@ if args.both_masks:
         sys.exit()
 
 
-gM = GampMasker(file=args.file,pf_file=args.acceptance_mask,
+gM = GampMasker(file=args.file, pf_file=args.acceptance_mask,
                 wn_file=args.weighted_mask)
 
 if args.custom_mask:
     print("masking any!")
-    gM.maskAny()
-
+    gM.mask_any()
