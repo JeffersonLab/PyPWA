@@ -1,30 +1,49 @@
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
-
-
-""" 
 import Tkinter as tk
-import os, glob, shutil
-from subprocess import Popen
+
+import os
+import subprocess
+
+from PyPWA import LICENSE, STATUS, VERSION
+
+__author__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
+__credits__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
+__email__ = "maj@jlab.org"
+__maintainer__ = "Mark Jones"
+__license__ = LICENSE
+__status__ = STATUS
+__version__ = VERSION
 
 
-scriptOutDir=os.path.join(os.getcwd(),"subMCs")
-binSize=int(raw_input("bin width?: "))
-maxEvents=int(raw_input("max number of events?: "))
-i=int(raw_input("Enter i value: "))
+scriptOutDir = os.path.join(os.getcwd(), "subMCs")
+binSize = int(input("bin width?: "))
+maxEvents = int(input("max number of _events?: "))
+i = int(input("Enter i value: "))
 submitted = []
 
-def submit(jsub_file):
-    cmd = 'jsub '+str(jsub_file)
-    proc = Popen(cmd,
+
+def submit(jlab_submission_file):
+    cmd = 'jsub '+str(jlab_submission_file)
+    process = subprocess.Popen(cmd,
         shell = True,
         executable = os.environ.get('SHELL', '/bin/tcsh'),
         env = os.environ)
-    proc.wait()
+    process.wait()
     
 def gen(directory,cmd):
 
@@ -40,6 +59,7 @@ def gen(directory,cmd):
 
     jsub_filename = os.path.join(scriptOutDir,"subMC_"+directory)
     jsub_file = open(jsub_filename,'w')
+
     jsub_file.write('''\
 PROJECT:{project}
 TRACK:{track}
@@ -54,6 +74,7 @@ COMMAND:{cmd}
     jsub_file.close()
     return jsub_filename
 
+
 def parseDir(directory):
     Bin=directory.strip("_MeV")
     L=float(Bin)/1000.
@@ -61,17 +82,22 @@ def parseDir(directory):
     gampName=directory+".gamp"
     gampPath=os.path.join(os.getcwd(),"MC",directory,".")
 
-    cmd = "/home/salgado/TESTMC/gluex/MC.sh"+" "+str(L)+" "+str(U)+" "+gampName+" "+gampPath+" "+str(i)+" "+str(maxEvents)
+    cmd = "/home/salgado/TESTMC/gluex/MC.sh" + " " + str(L) + " " + str(
+        U) + " " + gampName + " " + gampPath + " " + str(i) + " "+str(
+        maxEvents)
 
     return cmd
+
 
 def All(list):
     for d in sorted(os.listdir(os.path.join(os.getcwd(),"MC"))):
         if not d.isalpha():
             list.extend([str(d)])
 
+
 def Clear(list):
     del list[0:len(list)]
+
 
 def Delete(list):
     del list[len(list)-1]    	
@@ -83,8 +109,6 @@ class Application(tk.Frame):
         self.parent = parent        
         self.pack()
         self.createWidgets()
-
-
 
     def createWidgets(self):
         frame = tk.Frame(self)
@@ -102,7 +126,7 @@ class Application(tk.Frame):
                     add = tk.Button(frame)
                 add["text"] = "add "+str(d)
                 add["command"] = lambda d=d: submitted.extend([str(d)])
-                add.pack(side = "top", fill = "both")
+                add.pack(side="top", fill="both")
         for d in sorted(os.listdir(os.path.join(os.getcwd(),"MC"))):
             if not d.isalpha():
                 if int(d.strip("_MeV")) > 1500 and int(d.strip("_MeV")) < 2020: 
@@ -118,12 +142,37 @@ class Application(tk.Frame):
                 add["command"] = lambda d=d: submitted.extend([str(d)])
                 add.pack(side = "top", fill = "both")
       
-        self.All = tk.Button(self, text="ALL", fg="purple", command=lambda: All(submitted))        
-        self.Clear = tk.Button(self, text="CLEAR"+"\n"+"LIST", fg="red", command=lambda: Clear(submitted))
-        self.Delete = tk.Button(self, text="DELETE"+"\n"+"LAST", fg="brown", command=lambda: Delete(submitted))	
-        self.Print = tk.Button(self, text="PRINT", fg="blue", command=lambda: text.insert("end","\n"+"i= "+str(i)+"\n"+str(submitted)))
-        self.Reset_Text = tk.Button(self, text="CLEAR"+"\n"+"TEXT", fg="orange", command=lambda: text.delete("0.0wordstart", "end"))
-        self.QUIT = tk.Button(self, text="DONE", fg="green", command=root.destroy)
+        self.All = tk.Button(
+            self, text="ALL", fg="purple", command=lambda: All(submitted)
+        )
+
+        self.Clear = tk.Button(
+            self, text="CLEAR"+"\n"+"LIST", fg="red",
+            command=lambda: Clear(submitted)
+        )
+
+        self.Delete = tk.Button(
+            self, text="DELETE"+"\n"+"LAST", fg="brown",
+            command=lambda: Delete(submitted)
+        )
+
+        self.Print = tk.Button(
+            self, text="PRINT", fg="blue",
+            command=lambda: text.insert(
+                "end","\n"+"i= "+str(i)+"\n"+str(submitted)
+            )
+        )
+
+        self.Reset_Text = tk.Button(
+            self, text="CLEAR"+"\n"+"TEXT", fg="orange",
+            command=lambda: text.delete("0.0wordstart", "end")
+        )
+
+        self.QUIT = tk.Button(
+            self, text="DONE", fg="green",
+            command=root.destroy
+        )
+
 
         self.All.pack(side = "left", fill = "both")       
         self.Delete.pack(side="left", fill = "both")
