@@ -12,7 +12,7 @@ import itertools as it
 import os
 
 from PyPWA.unoptimized.pythonPWA.dataTypes.wave import wave
-from PyPWA.unoptimized.pythonPWA.fileHandlers.bampReader import readBamp
+from PyPWA.unoptimized.pythonPWA.fileHandlers.bampReader import read_bamp
 import operator
 
 def getwaves(totalpath):
@@ -43,6 +43,6 @@ def getwaves(totalpath):
                 if files[-int(b)] == '+':
                     epsilon=1 
                     break
-            wavelist.append(wave(epsilon=epsilon,complexamplitudes=readBamp(os.path.join(totalpath,files)),filename=files))
+            wavelist.append(wave(epsilon=epsilon, complexamplitudes=read_bamp(os.path.join(totalpath, files)), filename=files))
     return sorted(wavelist,key=operator.attrgetter('filename'))
 
