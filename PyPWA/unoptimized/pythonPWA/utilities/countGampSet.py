@@ -1,6 +1,6 @@
 # TODO Figure out where numpyInitialGampList is defined.
 
-print( "events in initial gamp:", len(numpyInitialGampList))
+print( "_events in initial gamp:", len(numpyInitialGampList))
 
 initial=[]
 for initalGamp in numpyInitialGampList:
@@ -24,5 +24,5 @@ for rawGamp in numpyRawGampList:
     if rawGamp==None:
         raw.append(0)
 
-print("events in raw gamp:",len(rawEvents))
-print("events in accepted gamp:",len(acceptedEvents))
+print("_events in raw gamp:",len(rawEvents))
+print("_events in accepted gamp:",len(acceptedEvents))

@@ -1,7 +1,7 @@
 import os
 import numpy
 from PyPWA.unoptimized.pythonPWA.utilities.randM import randm
-from PyPWA.unoptimized.pythonPWA.fileHandlers.bampReader import readBamp
+from PyPWA.unoptimized.pythonPWA.fileHandlers.bampReader import read_bamp
 from PyPWA.unoptimized.pythonPWA.fileHandlers.gampReader import gampReader
 
 class generatePureWave():
@@ -18,7 +18,7 @@ class generatePureWave():
         Creates the weight file, gamp file, and acceptance mask for 
         specified wave.
         """
-        amps=readBamp(os.path.join(directory,ampFile+".bamp"))
+        amps=read_bamp(os.path.join(directory, ampFile + ".bamp"))
         nEvent=0
         wtMax=0.
         wtFile=os.path.join(directory,mcGamp+"."+ampFile+".wt")
@@ -37,7 +37,7 @@ class generatePureWave():
         print("Number of Events = ",nEvent,"\tMaximum weight=",wtMax)
         output.close()
         
-        print("select events")
+        print("select _events")
         fileBase=mcGamp
         inputGampFile=os.path.join(directory,fileBase+".gamp")
         inputPfFile=os.path.join(directory,fileBase+".pf")

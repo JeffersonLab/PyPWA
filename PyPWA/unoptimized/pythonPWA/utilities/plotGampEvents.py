@@ -1,4 +1,4 @@
-inputGampFile=open(os.path.join(dataDir,"events.gamp"),'r')
+inputGampFile=open(os.path.join(dataDir,"_events.gamp"),'r')
 initialGampList,rawGampList,accGampList=dSimulator.execute(inputGampFile,outputRawGampFile,outputAccGampFile,inputPfFile)
 numpyInitialGampList=numpy.array(initialGampList)
 numpyRawGampList=numpy.array(rawGampList)

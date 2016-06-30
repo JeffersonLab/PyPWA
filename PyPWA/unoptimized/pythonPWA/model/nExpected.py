@@ -35,7 +35,7 @@ def etaX(apath,rpath):
 
 def nExpForFixedV1V2(vList,waves,normint,apath,rpath):
     """
-    calculates the number of events for fitted v1 and v2 values.
+    calculates the number of _events for fitted v1 and v2 values.
     """
     ret=0.
     for wave1 in waves:
@@ -47,7 +47,7 @@ def nExpForFixedV1V2(vList,waves,normint,apath,rpath):
     
 def nExpForFixedV1V2AndWave(v,waves,wave,normint,apath,rpath):
     """
-    calculates the number of events for fitted v1 and v2 values for a specific
+    calculates the number of _events for fitted v1 and v2 values for a specific
     wave.
     """
     return etaX(apath,rpath)*v*numpy.conjugate(v)*normint[wave.epsilon,wave.epsilon,waves.index(wave),waves.index(wave)]

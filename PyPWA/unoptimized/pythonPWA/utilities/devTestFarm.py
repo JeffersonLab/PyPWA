@@ -39,8 +39,8 @@ normint=numpy.load(os.path.join(dataDir,"normint.npy"))
 
 dSimulator=dataSimulator(mass=testMass,waves=waves,resonances=resonances,normint=normint,alphaList=alphaList)
 
-inputGampFile=open(os.path.join(dataDir,"events.gamp"),'r')
-inputPfFile=open(os.path.join(dataDir,"events.pf"),'r')
+inputGampFile=open(os.path.join(dataDir,"_events.gamp"),'r')
+inputPfFile=open(os.path.join(dataDir,"_events.pf"),'r')
 outputRawGampFile=open(os.path.join(dataDir,"seq_raw_events.gamp"),'w')
 outputAccGampFile=open(os.path.join(dataDir,"selected_events.acc.gamp"),'w')
 

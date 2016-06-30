@@ -12,7 +12,7 @@ from PyPWA.unoptimized.pythonPWA.model.complexV import complexV
 
 def nTrue(resonances,waves,mass,normint):
     """
-    Returns the number of events for all resonances and waves for the specified mass and normalization integral.
+    Returns the number of _events for all resonances and waves for the specified mass and normalization integral.
     """
     ret=0.
     for resonance1 in resonances:
@@ -30,7 +30,7 @@ def nTrue(resonances,waves,mass,normint):
 
 def nTrueForWave(resonances,waves,wave,mass,normint):
     """
-    Returns the number of events for all resonances, for a specified wave out of the set of all waves, for the specified mass,
+    Returns the number of _events for all resonances, for a specified wave out of the set of all waves, for the specified mass,
     and for the nomalization integral.
     """
     ret=0.
@@ -46,7 +46,7 @@ def nTrueForWave(resonances,waves,wave,mass,normint):
     
 def nTrueForFixedV1V2(vList,waves,normint):
     """
-    calculates the number of events for fitted v1 and v2 values.
+    calculates the number of _events for fitted v1 and v2 values.
     """
     ret=0.
     for wave1 in waves:
@@ -58,7 +58,7 @@ def nTrueForFixedV1V2(vList,waves,normint):
     
 def nTrueForFixedV1V2AndWave(v,waves,wave,normint):
     """
-    calculates the number of events for fitted v1 and v2 values for a specific
+    calculates the number of _events for fitted v1 and v2 values for a specific
     wave.
     """
     return v*numpy.conjugate(v)*normint[wave.epsilon,wave.epsilon,waves.index(wave),waves.index(wave)]

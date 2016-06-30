@@ -10,7 +10,7 @@ import numpy
 def getPhi(mass,resonance):
     """
     Returns the value of Phi used in complex production amplitude calculation, and thus
-    number of events (nTrue.nTrue()), for a specified mass and resonance.
+    number of _events (nTrue.nTrue()), for a specified mass and resonance.
     
     Args:
     mass (float):
