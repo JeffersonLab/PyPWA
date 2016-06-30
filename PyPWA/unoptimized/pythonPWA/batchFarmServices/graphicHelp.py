@@ -69,7 +69,7 @@ Put 0
 
 The number of Migrad calls should be at least 1000, 
 but any more will depend on other factors, like 
-number of events and waves.
+number of _events and waves.
 
 Name of tested reaction should just be a quick title,
 possibly the same as the top directory of the project. 

@@ -144,15 +144,15 @@ class graphicPlot(object):
     def up_data(self):
         self.dataL = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.num"):
-                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/events.num"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/_events.num"):
+                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/_events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","data UPDATED")
 
     def up_sim(self):
         self.simL = []
         for d in self.ran:            
-            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/events.num"):                
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/_events.num"):
                 self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/rawDATA.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","sim UPDATED")
@@ -160,16 +160,16 @@ class graphicPlot(object):
     def up_accMC(self):
         self.accMC = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.num"):                
-                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/events.num"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/_events.num"):
+                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/_events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","accMC UPDATED")  
     
     def up_rawMC(self):
         self.rawMC = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.num"):                
-                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/events.num"))
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/_events.num"):
+                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/_events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","rawMC UPDATED")  
 

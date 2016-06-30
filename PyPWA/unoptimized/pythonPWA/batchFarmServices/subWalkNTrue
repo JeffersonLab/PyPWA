@@ -8,45 +8,56 @@
 
 
 """ 
-import os, glob, time, numpy
-from subprocess import Popen
+import os
+import time
+import subprocess
+
+import numpy
 
 indir = os.getcwd().strip("GUI")
 Control = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 scriptOutDir=os.path.join(indir,"scripts","submitions")
 
-def submit(jsub_file):
+
+def submit(jlab_submission_file):
     """
-    This function calls the JLab jsub command for a specific jsub .txt file created by this program. 
+    This function calls the JLab jsub command for a specific jsub .txt
+    file created by this program.
 
     Args:
-    jsub_file (string): The file name for the jsub file.
+        jlab_submission_file (string): The file name for the jsub file.
     """
-    cmd = 'jsub '+jsub_file
-    proc = Popen(cmd,
-        shell = True,
-        executable = os.environ.get('SHELL', '/bin/tcsh'),
-        env = os.environ)    
+    cmd = 'jsub ' + jlab_submission_file
+    subprocess.Popen(
+        cmd,
+        shell=True,
+        executable=os.environ.get('SHELL', '/bin/tcsh'),
+        env=os.environ
+    )
     time.sleep(.5)
 
-def gen(directory,cmd):
+
+def gen(directory, cmd):
     """
-    This function creates the jsub .txt file to be submitted to the JLab batch farm. 
+    This function creates the jsub .txt file to be submitted to the JLab
+    batch farm.
 
     Args:
-    directory (string): The file name for the jsub file.
-    cmd (string): The full command to be used in the jsub file. 
+        directory (string): The file name for the jsub file.
+        cmd (string): The full command to be used in the jsub file.
 
     Returns:
-    jsub_filename (string): name of the jsub file created by this function.
+        string: name of the jsub file created by this function.
     """
-    auger_opts = dict(
-                    project = Control[9],
-                    track = 'analysis',
-                    jobname = 'WalkNTrue',
-                    os = 'centos65',
-                    time = 30,
-		    cmd = cmd)
+    auger_opts = {
+        "project": Control[9],
+        "track": 'analysis',
+        "jobname":  'WalkNTrue',
+        "os": 'centos65',
+        "time":  30,
+        "cmd": cmd
+    }
+
     jsub_filename = os.path.join(scriptOutDir,directory)
     jsub_file = open(jsub_filename,'w')
     jsub_file.write('''\
@@ -60,17 +71,24 @@ COMMAND:{cmd}
     jsub_file.close()
     return jsub_filename
 
-def parseDir(Bin): 
+
+def parse_dir(mass_bin):
     """
-    This function creates the cmd string to be submitted to the JLab batch farm. 
+    This function creates the cmd string to be submitted to the JLab
+    batch farm.
 
     Args:
-    bin (int): The int value for the mass in MeV for the mass bin.
+    mass_bin (int): The int value for the mass in MeV for the mass
+        mass_bin.
     
     Returns:
     cmd (string): The full command to be used in the jsub file.
-    """   
-    cmd = os.path.join(indir,"scripts","walkingNTrue.py")+" "+str(Bin)+" "+indir
+    """
+
+    cmd = os.path.join(
+        indir, "scripts" , "walkingNTrue.py"
+    ) + " " + str(mass_bin) + " " + indir
+
     return cmd
 
 if __name__ == '__main__':
@@ -79,4 +97,4 @@ if __name__ == '__main__':
     ran = int(Control[4])
     for i in range(top,bot+ran,ran):
         print( "Processing bin",i)
-        submit(gen(str(i)+"_MeV",parseDir(i)))
+        submit(gen(str(i) +"_MeV", parse_dir(i)))

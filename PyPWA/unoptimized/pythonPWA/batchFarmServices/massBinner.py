@@ -14,7 +14,7 @@ import os, sys
 
 from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
 from PyPWA.unoptimized.pythonPWA.fileHandlers.gampTranslator import \
-    gampTranslator
+    GampTranslator
 """
     This is the PyPWA mass binning utility that simulation/fitting install uses to bin .gamp files in mass. 
 """
@@ -37,11 +37,11 @@ class massBinner(object):
         self.bindir = bindir
         self.Control = np.load(os.path.join(sys.argv[1],"GUI","Control_List.npy"))
         self.Qfile = os.path.join(sys.argv[1],"QFactor.txt")
-        self.pFfile = os.path.join(sys.argv[1],"events.pf")
+        self.pFfile = os.path.join(sys.argv[1],"_events.pf")
         self.gfile = gfile+".gamp"
         self.nfile = gfile+".npy" 
         self.verb = verb       
-        self.gampT = gampTranslator(os.path.join(self.indir,self.gfile))
+        self.gampT = GampTranslator(os.path.join(self.indir, self.gfile))
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             if self.verb == "v":
                 print( "Starting translator, for",self.gfile )
@@ -77,11 +77,11 @@ class massBinner(object):
 
     def binner(self):
         """
-            Creates a pass/fail 2D array mask for all bins and events.
+            Creates a pass/fail 2D array mask for all bins and _events.
         """
         
         for i in range(int(self.gampList.shape[0])):
-            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            event = self.gampT.write_event(self.gampList[i, :, :])
             mass = self.calcMass(event)            
             for x in range(0, self.nBins):
                 if mass >= (float(float(self.Control[2]) + (x * float(self.Control[4]))) / 1000.0) and mass < ( float(float(self.Control[2]) + ((x + 1) * float(self.Control[4]))) / 1000.0):
@@ -143,68 +143,68 @@ class massBinner(object):
             totNum = 0
             for r in range(self.nBins):
                 num = 0
-                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.gamp"),"w") as gF:
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.gamp"),"w") as gF:
                     with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"QFactor.txt"),"w") as qfF:
                         for i in range(int(self.gampList.shape[0])):
                             if self.bins[r,i] == 1:
-                                event = self.gampT.writeEvent(self.gampList[i,:,:])
+                                event = self.gampT.write_event(self.gampList[i, :, :])
                                 event.writeGamp(gF)
                                 qfF.write(str(Qlist[i])+"\n")
                                 num+=1 
                 totNum+=num
-                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.num"),"w") as nF:
                     nF.write(str(num))
                 if num == 0 or self.verb == "v":
                     print(direct , str(int(self.Control[2]) + (r * int(
                         self.Control[4])))+"_MeV" , "has" , str(num) ,
-                          "events.")
+                          "_events.")
             excluded = self.gampList.shape[0]-totNum
             if self.verb == "v" or excluded != 0:
-                print("Binning Complete, " + str(excluded) + " events not in "
+                print("Binning Complete, " + str(excluded) + " _events not in "
                                                              "range.")
         elif os.path.isfile(self.pFfile) and direct == "flat":
             totNum = 0
             for r in range(self.nBins):
                 num = 0
-                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.gamp"),"w") as gF:
-                    with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.pf"),"w") as pfF:
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.gamp"),"w") as gF:
+                    with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.pf"),"w") as pfF:
                         for i in range(int(self.gampList.shape[0])):
                             if self.bins[r,i] == 1:
-                                event = self.gampT.writeEvent(self.gampList[i,:,:])
+                                event = self.gampT.write_event(self.gampList[i, :, :])
                                 event.writeGamp(gF)
                                 pfF.write(str(pFlist[i])+"\n")
                                 num+=1 
                 totNum+=num
-                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.num"),"w") as nF:
                     nF.write(str(num))
                 if num == 0 or self.verb == "v":
                     print(direct , str(int(self.Control[2]) + (r * int(
                         self.Control[4])))+"_MeV" , "has" , str(num) ,
-                          "events.")
+                          "_events.")
             excluded = self.gampList.shape[0]-totNum
             if self.verb == "v" or excluded != 0:
-                print("Binning Complete, " + str(excluded) + " events not in "
+                print("Binning Complete, " + str(excluded) + " _events not in "
                                                              "range.")
         else:
             totNum = 0
             for r in range(self.nBins):
                 num = 0
-                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.gamp"),"w") as gF:
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.gamp"),"w") as gF:
                     for i in range(int(self.gampList.shape[0])):
                         if self.bins[r,i] == 1:
-                            event = self.gampT.writeEvent(self.gampList[i,:,:])
+                            event = self.gampT.write_event(self.gampList[i, :, :])
                             event.writeGamp(gF)                                
                             num+=1 
                 totNum+=num
-                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"events.num"),"w") as nF: 
+                with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.num"),"w") as nF:
                     nF.write(str(num))
                 if num == 0 or self.verb == "v":
                     print( direct , str(int(self.Control[2]) + (r * int(
                         self.Control[4])))+"_MeV" , "has" , str(num) ,
-                           "events.")
+                           "_events.")
             excluded = self.gampList.shape[0]-totNum
             if self.verb == "v" or excluded != 0:
-                print("Binning Complete, " + str(excluded) + " events not in " \
+                print("Binning Complete, " + str(excluded) + " _events not in " \
                                                              "range.")
 
 if len(sys.argv)==4:

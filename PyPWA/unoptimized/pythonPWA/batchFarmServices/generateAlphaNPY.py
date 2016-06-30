@@ -11,7 +11,7 @@ import os, sys, numpy
 from PyPWA.unoptimized.pythonPWA.utilities.ThreeVec import ThreeVector
 from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
 from PyPWA.unoptimized.pythonPWA.fileHandlers.gampTranslator import \
-    gampTranslator
+    GampTranslator
 import math
 
 class generateAlphas(object):
@@ -37,7 +37,7 @@ class generateAlphas(object):
         self.gfile = gfile+".gamp"
         self.nfile = gfile+".npy"
         f = gfile.partition(".")[0]
-        self.gampT = gampTranslator(os.path.join(self.indir,self.gfile))
+        self.gampT = GampTranslator(os.path.join(self.indir, self.gfile))
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             self.gampT.translate(os.path.join(self.indir,self.nfile))
         self.gampList=numpy.load(os.path.join(self.indir,self.nfile))
@@ -59,7 +59,7 @@ class generateAlphas(object):
             p pi+ pi- pi0
         '''
         for i in range(int(self.gampList.shape[0])):
-            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            event = self.gampT.write_event(self.gampList[i, :, :])
             for particles in event.particles:
                 if particles.particleID == 14.0: #proton
                     p = FourVector(float(particles.particleE), 
@@ -103,7 +103,7 @@ class generateAlphas(object):
             p p+ p-
         '''
         for i in range(int(self.gampList.shape[0])):
-            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            event = self.gampT.write_event(self.gampList[i, :, :])
             for particles in event.particles:
                 if particles.particleID == 14.0: #proton
                     pp = FourVector(float(particles.particleE), 
@@ -142,7 +142,7 @@ class generateAlphas(object):
             p k+ k-  
         """
         for i in range(int(self.gampList.shape[0])):
-            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            event = self.gampT.write_event(self.gampList[i, :, :])
             for particles in event.particles:
                 if particles.particleID == 14.0: #proton
                     pp = FourVector(float(particles.particleE), 
@@ -186,7 +186,7 @@ class generateAlphas(object):
             gamma p --> p Ks Ks (pi+ pi- pi+ pi-)
         """
         for i in range(int(self.gampList.shape[0])):
-            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            event = self.gampT.write_event(self.gampList[i, :, :])
             nks = 0
             for particles in event.particles:
                 if particles.particleID == 14.0: #proton
@@ -226,7 +226,7 @@ class generateAlphas(object):
         
     def analyzeEtaPiN(self):
         for i in range(int(self.gampList.shape[0])):
-            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            event = self.gampT.write_event(self.gampList[i, :, :])
             for particles in event.particles:
                 if particles.particleID == 13.0: #neutron
                     n = FourVector(float(particles.particleE), 

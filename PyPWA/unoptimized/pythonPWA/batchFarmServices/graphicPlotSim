@@ -102,8 +102,8 @@ class graphicPlotSim(object):
     def up_flat(self):
         self.flatL = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/flat/events.num"):
-                self.flatL.append(self.num_len(self.topDir+"/simulation/"+str(d)+"_MeV/flat/events.num"))
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/flat/_events.num"):
+                self.flatL.append(self.num_len(self.topDir+"/simulation/"+str(d)+"_MeV/flat/_events.num"))
         text.delete("0.0wordstart", "end")
         text.insert("end","flat UPDATED")
 
@@ -118,16 +118,16 @@ class graphicPlotSim(object):
     def up_rawW(self):
         self.rawW = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/events.gamp"):
-                self.rawW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/events.gamp"))
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/_events.gamp"):
+                self.rawW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/raw/_events.gamp"))
         text.delete("0.0wordstart", "end")
         text.insert("end","rawW UPDATED")
 
     def up_accW(self):
         self.accW = []
         for d in self.ran:
-            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/events.gamp"):
-                self.accW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/events.gamp"))
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/_events.gamp"):
+                self.accW.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/_events.gamp"))
         text.delete("0.0wordstart", "end")
         text.insert("end","accW UPDATED")
 

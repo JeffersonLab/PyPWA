@@ -92,11 +92,11 @@ if sys.argv[3] == "i":
     numpy.save(os.path.join(dataDir,"flat","iList"),iList)
 
 elif sys.argv[3] == "s":
-    inputGampFile=open(os.path.join(dataDir,"flat","events.gamp"),'r')
-    inputPfFile=open(os.path.join(dataDir,"flat","events.pf"),'r')
+    inputGampFile=open(os.path.join(dataDir,"flat","_events.gamp"),'r')
+    inputPfFile=open(os.path.join(dataDir,"flat","_events.pf"),'r')
     outputPFGampFile=open(os.path.join(dataDir,"weight","raw","events_pf.gamp"),'w')    
-    outputRawGampFile=open(os.path.join(dataDir,"weight","raw","events.gamp"),'w')
-    outputAccGampFile=open(os.path.join(dataDir,"weight","acc","events.gamp"),'w')
+    outputRawGampFile=open(os.path.join(dataDir,"weight","raw","_events.gamp"),'w')
+    outputAccGampFile=open(os.path.join(dataDir,"weight","acc","_events.gamp"),'w')
                     
     iList = numpy.load(os.path.join(dataDir,"flat","iList.npy"))
 
