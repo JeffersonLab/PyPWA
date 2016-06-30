@@ -1,23 +1,41 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
 
+import os
 
-""" 
 import Tkinter as tk
-import numpy, os, sys
-if "GUI" in os.getcwd():
-    from PyPWA.unoptimized.pythonPWA.batchFarmServices.graphicHelp import Help
-else:
-    from PyPWA.unoptimized.pythonPWA.batchFarmServices.graphicHelp import Help
+import numpy
+
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.graphicHelp import Help
+from PyPWA import VERSION, STATUS, LICENSE
+
+__author__ = ["Joshua Pond"]
+__credits__ = ["Joshua Pond", "Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
+
 
 class Control(object):
     """
-        This program is the pwa_controls GUI, or the gui the user uses to specify environment variables for PyPWA. 
+        This program is the pwa_controls GUI, or the gui the user uses to
+        specify environment variables for PyPWA.
     """
     
     def __init__(self,                 
@@ -141,16 +159,18 @@ class Control(object):
         label.pack(side="top", fill="both", padx=10, pady=10)
             
 
-Lst = ['Reaction Mode ',
-                'Beam Polarization ',
-                'Lower Mass ',
-                'Upper Mass ',
-                'Mass Range ',
-                'Number of Sets ',
-                'Max Number of Migrad Calls ',
-                'Name of tested Reaction',
-                'Name of saved plotting data',
-                'Batch Farm project name']
+Lst = [
+    'Reaction Mode ',
+    'Beam Polarization ',
+    'Lower Mass ',
+    'Upper Mass ',
+    'Mass Range ',
+    'Number of Sets ',
+    'Max Number of Migrad Calls ',
+    'Name of tested Reaction',
+    'Name of saved plotting data',
+    'Batch Farm project name'
+    ]
 
 Contr = Control()
 

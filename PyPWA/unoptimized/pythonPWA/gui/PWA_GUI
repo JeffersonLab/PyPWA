@@ -1,4 +1,6 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
+
+
 import Tkinter as tk
 import numpy, os
 import subprocess as sp
@@ -142,7 +144,6 @@ class PWA_GUI(object):
             btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog,"y"))
         btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog,"y"))
         btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog,"y"))
-        #btnB1.grid(row=3,column=0,sticky="N"+"S"+"E"+"W")
         if prog != 2:    
             btnR0.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
         btnR1.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")

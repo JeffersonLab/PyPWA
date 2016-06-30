@@ -1,15 +1,37 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+import os
+import glob
+import sys
+import time
+import subprocess
 
+import numpy
 
-"""
-import os, glob, sys, time, numpy
-from subprocess import Popen
+from PyPWA import LICENSE, STATUS, VERSION
+
+__author__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
+__credits__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
+__email__ = "maj@jlab.org"
+__maintainer__ = "Mark Jones"
+__license__ = LICENSE
+__status__ = STATUS
+__version__ = VERSION
+
 
 indir = os.getcwd().strip("GUI")
 keyfileDir=os.path.join(indir,"keyfiles")
@@ -18,8 +40,11 @@ scriptOutDir=os.path.join(indir,"scripts","submitions")
 keyfiles=glob.glob(os.path.join(keyfileDir,'*.keyfile'))
 cf = numpy.load(os.path.join(indir,"GUI","Control_List.npy"))
 i=1
+
+
+
 """
-    This is the submition program for gamp. 
+This is the submition program for gamp.
 """
 
 def submit(jsub_file):
@@ -30,12 +55,14 @@ def submit(jsub_file):
     jsub_file (string): The file name for the jsub file.
     """
     cmd = 'jsub '+jsub_file
-    proc = Popen(cmd,
-        shell = True,
-        executable = os.environ.get('SHELL', '/bin/tcsh'),
-        env = os.environ)
+    subprocess.Popen(
+        cmd,
+        shell=True,
+        executable=os.environ.get('SHELL', '/bin/tcsh'),
+        env=os.environ)
     time.sleep(.5)
-   
+
+
 BoA = sys.argv[1] 
 if BoA == 'n':
     DoM = sys.argv[2]
@@ -43,22 +70,22 @@ if BoA == 'n':
         dataDir=os.path.join(indir,"simulation")
         AoR = sys.argv[3]
         stri = '/'+DoM+'/'+AoR
-        filen = 'events'
+        filen = '_events'
     elif DoM == 'flat':
         dataDir=os.path.join(indir,"simulation")
         stri = 'flat'
-        filen = 'events'
+        filen = '_events'
 elif BoA == 'y':
     DoM = sys.argv[2]
     if DoM == 'mc':
         dataDir=os.path.join(indir,"fitting")
         AoR = sys.argv[3]
         stri = '/'+DoM+'/'+AoR
-        filen = 'events'
+        filen = '_events'
     elif DoM == 'data':
         dataDir=os.path.join(indir,"fitting")
         stri = 'data'
-        filen = 'events'    
+        filen = '_events'
 for keyfile in keyfiles:
     for path, subdirs, files in os.walk(dataDir):
         if stri in path:         

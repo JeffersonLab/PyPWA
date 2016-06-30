@@ -1,29 +1,57 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
-"""
-.. module:: batchFarmServices
-   :platform: Unix, Windows, OSX
-   :synopsis: Utilities for doing PWA with the Jlab batch system.
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-.. moduleauthor:: Joshua Pond <jpond@jlab.org>
+import os
+import glob
+import sys
+import time
+import subprocess
 
+import numpy
 
-"""
-import os, glob, numpy, sys, time
-from subprocess import Popen
+from PyPWA import LICENSE, STATUS, VERSION
+
+__author__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
+__credits__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
+__email__ = "maj@jlab.org"
+__maintainer__ = "Mark Jones"
+__license__ = LICENSE
+__status__ = STATUS
+__version__ = VERSION
+
 
 def submit(jsub_file):
     """
-    This function calls the JLab jsub command for a specific jsub .txt file created by this program. 
+    This function calls the JLab jsub command for a specific jsub .txt
+    file created by this program.
 
     Args:
-    jsub_file (string): The file name for the jsub file.
+        jsub_file (string): The file name for the jsub file.
     """
     cmd = 'jsub '+jsub_file
-    proc = Popen(cmd,
-        shell = True,
-        executable = os.environ.get('SHELL', '/bin/tcsh'),
-        env = os.environ)
+    subprocess.Popen(
+        cmd,
+        shell=True,
+        executable=os.environ.get('SHELL', '/bin/tcsh'),
+        env=os.environ
+    )
+
     time.sleep(.5)
+
+
 if __name__ == '__main__':
     """
     This is the submition program for the alpha calculation.
@@ -41,22 +69,22 @@ if __name__ == '__main__':
             dataDir=os.path.join(indir,"simulation")
             AoR = sys.argv[3]
             stri = '/'+DoM+'/'+AoR
-            filen = 'events'
+            filen = '_events'
         elif DoM == 'flat':
             dataDir=os.path.join(indir,"simulation")
             stri = 'flat'
-            filen = 'events'
+            filen = '_events'
     elif BoA == 'y':
         DoM = sys.argv[2]
         if DoM == 'mc':
             dataDir=os.path.join(indir,"fitting")
             AoR = sys.argv[3]
             stri = '/'+DoM+'/'+AoR
-            filen = 'events'
+            filen = '_events'
         elif DoM == 'data':
             dataDir=os.path.join(indir,"fitting")
             stri = DoM
-            filen = 'events'
+            filen = '_events'
     for path, subdirs, files in os.walk(dataDir):
         for filename in glob.glob(path):
             if stri in filename:            
@@ -90,5 +118,5 @@ COMMAND: {cmd}
                 jsub_file.close()
                 print(jsub_filename)
                 submit(jsub_filename)
-                #os.remove(jsub_filename)
+
                 i += 1
