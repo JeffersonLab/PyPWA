@@ -400,7 +400,7 @@ class EVILReader(definitions.TemplateReader):
         else:
             values = self._read_float()
 
-        self._previous_event = self._master_particle.make_particle(values)
+        self._previous_event = values
         return self._previous_event
 
     @property
