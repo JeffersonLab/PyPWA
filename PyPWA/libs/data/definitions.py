@@ -89,8 +89,21 @@ class TemplateReader(object):
     def __iter__(self):
         return self
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     @property
     def previous_event(self):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object return the last "
+            "value that was parsed." % self.__class__.__name__
+        )
+
+    def close(self):
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object return the last "
@@ -110,10 +123,16 @@ class TemplateWriter(object):
             "to the disk correctly." % self.__class__.__name__
         )
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
     def close(self):
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
-            "you should overwrite to have the object close the stream "
+            "you should overwrite to have the object properly operated "
             "properly when its called" % self.__class__.__name__
         )
 
