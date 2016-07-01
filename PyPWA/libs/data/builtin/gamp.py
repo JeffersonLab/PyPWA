@@ -155,9 +155,9 @@ class GampWriter(definitions.TemplateWriter):
         for particle in data:
             if not particle[0] == 0 and not particle[5] == 0:
                 self._file.write(
-                    str(particle[0]) + " " + str(particle[1]) + " " +
-                    str(particle[2]) + " " + str(particle[3]) + " " +
-                    str(particle[4]) + " " + str(particle[5]) + "\n"
+                    repr(particle[0]) + " " + repr(particle[1]) + " " +
+                    repr(particle[2]) + " " + repr(particle[3]) + " " +
+                    repr(particle[4]) + " " + repr(particle[5]) + "\n"
                 )
 
     def close(self):
