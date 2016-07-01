@@ -40,7 +40,7 @@ FUZZY_STRING_CONFIDENCE_LEVEL = 75  # percent from 0 to 100
 # TODO: Separate logic types into different objects
 # TODO: Make the Settings more SOLID
 # TODO: Clean up the documentation some.
-# TODO: Make more todos.
+# TODO: Make more todo lists.
 
 
 class BaseSettings(object):
@@ -85,9 +85,9 @@ class BaseSettings(object):
                 support it.
 
         Returns:
-            list[str]: The extracted options, unparsed.
+            list[str]: The extracted options, non-parsed.
         """
-        options =[]
+        options = []
         for possible_option in string.split(";"):
             if "=" in possible_option:
                 options.append(possible_option)
@@ -96,12 +96,12 @@ class BaseSettings(object):
     @staticmethod
     def _extract_options(supported_options, options):
         """
-        Extracts the options from an unparsed string.
+        Extracts the options from an non-parsed string.
 
         Args:
             supported_options (list[str]): The list of possible options
                 that are supported.
-            options (list[str]): The list of the unparsed options.
+            options (list[str]): The list of the non-parsed options.
 
         Returns:
             dict: The completely parsed options from the string.

@@ -92,7 +92,7 @@ class TemplateReader(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *args):
         self.close()
 
     @property
@@ -126,7 +126,7 @@ class TemplateWriter(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, *args):
         self.close()
 
     def close(self):

@@ -14,14 +14,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Memory Caching
+"""
+Memory Caching
 
 The objects in this file are dedicated to saving and writing chunks of
 memory to file for quick loading when the data is loaded into memory
 again.
 """
 
-import hashlib
 import io
 import logging
 import pickle

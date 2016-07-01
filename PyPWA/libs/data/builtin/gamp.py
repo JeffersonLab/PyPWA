@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Gamp data reading and writing.
+"""
+Gamp data reading and writing.
 
 This file holds the Gamp Reader and Gamp Writer. These simply load the
 data into memory one event at a time and write to file one event at a
@@ -28,7 +29,7 @@ import io
 import numpy
 
 from PyPWA.libs.data import definitions
-from PyPWA.configuratr import data_types
+from PyPWA.configurator import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -126,6 +127,9 @@ class GampReader(definitions.TemplateReader):
 
         return particle
 
+    def close(self):
+        self._file.close()
+
 
 class GampWriter(definitions.TemplateWriter):
 
@@ -150,7 +154,7 @@ class GampWriter(definitions.TemplateWriter):
         Args:
             data (deque): the file that is to be written to disk.
         """
-        self._file.write(str(len(data))+"\n")
+        self._file.write(str(len(data)) + "\n")
 
         for particle in data:
             self._file.write(

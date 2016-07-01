@@ -26,7 +26,7 @@ import argparse
 import os
 import sys
 
-from PyPWA.configuratr import internal_logging
+from PyPWA.configurator import internal_logging
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -38,7 +38,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class StartConfiguratr(object):
+class StartConfigurator(object):
     def __init__(self, builder, *args):
         self.builder = builder(args)
 

@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Handles SV to / from memory.
+"""
+Handles SV to / from memory.
 
 The objects in this file are dedicated to reading SV files to memory and
 writing data to SV to disk. This is the preferred and default method of
@@ -27,7 +28,7 @@ import io
 
 import numpy
 
-from PyPWA.configuratr import data_types
+from PyPWA.configurator import data_types
 from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -157,7 +158,7 @@ class SvReader(definitions.TemplateReader):
     @property
     def next_event(self):
         """
-        Simple read method that takes the list that is recieved from the
+        Simple read method that takes the list that is received from the
         CSV reader, translates it from text to numpy.float64, then returns
         the final data
 
@@ -169,7 +170,16 @@ class SvReader(definitions.TemplateReader):
         for parse in un_parsed:
             parsed.append(numpy.float64(parse))
 
-        return self._master_particle.make_particle(parsed)
+        self._previous_event = self._master_particle.make_particle(parsed)
+
+        return self.previous_event
+
+    @property
+    def previous_event(self):
+        return self._previous_event
+
+    def close(self):
+        self._file.close()
 
 
 class SvWriter(definitions.TemplateWriter):

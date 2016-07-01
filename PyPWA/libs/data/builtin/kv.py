@@ -127,18 +127,21 @@ class DictOfArrays(KvInterface):
             data (collections.namedtuple): dict of numpy arrays
         """
 
-        kvars = data.standard_parsed_values
+        kinematic_variables = data.standard_parsed_values
         the_data = data._asdict()
 
         with open(file_location, "w") as stream:
-            for event in range(len(the_data[kvars[0]])):
+            for event in range(len(the_data[kinematic_variables[0]])):
                 line = ""
-                for kvar in range(len(kvars)):
-                    if kvar > 0:
+                for kinematic_variable in range(len(kinematic_variables)):
+                    if kinematic_variable > 0:
                         line += ","
-                    line += "{0}={1}".format(kvars[kvar], str(
-                        the_data[kvars[kvar]][event]
-                    ))
+                    line += "{0}={1}".format(
+                        kinematic_variables[kinematic_variable],
+                        str(the_data[
+                            kinematic_variables[kinematic_variable]
+                        ][event])
+                    )
                 line += "\n"
                 stream.write(line)
 
@@ -311,7 +314,7 @@ class EVILReader(definitions.TemplateReader):
         super(EVILReader, self).__init__(file_location)
         self._previous_event = None
         self._file = False  # type: io.TextIOBase
-        self._parameters = False  # type: list[str]
+        self._parameters = False  # type: [str]
         self._file_data_type = False  # type: str
         self._master_particle = False  # type: data_types.GenericEvent
 
@@ -377,7 +380,7 @@ class EVILReader(definitions.TemplateReader):
         Reads in a single line and parses the line into a GenericEvent.
 
         Returns:
-            PyPWA.configuratr.data_types.GenericEvent: The named tuple
+            PyPWA.configurator.data_types.GenericEvent: The named tuple
                 that holds the data.
         """
         if self._file_data_type == "DictOfArrays":
@@ -445,6 +448,9 @@ class EVILReader(definitions.TemplateReader):
             values.append(numpy.float64(value.split("=")[1]))
 
         return values
+
+    def close(self):
+        self._file.close()
 
 
 class EVILWriter(definitions.TemplateWriter):

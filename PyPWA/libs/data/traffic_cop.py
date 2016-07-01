@@ -207,7 +207,7 @@ class TrafficCop(object):
         main object.
 
         Args:
-            settings_line (str): The unparsed settings from the
+            settings_line (str): The non-parsed settings from the
                 configuration file.
 
         Returns:

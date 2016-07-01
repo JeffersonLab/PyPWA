@@ -184,7 +184,6 @@ class CalculationForeman(object):
                 self._process_kernel
             )
 
-
     def build(self):
         """
         Simple method that sets up and builds all the processes needed.
