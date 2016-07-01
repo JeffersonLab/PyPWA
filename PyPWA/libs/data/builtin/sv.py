@@ -28,7 +28,6 @@ import io
 
 import numpy
 
-from PyPWA.configurator import data_types
 from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -40,7 +39,7 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-HEADER_SEARCH_BITS = 1024
+HEADER_SEARCH_BITS = 1024  # type: int
 
 
 class SvMemory(definitions.TemplateMemory):
@@ -56,8 +55,8 @@ class SvMemory(definitions.TemplateMemory):
             file_location (str): The file that contain the data to be
                 read.
         Returns:
-            collections.namedtuple: The tuple containing the data parsed
-                in from the file.
+            numpy.ndarray: The tuple containing the data parsed in from
+                the file.
         """
         with io.open(file_location, "rt") as stream:
             for line_count, throw in enumerate(stream):
@@ -70,19 +69,18 @@ class SvMemory(definitions.TemplateMemory):
             sv = csv.reader(stream, dialect)
 
             elements = next(sv)
-            parsed = {}
+
+            types = []
             for element in elements:
-                parsed[element] = numpy.zeros(
-                    shape=line_count, dtype="float64"
-                )
+                types.append((element, "f8"))
+
+            parsed = numpy.zeros(line_count, types)
 
             for index, row in enumerate(sv):
                 for count in range(len(row)):
                     parsed[elements[count]][index] = row[count]
-        event = data_types.GenericEvent(list(parsed.keys()))
-        final = event.make_particle(list(parsed.values()))
 
-        return final
+        return parsed
 
     def write(self, file_location, data):
         """
@@ -90,7 +88,7 @@ class SvMemory(definitions.TemplateMemory):
 
         Args:
             file_location  (str): Where to write the data to.
-            data (collections.namedtuple): Dictionary of the arrays
+            data (numpy.ndarray): Dictionary of the arrays
                 containing the data.
         """
         extension = file_location.split(".")[-1]
@@ -101,16 +99,16 @@ class SvMemory(definitions.TemplateMemory):
             the_dialect = csv.excel
 
         with io.open(file_location, "wt") as stream:
-            field_names = list(data._asdict().keys())
+            field_names = list(data.dtype.names)
 
             writer = csv.DictWriter(stream, fieldnames=field_names,
                                     dialect=the_dialect)
             writer.writeheader()
 
-            for index in range(len(data._asdict()[field_names[0]])):
+            for index in range(len(data[field_names[0]])):
                 temp = {}
                 for field in field_names:
-                    temp[field] = repr(data._asdict()[field][index])
+                    temp[field] = repr(data[field][index])
                 writer.writerow(temp)
 
 
@@ -126,9 +124,10 @@ class SvReader(definitions.TemplateReader):
         """
         super(SvReader, self).__init__(file_location)
         self._previous_event = None  # type: collections.namedtuple
-        self._master_particle = False  # type: data_types.GenericEvent
         self._reader = False  # type: csv.DictReader
         self._file = False  # type: io.TextIOBase
+        self._types = False  # type: list[tuple]
+        self._elements = False  # type: list[str]
 
         self._start_input()
 
@@ -145,8 +144,10 @@ class SvReader(definitions.TemplateReader):
 
         self._reader = csv.reader(self._file, dialect)
 
-        elements = next(self._reader)
-        self._master_particle = data_types.GenericEvent(elements)
+        self._elements = next(self._reader)
+        self._types = []
+        for element in self._elements:
+            self._types.append((element, "f8"))
 
     def reset(self):
         """
@@ -163,14 +164,15 @@ class SvReader(definitions.TemplateReader):
         the final data
 
         Returns:
-            list[numpy.float64]: The data read in from the event.
+            numpy.ndarray: The data read in from the event.
         """
-        un_parsed = list(next(self._reader))
-        parsed = []
-        for parse in un_parsed:
-            parsed.append(numpy.float64(parse))
+        non_parsed = list(next(self._reader))
+        parsed = numpy.zeros(1, self._types)
 
-        self._previous_event = self._master_particle.make_particle(parsed)
+        for index, element in enumerate(self._elements):
+            parsed[element][0] = non_parsed[index]
+
+        self._previous_event = parsed
 
         return self.previous_event
 
@@ -194,7 +196,6 @@ class SvWriter(definitions.TemplateWriter):
         """
         super(SvWriter, self).__init__(file_location)
         self._file = io.open(file_location, "w")
-
         extension = file_location.split(".")[-1]
 
         if extension == "tsv":
@@ -202,25 +203,36 @@ class SvWriter(definitions.TemplateWriter):
         else:
             self._dialect = csv.excel
 
-        self._count = 0
+        self._writer = False  # type: cvs.DictWriter
+        self._field_names = False  # type: list[str]
+
+    def _writer_setup(self, data):
+        if not self._writer:
+            self._field_names = list(data.dtype.names)
+
+            self._writer = csv.DictWriter(
+                self._file,
+                fieldnames=self._field_names,
+                dialect=self._dialect
+            )
+
+            self._writer.writeheader()
 
     def write(self, data):
         """
         Writes the data to a SV Sheet a single event at a time.
 
         Args:
-            data (collections.named_tuple): The tuple containing the data
+            data (numpy.ndarray): The tuple containing the data
                 that needs to be written.
         """
-        field_names = list(data._asdict().keys())
+        self._writer_setup(data)
 
-        writer = csv.DictWriter(self._file, fieldnames=field_names,
-                                dialect=self._dialect)
-        if self._count == 0:
-            writer.writeheader()
+        dict_data = {}
+        for field_name in self._field_names:
+            dict_data[field_name] = data[field_name][0]
 
-        writer.writerow(data._asdict())
-        self._count += 1
+        self._writer.writerow(dict_data)
 
     def close(self):
         """
