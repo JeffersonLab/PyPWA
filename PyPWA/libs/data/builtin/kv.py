@@ -39,7 +39,6 @@ import logging
 import numpy
 
 from PyPWA.libs.data import definitions
-from PyPWA.configurator import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -258,8 +257,7 @@ class SomewhatIntelligentSelector(KvInterface):
                 read in from the disk.
 
         Returns:
-            data_types.GenericEvent:  The data that was parsed from the
-                disk.
+            numpy.ndarray:  The data that was parsed from the disk.
         """
         validator = EVILValidator(file_location)
         validator.test()
@@ -282,8 +280,7 @@ class SomewhatIntelligentSelector(KvInterface):
 
         Args:
             file_location (str): Where to write the data.
-            data (tuple | numpy.ndarray): The data that needs to be
-                written to disk.
+            data numpy.ndarray: The data that needs to be written to disk.
         """
         if isinstance(data, tuple):
             self._logger.debug("Found type tuple, assuming GenericEvent.")
@@ -326,7 +323,6 @@ class EVILReader(definitions.TemplateReader):
         self._file = False  # type: io.TextIOBase
         self._parameters = False  # type: [str]
         self._file_data_type = False  # type: str
-        self._master_particle = False  # type: data_types.GenericEvent
 
         self._start_input()
 
@@ -344,10 +340,6 @@ class EVILReader(definitions.TemplateReader):
             self._set_data_type()
         if not isinstance(self._parameters, list):
             self._build_params()
-        if not self._master_particle:
-            self._master_particle = data_types.GenericEvent(
-                self._parameters
-            )
 
     def _build_params(self):
         """
@@ -390,8 +382,7 @@ class EVILReader(definitions.TemplateReader):
         Reads in a single line and parses the line into a GenericEvent.
 
         Returns:
-            PyPWA.configurator.data_types.GenericEvent: The named tuple
-                that holds the data.
+            numpy.ndarray: The values of the array.
         """
         if self._file_data_type == "DictOfArrays":
             values = self._read_dict()
