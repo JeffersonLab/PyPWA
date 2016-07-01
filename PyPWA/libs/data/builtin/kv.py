@@ -81,6 +81,24 @@ class DictOfArrays(KvInterface):
     Handles old Kv format
     """
 
+    def _create_empty_array(self, file_location):
+
+        file_length = self.file_length(file_location)
+
+        with open(file_location) as stream:
+            first_line = stream.readline()
+
+        names = []
+
+        for x in range(len(first_line.split(","))):
+            names.append(first_line.split(",")[x].split("=")[0])
+
+        types = []
+        for name in names:
+            types.append((name, "f8"))
+
+        return numpy.zeros(file_length, types)
+
     def parse(self, file_location):
         """
         Loads Kv data into memory
@@ -89,34 +107,27 @@ class DictOfArrays(KvInterface):
             file_location (str): Path of file
 
         Returns:
-            dict: name : numpy array of events
+            numpy.ndarray: A structured array of the data.
         """
-
-        file_length = self.file_length(file_location)
-
-        with open(file_location) as stream:
-            first_line = stream.readline()
-
-        parsed = {}
-
-        for x in range(len(first_line.split(","))):
-            parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(
-                shape=file_length, dtype="float64"
-            )
+        data = self._create_empty_array(file_location)
 
         # This is ugly, don't look.
         with io.open(file_location) as stream:
             for index, line in enumerate(stream):
                 for particle_count in range(len(line.split(","))):
-                    parsed[line.split(",")[particle_count].split("=")[0]][
-                        index] = \
+
+                    particle_name = \
+                        line.split(",")[particle_count].split("=")[0]
+
+                    particle_value = \
                         numpy.float64(
                             line.strip("\n").split(",")[
-                                particle_count].split("=")[1])
+                                particle_count].split("=")[1]
+                        )
 
-        event = data_types.GenericEvent(list(parsed.keys()))
-        final = event.make_particle(list(parsed.values()))
-        return final
+                    data[particle_name][index] = particle_value
+
+        return data
 
     def write(self, file_location, data):
         """
@@ -124,21 +135,20 @@ class DictOfArrays(KvInterface):
 
         Args:
             file_location (str): path to file
-            data (collections.namedtuple): dict of numpy arrays
+            data (numpy.ndarray): dict of numpy arrays
         """
 
-        kinematic_variables = data.standard_parsed_values
-        the_data = data._asdict()
+        kinematic_variables = list(data.dtype.names)
 
         with open(file_location, "w") as stream:
-            for event in range(len(the_data[kinematic_variables[0]])):
+            for event in range(len(data[kinematic_variables[0]])):
                 line = ""
                 for kinematic_variable in range(len(kinematic_variables)):
                     if kinematic_variable > 0:
                         line += ","
                     line += "{0}={1}".format(
                         kinematic_variables[kinematic_variable],
-                        str(the_data[
+                        repr(data[
                             kinematic_variables[kinematic_variable]
                         ][event])
                     )
@@ -164,7 +174,7 @@ class ListOfFloats(KvInterface):
 
         file_length = self.file_length(file_location)
 
-        parsed = numpy.zeros(shape=file_length, dtype="float64")
+        parsed = numpy.zeros(file_length, "f8")
 
         with io.open(file_location) as stream:
             for count, line in enumerate(stream):
@@ -181,7 +191,7 @@ class ListOfFloats(KvInterface):
         """
         with open(file_location, "w") as stream:
             for event in data:
-                stream.write(str(event) + "\n")
+                stream.write(repr(event) + "\n")
 
 
 class ListOfBooleans(KvInterface):
@@ -220,7 +230,7 @@ class ListOfBooleans(KvInterface):
         """
         with open(file_location, "w") as stream:
             for weight in data:
-                stream.write(str(int(weight)) + "\n")
+                stream.write(repr(int(weight)) + "\n")
 
 
 class SomewhatIntelligentSelector(KvInterface):
@@ -397,7 +407,7 @@ class EVILReader(definitions.TemplateReader):
     def previous_event(self):
         return self.previous_event
 
-    def _read(self):
+    def __read(self):
         """
         Reads a single line from the file and removes the spaces and
         newline.
@@ -418,19 +428,23 @@ class EVILReader(definitions.TemplateReader):
         Reads a single line and returns the bool value from that line.
 
         Returns:
-            bool: True or False depending on the value of the line that
-                was read.
+            numpy.ndarray: True or False depending on the value of the
+                line that was read.
         """
-        return [bool(self._read())]
+        x = numpy.zeros(1, bool)
+        x[0] = bool(self.__read())
+        return x
 
     def _read_float(self):
         """
         Reads a single line and returns the float value from the line.
 
         Returns:
-            numpy.float64: The value read in from the file.
+            numpy.ndarray: The value read in from the file.
         """
-        return [numpy.float64(self._read())]
+        x = numpy.zeros(1, "f8")
+        x[0] = numpy.float64(self.__read())
+        return x
 
     def _read_dict(self):
         """
@@ -438,16 +452,27 @@ class EVILReader(definitions.TemplateReader):
         from the file.
 
         Returns:
-            list[numpy.float64]: The values read in from the file.
+            numpy.ndarray: The values read in from the file.
         """
-        the_line = self._read()
+        the_line = self.__read()
         self._logger.debug("Found: " + the_line)
-        values = []
 
-        for value in the_line.split(","):
-            values.append(numpy.float64(value.split("=")[1]))
+        names = []
+        for variable in the_line.split(","):
+            names.append(variable.split("=")[0])
 
-        return values
+        types = []
+        for name in names:
+            types.append((name, "f8"))
+
+        final = numpy.zeros(1, types)
+
+        for variable in the_line.split(","):
+            value = numpy.float64(variable.split("=")[1])
+            name = variable.split("=")[0]
+            final[name][0] = value
+
+        return final
 
     def close(self):
         self._file.close()
@@ -472,16 +497,15 @@ class EVILWriter(definitions.TemplateWriter):
         Writes a single event to file at a time.
 
         Args:
-            data (collections.namedtuple): The namedtuple that contains
-                the data to be writen to the file.
+            data (numpy.ndarray): The array that contains the data to be
+                writen to the file.
         """
-        key_count = len(data._asdict()) - 1
+        key_count = len(list(data.dtype.names)) - 1
         string = ""
-        for index, key in enumerate(data._asdict()):
+        for index, key in enumerate(list(data.dtype.names)):
             if not index == 0 and not index == key_count:
                 string += ","
-            if not key == "standard_parsed_values":
-                string += str(key) + "=" + str(data._asdict()[key])
+                string += repr(key) + "=" + repr(data[key])
         string += "\n"
 
         self._file.write(string)
