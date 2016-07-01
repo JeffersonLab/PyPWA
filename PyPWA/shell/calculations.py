@@ -45,7 +45,8 @@ class ExtendedLikelihoodAmplitude(object):
             qfactor:
         """
         try:
-            value = -(numpy.sum(qfactor * numpy.log(data))) + (self._processed * numpy.sum(accepted))
+            value = -(numpy.sum(qfactor * numpy.log(data))) + \
+                     (self._processed * numpy.sum(accepted))
         except ZeroDivisionError:
             value = numpy.NaN
 
@@ -73,7 +74,9 @@ class UnextendedLikelihoodAmplitude(object):
 
 
 class Chi(object):
-    def likelihood(self, data, binned, qfactor):
+
+    @staticmethod
+    def likelihood(data, binned, qfactor):
         """
         Calculates the ChiSquare function
 
@@ -91,12 +94,13 @@ class FittingRunKernel(object):
         self._num_processes = num_processes
         self._parameter_names = parameter_names
 
-    def run(self, coms, *args):
+    def run(self, communication, *args):
         """
-        This is the function is called by minuit and acts as a wrapper for the \
-        users function
+        This is the function is called by minuit and acts as a wrapper for
+        the users function
 
         Args:
+            communication: Communication Pipes
             *args: The parameters in list format
 
         Returns:
@@ -107,12 +111,12 @@ class FittingRunKernel(object):
         for parameter, arg in zip(self._parameter_names, args):
             parameters_with_values[parameter] = arg
 
-        for pipe in coms:
+        for pipe in communication:
             pipe.send(parameters_with_values)
 
         values = numpy.zeros(shape=self._num_processes)
 
-        for index, pipe in enumerate(coms):
+        for index, pipe in enumerate(communication):
             values[index] = pipe.recieve()
 
         return numpy.sum(values)

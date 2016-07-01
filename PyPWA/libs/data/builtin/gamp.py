@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Gamp data reading and writing.
+"""
+Gamp data reading and writing.
 
 This file holds the Gamp Reader and Gamp Writer. These simply load the
 data into memory one event at a time and write to file one event at a
@@ -22,13 +23,11 @@ time. Only the previous loaded events are stored, anything later than that
 will not be saved in memory by these object.
 """
 
-import collections
 import io
 
 import numpy
 
 from PyPWA.libs.data import definitions
-from PyPWA.configuratr import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -52,8 +51,7 @@ class GampReader(definitions.TemplateReader):
             file_location (str): Name of the GAMP file, can be any size.
         """
         super(GampReader, self).__init__(file_location)
-        self._previous_event = None  # type: collections.namedtuple
-        self._particle_master = data_types.GampParticle()
+        self._previous_event = None  # type: numpy.ndarray
 
         self._start_input()
 
@@ -89,9 +87,9 @@ class GampReader(definitions.TemplateReader):
             StopIterator: End of file has been found.
         """
         count = int(self._file.readline().strip("\n"))
-        event = data_types.GampEvent(count)
+        event = numpy.zeros((count, 6), numpy.float64)
         for index in range(count):
-            event.append(self._make_particle(self._file.readline()))
+            event[index] = self._make_particle(self._file.readline())
         if event == "":
             raise StopIteration
         self._previous_event = event
@@ -101,7 +99,8 @@ class GampReader(definitions.TemplateReader):
     def previous_event(self):
         return self._previous_event
 
-    def _make_particle(self, string):
+    @staticmethod
+    def _make_particle(string):
         """
         Takes the string read in from the GAMP event and parses it into a
         named tuple to store the various values. All values are numpy data
@@ -111,20 +110,23 @@ class GampReader(definitions.TemplateReader):
             string (str): The string containing the GAMP Particle
 
         Returns:
-            GampParticle(namedtuple): The particle stored in a namedtuple.
+            numpy.ndarray: 2 dimensional array,
+                [particle_index][particles]
         """
         the_list = string.strip("\n").split(" ")
 
-        particle = self._particle_master.make_particle(
-            # Particle ID, Particle Charge
-            numpy.uint8(the_list[0]), numpy.int8(the_list[1]),
-            # Particle X Momentum, Particle Y Momentum
-            numpy.float64(the_list[2]), numpy.float64(the_list[3]),
-            # Particle Z Momentum, Particle Energy
-            numpy.float64(the_list[4]), numpy.float64(the_list[5])
-        )
+        particle = numpy.zeros(6, dtype=numpy.float64)
+        particle[0] = numpy.float64(the_list[0])  # Particle ID
+        particle[1] = numpy.float64(the_list[1])  # Particle Charge
+        particle[2] = numpy.float64(the_list[2])  # Particle X Momentum
+        particle[3] = numpy.float64(the_list[3])  # Particle Y Momentum
+        particle[4] = numpy.float64(the_list[4])  # Particle Z Momentum
+        particle[5] = numpy.float64(the_list[5])  # Particle Energy
 
         return particle
+
+    def close(self):
+        self._file.close()
 
 
 class GampWriter(definitions.TemplateWriter):
@@ -141,23 +143,22 @@ class GampWriter(definitions.TemplateWriter):
         super(GampWriter, self).__init__(file_location)
         self._file = io.open(file_location, "w")
 
-    def write(self, data):
+    def write(self, data: numpy.ndarray):
         """
         Writes the events the disk one event at a time, wont close the
         disk access until the close function is called or until the object
         is deleted.
 
         Args:
-            data (deque): the file that is to be written to disk.
+            numpy.ndarray: the file that is to be written to disk.
         """
-        self._file.write(str(len(data))+"\n")
-
         for particle in data:
-            self._file.write(
-                str(particle.id) + " " + str(particle.charge) + " " +
-                str(particle.x) + " " + str(particle.y) + " " +
-                str(particle.z) + " " + str(particle.energy) + "\n"
-            )
+            if not particle[0] == 0 and not particle[5] == 0:
+                self._file.write(
+                    repr(particle[0]) + " " + repr(particle[1]) + " " +
+                    repr(particle[2]) + " " + repr(particle[3]) + " " +
+                    repr(particle[4]) + " " + repr(particle[5]) + "\n"
+                )
 
     def close(self):
         self._file.close()
@@ -172,6 +173,28 @@ class GampMemory(definitions.TemplateMemory):
     OPTIMIZATIONS!
     """
 
+    @staticmethod
+    def __index_gamp(file_location):
+        """
+        Indexes the gamp file for the maximum particle count and event
+        count.
+
+        Args:
+            file_location (str):  The location of the file being read.
+
+        Returns:
+            list[event_index, particle_index]
+        """
+        particle_index = 0
+        with io.open(file_location) as stream:
+            for index, line in enumerate(stream):
+                filtered_line = line.strip("\n").strip()
+                if len(filtered_line) == 1:
+                    if int(filtered_line) > particle_index:
+                        particle_index = int(filtered_line)
+
+        return [index, particle_index]
+
     def parse(self, file_location):
         """
         Parses Gamp Files into a single list.
@@ -183,11 +206,38 @@ class GampMemory(definitions.TemplateMemory):
             list[GampEvent]: A list containing all the GampEvents from the
                 data file.
         """
+        indexes = self.__index_gamp(file_location)
         reader = GampReader(file_location)
-        events = []
-        for event in reader:
-            events.append(event)
+        events = numpy.zeros((indexes[0], indexes[1], 6), numpy.float64)
+
+        for index, event in enumerate(reader):
+            if not len(event) == indexes[1]:
+                event = numpy.resize(event, (indexes[1], 6))
+            events[index] = event
         return events
+
+    @staticmethod
+    def __filter_events(event):
+        """
+        Filters out zero events and returns a the array without those
+        events.
+
+        Args:
+            event (numpy.ndarray): The event you want zero particles
+                removed
+
+        Returns:
+            numpy.ndarray: The event with the zero particles striped of
+                it.
+        """
+        while True:
+            for index, particle in enumerate(event):
+                if particle[0] == 0 and particle[5] == 0:
+                    event = numpy.delete(event, index, axis=0)
+                    break
+            break
+
+        return event
 
     def write(self, file_location, data):
         """
@@ -198,12 +248,13 @@ class GampMemory(definitions.TemplateMemory):
         Args:
             file_location (str): The location where to write the GAMP
                 file.
-            data (list): The list containing all the GampEvents that are
-                to be written to disk.
+            data (numpy.ndarray): The list containing all the GampEvents
+                that are to be written to disk.
         """
         writer = GampWriter(file_location)
         for event in data:
-            writer.write(event)
+            new_event = self.__filter_events(event)
+            writer.write(new_event)
 
 
 class GampValidator(definitions.TemplateValidator):

@@ -15,14 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-PyPWA is an attempt to have a set multiprocessing tools to easy the Partial Wave
-Analysis process.
+PyPWA is an attempt to have a set multiprocessing tools to easy the
+Partial Wave Analysis process.
 
-Current there is a multiprocessing tool for both the Acceptance Rejection Model,
-and the Maximum-Likelihood Estimation for fitting.
+Current there is a multiprocessing tool for both the Acceptance Rejection
+Model, and the Maximum-Likelihood Estimation for fitting.
 
-The tools work with Kinematic Variables defined in standard text files, Comma
-Separated Variables, and Tab Seperated Variables.
+The tools work with Kinematic Variables defined in standard text files,
+Comma Separated Variables, and Tab Separated Variables.
 
 Example:
     For both the GeneralFitting and the GeneralSimulator you should

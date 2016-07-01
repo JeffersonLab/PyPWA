@@ -19,7 +19,7 @@ Entry point for console GeneralShell
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configuratr.wrappers import StartBuilder
+from PyPWA.configurator.wrappers import StartConfigurator
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -30,9 +30,10 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-@StartBuilder()
+@StartConfigurator()
 def likelihood_fitting(*args):
-    description = u"Amplitude Fitting using the Likelihood Estimation Method."
+    description = u"Amplitude Fitting using the Likelihood Estimation " \
+                  u"Method."
     configuration = {
         "Description": description,
         "Calculation": example.example,
@@ -44,7 +45,7 @@ def likelihood_fitting(*args):
     return configuration
 
 
-@StartBuilder()
+@StartConfigurator()
 def simulator(*args):
     description = u"Simulation using the the Acceptance Reject Method"
     configuration = {
@@ -58,7 +59,7 @@ def simulator(*args):
     return configuration
 
 
-@StartBuilder()
+@StartConfigurator()
 def intensities(*args):
     description = u"Generates the Intensities for Rejection Method"
     configuration = {
@@ -72,7 +73,7 @@ def intensities(*args):
     return configuration
 
 
-@StartBuilder()
+@StartConfigurator()
 def rejection_method(*args):
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method"
@@ -87,7 +88,7 @@ def rejection_method(*args):
     return configuration
 
 
-@StartBuilder()
+@StartConfigurator()
 def chi_squared(*args):
     description = u"Amplitude Fitting using the ChiSquared Method"
     configuration = {

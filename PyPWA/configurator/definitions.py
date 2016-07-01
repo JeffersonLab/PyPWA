@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Templates and Exceptions for PyPWA
+"""
+Templates and Exceptions for PyPWA
 
 This file holds all the templates and exceptions used for the entirety of
 PyPWA from the class that need to be extended to build your own plugin and

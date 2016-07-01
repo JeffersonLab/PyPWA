@@ -15,8 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This module is the main module for the shell and all the things needed for the
-shell to operate.
+This module is the main module for the shell and all the things needed for
+the shell to operate.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS

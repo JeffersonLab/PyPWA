@@ -39,7 +39,6 @@ import logging
 import numpy
 
 from PyPWA.libs.data import definitions
-from PyPWA.configurator import data_types
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -81,6 +80,24 @@ class DictOfArrays(KvInterface):
     Handles old Kv format
     """
 
+    def _create_empty_array(self, file_location):
+
+        file_length = self.file_length(file_location)
+
+        with open(file_location) as stream:
+            first_line = stream.readline()
+
+        names = []
+
+        for x in range(len(first_line.split(","))):
+            names.append(first_line.split(",")[x].split("=")[0])
+
+        types = []
+        for name in names:
+            types.append((name, "f8"))
+
+        return numpy.zeros(file_length, types)
+
     def parse(self, file_location):
         """
         Loads Kv data into memory
@@ -89,34 +106,27 @@ class DictOfArrays(KvInterface):
             file_location (str): Path of file
 
         Returns:
-            dict: name : numpy array of events
+            numpy.ndarray: A structured array of the data.
         """
-
-        file_length = self.file_length(file_location)
-
-        with open(file_location) as stream:
-            first_line = stream.readline()
-
-        parsed = {}
-
-        for x in range(len(first_line.split(","))):
-            parsed[first_line.split(",")[x].split("=")[0]] = numpy.zeros(
-                shape=file_length, dtype="float64"
-            )
+        data = self._create_empty_array(file_location)
 
         # This is ugly, don't look.
         with io.open(file_location) as stream:
             for index, line in enumerate(stream):
                 for particle_count in range(len(line.split(","))):
-                    parsed[line.split(",")[particle_count].split("=")[0]][
-                        index] = \
+
+                    particle_name = \
+                        line.split(",")[particle_count].split("=")[0]
+
+                    particle_value = \
                         numpy.float64(
                             line.strip("\n").split(",")[
-                                particle_count].split("=")[1])
+                                particle_count].split("=")[1]
+                        )
 
-        event = data_types.GenericEvent(list(parsed.keys()))
-        final = event.make_particle(list(parsed.values()))
-        return final
+                    data[particle_name][index] = particle_value
+
+        return data
 
     def write(self, file_location, data):
         """
@@ -124,21 +134,23 @@ class DictOfArrays(KvInterface):
 
         Args:
             file_location (str): path to file
-            data (collections.namedtuple): dict of numpy arrays
+            data (numpy.ndarray): dict of numpy arrays
         """
 
-        kvars = data.standard_parsed_values
-        the_data = data._asdict()
+        kinematic_variables = list(data.dtype.names)
 
         with open(file_location, "w") as stream:
-            for event in range(len(the_data[kvars[0]])):
+            for event in range(len(data[kinematic_variables[0]])):
                 line = ""
-                for kvar in range(len(kvars)):
-                    if kvar > 0:
+                for kinematic_variable in range(len(kinematic_variables)):
+                    if kinematic_variable > 0:
                         line += ","
-                    line += "{0}={1}".format(kvars[kvar], str(
-                        the_data[kvars[kvar]][event]
-                    ))
+                    line += "{0}={1}".format(
+                        kinematic_variables[kinematic_variable],
+                        repr(data[
+                            kinematic_variables[kinematic_variable]
+                        ][event])
+                    )
                 line += "\n"
                 stream.write(line)
 
@@ -161,7 +173,7 @@ class ListOfFloats(KvInterface):
 
         file_length = self.file_length(file_location)
 
-        parsed = numpy.zeros(shape=file_length, dtype="float64")
+        parsed = numpy.zeros(file_length, "f8")
 
         with io.open(file_location) as stream:
             for count, line in enumerate(stream):
@@ -178,7 +190,7 @@ class ListOfFloats(KvInterface):
         """
         with open(file_location, "w") as stream:
             for event in data:
-                stream.write(str(event) + "\n")
+                stream.write(repr(event) + "\n")
 
 
 class ListOfBooleans(KvInterface):
@@ -217,7 +229,7 @@ class ListOfBooleans(KvInterface):
         """
         with open(file_location, "w") as stream:
             for weight in data:
-                stream.write(str(int(weight)) + "\n")
+                stream.write(repr(int(weight)) + "\n")
 
 
 class SomewhatIntelligentSelector(KvInterface):
@@ -245,8 +257,7 @@ class SomewhatIntelligentSelector(KvInterface):
                 read in from the disk.
 
         Returns:
-            data_types.GenericEvent:  The data that was parsed from the
-                disk.
+            numpy.ndarray:  The data that was parsed from the disk.
         """
         validator = EVILValidator(file_location)
         validator.test()
@@ -269,8 +280,7 @@ class SomewhatIntelligentSelector(KvInterface):
 
         Args:
             file_location (str): Where to write the data.
-            data (tuple | numpy.ndarray): The data that needs to be
-                written to disk.
+            data numpy.ndarray: The data that needs to be written to disk.
         """
         if isinstance(data, tuple):
             self._logger.debug("Found type tuple, assuming GenericEvent.")
@@ -311,9 +321,8 @@ class EVILReader(definitions.TemplateReader):
         super(EVILReader, self).__init__(file_location)
         self._previous_event = None
         self._file = False  # type: io.TextIOBase
-        self._parameters = False  # type: list[str]
+        self._parameters = False  # type: [str]
         self._file_data_type = False  # type: str
-        self._master_particle = False  # type: data_types.GenericEvent
 
         self._start_input()
 
@@ -331,10 +340,6 @@ class EVILReader(definitions.TemplateReader):
             self._set_data_type()
         if not isinstance(self._parameters, list):
             self._build_params()
-        if not self._master_particle:
-            self._master_particle = data_types.GenericEvent(
-                self._parameters
-            )
 
     def _build_params(self):
         """
@@ -377,8 +382,7 @@ class EVILReader(definitions.TemplateReader):
         Reads in a single line and parses the line into a GenericEvent.
 
         Returns:
-            PyPWA.configuratr.data_types.GenericEvent: The named tuple
-                that holds the data.
+            numpy.ndarray: The values of the array.
         """
         if self._file_data_type == "DictOfArrays":
             values = self._read_dict()
@@ -387,14 +391,14 @@ class EVILReader(definitions.TemplateReader):
         else:
             values = self._read_float()
 
-        self._previous_event = self._master_particle.make_particle(values)
+        self._previous_event = values
         return self._previous_event
 
     @property
     def previous_event(self):
         return self.previous_event
 
-    def _read(self):
+    def __read(self):
         """
         Reads a single line from the file and removes the spaces and
         newline.
@@ -415,19 +419,23 @@ class EVILReader(definitions.TemplateReader):
         Reads a single line and returns the bool value from that line.
 
         Returns:
-            bool: True or False depending on the value of the line that
-                was read.
+            numpy.ndarray: True or False depending on the value of the
+                line that was read.
         """
-        return [bool(self._read())]
+        x = numpy.zeros(1, bool)
+        x[0] = bool(self.__read())
+        return x
 
     def _read_float(self):
         """
         Reads a single line and returns the float value from the line.
 
         Returns:
-            numpy.float64: The value read in from the file.
+            numpy.ndarray: The value read in from the file.
         """
-        return [numpy.float64(self._read())]
+        x = numpy.zeros(1, "f8")
+        x[0] = numpy.float64(self.__read())
+        return x
 
     def _read_dict(self):
         """
@@ -435,16 +443,30 @@ class EVILReader(definitions.TemplateReader):
         from the file.
 
         Returns:
-            list[numpy.float64]: The values read in from the file.
+            numpy.ndarray: The values read in from the file.
         """
-        the_line = self._read()
+        the_line = self.__read()
         self._logger.debug("Found: " + the_line)
-        values = []
 
-        for value in the_line.split(","):
-            values.append(numpy.float64(value.split("=")[1]))
+        names = []
+        for variable in the_line.split(","):
+            names.append(variable.split("=")[0])
 
-        return values
+        types = []
+        for name in names:
+            types.append((name, "f8"))
+
+        final = numpy.zeros(1, types)
+
+        for variable in the_line.split(","):
+            value = numpy.float64(variable.split("=")[1])
+            name = variable.split("=")[0]
+            final[name][0] = value
+
+        return final
+
+    def close(self):
+        self._file.close()
 
 
 class EVILWriter(definitions.TemplateWriter):
@@ -466,16 +488,15 @@ class EVILWriter(definitions.TemplateWriter):
         Writes a single event to file at a time.
 
         Args:
-            data (collections.namedtuple): The namedtuple that contains
-                the data to be writen to the file.
+            data (numpy.ndarray): The array that contains the data to be
+                writen to the file.
         """
-        key_count = len(data._asdict()) - 1
+        key_count = len(list(data.dtype.names)) - 1
         string = ""
-        for index, key in enumerate(data._asdict()):
+        for index, key in enumerate(list(data.dtype.names)):
             if not index == 0 and not index == key_count:
                 string += ","
-            if not key == "standard_parsed_values":
-                string += str(key) + "=" + str(data._asdict()[key])
+                string += repr(key) + "=" + repr(data[key])
         string += "\n"
 
         self._file.write(string)

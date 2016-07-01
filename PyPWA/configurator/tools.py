@@ -160,9 +160,9 @@ class DataLocation(object):
             location (str): The File Name or path to file.
             extension (str): The optional extension.
             directory (str): The directory rendered by appdirs
-            error (definitions.NoPath): The error to throw if no directory
-                can be found.
-            message (str): The message paried with the raised error.
+            error (definitions.NoPath()): The error to throw if no
+                directory can be found.
+            message (str): The message paired with the raised error.
 
         Returns:
             str: The assured directory and optional file name for the
@@ -176,7 +176,7 @@ class DataLocation(object):
 
     def _test_dir_group(self, test_dir):
         """
-        Checks both the cwd and appdir.
+        Checks both the cwd and appdirs.
 
         Args:
             test_dir (str): The directory found by appdirs.

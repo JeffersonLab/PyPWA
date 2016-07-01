@@ -64,7 +64,8 @@ class Minuit(object):
         minimal = iminuit.Minuit(
             self._calc_function,
             forced_parameters=self._parameters,
-            **self._settings )
+            **self._settings
+        )
 
         minimal.set_strategy(self._strategy)
         minimal.set_up(self._set_up)
@@ -84,12 +85,13 @@ The function with all the documentation required to build the parameter
 space. Right now we don't understand this.
 """
 
-metadata = [{
+metadata = [
+    {
         "name": "Minuit",
         "provides": "minimization",
         "minimizer": Minuit,
         "require function": False
-    },
+},
     {
         "name": "MultiNest",
         "provides": "minimization",
