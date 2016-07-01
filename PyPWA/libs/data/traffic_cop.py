@@ -14,7 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""The utility objects for the Data Plugin
+"""
+The utility objects for the Data Plugin
 
 This holds all the main objects for the data plugin. This has search
 functions but these objects should never know anything about the data
