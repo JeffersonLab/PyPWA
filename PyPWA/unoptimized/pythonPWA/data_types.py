@@ -54,7 +54,10 @@ class Wave(object):
             ["epsilon", "complex_amplitudes", "beta", "k", "filename"]
         )
 
-    def make_wave(self, epsilon, complex_amplitudes, beta, k, filename):
+    def make_wave(
+            self, epsilon=0, complex_amplitudes=[],
+            beta=0, k=0, filename=None
+    ):
         return self._master_wave(
             epsilon, complex_amplitudes,
             beta, k,
