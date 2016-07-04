@@ -37,8 +37,8 @@ class Control(object):
         This program is the pwa_controls GUI, or the gui the user uses to
         specify environment variables for PyPWA.
     """
-    
-    def __init__(self,                 
+
+    def __init__(self,
                  reactMode = 24,
                  BeamPole = 0.4,
                  LoMass = 1000,
@@ -48,8 +48,8 @@ class Control(object):
                  MigNcal = 1000,
                  reactNm = None,
                  pltLstNm = None,
-                 project = None):            
-       
+                 project = None):
+
         self.reactModeL = reactMode
         self.BeamPoleL = BeamPole
         self.UpMassL = UpMass
@@ -63,12 +63,12 @@ class Control(object):
 
     def reactMode(self):
         rM = ent0.get()
-        self.reactModeL = rM        
+        self.reactModeL = rM
 
     def BeamPole(self):
         Bp = ent1.get()
         self.BeamPoleL = Bp
-        
+
     def LoMass(self):
         Lm = ent2.get()
         self.LoMassL = Lm
@@ -96,7 +96,7 @@ class Control(object):
     def pltLstNm(self):
         plN = ent8.get()
         self.pltLstNmL = plN
-    
+
     def projNm(self):
         prN = ent9.get()
         self.project = prN
@@ -112,7 +112,7 @@ class Control(object):
         self.reactNm()
         self.pltLstNm()
         self.projNm()
-    
+
     def load(self,Con):
         self.reactModeL = Con[0]
         self.BeamPoleL = Con[1]
@@ -124,7 +124,7 @@ class Control(object):
         self.reactNmL = Con[7]
         self.pltLstNmL = Con[8]
         self.project = Con[9]
-        
+
         ent0.insert("end",Con[0])
         ent1.insert("end",Con[1])
         ent2.insert("end",Con[2])
@@ -135,14 +135,14 @@ class Control(object):
         ent7.insert("end",Con[7])
         ent8.insert("end",Con[8])
         ent9.insert("end",Con[9])
-        
+
     def save(self):
         self.run()
         Con = [int(self.reactModeL),
                 float(self.BeamPoleL),
-                int(self.LoMassL),       
-                int(self.UpMassL),   
-                int(self.RaMassL),   
+                int(self.LoMassL),
+                int(self.UpMassL),
+                int(self.RaMassL),
                 int(self.NumSetL),
                 int(self.MigNcalL),
                 self.reactNmL,
@@ -157,7 +157,7 @@ class Control(object):
         tx = Help()
         label = tk.Label(window, text=tx.CFhelp)
         label.pack(side="top", fill="both", padx=10, pady=10)
-            
+
 
 Lst = [
     'Reaction Mode ',
