@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 import subprocess as sp
@@ -12,17 +12,17 @@ class graphicPlotSim(object):
     """
         This is the graphicPlot GUI optimized for simulation.
     """
-    
+
     def __init__(self,
                     topDir = os.getcwd().strip("GUI"),
                     flatL = [],
                     nTrue = [],
                     accUW = [],
                     rawW = [],
-                    accW = [],                    
-                    nTA = [],                    
+                    accW = [],
+                    nTA = [],
                     ran = [],
-                    wvs = [],                    
+                    wvs = [],
                     allL = [[] for i in range(11)],
                     plts = [],
                     nms = []):
@@ -32,17 +32,17 @@ class graphicPlotSim(object):
         self.nTrue = nTrue
         self.accUW = accUW
         self.rawW = rawW
-        self.accW = accW        
-        self.nTA = nTA        
+        self.accW = accW
+        self.nTA = nTA
         self.ran = ran
-        self.wvs = wvs       
+        self.wvs = wvs
         self.allL = allL
         self.plts = plts
-        self.nms = nms          
-        self.Control = numpy.load("Control_List.npy")       
+        self.nms = nms
+        self.Control = numpy.load("Control_List.npy")
 
     def loadl(self):
-        self.Control = numpy.load("Control_List.npy") 
+        self.Control = numpy.load("Control_List.npy")
         if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
             self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"))
             self.flatL = self.allL[0]
@@ -54,7 +54,7 @@ class graphicPlotSim(object):
             self.ran = self.allL[6]
             self.wvs = self.allL[7]
             self.plts = self.allL[8]
-            self.nms = self.allL[9]               
+            self.nms = self.allL[9]
             text.delete("0.0wordstart", "end")
             text.insert("end",self.Control[8]+"\n"+"LOADED")
         elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
@@ -72,9 +72,9 @@ class graphicPlotSim(object):
                         self.ran,
                         self.wvs,
                         self.plts,
-                        self.nms                           
+                        self.nms
                         ]
-        text.delete("0.0wordstart", "end")     
+        text.delete("0.0wordstart", "end")
         text.insert("end","PLotList UPDATED")
         return self.allL
 
@@ -82,7 +82,7 @@ class graphicPlotSim(object):
         with open(fname) as f:
             num = f.readlines()
         return float(num[0])
-    
+
     def file_len(self,fname):
         with open(fname) as f:
             g = f.readline(limit=1)
@@ -95,8 +95,8 @@ class graphicPlotSim(object):
         for r in sorted(os.listdir(os.path.join(self.topDir,"simulation"))):
             if "_MeV" in r:
                 rang.append(r.strip("_MeV"))
-        self.ran = rang 
-        text.delete("0.0wordstart", "end")     
+        self.ran = rang
+        text.delete("0.0wordstart", "end")
         text.insert("end","RANGE UPDATED")
 
     def up_flat(self):
@@ -146,9 +146,9 @@ class graphicPlotSim(object):
                     if d == self.ran[0]:
                         self.wvs.append(nT[i])
                     self.nTA[b].append(nT[i+1])
-                    b+=1                    
+                    b+=1
         text.delete("0.0wordstart", "end")
-        text.insert("end","nTrue UPDATED")
+        text.insert("end","number_true UPDATED")
 
     def savel(self):
         self.mk_all()
@@ -156,13 +156,13 @@ class graphicPlotSim(object):
         text.delete("0.0wordstart", "end")
         text.insert("end","SAVED")
         self.destrFr()
-        self.wv_Buttons(len(GPS.allL[7]))  
+        self.wv_Buttons(len(GPS.allL[7]))
         root.update()
-        
+
     def up_all(self):
         text.delete("0.0wordstart", "end")
         text.insert("end","UPDATE STARTED")
-        root.update() 
+        root.update()
         self.up_range()
         root.update()
         self.up_flat()
@@ -170,11 +170,11 @@ class graphicPlotSim(object):
         self.up_accUW()
         root.update()
         self.up_rawW()
-        root.update()        
+        root.update()
         self.up_accW()
-        root.update()    
+        root.update()
         self.up_nTrue()
-        root.update()       
+        root.update()
         self.mk_all()
 
     def add_all(self):
@@ -184,13 +184,13 @@ class graphicPlotSim(object):
         self.add_accW()
         self.add_nTrue()
         text.delete("0.0wordstart", "end")
-        text.insert("end","flat, accUW, rawW, accW, nTrue"+"\n"+"\t"+"ADDED")  
+        text.insert("end","flat, accUW, rawW, accW, number_true"+"\n"+"\t"+"ADDED")
 
     def add_flat(self):
         self.plts.append(self.flatL)
         self.nms.append("Flat")
         text.delete("0.0wordstart", "end")
-        text.insert("end","flat ADDED")   
+        text.insert("end","flat ADDED")
 
     def add_accUW(self):
         self.plts.append(self.accUW)
@@ -212,13 +212,13 @@ class graphicPlotSim(object):
 
     def add_nTrue(self):
         self.plts.append(self.nTrue)
-        self.nms.append("nTrue total")
+        self.nms.append("number_true total")
         text.delete("0.0wordstart", "end")
-        text.insert("end","nTrue ADDED")
+        text.insert("end","number_true ADDED")
 
     def add_nTrue_wave(self,x):
         self.plts.append(self.nTA[x])
-        self.nms.append(self.wvs[x].strip(".bamp")+"True")        
+        self.nms.append(self.wvs[x].strip(".bamp")+"True")
         text.delete("0.0wordstart", "end")
         text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")
 
@@ -227,12 +227,12 @@ class graphicPlotSim(object):
         text.insert("end","PLOTTING")
         marker = itertools.cycle(('D','8','o','^','h','p','s','*','x','+'))
         fig, ax1 = plt.subplots()
-        for i in range(len(lis)):                
-            ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i]) 
+        for i in range(len(lis)):
+            ax1.plot(self.ran,self.plts[i],linestyle='',marker=marker.next(),label=self.nms[i])
             ax1.legend()
             ax1.set_ylabel("Events")
-            ax1.set_xlabel("Mass (MeV)")        
-        plt.title(self.Control[7]+" "+self.Control[8])        
+            ax1.set_xlabel("Mass (MeV)")
+        plt.title(self.Control[7]+" "+self.Control[8])
         plt.show()
         self.plts = []
         self.nms = []
@@ -246,21 +246,21 @@ class graphicPlotSim(object):
         self.nms = []
 
     def wv_Buttons(self,lent):
-        frame4=tk.Frame(frame3)        
-        frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")        
+        frame4=tk.Frame(frame3)
+        frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
         x = 0
         t = 0
         for y in range(lent):
-            btn = tk.Button(frame4, text = GPS.wvs[y].strip(".bamp")+"\n"+"nTrue", command = lambda x=x,t=t: GPS.add_nTrue_wave((x*9)+t+x))         
-            btn.grid(column=t,row=x)            
+            btn = tk.Button(frame4, text = GPS.wvs[y].strip(".bamp")+"\n"+"number_true", command = lambda x=x,t=t: GPS.add_nTrue_wave((x*9)+t+x))
+            btn.grid(column=t,row=x)
             t += 1
             if t > 9:
                 t = 0
-                x += 1        
-    
+                x += 1
+
     def destrFr(self):
         frame4.destroy()
-    
+
     def help_window(self):
         window = tk.Toplevel(root)
         window.wm_title("HELP")
@@ -300,12 +300,12 @@ lent = len(GPS.allL[7])
 
 GPS.wv_Buttons(lent)
 
-Pall = tk.Button(frame2, text="PLOT"+"\n"+"ALL",  command=lambda: GPS.add_all())        
+Pall = tk.Button(frame2, text="PLOT"+"\n"+"ALL",  command=lambda: GPS.add_all())
 Pflat = tk.Button(frame2, text="PLOT"+"\n"+"flat",  command=lambda: GPS.add_flat())
 PaccUW = tk.Button(frame2, text="PLOT"+"\n"+"accUW",  command=lambda: GPS.add_accUW())
 PrawW = tk.Button(frame2, text="PLOT"+"\n"+"rawW",  command=lambda: GPS.add_rawW())
-PaccW = tk.Button(frame2, text="PLOT"+"\n"+"accW",  command=lambda: GPS.add_accW())	
-PnTrue = tk.Button(frame2, text="PLOT"+"\n"+"nTrue",  command=lambda: GPS.add_nTrue())
+PaccW = tk.Button(frame2, text="PLOT"+"\n"+"accW",  command=lambda: GPS.add_accW())
+PnTrue = tk.Button(frame2, text="PLOT"+"\n"+"number_true",  command=lambda: GPS.add_nTrue())
 help = tk.Button(frame2, text="HELP",  command=lambda: GPS.help_window())
 Plot = tk.Button(frame2, text="PLOT", fg = "red", command=lambda: GPS.plot(GPS.plts))
 
@@ -321,17 +321,17 @@ Plot.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
 cob = tk.Button(frame, text="pwa"+"\n"+"Controls", command=lambda: sp.call(os.getcwd()+"/pwa_controls"))
 load = tk.Button(frame, text="LOAD", command=lambda: GPS.loadl())
 Uall = tk.Button(frame, text="UPDATE"+"\n"+"ALL", command=lambda: GPS.up_all())
-Uran = tk.Button(frame, text="UPDATE"+"\n"+"RANGE", command=lambda: GPS.up_range())        
+Uran = tk.Button(frame, text="UPDATE"+"\n"+"RANGE", command=lambda: GPS.up_range())
 Uflat = tk.Button(frame, text="UPDATE"+"\n"+"flat", command=lambda: GPS.up_flat())
 UaccUW = tk.Button(frame, text="UPDATE"+"\n"+"accUW", command=lambda: GPS.up_accUW())
 UrawW = tk.Button(frame, text="UPDATE"+"\n"+"rawW", command=lambda: GPS.up_rawW())
 UaccW = tk.Button(frame, text="UPDATE"+"\n"+"accW", command=lambda: GPS.up_accW())
-UnTrue = tk.Button(frame, text="UPDATE"+"\n"+"nTrue", command=lambda: GPS.up_nTrue())
+UnTrue = tk.Button(frame, text="UPDATE"+"\n"+"number_true", command=lambda: GPS.up_nTrue())
 save = tk.Button(frame, text="SAVE",  command=lambda: GPS.savel())
 
 cob.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
 Uall.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
-Uran.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")      
+Uran.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
 Uflat.grid(row=0,column=3,sticky="N"+"S"+"E"+"W")
 UaccUW.grid(row=0,column=4,sticky="N"+"S"+"E"+"W")
 UrawW.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
