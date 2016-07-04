@@ -6,13 +6,10 @@ Created on Thu Jul  3 14:25:12 2014
 """
 
 import os
-import sys
 import time
-import io
-import profile
 import numexpr as ne
 
-from PyPWA.unoptimized.fileHandlers.gampReader import gampReader
+from PyPWA.libs.data.builtin import gamp
 
 
 ne.set_num_threads(4)
@@ -20,11 +17,11 @@ class gampSlist(object):
     def __init__(self, indir, gfile):
         self.indir = indir
         self.gfile = gfile
-        print( time.time())
-        igreader=gampReader(gampFile = open(os.path.join(indir,gfile),'r'))
-        self.events = igreader.readGamp()
-        print( time.time())
+        print(time.time())
+        self.events = gamp.GampMemory.parse(os.path.join(indir,gfile) + 'length')
+        print(time.time())
         self.eventslist = []
+
     def generate(self):
         for event in self.events:
             for particles in event.particles:
@@ -63,24 +60,12 @@ class gampSlist(object):
             self.eventslist.append(slist)
         print(time.time())
         return self.eventslist
-        
+
     def toFile(self, outputdir, outputFile):
         f = open(os.path.join(outputdir, outputFile), 'w')
         f.write(str(len(self.events)) + "\n")
         for slist in self.eventslist:
             f.write(str(slist) + "\n")
         f.close()
-        
-###example
-indir = "/home/sbramlett/Documents/"
-gfile = "test.gamp"
-##print indir
-##
-igreader=gampReader(gampFile = io.open(os.path.join(indir,gfile),'r'))
-profile.run('igreader.readGamp();print')
-#slist = gampSlist(indir, gfile)       
-#slist.generate()
-#print slist.eventslist
-#slist.toFile(indir, "eventsSlist.txt")
 
-    
+
