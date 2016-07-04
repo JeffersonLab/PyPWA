@@ -16,6 +16,7 @@
 
 import numpy
 
+from PyPWA.unoptimized.pythonPWA.utilities import breitWigner
 from PyPWA import LICENSE, STATUS, VERSION
 
 __author__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
@@ -79,3 +80,80 @@ class SpinDensity(object):
         )
 
         return .5 * complex_ρ_matrix
+
+
+def magnitude_v(mass, resonance, wave, waves, normalized_integral):
+    """
+    Returns the magnitude of the production amplitude V, for a specified
+    wave, resonance, wave in the set of waves, and normalization integral.
+    """
+
+    breit_wigner_solution = breitWigner.breit_wigner_function(
+        mass, resonance.w0, resonance.r0
+    )
+
+    integral_solution = 1. / normalized_integral[
+        wave.epsilon,
+        wave.epsilon,
+        waves.index(wave),
+        waves.index(wave)
+    ]
+
+    final_solution = numpy.sqrt(
+        integral_solution * resonance.wR[waves.index(wave)] *
+        resonance.cR * breit_wigner_solution *
+        numpy.conjugate(breit_wigner_solution)
+    )
+
+    return final_solution
+
+
+def get_φ(mass, resonance):
+    """
+    Returns the value of Phi used in complex production amplitude
+    calculation, and thus number of _events (number_true.number_true()), for a
+    specified mass and resonance. Invert Mass and Resonance to flip the
+    function to arc-co-tan
+
+    Args:
+        mass (float):
+        resonance (pythonPWA.dataTypes.resonance):
+
+    Returns:
+        Float representing the value of φ.
+    """
+    return numpy.arctan(
+        (resonance.r0 * resonance.w0) / (mass**2 - resonance.w0**2)
+    )
+
+
+def complexV(resonance, wave, waves, normalized_integral, mass):
+    """
+    Production amplitude (V) function.
+
+    Args:
+        resonance (pythonPWA.dataTypes.resonance):
+        wave (pythonPWA.dataTypes.wave):
+        waves (list)
+        normalized_integral (pythonPWA.model.NormalizeIntegral):
+        mass (float):
+
+    Returns:
+        A numpy.complex value representing a production amplitude.
+
+    """
+
+    magnitude = magnitude_v(
+        mass, resonance, wave, waves, normalized_integral
+    )
+
+    φ_cos = numpy.cos(
+        get_φ(mass, resonance) + resonance.phase
+    )
+
+    φ_sin = numpy.sin(
+        get_φ(mass, resonance) + resonance.phase
+    )
+
+    return numpy.complex(magnitude * φ_cos, magnitude * φ_sin)
+
