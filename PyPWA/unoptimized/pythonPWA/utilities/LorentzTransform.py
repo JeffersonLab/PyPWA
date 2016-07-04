@@ -4,8 +4,7 @@ Created on Wed Jun 25 15:13:23 2014
 
 @author: sbramlett
 """
-from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
-from PyPWA.unoptimized.pythonPWA.utilities.ThreeVec import ThreeVector
+from PyPWA.unoptimized.pythonPWA.utilities import vectors
 import numpy as np
 import sys, os
 #sys.path.append("/home/sbramlett/workspace/PythonPWA/bdemello/pythonPWA/pythonPWA/pythonPWA/utilities")
@@ -22,11 +21,11 @@ class lorentzTransform(object):
     def __init__(self, a = 1., b = 1., g = 1.):
         #sets beta, the velocity = p/E
         self.m = np.matrix(np.identity(4))
-        if isinstance(a, FourVector):
+        if isinstance(a, vectors.FourVector):
             x = -a.x / a.E
             y = -a.y / a.E
             z = -a.z / a.E
-            _beta = ThreeVector(x, y, z)
+            _beta = vectors.ThreeVector(x, y, z)
             self.setBeta(_beta)
         if type(a) == np.matrix:
             self.m = a
@@ -59,11 +58,11 @@ class lorentzTransform(object):
         row2 = this[2]
         row3 = this[3]
         return str(row0) + "\n" + str(row1) + "\n" + str(row2) + "\n" + str(row3) + "\n"
-       
+
     def __repr__(self):
         return self.toString()
-    
-    
+
+
 #v = FourVector(-0.165421, -0.188449, 0.546792, 1.11454)
 ##print v
 ##print "in main",type(v)
@@ -78,6 +77,5 @@ class lorentzTransform(object):
 #l = lorentzTransform(test)
 #print l
 #test.times(l)
-#print test      
+#print test
 
-  
