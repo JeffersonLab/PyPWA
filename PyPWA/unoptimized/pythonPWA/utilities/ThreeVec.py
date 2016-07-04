@@ -30,27 +30,63 @@ __version__ = VERSION
 class ThreeVector(object):
 
     def __init__(self, x=0, y=0, z=0):
+        """
+
+        Args:
+            x (numpy.float64):
+            y (numpy.float64):
+            z (numpy.float64):
+        """
         self.x = x
         self.y = y
         self.z = z
         self.vector = [self.x, self.y, self.z]
 
     def __repr__(self):
+        """
+
+        Returns:
+            str:
+        """
         return str(self.vector)
 
     def __add__(self, vector):
+        """
+
+        Args:
+            vector (ThreeVector):
+
+        Returns:
+            ThreeVector:
+        """
         px = self.x + vector.x
         py = self.y + vector.y
         pz = self.z + vector.z
         return ThreeVector(px, py, pz)
 
     def __sub__(self, vector):
+        """
+
+        Args:
+            vector (ThreeVector):
+
+        Returns:
+            ThreeVector:
+        """
         px = self.x - vector.x
         py = self.y - vector.y
         pz = self.z - vector.z
         return ThreeVector(px, py, pz)
 
     def __mul__(self, vector):
+        """
+
+        Args:
+            vector (numpy.float64 | ThreeVector):
+
+        Returns:
+            ThreeVector:
+        """
         if isinstance(vector, ThreeVector):
             px = self.y * vector.z - self.z * vector.y
             py = self.z * vector.x - self.x * vector.z
@@ -62,12 +98,28 @@ class ThreeVector(object):
         return ThreeVector(px, py, pz)
 
     def dot(self, three_vec):
+        """
+
+        Args:
+            three_vec (ThreeVector):
+
+        Returns:
+            numpy.float64:
+        """
         new_x = self.x * three_vec.x
         new_y = self.y * three_vec.y
         new_z = self.z * three_vec.z
         return new_x + new_y + new_z
 
-    def cosTheta(self, three_vec):
+    def cos_vector_theta(self, three_vec):
+        """
+
+        Args:
+            three_vec (ThreeVector):
+
+        Returns:
+            numpy.float64:
+        """
         if isinstance(three_vec, ThreeVector):
             dot_product = self.dot(three_vec)
             return dot_product / self.length / three_vec.length
