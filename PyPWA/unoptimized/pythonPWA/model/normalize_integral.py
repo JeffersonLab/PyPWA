@@ -18,7 +18,7 @@ import os
 
 import numpy
 
-from PyPWA.unoptimized.pythonPWA.model.spinDensity import spinDensity
+from PyPWA.unoptimized.pythonPWA.model import models
 from PyPWA import LICENSE, STATUS, VERSION
 
 __author__ = ["Brandon Kaleiokalani DeMello", "Mark Jones"]
@@ -67,7 +67,11 @@ class NormalizeIntegral(object):
         normalization integral.
         """
         for event_number, alpha in enumerate(self.alphaList):
-            spindensity = spinDensity(self.beamPolarization, alpha)
+
+            spindensity = models.SpinDensity.calculate(
+                self.beamPolarization, alpha
+            )
+
             for wave1 in self.waves:
                 for wave2 in self.waves:
                     temp=wave1.complexamplitudes[event_number]*numpy.conj(wave2.complexamplitudes[event_number])*spindensity[wave1.epsilon,wave2.epsilon]
