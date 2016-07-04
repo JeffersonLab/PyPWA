@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -7,7 +7,7 @@
 .. moduleauthor:: Joshua Pond <jpond@jlab.org>
 
 
-""" 
+"""
 import numpy
 import os
 import sys
@@ -30,9 +30,9 @@ from PyPWA.unoptimized.pythonPWA.model.nTrue import calcStatSquaredError
 import operator
 
 
-def calcNTrueForDir(dataDir): 
+def calcNTrueForDir(dataDir):
     """
-        This function calculates the value of the total nTrue and the nTrue values for each wave for a single mass bin directory.
+        This function calculates the value of the total number_true and the number_true values for each wave for a single mass bin directory.
 
         Args:
         dataDir (string): The complete file path to the "mass_MeV" directory.
@@ -43,25 +43,25 @@ def calcNTrueForDir(dataDir):
     wvNameList=[]
     waves=getwaves(os.path.join(dataDir,"data"))
     accNormInt=numpy.load(os.path.join(dataDir,"mc","acc","normint.npy"))
-    rawNormInt=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))    
+    rawNormInt=numpy.load(os.path.join(dataDir,"mc","raw","normint.npy"))
     apath = os.path.join(dataDir,"mc","acc","alphaevents.txt")
     rpath = os.path.join(dataDir,"mc","raw","alphaevents.txt")
-    contents=numpy.load(os.path.join(dataDir,"Vvalues.npy"))    
-    orderedContents=sorted(contents.tolist().iteritems(),key=operator.itemgetter(0))    
+    contents=numpy.load(os.path.join(dataDir,"Vvalues.npy"))
+    orderedContents=sorted(contents.tolist().iteritems(),key=operator.itemgetter(0))
     vList=[]
     for i in range(0,len(orderedContents),2):
         realPart=orderedContents[i][1]
         imaginaryPart=orderedContents[i+1][1]
         vList.append(numpy.complex(realPart,imaginaryPart))
-    ntrueVal=ntrue(vList,waves,rawNormInt)       
-    nExpVal=nExp(vList,waves,accNormInt,apath,rpath)    
+    ntrueVal=ntrue(vList,waves,rawNormInt)
+    nExpVal=nExp(vList,waves,accNormInt,apath,rpath)
 
-    nTrueList=[]    
+    nTrueList=[]
     nExpList=[]
     nTrueList.append(ntrueVal)
     nExpList.append(nExpVal)
     for wave in waves:
-        nTrueList.append(ntrueforwave(vList[waves.index(wave)],waves,wave,rawNormInt).real)    
+        nTrueList.append(ntrueforwave(vList[waves.index(wave)],waves,wave,rawNormInt).real)
         nExpList.append(nExpforwave(vList[waves.index(wave)],waves,wave,accNormInt,apath,rpath).real)
         wvNameList.append(wave.filename)
 
@@ -83,12 +83,12 @@ def calcNTrueForDir(dataDir):
             buffer=numpy.zeros(shape=rawNormInt.shape)
             i=waves.index(wave)
             buffer[wave.epsilon,wave.epsilon,i,:]=rawNormInt[wave.epsilon,wave.epsilon,i,:]
-            statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)        
+            statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)
             error_list.append(numpy.sqrt(statSquared[0,0].real))
             buffer=numpy.zeros(shape=accNormInt.shape)
             i=waves.index(wave)
             buffer[wave.epsilon,wave.epsilon,i,:]=accNormInt[wave.epsilon,wave.epsilon,i,:]
-            statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)        
+            statSquared=calcStatSquaredError(covarianceMatrix,buffer,vList,waves)
             errorListEx.append(numpy.sqrt(statSquared[0,0].real))
         else:
             error_list.append(0)
