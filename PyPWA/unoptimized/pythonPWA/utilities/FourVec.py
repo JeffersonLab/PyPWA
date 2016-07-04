@@ -1,132 +1,149 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun 25 13:50:19 2014
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-@author: sbramlett
-"""
+import numpy
 
-import numpy as np
-"""The class FourVector
-examples of use
-P0 = FourVector()
-print P0
-
-P1 = FourVector(ct = 9, x = 1, y = 2, z = 4) #or P1 = FourVector(9, 1, 2, 4)
-print P1
-#with a threevec list
-P2 = FourVector(99.9,[1, 2, 3])
-print P2
-#given a list
-P3 = FourVector([9, 1, 2, 3])
-print P3
-
-P4 = P1 + P2
-print P4
-
-P5 = P2 * P1 
-print P5
-"""
 from PyPWA.unoptimized.pythonPWA.utilities.ThreeVec import ThreeVector
-#import LorentzTransform
+from PyPWA import LICENSE, STATUS, VERSION
 
-class FourVector(object):
-    vec=[] #the FourVec
-    p= ThreeVector()
-    def __init__(self, E=0, x=0, y=0, z=0):
-        if type(E) is list:
-            temp = E
-            self.E = temp[0]
-            self.x = temp[1]
-            self.y = temp[2]
-            self.z = temp[3]
-            self.p = ThreeVector([self.x, self.y, self.z])
-            self.vec = [self.E, self.x, self.y, self.z]
-        if type(x) is list and type(E) is not list:
-            self.E = E
-            temp = x
-            self.x = temp[0]
-            self.y = temp[1]
-            self.z = temp[2]
-            self.p = ThreeVector([self.x, self.y, self.z])
-            self.vec =  [self.E, self.x, self.y, self.z]
-        if type(x) is ThreeVector and (type(E) is not list and type(E) is not ThreeVector):
-            self.E = E
-            temp = x
-            self.x = temp.x
-            self.y = temp.y
-            self.z = temp.z
-            p = temp
-            self.vec = [self.E, self.x, self.y, self.z]
-        elif type(E) is not list and type (x) is not list and type(y) is not list and type(z) is not list:
-            self.E = E
+__author__ = ["Stephanie Bramlett", "Mark Jones"]
+__credits__ = ["Stephanie Bramlett", "Mark Jones"]
+__email__ = "maj@jlab.org"
+__maintainer__ = "Mark Jones"
+__license__ = LICENSE
+__status__ = STATUS
+__version__ = VERSION
+
+
+class FourVector(tuple):
+
+    def __init__(self, energy, x=0, y=0, z=0, three_vec=False):
+        """
+
+        Args:
+            energy (numpy.float64):
+            x (numpy.float64):
+            y (numpy.float64):
+            z (numpy.float64):
+            three_vec (ThreeVector):
+        """
+        super(FourVector, self).__init__()
+
+        self.energy = energy
+        if three_vec:
+            self.x = three_vec.x
+            self.y = three_vec.y
+            self.z = three_vec.z
+        else:
             self.x = x
             self.y = y
             self.z = z
-            self.p = ThreeVector([self.x, self.y, self.z])
-            self.vec = [self.E, self.x, self.y, self.z]
-    #end __init__
+
+        self.three_vector = ThreeVector(x, y, z)
+
     def __repr__(self):
-        return str(self.vec)
-    def __add__(self, n):
-        pE = self.E + n.E
-        px = self.x + n.x
-        py = self.y + n.y
-        pz = self.z + n.z
-        pvec = FourVector(pE, px, py, pz)
-        return pvec
-    def __sub__(self, n):
-        pE = self.E - n.E
-        px = self.x - n.x
-        py = self.y - n.y
-        pz = self.z - n.z
-        pvec = FourVector(pE, px, py, pz)
-        return pvec
-    def toMatrix(self):
-        this = np.matrix([[self.E],[self.x], [self.y], [self.z]])
-        return  this
-    def times(self, L): #L is Lorentz transformation
-        this = self.toMatrix().transpose().dot(L.m).flatten().tolist()
-        t = this[0]
-        return FourVector(t)
-    def r(self):
-        return (float(self.x**2) + float(self.y**2) + float(self.z**2))**(1./2.)
-    def lenSq(self):
-        return float(self.E)**2 - float(self.r())**2
+        """
+
+        Returns:
+            str:
+        """
+        return str([self.energy, self.x, self.y, self.z])
+
+    def __add__(self, four_vector):
+        """
+
+        Args:
+            four_vector (FourVector):
+
+        Returns:
+            FourVector:
+        """
+        sum_energy = self.energy + four_vector.energy
+        sum_x = self.x + four_vector.x
+        sum_y = self.y + four_vector.y
+        sum_z = self.z + four_vector.z
+        return FourVector(sum_energy, sum_x, sum_y, sum_z)
+
+    def __sub__(self, four_vector):
+        """
+
+        Args:
+            four_vector (FourVector):
+
+        Returns:
+            FourVector:
+        """
+        difference_energy = self.energy - four_vector.energy
+        difference_x = self.x - four_vector.x
+        difference_y = self.y - four_vector.y
+        difference_z = self.z - four_vector.z
+
+        return FourVector(
+            difference_energy, difference_x, difference_y, difference_z
+        )
+
+    def times(self, lorentz_transform):
+        """
+
+        Args:
+            lorentz_transform (LorentzTransform):
+
+        Returns:
+            FourVector
+        """
+        transposed = self.matrix.transpose()
+        the_list = transposed.dot(lorentz_transform.m).flatten().tolist()
+        vectors = the_list[0]
+        return FourVector(vectors[0], vectors[1], vectors[2], vectors[3])
+
+    def dot(self, four_vector):
+        dot_energy = self.energy * four_vector.E
+        dot_x = self.x * four_vector.x
+        dot_y = self.y * four_vector.y
+        dot_z = self.z * four_vector.z
+        return dot_energy - dot_x - dot_y - dot_z
+
+    @property
+    def matrix(self):
+        return numpy.matrix([[self.energy], [self.x], [self.y], [self.z]])
+
+    @property
+    def length(self):
+        x_squared = numpy.float64(self.x**2)
+        y_squared = numpy.float64(self.y**2)
+        z_squared = numpy.float64(self.z**2)
+        return numpy.sqrt(x_squared + y_squared + z_squared)
+
+    @property
+    def length_squared(self):
+        energy_squared = numpy.float64(self.energy) ** 2
+        length_squared = numpy.float64(self.length) ** 2
+        return energy_squared - length_squared
+
+    @property
     def phi(self):
-        return self.p.phi()
+        return self.three_vector.phi()
+
+    @property
     def theta(self):
-        return  self.p.theta()
-    def cosTheta(self):
-        return self.p.CosTheta()
-    def dot(self, n):
-        return self.E*n.E - self.x*n.x - self.y*n.y - self.z*n.z    
+        return self.three_vector.theta()
 
-#v = ThreeVector(1, 2, 3)
-##print v
-#P1 = FourVector(9, v)
-#print P1
-#print P1.E
+    @property
+    def cos_theta(self):
+        return self.three_vector.cos_theta
 
-
-#print str(P1.lenSq())
-#P0 = FourVector()
-#print P0
-#
-#P1 = FourVector(E = 9, x = 1, y = 2, z = 4)
-##print P1
-##
-#P2 = FourVector(99.9,[1, 2, 3])
-###print P2
-#P1 + P2
-#print P1
-#P3 = FourVector([9, 1, 2, 3])
-##print P3
-#print type(P2.E)
-#
-#P4 = P1 + P2
-#print P4
-#
-#P5 = P2 * P1
-#print P5
 
 
