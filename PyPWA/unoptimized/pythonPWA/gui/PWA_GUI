@@ -9,24 +9,24 @@ class PWA_GUI(object):
     """
         This program is the PWA_GUI, or main GUI for doing fitting and simulation in PyPWA.
     """
-    
+
     def back1(self):
-        self.destrFr1()        
+        self.destrFr1()
         root.update()
-                   
+
 
     def back2(self):
         frame3.grid_forget()
-        root.update()           
+        root.update()
 
-    def fitt(self):    
+    def fitt(self):
         frame2.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
         btnF0.pack(side="top")
         btnF1.pack(side="top")
         btnF2.pack(side="top")
         btnF3.pack(side="top")
         btnF4.pack(side="top")
-        btnGF.pack(side="top") 
+        btnGF.pack(side="top")
         #btnB0.pack(side="bottom")
         root.update()
 
@@ -46,7 +46,7 @@ class PWA_GUI(object):
             for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"fitting")):
                 if "_MeV" in d:
                     bin1 = d
-                    break            
+                    break
             frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
             wvs = []
             if direct == "o":
@@ -60,7 +60,7 @@ class PWA_GUI(object):
             x = 0
             t = 0
             for y in range(len(wvs)):
-                btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))         
+                btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))
                 btn.grid(column=x,row=t)
                 t += 1
                 if t > 9:
@@ -72,7 +72,7 @@ class PWA_GUI(object):
             for d in os.listdir(os.path.join(os.getcwd().strip("GUI"),"simulation")):
                 if "_MeV" in d:
                     bin1 = d
-                    break            
+                    break
             frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
             wvs = []
             if direct == "o":
@@ -86,7 +86,7 @@ class PWA_GUI(object):
             x = 0
             t = 0
             for y in range(len(wvs)):
-                btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))         
+                btn = tk.Button(frame3, text = wvs[y].strip(".bamp"), height=2 , width = 15,command = lambda y=y: self.mvBAMP3(direct,wvs[y].strip(".bamp")))
                 btn.grid(column=x,row=t)
                 t += 1
                 if t > 9:
@@ -95,8 +95,8 @@ class PWA_GUI(object):
             btnB1.grid(row=t+1,column=0,sticky="N"+"S"+"E"+"W")
 
     def mvBAMP3(self,direct,bamp):
-        sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","mvBAMP_GUI"),str(direct),str(bamp)]) 
-      
+        sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","mvBAMP_GUI"),str(direct),str(bamp)])
+
     def sim(self):
         frame2.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
         btnS0.pack(side="top")
@@ -105,18 +105,18 @@ class PWA_GUI(object):
         btnS3.pack(side="top")
         btnS4.pack(side="top")
         btnS5.pack(side="top")
-        btnGS.pack(side="top") 
+        btnGS.pack(side="top")
         #btnB0.pack(side="bottom")
 
     def runD(self,prog,FoS):
-        if prog == 0:            
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"data"]) 
+        if prog == 0:
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"data"])
         if prog == 1:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"data"])
 
     def runF(self,prog,FoS):
         if prog == 0:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"flat"]) 
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"flat"])
         if prog == 1:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"flat"])
         if prog == 2:
@@ -124,39 +124,39 @@ class PWA_GUI(object):
 
     def runaM(self,prog,FoS):
         if prog == 0:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"mc","acc"]) 
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"mc","acc"])
         if prog == 1:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"mc","acc"])
         if prog == 2:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),str(FoS),"acc"])   
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),str(FoS),"acc"])
 
     def runrM(self,prog,FoS):
         if prog == 0:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_gamp_main.py"),str(FoS),"mc","raw"])
         if prog == 1:
-            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"mc","raw"]) 
+            sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_alpha_main.py"),str(FoS),"mc","raw"])
         if prog == 2:
             sp.call([os.path.join(os.getcwd().strip("GUI"),"scripts","GUI_subPyNormInt.py"),str(FoS),"raw"])
-        
+
     def fitt2(self,prog):
         frame3.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
         if prog != 2:
             btnR0=tk.Button(frame3, text="data", height=2 , width = 10,command= lambda: self.runD(prog,"y"))
         btnR1=tk.Button(frame3, text="accMC", height=2 , width = 10,command= lambda: self.runaM(prog,"y"))
         btnR2=tk.Button(frame3, text="rawMC", height=2 , width = 10,command= lambda: self.runrM(prog,"y"))
-        if prog != 2:    
+        if prog != 2:
             btnR0.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
         btnR1.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
         btnR2.grid(row=2,column=0,sticky="N"+"S"+"E"+"W")
         root.update()
-    
+
     def sim2(self,prog):
         self.runF(prog,"n")
 
     def destrFr1(self):
         frame2.destroy()
-        
-                
+
+
 PG = PWA_GUI()
 
 root = tk.Tk()
@@ -182,7 +182,7 @@ btnF0=tk.Button(frame2, text="Run Gamp", height=2 , width = 10,command= lambda: 
 btnF1=tk.Button(frame2, text="Gen Alpha", height=2 , width = 10,command= lambda: PG.fitt2(1))
 btnF2=tk.Button(frame2, text="normint", height=2 , width = 10,command= lambda: PG.fitt2(2))
 btnF3=tk.Button(frame2, text="Fitter", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/subLikelihood"))
-btnF4=tk.Button(frame2, text="nTrue", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/subWalkNTrue"))
+btnF4=tk.Button(frame2, text="number_true", height=2 , width = 10,command= lambda: sp.call(os.getcwd().strip("GUI")+"/scripts/subWalkNTrue"))
 btnGF=tk.Button(frame2, text="GRAPHIC\nPLOT", height=2 , width = 10, command= lambda: sp.call(os.getcwd()+"/graphicPlot"))
 
 btnC=tk.Button(frame, text="PWA\nCONTROLS", height=2 , width = 10, command= lambda: sp.call(os.getcwd()+"/pwa_controls"))
