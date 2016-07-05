@@ -1,15 +1,15 @@
 __author__ = "Mark Jones"
 __license__ = "MIT"
-__version__ = "2.0.0"
+__version__ = "2.0.0b1"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "Beta0.0.2"
+__status__ = "beta"
 
 from setuptools import setup, find_packages
 
 setup(
     name="PyPWA",
-    version=__version__+"-"+__status__,
+    version=__version__,
     author="PyPWA Team",
     author_email="maj@jlab.org",
     packages=find_packages(),
@@ -22,7 +22,8 @@ setup(
             "GeneralFitting = PyPWA.entry.console:start_console_general_fitting",
             "GeneralSimulator = PyPWA.entry.console:start_console_general_simulator",
             "GenerateIntensities = PyPWA.entry.console:start_console_general_intensities",
-            "GenerateWeights = PyPWA.entry.console:start_console_general_weights"
+            "GenerateWeights = PyPWA.entry.console:start_console_general_weighting",
+            "GeneralChiSquared = PyPWA.entry.console:start_console_general_chisquared"
         ]
     },
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
