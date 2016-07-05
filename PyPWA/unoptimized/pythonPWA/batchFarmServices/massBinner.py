@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -7,7 +7,7 @@
 .. moduleauthor:: Joshua Pond <jpond@jlab.org>
 
 
-""" 
+"""
 import numpy as np
 import math
 import os, sys
@@ -16,7 +16,7 @@ from PyPWA.unoptimized.pythonPWA.utilities.FourVec import FourVector
 from PyPWA.unoptimized.pythonPWA.fileHandlers.gampTranslator import \
     GampTranslator
 """
-    This is the PyPWA mass binning utility that simulation/fitting install uses to bin .gamp files in mass. 
+    This is the PyPWA mass binning utility that simulation/fitting install uses to bin .gamp files in mass.
 """
 
 
@@ -24,23 +24,23 @@ class massBinner(object):
 
     def __init__(self,indir=None,bindir=None,gfile=None,verb="q"):
         """
-            This is the default massBinner constructor.
+            This is the default MassBinner constructor.
 
             Kwargs:
             indir (string): The full file path to the top directory.
-            bindir (string): The full file path to the directory where the new mass bin directories will be written. 
+            bindir (string): The full file path to the directory where the new mass bin directories will be written.
             gfile (string): The name of the .gamp file to be binned. (/Without/ the .gamp extension.)
-            verb (string): either "q" for quiet or "v" for verbose. 
+            verb (string): either "q" for quiet or "v" for verbose.
         """
-        
+
         self.indir = indir
         self.bindir = bindir
         self.Control = np.load(os.path.join(sys.argv[1],"GUI","Control_List.npy"))
         self.Qfile = os.path.join(sys.argv[1],"QFactor.txt")
         self.pFfile = os.path.join(sys.argv[1],"_events.pf")
         self.gfile = gfile+".gamp"
-        self.nfile = gfile+".npy" 
-        self.verb = verb       
+        self.nfile = gfile+".npy"
+        self.verb = verb
         self.gampT = GampTranslator(os.path.join(self.indir, self.gfile))
         if not os.path.isfile(os.path.join(self.indir,self.nfile)):
             if self.verb == "v":
@@ -48,27 +48,28 @@ class massBinner(object):
             self.gampList=self.gampT.translate(os.path.join(self.indir,self.nfile))
         elif os.path.isfile(os.path.join(self.indir,self.nfile)):
             self.gampList=np.load(os.path.join(self.indir,self.nfile))
-        self.nBins = int(((int(self.Control[3])-int(self.Control[2]))/int(self.Control[4])))+1  
+        self.nBins = int(((int(self.Control[3])-int(self.Control[2]))/int(self.Control[4])))+1
         self.bins = np.zeros(shape=(self.nBins,int(self.gampList.shape[0])))
-    
+
     def calcMass(self,event):
         """
             This function calculates the mass of a single event.
 
             Args:
             event (PyPWA gampEvent object)
-            
+
             Returns:
             mass of the event (float)
         """
-        
-        mass = FourVector(E=[0,0,0,0])
+
+        mass = FourVector(energy=[0, 0, 0, 0])
         for part in range(len(event.particles)):
             if part > 1 and event.particles[part].particleID != 0:
-                pp = FourVector(E = [float(event.particles[part].particleE),
-                                float(event.particles[part].particleXMomentum),
-                                float(event.particles[part].particleYMomentum),
-                                float(event.particles[part].particleZMomentum)])
+                pp = FourVector(
+                    energy= [float(event.particles[part].particleE),
+                             float(event.particles[part].particleXMomentum),
+                             float(event.particles[part].particleYMomentum),
+                             float(event.particles[part].particleZMomentum)])
                 mass = mass.__add__(pp)
         if mass.dot(mass) >= 0.0:
             return math.sqrt(mass.dot(mass))
@@ -79,26 +80,26 @@ class massBinner(object):
         """
             Creates a pass/fail 2D array mask for all bins and _events.
         """
-        
+
         for i in range(int(self.gampList.shape[0])):
             event = self.gampT.write_event(self.gampList[i, :, :])
-            mass = self.calcMass(event)            
+            mass = self.calcMass(event)
             for x in range(0, self.nBins):
                 if mass >= (float(float(self.Control[2]) + (x * float(self.Control[4]))) / 1000.0) and mass < ( float(float(self.Control[2]) + ((x + 1) * float(self.Control[4]))) / 1000.0):
                     self.bins[x,i] = 1
             if self.verb == "v":
                 sys.stdout.write("Binning event "+str(i+1)+"\r")
                 sys.stdout.flush()
-        np.save("bins",self.bins)                    
-            
+        np.save("bins",self.bins)
+
     def fill(self,direct):
         """
             Uses the bins p/f array mask to create all bin directories and fill all binned .gamp files.
-            
+
             Args:
-            direct (string): keyword the program uses to know what kind of .gamp file is being binned and the directories to make. 
+            direct (string): keyword the program uses to know what kind of .gamp file is being binned and the directories to make.
         """
-        
+
         if self.verb == "v":
             print("\nStarting binner")
         self.binner()
@@ -112,7 +113,7 @@ class massBinner(object):
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
                     os.mkdir(os.path.join(self.bindir,"results",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
                     os.mkdir(os.path.join(self.bindir,"overflow",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
-                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","data"))                
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","data"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","acc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","mc","raw"))
@@ -126,9 +127,9 @@ class massBinner(object):
                                                                           self.Control[4])))+"_MeV"+" directories.")
             elif "simulation" in self.bindir:
                 if not os.path.isdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV")):
-                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))                    
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
                     os.mkdir(os.path.join(self.bindir,"overflow",str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV"))
-                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","flat"))                
+                    os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","flat"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","acc"))
                     os.mkdir(os.path.join(self.bindir,str(int(self.Control[2]) + (b * int(self.Control[4])))+"_MeV","weight","raw"))
@@ -150,7 +151,7 @@ class massBinner(object):
                                 event = self.gampT.write_event(self.gampList[i, :, :])
                                 event.writeGamp(gF)
                                 qfF.write(str(Qlist[i])+"\n")
-                                num+=1 
+                                num+=1
                 totNum+=num
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.num"),"w") as nF:
                     nF.write(str(num))
@@ -173,7 +174,7 @@ class massBinner(object):
                                 event = self.gampT.write_event(self.gampList[i, :, :])
                                 event.writeGamp(gF)
                                 pfF.write(str(pFlist[i])+"\n")
-                                num+=1 
+                                num+=1
                 totNum+=num
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.num"),"w") as nF:
                     nF.write(str(num))
@@ -193,8 +194,8 @@ class massBinner(object):
                     for i in range(int(self.gampList.shape[0])):
                         if self.bins[r,i] == 1:
                             event = self.gampT.write_event(self.gampList[i, :, :])
-                            event.writeGamp(gF)                                
-                            num+=1 
+                            event.writeGamp(gF)
+                            num+=1
                 totNum+=num
                 with open(os.path.join(self.bindir,str(int(self.Control[2]) + (r * int(self.Control[4])))+"_MeV",direct,"_events.num"),"w") as nF:
                     nF.write(str(num))
