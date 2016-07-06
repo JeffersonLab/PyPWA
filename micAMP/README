@@ -1,0 +1,20 @@
+MIC Amplitude Offload
+=====================
+This is the MIC offload library originally written by Mathew Vick and is
+currently being maintained by Will Phelps.
+
+To compile:
+1. Make a directory named build.
+2. Change into the build directory
+3. Run "cmake path_to/micAmp"
+4. Run make
+5. ???
+6. Profit!!
+
+Issues
+------
+Currently there are issues related to cmake. Cmake doesn't compile
+correctly, the incorrect compile arguments are sent to the compiler. This
+isn't a fault of the program, just the fact that I (Mark Jones) doesn't
+know the correct arguments. Change the CMakeLists.txt file to have the
+arguements.
