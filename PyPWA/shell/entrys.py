@@ -19,7 +19,8 @@ Entry point for console GeneralShell
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator.wrappers import StartConfigurator
+from PyPWA.configurator.wrappers import StartProgram
+from PyPWA.configurator import configurator
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -30,73 +31,72 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-@StartConfigurator()
+@StartProgram(configurator.ConfigurationInitializer)
 def likelihood_fitting(*args):
     description = u"Amplitude Fitting using the Likelihood Estimation " \
                   u"Method."
     configuration = {
         "Description": description,
-        "Calculation": example.example,
-        "Configuration": example.example,
-        "Python File": example.example,
-        "AdvancedHelp": False,
+        "main": "shell fitting",
+        "kernel plugin": "Builtin Multiprocessing",
+        "data plugin": "Builtin Parser",
         "Extras": args
     }
     return configuration
 
 
-@StartConfigurator()
+@StartProgram(configurator.ConfigurationInitializer)
 def simulator(*args):
     description = u"Simulation using the the Acceptance Reject Method"
     configuration = {
         "Description": description,
-        "Calculation": example.example,
-        "Configuration": example.example,
-        "Python File": example.example,
-        "AdvancedHelp": False,
+        "main": "shell simulation",
+        "options": "simulation = main",
+        "kernel plugin": "Builtin Multiprocessing",
+        "data plugin": "Builtin Parser",
         "Extras": args
     }
     return configuration
 
 
-@StartConfigurator()
+@StartProgram(configurator.ConfigurationInitializer)
 def intensities(*args):
     description = u"Generates the Intensities for Rejection Method"
     configuration = {
         "Description": description,
-        "Calculation": example.example,
-        "Configuration": example.example,
-        "Python File": example.example,
-        "AdvancedHelp": False,
+        "main": "shell simulation",
+        "options": "simulation = intensities",
+        "kernel plugin": "Builtin Multiprocessing",
+        "data plugin": "Builtin Parser",
         "Extras": args
     }
     return configuration
 
 
-@StartConfigurator()
+@StartProgram(configurator.ConfigurationInitializer)
 def rejection_method(*args):
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method"
     configuration = {
         "Description": description,
-        "Calculation": example.example,
-        "Configuration": example.example,
-        "Python File": example.example,
-        "AdvancedHelp": False,
+        "main": "shell simulation",
+        "options": "simulation = rejection",
+        "kernel plugin": "Builtin Multiprocessing",
+        "data plugin": "Builtin Parser",
         "Extras": args
     }
     return configuration
 
 
-@StartConfigurator()
+@StartProgram(configurator.ConfigurationInitializer)
 def chi_squared(*args):
     description = u"Amplitude Fitting using the ChiSquared Method"
     configuration = {
         "Description": description,
-        "Calculation": example.example,
-        "Configuration": example.example,
-        "Python File": example.example,
-        "AdvancedHelp": False,
+        "main": "shell fitting",
+        "options": "likelihood = ChiSquared",
+        "kernel plugin": "Builtin Multiprocessing",
+        "data plugin": "Builtin Parser",
         "Extras": args
     }
     return configuration
