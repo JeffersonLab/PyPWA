@@ -38,11 +38,33 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class StartConfigurator(object):
+class StartProgram(object):
     def __init__(self, builder, *args):
-        self.builder = builder(args)
+        """
+        This is the wrapping object for the entry points, it takes the
+        object as a input, parses it, and sends the result to the builder
+        along with any arguments received for the builder.
+
+        Args:
+            builder (Object): The object that will build the main from the
+                plugins and execute it to begin the actual processing.
+            *args: The arguments received from the wrapper.
+        """
+        self.builder = builder(*args)
 
     def __call__(self, function):
+        """
+        The method that will be passed the function when the function is
+        called.
+
+        Args:
+            function (function): The simple function that contains
+                whatever default logic that is needed for the program to
+                work.
+
+        Returns:
+            The final value of the wrapped function.
+        """
         def decorated_builder(*args):
             application_configuration = function(args)
             if application_configuration["Extras"]:
@@ -66,6 +88,15 @@ class StartConfigurator(object):
 
     @staticmethod
     def parse_arguments(app_config):
+        """
+        Parses the standard arguments for the PyPWA program.
+
+        Args:
+            app_config (dict): The dictionary contain the program info.
+
+        Returns:
+            dict: The dictionary containing the parsed values.
+        """
         parser = argparse.ArgumentParser(
             description=app_config["Description"]
         )
@@ -111,6 +142,12 @@ class StartConfigurator(object):
 
     @staticmethod
     def _return_logging_level(count):
+        """
+        Sets the logging level for the program.
+
+        Args:
+            count (int): The count of the logging counter.
+        """
         if count == 1:
             internal_logging.define_logger(logging.WARNING)
         elif count == 2:
@@ -122,6 +159,16 @@ class StartConfigurator(object):
 
     @staticmethod
     def write_config(configuration, python, cwd=os.getcwd()):
+        """
+        Writes the configuration files for the program.
+
+        Args:
+            configuration (str): The example file that needs to be
+                written.
+            python (str): The example function that needs to be written.
+            cwd (Optional[str]): The common working directory for the
+                function, defaults to the value from os.getcwd
+        """
         with open(cwd + "/Example.yml", "w") as stream:
             stream.write(configuration)
         with open(cwd + "/Example.py", "w") as stream:
