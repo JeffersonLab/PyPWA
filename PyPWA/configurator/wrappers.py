@@ -95,7 +95,7 @@ class StartProgram(object):
             app_config (dict): The dictionary contain the program info.
 
         Returns:
-            dict: The dictionary containing the parsed values.
+            argparse.Namespace: The parsed arguments.
         """
         parser = argparse.ArgumentParser(
             description=app_config["Description"]
@@ -122,18 +122,7 @@ class StartProgram(object):
                  "debugging."
         )
 
-        if app_config["AdvancedHelp"]:
-            parser.add_argument(
-                "--AdvancedHelp", "-ah", action="store_true",
-                help="Prints the in depth advanced help to the terminal"
-            )
-
         arguments = parser.parse_args()
-
-        if app_config["AdvancedHelp"] and arguments.AdvancedHelp:
-            raise NotImplementedError(
-                "Currently advanced help output is undeveloped"
-            )
 
         if not arguments.WriteConfig and arguments.configuration == "":
             parser.print_help()
