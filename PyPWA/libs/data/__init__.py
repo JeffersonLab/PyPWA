@@ -42,10 +42,12 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-
 metadata = [{
     "name": _utilites.MODULE_NAME,
+    "interface": traffic_cop.TrafficCop,
     "options": traffic_cop.Options,
     "provides": "data",
-    "data main": traffic_cop.TrafficCop
+    "requires function": False,
+    "arguments": False
 }]
+
