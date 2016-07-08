@@ -21,10 +21,10 @@ processes and the interface that is connected to them, then returns that
 interface so that the user can manipulate those processes.
 
 Example:
-    foreman = CalculationForeman(AbstractInterface, AbstractKernels)
-    foreman.build()
+    foreman = CalculationForeman()
+    foreman.populate(AbstractInterface, AbstractKernels)
     interface = foreman.fetch_interface()
-    processed_value = interface.run("Your args)
+    processed_value = interface.run("Your args")
 """
 
 from PyPWA.libs.process import _utilities
@@ -44,8 +44,9 @@ metadata = [{
     "name": _utilities.MODULE_NAME,
     "provides": "kernel processing",
     "interface": foreman.CalculationForeman,
-    "kernels": {
+    "arguments": {
         "interface": _utilities.AbstractInterface,
-        "process":  _utilities.AbstractKernel
-    }
+        "process": _utilities.AbstractKernel
+    },
+    "requires function": False
 }]
