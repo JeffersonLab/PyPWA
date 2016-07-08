@@ -89,13 +89,18 @@ metadata = [
     {
         "name": "Minuit",
         "provides": "minimization",
-        "minimizer": Minuit,
-        "require function": False
+        "interface": Minuit,
+        "require function": False,
+        "arguments": False
 },
     {
         "name": "MultiNest",
         "provides": "minimization",
-        "minimizer": MultiNest,
-        "require function": MultiNest.builtin_function
+        "interface": MultiNest,
+        "require function": {
+            "function": MultiNest.builtin_function,
+            "imports": {"numpy"}
+        },
+        "arguments": False
     }
 ]
