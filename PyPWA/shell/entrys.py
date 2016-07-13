@@ -31,7 +31,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-@StartProgram(configurator.ConfigurationInitializer)
+@StartProgram(configurator.Configurator)
 def likelihood_fitting(*args):
     description = u"Amplitude Fitting using the Likelihood Estimation " \
                   u"Method."
@@ -45,7 +45,7 @@ def likelihood_fitting(*args):
     return configuration
 
 
-@StartProgram(configurator.ConfigurationInitializer)
+@StartProgram(configurator.Configurator)
 def simulator(*args):
     description = u"Simulation using the the Acceptance Reject Method"
     configuration = {
@@ -59,7 +59,7 @@ def simulator(*args):
     return configuration
 
 
-@StartProgram(configurator.ConfigurationInitializer)
+@StartProgram(configurator.Configurator)
 def intensities(*args):
     description = u"Generates the Intensities for Rejection Method"
     configuration = {
@@ -73,7 +73,7 @@ def intensities(*args):
     return configuration
 
 
-@StartProgram(configurator.ConfigurationInitializer)
+@StartProgram(configurator.Configurator)
 def rejection_method(*args):
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method"
@@ -88,7 +88,7 @@ def rejection_method(*args):
     return configuration
 
 
-@StartProgram(configurator.ConfigurationInitializer)
+@StartProgram(configurator.Configurator)
 def chi_squared(*args):
     description = u"Amplitude Fitting using the ChiSquared Method"
     configuration = {
