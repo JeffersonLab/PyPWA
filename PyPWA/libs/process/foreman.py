@@ -141,11 +141,25 @@ class _ProcessInterface(object):
 
 
 class CalculationForeman(object):
-    def __init__(self, interface_kernel, process_kernel):
+    def __init__(self):
         """
         This is the main object for the Process Plugin. All this object
         needs is an appropriately set up interface kernel and process
         kernel in order to function.
+        """
+        self._logger = logging.getLogger(__name__)
+        self._num_processes = None  # type: int
+        self._interface_kernel = None  # type:
+        # _utilities.AbstractInterface
+
+        self._process_kernel = None  # type:
+        # list[_utilities.AbstractKernel]
+
+        self._duplex = None  # type: bool
+        self._interface = False  # type:
+
+    def populate(self, interface_kernel, process_kernel):
+        """
 
         Args:
             interface_kernel (_utilities.AbstractInterface): The object
@@ -155,12 +169,11 @@ class CalculationForeman(object):
                 that will be seeded into the processes to execute the
                 data.
         """
-        self._logger = logging.getLogger(__name__)
         self._num_processes = len(process_kernel)
         self._interface_kernel = interface_kernel
         self._process_kernel = process_kernel
         self._duplex = interface_kernel.is_duplex
-        self._interface = False
+        self._build()
 
     def _make_process(self):
         """
@@ -184,13 +197,14 @@ class CalculationForeman(object):
                 self._process_kernel
             )
 
-    def build(self):
+    def _build(self):
         """
         Simple method that sets up and builds all the processes needed.
         """
         process, com = self._make_process()
-        self._interface = _ProcessInterface(self._interface_kernel, com,
-                                            process, self._duplex)
+        self._interface = _ProcessInterface(
+            self._interface_kernel, com, process, self._duplex
+        )
 
     def fetch_interface(self):
         """
