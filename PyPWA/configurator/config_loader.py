@@ -33,11 +33,9 @@ __version__ = VERSION
 
 class ConfigReader(object):
 
-    def __init__(self, stream):
+    def __init__(self):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
-
-        self._stream = stream
 
     def read_config(self, configuration):
         """
