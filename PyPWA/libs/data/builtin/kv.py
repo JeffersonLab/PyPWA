@@ -282,15 +282,15 @@ class SomewhatIntelligentSelector(KvInterface):
             file_location (str): Where to write the data.
             data numpy.ndarray: The data that needs to be written to disk.
         """
-        if isinstance(data, tuple):
-            self._logger.debug("Found type tuple, assuming GenericEvent.")
-            writer = DictOfArrays()
-        elif isinstance(data[0], numpy.float64):
+        if isinstance(data[0], numpy.float64):
             self._logger.debug("Found type float64, assuming float list.")
             writer = ListOfFloats()
         elif isinstance(data[0], numpy.bool_):
             self._logger.debug("Found type bool, assuming bool list.")
             writer = ListOfBooleans()
+        elif isinstance(data, numpy.ndarray):
+            self._logger.debug("Found type tuple, assuming GenericEvent.")
+            writer = DictOfArrays()
         else:
             string = "Data type not expected! Found data type {0}".format(
                 type(data)
@@ -461,7 +461,7 @@ class EVILReader(definitions.TemplateReader):
         for variable in the_line.split(","):
             value = numpy.float64(variable.split("=")[1])
             name = variable.split("=")[0]
-            final[name][0] = value
+            final[0][name] = value
 
         return final
 
@@ -491,12 +491,11 @@ class EVILWriter(definitions.TemplateWriter):
             data (numpy.ndarray): The array that contains the data to be
                 writen to the file.
         """
-        key_count = len(list(data.dtype.names)) - 1
         string = ""
         for index, key in enumerate(list(data.dtype.names)):
-            if not index == 0 and not index == key_count:
+            if not index == 0:
                 string += ","
-                string += repr(key) + "=" + repr(data[key])
+            string += str(key) + "=" + repr(data[0][key])
         string += "\n"
 
         self._file.write(string)
