@@ -129,11 +129,10 @@ class MetadataStorage(object):
     def __init__(self):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
-        self._minimization = {}
-        self._kernel_processing = {}
-        self._data = {}
-        self._main = {}
-
+        self._minimization = []
+        self._kernel_processing = []
+        self._data = []
+        self._main = []
 
     def add_plugins(self, plugins):
         for plugin in plugins:
@@ -141,13 +140,13 @@ class MetadataStorage(object):
 
     def _plugin_filter(self, plugin):
         if plugin["provides"] == "data":
-            self._data.update(plugin)
+            self._data.append(plugin)
         elif plugin["provides"] == "minimization":
-            self._minimization.update(plugin)
+            self._minimization.append(plugin)
         elif plugin["provides"] == "kernel processing":
-            self._kernel_processing.update(plugin)
+            self._kernel_processing.append(plugin)
         elif plugin["provides"] == "main":
-            self._main.update(plugin)
+            self._main.append(plugin)
 
     def search_plugin(self, plugin_name, plugin_type):
         if plugin_type is "data":
