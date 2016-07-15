@@ -29,7 +29,6 @@ import logging
 import ruamel.yaml
 import ruamel.yaml.comments
 
-from PyPWA.configurator import data_types
 from PyPWA.configurator import settings_aid
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
@@ -234,7 +233,7 @@ class TrafficCop(object):
 
         Args:
             file_location (str): The file that needs to be parsed.
-            data (data_types.GenericEvent): The data that needs to be
+            data (numpy.ndarray): The data that needs to be
                 written to disk.
 
         Raises:
