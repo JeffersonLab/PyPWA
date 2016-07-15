@@ -124,18 +124,77 @@ class PluginLoading(object):
 #            if not libraries:
 
 
+class MetadataStorage(object):
+
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+        self._minimization = {}
+        self._kernel_processing = {}
+        self._data = {}
+        self._main = {}
 
 
-class TheClassifier(object):
+    def add_plugins(self, plugins):
+        for plugin in plugins:
+            self._plugin_filter(plugin)
 
-    def __init__(self, plugin_list):
-        self._minimizer = []
-        self._kernel_processing = []
-        self._data = []
-        self._main = []
+    def _plugin_filter(self, plugin):
+        if plugin["provides"] == "data":
+            self._data.update(plugin)
+        elif plugin["provides"] == "minimization":
+            self._minimization.update(plugin)
+        elif plugin["provides"] == "kernel processing":
+            self._kernel_processing.update(plugin)
+        elif plugin["provides"] == "main":
+            self._main.update(plugin)
 
+    def search_plugin(self, plugin_name, plugin_type):
+        if plugin_type is "data":
+            return self._plugin_name_search(
+                plugin_name, self._data
+            )
 
+        elif plugin_type is "minimization":
+            return self._plugin_name_search(
+                plugin_name, self._minimization
+            )
 
+        elif plugin_type is "kernel processing":
+            return self._plugin_name_search(
+                plugin_name, self._kernel_processing
+            )
+
+        elif plugin_type is "main":
+            return self._plugin_name_search(
+                plugin_name, self._main
+            )
+
+    @staticmethod
+    def _plugin_name_search(plugin_name, plugins):
+        for plugin in plugins:
+            if plugin["name"] == plugin_name:
+                return plugin
+        else:
+            raise ImportError(
+                "Failed to find plugin {0}".format(plugin_name)
+            )
+
+    @property
+    def minimization(self):
+        return self._minimization
+
+    @property
+    def main(self):
+        return self._main
+
+    @property
+    def kernel_processing(self):
+        return self._kernel_processing
+
+    @property
+    def data(self):
+        return self._data
 
 
 class ConfiguratorOptions(object):
