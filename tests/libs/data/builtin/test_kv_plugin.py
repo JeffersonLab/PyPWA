@@ -32,7 +32,6 @@ import os
 import numpy
 import pytest
 
-from PyPWA.configurator import data_types
 import PyPWA.libs.data.builtin.kv as kv
 
 __author__ = ["Mark Jones"]
@@ -193,18 +192,16 @@ def test_SomewhatIntelligentSelector_DictValid_ReadWriteTrue():
     Tests that tuples are written and read correctly.
     """
     # Setup tests
-    x = data_types.GenericEvent(["x", "y"])
-    data = x.make_particle([
-        numpy.random.rand(1000),
-        numpy.random.rand(1000)]
-    )
+    x = numpy.zeros(1000, [("x", "f8"), ("y", "f8")])
+    x["x"] = numpy.random.rand(1000)
+    x["y"] = numpy.random.rand(1000)
 
     loaded, written = EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(
-        data
+        x
     )
 
     # Run tests
-    numpy.testing.assert_array_almost_equal(loaded.x, written.x)
+    numpy.testing.assert_array_equal(loaded["x"], written["x"])
 
 
 def test_SomewhatIntelligentSelector_StringInvalid_RaiseRuntimeError():
@@ -226,15 +223,12 @@ def test_EVILIteration_ReadWriteEvents_EventsEqual():
     Tests the EVIL Writer and EVIL Reader by generating data then writing
     that data to disk, reading it back in, then comparing.
     """
-    particle = data_types.GenericEvent(["x", "y"])
+    particle = numpy.zeros(1, [("x", "f8"), ("y", "f8")])
     data = collections.deque()
     for number in range(10):
-        data.append(
-            particle.make_particle([
-                numpy.random.rand(),
-                numpy.random.rand()
-            ])
-        )
+        particle["x"] = numpy.random.rand()
+        particle["y"] = numpy.random.rand()
+        data.append(particle)
 
     writer = kv.EVILWriter(TEMP_WRITE_LOCATION)
     for event in data:
@@ -251,4 +245,4 @@ def test_EVILIteration_ReadWriteEvents_EventsEqual():
         new_data.append(x)
 
     os.remove(TEMP_WRITE_LOCATION)
-    numpy.testing.assert_almost_equal(new_data[0].x, data[0].x)
+    numpy.testing.assert_almost_equal(new_data[0]["x"], data[0]["x"])
