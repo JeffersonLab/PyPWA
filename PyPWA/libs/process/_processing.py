@@ -70,8 +70,6 @@ class _DuplexProcess(multiprocessing.Process):
             value = self._communicator.receive()
             if value == "DIE":
                 break
-            elif value == "IGNORE":
-                pass
             else:
                 self._communicator.send(self._kernel.process(value))
         return 0
