@@ -42,19 +42,18 @@ MODULE_NAME = "Builtin Multiprocessing"
 
 
 class AbstractInterface(object):
+    """
+    This is kernel that will run inside the Interface object, this
+    object will be called every time the run method of the interface
+    is called.
 
-    def __init__(self, is_duplex):
-        """
-        This is kernel that will run inside the Interface object, this
-        object will be called every time the run method of the interface
-        is called.
+    Args:
+        is_duplex (bool): Defines whether the object is duplex or not.
+            Is needed so that the foreman knows to call for duplex or
+            simplex processes. True if is duplex, False for simplex.
+    """
 
-        Args:
-            is_duplex (bool): Defines whether the object is duplex or not.
-                Is needed so that the foreman knows to call for duplex or
-                simplex processes. True if is duplex, False for simplex.
-        """
-        self.is_duplex = is_duplex
+    is_duplex = False
 
     def run(self, communicator, args):
         """
@@ -67,9 +66,9 @@ class AbstractInterface(object):
                 duplex is set to true this will be able to send and
                 receive data, if is false than will be able to receive
                 data only.
-            args: This will be whatever you sent to the run method,
-                whatever you sent to the method will be packaged together
-                here as a list.
+            args: This will be whatever you sent to the run method
+                packaged together as a list with its index matching the
+                order of your arguments.
 
         Returns:
             This can return whatever the developer needs it to return,
