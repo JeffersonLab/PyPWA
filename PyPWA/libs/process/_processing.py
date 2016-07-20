@@ -113,113 +113,53 @@ class _SimplexProcess(multiprocessing.Process):
         return 0
 
 
-class SimplexCalculationFactory(object):
-    def __init__(self, kernel):
-        """
-        This object builds the required number of offload processes based
-        on the supplied number of kernels.
+class CalculationFactory(object):
 
-        Args:
-            kernel (list[kernels.AbstractKernel]): A list of all the
-                kernels that need to be nested into the individual
-                processes. It will be one process per kernel.
-        """
-        self._kernel = kernel
-        self._count = len(kernel)
-        self._processes = []
-        self._receives = []
-
-    def build(self):
+    @staticmethod
+    def simplex_build(process_kernels):
         """
         Call this method to actually build the offload processes.
 
-        Returns:
-            list[
-                list[_SimplexProcess],
-                list[_communication._SimplexReceives]
-                ]
-
-        See Also:
-            PyPWA.libs.process._communication._SimplexReceives for more
-                information about the inter-process communication.
-        """
-        sends, self._receives = _communication.SimplexFactory(self._count)
-
-        for kernel, send in zip(self._kernel, sends):
-            self._processes.append(_SimplexProcess(kernel, send))
-
-        return self.processed
-
-    @property
-    def processed(self):
-        """
-        Holds the generated communication and processes.
-
-        Returns:
-            list[
-                list[_SimplexProcess],
-                list[_communication._SimplexReceives]
-                ]
-
-        See Also:
-            PyPWA.libs.process._communication._SimplexReceives for more
-                information about the inter-process communication.
-        """
-        return [self._processes, self._receives]
-
-
-class DuplexCalculationFactory(object):
-    def __init__(self, kernel):
-        """
-        This object generates the needed number of worker processes.
         Args:
-            kernel (list[kernels.AbstractKernel]): These are the
-                objects that hold all the functioning logic for the
-                processes. This should hold all of the needed data and
-                logic needed for the processes to function.
-        """
-        self._kernel = kernel
-        self._count = len(kernel)
-        self._processes = []
-        self._main_com = []
+            process_kernels (list[kernels.AbstractKernel]):
+                The pre-loaded process objects.
 
-    def build(self):
+        Returns:
+            list[list[_SimplexProcess],list[_communication._SimplexReceives]]
+
+        See Also:
+            PyPWA.libs.process._communication._SimplexReceives for more
+                information about the inter-process communication.
+        """
+
+        count = len(process_kernels)
+        processes = []
+
+        sends, receives = _communication.SimplexFactory(count)
+
+        for kernel, send in zip(process_kernels, sends):
+            processes.append(_SimplexProcess(kernel, send))
+
+        return [processes, receives]
+
+    @staticmethod
+    def duplex_build(process_kernels):
         """
         Call this method to actually build the required number of worker
         processes.
 
         Returns:
-            list[
-                list[_DuplexProcess],
-                list[_communication._DuplexCommunication]
-                ]
+            list[list[_DuplexProcess],list[_communication._DuplexCommunication]]
 
         See Also:
             PyPWA.libs.process._communication._DuplexCommunication for
                 more information about inter-process communication.
         """
-        self._main_com, process_com = _communication.DuplexFactory(
-            self._count
-        )
+        count = len(process_kernels)
+        processes = []
+        main_com, process_com = _communication.DuplexFactory(count)
 
-        for kernel, process_com in zip(self._kernel, process_com):
-            self._processes.append(_DuplexProcess(kernel, process_com))
+        for kernel, process_com in zip(process_kernels, process_com):
+            processes.append(_DuplexProcess(kernel, process_com))
 
-        return self.processed
-
-    @property
-    def processed(self):
-        """
-        Holds the generated communication and processes.
-
-        Returns:
-            list[
-                list[_SimplexProcess],
-                list[_communication._DuplexCommunication]
-                ]
-
-        See Also:
-            PyPWA.libs.process._communication._DuplexCommunication for
-                more information about inter-process communication.
-        """
-        return [self._processes, self._main_com]
+        return [processes, main_com]
