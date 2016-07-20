@@ -66,7 +66,7 @@ class AbstractInterface(object):
                 duplex is set to true this will be able to send and
                 receive data, if is false than will be able to receive
                 data only.
-            args: This will be whatever you sent to the run method
+            args (tuple): This will be whatever you sent to the run method
                 packaged together as a list with its index matching the
                 order of your arguments.
 
@@ -118,8 +118,9 @@ class AbstractKernel(object):
         data from the main process.
 
         Args:
-            data (Optional): Anything that you send out to all threads
-                through the interface object will be received here.
+            data (Optional[tuple]): Anything that you send out to all
+                threads through the interface object will be received
+                here.
 
         Returns:
             Anything that is pickle-able that you want to send back to
