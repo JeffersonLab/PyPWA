@@ -110,7 +110,7 @@ def test_SimplexProcess_SumIntegers_Return50():
 
 def test_Kernels_WillFail_RaiseNotImplemented():
     """
-    Check that Kernels will raise NotImplimentedError if they are not
+    Check that Kernels will raise NotImplementedError if they are not
     overridden.
     """
     kernel = kernels.AbstractKernel()
