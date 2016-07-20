@@ -58,7 +58,7 @@ class _ProcessInterface(object):
         """
         self._logger = logging.getLogger(__name__)
         self._com = process_com
-        self._interface_kernel = interface_kernel
+        self._interface_kernel = interface_kernel()
         self._processes = processes
         self._held_value = False
         self._duplex = duplex
@@ -96,7 +96,7 @@ class _ProcessInterface(object):
             force (Optional[bool]): Set to true if you want to force the
                 processes to stop.
         """
-        if self._duplex:
+        if self._duplex and not force:
             for pipe in self._com:
                 self._logger.debug("Killing duplex processes.")
                 pipe.send("DIE")
@@ -128,15 +128,6 @@ class _ProcessInterface(object):
                 have terminated.
         """
         return self._processes[0].is_alive()
-
-    def __del__(self):
-        if self.is_alive:
-            self._logger.error(
-                "GC TRYING TO KILL PROCESS INTERFACE WHILE PROCESSES ARE "
-                "STILL ALIVE."
-            )
-
-            self.stop(True)
 
 
 class CalculationForeman(object):
@@ -202,28 +193,23 @@ class CalculationForeman(object):
         """
         Simple method that sets up and builds all the processes needed.
         """
-        process, com = self._make_process()
+        processes, com = self._make_process()
+        for process in processes:
+            process.start()
+
         return _ProcessInterface(
-            self._interface_template, com, process, self._duplex
+            self._interface_template, com, processes, self._duplex
         )
 
+    @property
     def fetch_interface(self):
         """
         Returns the built Process Interface
 
         Returns:
-             False: Interface hasn't been built yet.
-             _ProcessInterface: If the interface has been built.
+             _ProcessInterface: The interface to the processes.
         """
-        if isinstance(self._interface, bool):
-
-            self._logger.warn(
-                "Process Interface was called before it was built!"
-            )
-
-            return False
-        else:
-            return self._interface
+        return self._interface
 
     @staticmethod
     def __create_objects(kernel_template, data_chunks):
@@ -237,7 +223,7 @@ class CalculationForeman(object):
                 into the processes.
 
         Returns:
-            list[multiprocessing.Process]
+            list[kernels.AbstractKernel]
         """
         processes = []
         for chunk in data_chunks:
@@ -271,7 +257,7 @@ class CalculationForeman(object):
 
         for key in event_keys:
             for index, events in enumerate(
-                    numpy.split(events_dict[key], number_of_process)
+                    numpy.array_split(events_dict[key], number_of_process)
             ):
                 data_chunks[index][key] = events
 
