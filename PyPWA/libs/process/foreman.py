@@ -29,7 +29,7 @@ import ruamel.yaml.comments
 
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import _communication
-from PyPWA.libs.process import _utilities
+from PyPWA.libs.process import kernels
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -162,7 +162,7 @@ class CalculationForeman(object):
         """
 
         Args:
-            interface_kernel (_utilities.AbstractInterface): The object
+            interface_kernel (kernels.AbstractInterface): The object
                 that will be used to process the data returned from the
                 processes.
             process_kernel (list[_utilities.AbstractKernel]): The objects
@@ -251,11 +251,11 @@ class Options(object):
         header = ruamel.yaml.comments.CommentedMap()
         content = ruamel.yaml.comments.CommentedMap()
 
-        header[_utilities.MODULE_NAME] = content
+        header[kernels.MODULE_NAME] = content
         header.yaml_add_eol_comment(
             "This is the builtin processing plugin, you can replace this "
             "with your own, or use one of the other options that we have."
-            , _utilities.MODULE_NAME
+            , kernels.MODULE_NAME
         )
 
         content.yaml_add_eol_comment(
@@ -282,7 +282,7 @@ class Options(object):
             ruamel.yaml.comments.CommentedMap: The dictionary with the
                 optional fields.
         """
-        header[_utilities.MODULE_NAME]["number of processes"] = \
+        header[kernels.MODULE_NAME]["number of processes"] = \
             self._options["number of processes"]
         return header
 

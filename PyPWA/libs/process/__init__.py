@@ -27,7 +27,7 @@ Example:
     processed_value = interface.run("Your args")
 """
 
-from PyPWA.libs.process import _utilities
+from PyPWA.libs.process import kernels
 from PyPWA.libs.process import foreman
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -41,12 +41,12 @@ __version__ = VERSION
 
 
 metadata = [{
-    "name": _utilities.MODULE_NAME,
+    "name": kernels.MODULE_NAME,
     "provides": "kernel processing",
     "interface": foreman.CalculationForeman,
     "arguments": {
-        "interface": _utilities.AbstractInterface,
-        "process": _utilities.AbstractKernel
+        "interface": kernels.AbstractInterface,
+        "process": kernels.AbstractKernel
     },
     "requires function": False
 }]

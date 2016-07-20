@@ -22,7 +22,7 @@ methods are Duplex for worker processes and Simplex for offload processes.
 import multiprocessing
 
 from PyPWA.libs.process import _communication
-from PyPWA.libs.process import _utilities
+from PyPWA.libs.process import kernels
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -46,7 +46,7 @@ class _DuplexProcess(multiprocessing.Process):
         dies.
 
         Args:
-            kernel (_utilities.AbstractKernel): The kernel that will hold
+            kernel (kernels.AbstractKernel): The kernel that will hold
                 all the information and logic needed for the process to
                 process the data that it receives from the main process.
             communicator (_communication._DuplexCommunication): This is
@@ -88,7 +88,7 @@ class _SimplexProcess(multiprocessing.Process):
         back to the main process and die.
 
         Args:
-            single_kernel (_utilities.AbstractKernel): The kernel that
+            single_kernel (kernels.AbstractKernel): The kernel that
                 will contain all the data and logic needed for the
                 process to function.
             communicator (_communication._SimplexSend): The only way to
@@ -120,7 +120,7 @@ class SimplexCalculationFactory(object):
         on the supplied number of kernels.
 
         Args:
-            kernel (list[_utilities.AbstractKernel]): A list of all the
+            kernel (list[kernels.AbstractKernel]): A list of all the
                 kernels that need to be nested into the individual
                 processes. It will be one process per kernel.
         """
@@ -173,7 +173,7 @@ class DuplexCalculationFactory(object):
         """
         This object generates the needed number of worker processes.
         Args:
-            kernel (list[_utilities.AbstractKernel]): These are the
+            kernel (list[kernels.AbstractKernel]): These are the
                 objects that hold all the functioning logic for the
                 processes. This should hold all of the needed data and
                 logic needed for the processes to function.
