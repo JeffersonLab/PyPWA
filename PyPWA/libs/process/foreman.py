@@ -140,60 +140,62 @@ class _ProcessInterface(object):
 
 
 class CalculationForeman(object):
-    def __init__(self):
+    def __init__(
+            self, events_dictionary, abstract_template,
+            interface_template,
+            number_of_processes=multiprocessing.cpu_count()
+    ):
         """
         This is the main object for the Process Plugin. All this object
         needs is an appropriately set up interface kernel and process
         kernel in order to function.
-        """
-        self._logger = logging.getLogger(__name__)
-        self._num_processes = None  # type: int
-        self._interface_kernel = None  # type:
-        # _utilities.AbstractInterface
-
-        self._process_kernel = None  # type:
-        # list[_utilities.AbstractKernel]
-
-        self._duplex = None  # type: bool
-        self._interface = False  # type:
-
-    def populate(self, interface_kernel, process_kernel):
-        """
 
         Args:
-            interface_kernel (kernels.AbstractInterface): The object
-                that will be used to process the data returned from the
+            events_dictionary (dict): The dictionary that contains the
+                data that will need to be loaded into the process.
+            abstract_template (kernels.AbstractKernel): An
+                uninitialized object containing the logic for the
                 processes.
-            process_kernel (list[_utilities.AbstractKernel]): The objects
-                that will be seeded into the processes to execute the
-                data.
+            interface_template (kernels.AbstractInterface): An
+                uninitialized object containing the logic needed for
+                the final calculation.
+            number_of_processes (Optional[int]): The number of
+                processes to create, defaults to the number of CPUs
+                available if not specified.
         """
-        self._num_processes = len(process_kernel)
-        self._interface_kernel = interface_kernel
-        self._process_kernel = process_kernel
-        self._duplex = interface_kernel.is_duplex
-        self._build()
+
+        process_data = self.__split_data(
+            events_dictionary, number_of_processes
+        )
+
+        self._process_kernels = self.__create_objects(
+            abstract_template, process_data
+        )
+
+        self._logger = logging.getLogger(__name__)
+
+        self._duplex = interface_template.is_duplex
+        self._interface_template = interface_template
+
+        self._interface = self._build()
 
     def _make_process(self):
         """
         Calls the factory objects to generate the processes
 
         Returns:
-            list[
-                list[_communication._CommunicationInterface],
-                list[process_calculation.Process]
-                ]
+            list[list[_communication._CommunicationInterface],list[process_calculation.Process]]
         """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
-            return _processing.DuplexCalculationFactory(
-                self._process_kernel
+            return _processing.CalculationFactory.duplex_build(
+                self._process_kernels
             )
 
         else:
             self._logger.debug("Building Simplex Processes.")
-            return _processing.SimplexCalculationFactory(
-                self._process_kernel
+            return _processing.CalculationFactory.simplex_build(
+                self._process_kernels
             )
 
     def _build(self):
@@ -201,8 +203,8 @@ class CalculationForeman(object):
         Simple method that sets up and builds all the processes needed.
         """
         process, com = self._make_process()
-        self._interface = _ProcessInterface(
-            self._interface_kernel, com, process, self._duplex
+        return _ProcessInterface(
+            self._interface_template, com, process, self._duplex
         )
 
     def fetch_interface(self):
@@ -223,47 +225,54 @@ class CalculationForeman(object):
         else:
             return self._interface
 
-class BuildKernels(object):
-
-    def __init__(self, events_dict, kernel, interface, procs):
-        chunk_events = self.__split_data(events_dict, procs)
-        kernels = self.__create_objects(kernel, chunk_events)
-        self._foreman = CalculationForeman()
-        self._foreman.populate(interface, kernels)
-
     @staticmethod
-    def __create_objects(kernel_template, data_chunk):
-        kernels = []
-        for chunk in data_chunk:
+    def __create_objects(kernel_template, data_chunks):
+        """
+        Creates the objects to be nested into the processes.
+
+        Args:
+            kernel_template: The template to use that has all the
+                processing logic.
+            data_chunks list[dict]: A list of the data chunks to be nested
+                into the processes.
+
+        Returns:
+            list[multiprocessing.Process]
+        """
+        processes = []
+        for chunk in data_chunks:
             temp_kernel = kernel_template()
             for key in chunk.keys():
                 setattr(temp_kernel, key, chunk[key])
-            kernels.append(temp_kernel)
-
+            processes.append(temp_kernel)
+        return processes
 
     @staticmethod
-    def __split_data(events_dict, proc):
+    def __split_data(events_dict, number_of_process):
         """
+        Takes a dictionary of numpy arrays and splits them into chunks.
 
         Args:
-            events_dict (dict):
-            proc (int):
+            events_dict (dict): The data that needs to be divided into
+                chunks.
+            number_of_process (int): The number of processes.
 
         Returns:
-
+            list[dict]: The chunks of data.
         """
-        keys = events_dict.keys()
-        new_list = []
+        event_keys = events_dict.keys()
+        data_chunks = []
 
-        for chunk in range(proc):
+        for chunk in range(number_of_process):
             temp_dict = {}
-            for key in keys:
+            for key in event_keys:
                 temp_dict[key] = 0
-            new_list.append(temp_dict)
+            data_chunks.append(temp_dict)
 
-        for key in keys:
+        for key in event_keys:
             for index, events in enumerate(
-                    numpy.split(events_dict[key], proc)):
-                new_list[index][key] = events
+                    numpy.split(events_dict[key], number_of_process)
+            ):
+                data_chunks[index][key] = events
 
-        return new_list
+        return data_chunks
