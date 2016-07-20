@@ -481,7 +481,7 @@ class EVILWriter(definitions.TemplateWriter):
             file_location (str): Where to write the data.
         """
         super(EVILWriter, self).__init__(file_location)
-        self._file = io.open(file_location, "wt")
+        self._file = io.open(file_location, "w")
 
     def write(self, data):
         """
