@@ -21,7 +21,7 @@ methods are Duplex for worker processes and Simplex for offload processes.
 
 import multiprocessing
 
-from PyPWA.libs.process import _communication
+from PyPWA.libs.process._communication import CommunicationFactory
 from PyPWA.libs.process import kernels
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -135,7 +135,7 @@ class CalculationFactory(object):
         count = len(process_kernels)
         processes = []
 
-        sends, receives = _communication.SimplexFactory(count)
+        sends, receives = CommunicationFactory.simplex_build(count)
 
         for kernel, send in zip(process_kernels, sends):
             processes.append(_SimplexProcess(kernel, send))
@@ -157,7 +157,7 @@ class CalculationFactory(object):
         """
         count = len(process_kernels)
         processes = []
-        main_com, process_com = _communication.DuplexFactory(count)
+        main_com, process_com = CommunicationFactory.duplex_build(count)
 
         for kernel, process_com in zip(process_kernels, process_com):
             processes.append(_DuplexProcess(kernel, process_com))
