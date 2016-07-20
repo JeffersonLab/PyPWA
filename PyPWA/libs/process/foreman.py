@@ -25,7 +25,7 @@ import logging
 import multiprocessing
 
 import ruamel.yaml.comments
-
+import numpy
 
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import _communication
@@ -263,7 +263,7 @@ class Options(object):
             "time in the program, the hard max will always be 2 * the "
             "number of CPUs in your computer so that we don't resource "
             "lock your computer. Will work on any Intel  or AMD "
-            "processor, IBMs might have difficulty here.",
+            "processor, PowerPCs might have difficulty here.",
             "number of processes"
         )
 
@@ -305,3 +305,49 @@ class Options(object):
     @property
     def return_defaults(self):
         return self._options
+
+
+class BuildKernels(object):
+
+    def __init__(self, events_dict, kernel, interface, procs):
+        chunk_events = self.__split_data(events_dict, procs)
+        kernels = self.__create_objects(kernel, chunk_events)
+        self._foreman = CalculationForeman()
+        self._foreman.populate(interface, kernels)
+
+    @staticmethod
+    def __create_objects(kernel_template, data_chunk):
+        kernels = []
+        for chunk in data_chunk:
+            temp_kernel = kernel_template()
+            for key in chunk.keys():
+                setattr(temp_kernel, key, chunk[key])
+            kernels.append(temp_kernel)
+
+
+    @staticmethod
+    def __split_data(events_dict, proc):
+        """
+
+        Args:
+            events_dict (dict):
+            proc (int):
+
+        Returns:
+
+        """
+        keys = events_dict.keys()
+        new_list = []
+
+        for chunk in range(proc):
+            temp_dict = {}
+            for key in keys:
+                temp_dict[key] = 0
+            new_list.append(temp_dict)
+
+        for key in keys:
+            for index, events in enumerate(
+                    numpy.split(events_dict[key], proc)):
+                new_list[index][key] = events
+
+        return new_list
