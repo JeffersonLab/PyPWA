@@ -35,22 +35,10 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class SimplexFactory(object):
-    def __init__(self, count):
-        """
-        This object returns the requested amount of simplex pipes that
-        can be used for inter-process communication.
+class CommunicationFactory(object):
 
-        Args:
-            count (int): The number of Simplex Processes
-        """
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-        self._count = count
-        self._sends = _CommunicationInterface
-        self._receives = _CommunicationInterface
-
-    def build(self):
+    @staticmethod
+    def simplex_build(count):
         """
         When called this method will build the pipes and nest the into the
         SingleSend and SingleReceive objects to be sent to the main
@@ -60,43 +48,18 @@ class SimplexFactory(object):
             list[list[SingleSend],list[SingleReceive]]
         """
 
-        self._sends = [0] * self._count
-        self._receives = [0] * self._count
+        sends = [0] * count
+        receives = [0] * count
 
-        for pipe in range(self._count):
+        for pipe in range(count):
             receive, send = multiprocessing.Pipe(False)
-            self._sends[pipe] = _SimplexSend(send)
-            self._receives[pipe] = _SimplexReceive(receive)
+            sends[pipe] = _SimplexSend(send)
+            receives[pipe] = _SimplexReceive(receive)
 
-        return self.pipes
+        return [sends, receives]
 
-    @property
-    def pipes(self):
-        """
-        Call to return the pipes.
-
-        Returns:
-            list[list[_SimplexSend],list[_SimplexReceive]]
-        """
-        return [self._sends, self._receives]
-
-
-class DuplexFactory(object):
-    def __init__(self, count):
-        """
-        This object returns the requested amount of duplex pipes that can
-        be used for inter-process communication.
-
-        Args:
-            count (int): The number of Duplex Processes.
-        """
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-        self._count = count
-        self._main = _CommunicationInterface
-        self._process = _CommunicationInterface
-
-    def build(self):
+    @staticmethod
+    def duplex_build(count):
         """
         When called this method will build the pipes and nest them into
         the DuplexCommunication object to be sent to the main process and
@@ -105,32 +68,17 @@ class DuplexFactory(object):
         Returns:
             list [list[_DuplexCommunication],list[_DuplexCommunication]]
         """
-        self._main = [0] * self._count
-        self._process = [0] * self._count
+        main = [0] * count
+        process = [0] * count
 
-        for pipe in range(self._count):
+        for pipe in range(count):
             receive_one, send_one = multiprocessing.Pipe(False)
             receive_two, send_two = multiprocessing.Pipe(False)
 
-            self._main[pipe] = _DuplexCommunication(
-                send_one, receive_two
-            )
+            main[pipe] = _DuplexCommunication(send_one, receive_two)
+            process[pipe] = _DuplexCommunication(send_two, receive_one)
 
-            self._process[pipe] = _DuplexCommunication(
-                send_two, receive_one
-            )
-
-        return self.pipes
-
-    @property
-    def pipes(self):
-        """
-        Call to return the pipes.
-
-        Returns:
-            list[list[_DuplexCommunication],list[_DuplexCommunication]]
-        """
-        return [self._main, self._process]
+        return [main, process]
 
 
 class _CommunicationInterface(object):
