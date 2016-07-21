@@ -128,6 +128,7 @@ class SvReader(definitions.TemplateReader):
         self._file = False  # type: io.TextIOBase
         self._types = False  # type: list[tuple]
         self._elements = False  # type: list[str]
+        self._file_location = file_location
 
         self._start_input()
 
@@ -139,6 +140,7 @@ class SvReader(definitions.TemplateReader):
         if self._file:
             self._file.close()
 
+        self._file = io.open(self._file_location)
         dialect = csv.Sniffer().sniff(self._file.read(HEADER_SEARCH_BITS))
         self._file.seek(0)
 
