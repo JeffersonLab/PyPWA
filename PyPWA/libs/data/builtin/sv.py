@@ -232,7 +232,7 @@ class SvWriter(definitions.TemplateWriter):
 
         dict_data = {}
         for field_name in self._field_names:
-            dict_data[field_name] = data[0][field_name]
+            dict_data[field_name] = repr(data[0][field_name])
 
         self._writer.writerow(dict_data)
 
