@@ -32,7 +32,7 @@ import os
 import numpy
 import pytest
 
-import PyPWA.libs.data.builtin.kv as kv
+from PyPWA.libs.data.builtin import kv
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
