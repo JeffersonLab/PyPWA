@@ -32,6 +32,7 @@ import os
 import numpy
 import pytest
 
+from PyPWA.libs.data import definitions
 from PyPWA.libs.data.builtin import kv
 
 __author__ = ["Mark Jones"]
@@ -59,7 +60,7 @@ KV_WRITE_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/kv_write_test.txt"
 )
 
-SV_TEST_DATA = os.path.join(
+CSV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/sv_test_data.csv"
 )
 
@@ -129,10 +130,10 @@ def test_EVILValidator_CheckEvilFloatType_ReturnListOfFloats():
 
 def test_EVILValidator_CheckFailedType_RaiseIncompatibleData():
     """
-    Tests that Validator fails when reading SV_TEST_DATA
+    Tests that Validator fails when reading CSV_TEST_DATA
     """
-    with pytest.raises(IOError):
-        EVILValidator_CheckType_ReturnType(SV_TEST_DATA, "Something")
+    with pytest.raises(definitions.IncompatibleData):
+        EVILValidator_CheckType_ReturnType(CSV_TEST_DATA, "Something")
 
 
 def EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data):

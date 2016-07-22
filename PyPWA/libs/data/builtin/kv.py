@@ -557,13 +557,7 @@ class EVILValidator(definitions.TemplateValidator):
         try:
             return self._evil_type
         except AttributeError:
-            try:
-                self._check_data_type()
-            except definitions.IncompatibleData:
-                raise IOError(
-                    "Data is not of EVIL Type, "
-                    "double check and try again."
-                )
+            self._check_data_type()
             return self._evil_type
 
 
