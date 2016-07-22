@@ -86,12 +86,13 @@ class GampReader(definitions.TemplateReader):
         Raises:
             StopIterator: End of file has been found.
         """
-        count = int(self._file.readline().strip("\n"))
+        first_line = self._file.readline().strip("\n")
+        if first_line == "":
+            raise StopIteration
+        count = int(first_line)
         event = numpy.zeros((count, 6), numpy.float64)
         for index in range(count):
             event[index] = self._make_particle(self._file.readline())
-        if event == "":
-            raise StopIteration
         self._previous_event = event
         return self._previous_event
 
@@ -185,15 +186,17 @@ class GampMemory(definitions.TemplateMemory):
         Returns:
             list[event_index, particle_index]
         """
+        event_index = 0
         particle_index = 0
         with io.open(file_location) as stream:
             for index, line in enumerate(stream):
                 filtered_line = line.strip("\n").strip()
                 if len(filtered_line) == 1:
+                    event_index += 1
                     if int(filtered_line) > particle_index:
                         particle_index = int(filtered_line)
 
-        return [index, particle_index]
+        return [event_index, particle_index]
 
     def parse(self, file_location):
         """
