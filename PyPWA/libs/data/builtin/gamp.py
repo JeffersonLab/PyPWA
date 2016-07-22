@@ -291,7 +291,7 @@ class GampValidator(definitions.TemplateValidator):
                 break
             elif count == 20 and self._full:
                 break
-            number = self._file.readline()
+            number = self._file.readline().strip("\n").strip()
             try:
                 int(number)
             except ValueError:
@@ -309,8 +309,8 @@ class GampValidator(definitions.TemplateValidator):
 
             except Exception as Error:
                 raise definitions.IncompatibleData(
-                    "Unexpected exception raised, caught " + str(Error) +
-                    "where it wasn't expected."
+                    "Unexpected exception raised, caught " + repr(Error) +
+                    " where it wasn't expected."
                 )
 
     def _test_length(self):
@@ -324,15 +324,16 @@ class GampValidator(definitions.TemplateValidator):
                 Raised when the tests fail for this object and the data.
         """
         while True:
-            number = self._file.readline()
+            number = self._file.readline().strip().strip("\n")
             try:
+                if number == "":
+                    break
                 for index in range(int(number)):
-                    if self._file.readline() == "":
-                        break
+                    self._file.readline()
             except Exception as Error:
                 raise definitions.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
-                    "where it wasn't expected."
+                    " where it wasn't expected."
                 )
 
     def test(self):
