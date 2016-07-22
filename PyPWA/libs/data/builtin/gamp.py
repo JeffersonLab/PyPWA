@@ -285,26 +285,39 @@ class GampValidator(definitions.TemplateValidator):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the tests fail for this object and the data.
         """
+        self._file.seek(0)
         count = 0
         while True:
+            # Limit how much of the file is tested
             if count == 3 and not self._full:
                 break
-            elif count == 20 and self._full:
-                break
             number = self._file.readline().strip("\n").strip()
+
+            # If the test has run at least once and has reached the end
+            # then end the test
+            if count and number == "":
+                break
+
+            # If we failed to find the particle count when it was
+            # expected end the test with a fail.
             try:
                 int(number)
-            except ValueError:
+            except ValueError as Error:
                 raise definitions.IncompatibleData(
-                    "Expected particle count."
+                    "Expected particle count. Found " + repr(Error) +
+                    str(count)
                 )
 
+            # If we failed to find all the particle data where it was
+            # expected then end the test with a fail
             try:
                 for index in range(int(number)):
-                    if len(self._file.readline().split(",")) != 6:
-                        raise definitions.IncompatibleData(
-                            "Particle count does not match the number of "
-                            "events read in by the Validator."
+                    data_length = len(self._file.readline().split(" "))
+                    if data_length != 6:
+                        raise ValueError(
+                            "Particle doesn't have all the data "
+                            "required by the gamp standard. Has " +
+                            repr(data_length) + " at index " + repr(index)
                         )
 
             except Exception as Error:
@@ -312,6 +325,8 @@ class GampValidator(definitions.TemplateValidator):
                     "Unexpected exception raised, caught " + repr(Error) +
                     " where it wasn't expected."
                 )
+
+            count += 1
 
     def _test_length(self):
         """
@@ -323,6 +338,7 @@ class GampValidator(definitions.TemplateValidator):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the tests fail for this object and the data.
         """
+        self._file.seek(0)
         while True:
             number = self._file.readline().strip().strip("\n")
             try:
