@@ -144,7 +144,7 @@ class GampWriter(definitions.TemplateWriter):
         super(GampWriter, self).__init__(file_location)
         self._file = io.open(file_location, "w")
 
-    def write(self, data: numpy.ndarray):
+    def write(self, data):
         """
         Writes the events the disk one event at a time, wont close the
         disk access until the close function is called or until the object
@@ -153,13 +153,13 @@ class GampWriter(definitions.TemplateWriter):
         Args:
             numpy.ndarray: the file that is to be written to disk.
         """
+        self._file.write(str(len(data)) + "\n")
         for particle in data:
-            if not particle[0] == 0 and not particle[5] == 0:
-                self._file.write(
-                    repr(particle[0]) + " " + repr(particle[1]) + " " +
-                    repr(particle[2]) + " " + repr(particle[3]) + " " +
-                    repr(particle[4]) + " " + repr(particle[5]) + "\n"
-                )
+            self._file.write(
+                repr(particle[0]) + " " + repr(particle[1]) + " " +
+                repr(particle[2]) + " " + repr(particle[3]) + " " +
+                repr(particle[4]) + " " + repr(particle[5]) + "\n"
+            )
 
     def close(self):
         self._file.close()
@@ -206,7 +206,7 @@ class GampMemory(definitions.TemplateMemory):
             file_location (str): The location of the GAMP File.
 
         Returns:
-            list[GampEvent]: A list containing all the GampEvents from the
+            numpy.ndarray: A list containing all the GampEvents from the
                 data file.
         """
         indexes = self.__index_gamp(file_location)
@@ -258,6 +258,7 @@ class GampMemory(definitions.TemplateMemory):
         for event in data:
             new_event = self.__filter_events(event)
             writer.write(new_event)
+        writer.close()
 
 
 class GampValidator(definitions.TemplateValidator):
