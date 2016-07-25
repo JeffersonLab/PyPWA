@@ -217,6 +217,8 @@ class GampMemory(definitions.TemplateMemory):
             if not len(event) == indexes[1]:
                 event = numpy.resize(event, (indexes[1], 6))
             events[index] = event
+
+        reader.close()
         return events
 
     @staticmethod
