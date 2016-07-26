@@ -17,4 +17,3 @@ GAMP_TEST_DATA = os.path.join(
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "test_docs/temporary_write_data"
 )
-
