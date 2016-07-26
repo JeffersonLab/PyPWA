@@ -31,6 +31,7 @@ Examples:
         file.write(path_to_file, the_data)
 """
 import ruamel.yaml
+import ruamel.yaml.comments
 
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import traffic_cop

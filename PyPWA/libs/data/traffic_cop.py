@@ -26,9 +26,6 @@ this to get started passing data to it.
 
 import logging
 
-import ruamel.yaml
-import ruamel.yaml.comments
-
 from PyPWA.configurator import settings_aid
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
