@@ -26,6 +26,7 @@ this to get started passing data to it.
 
 import logging
 
+import PyPWA.libs.data
 from PyPWA.configurator import settings_aid
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
@@ -40,33 +41,11 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-BUILTIN_PACKAGE_LOCATION = builtin
+BUILTIN_PACKAGE_LOCATION = builtin.__file__
 
 
 class TrafficCop(object):
 
-    def __init__(self, settings):
-        """
-        The data plugin.
-
-        Args:
-            settings (dict): The global options.
-        """
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-
-        fixer = settings_aid.CorrectSettings()
-        options = Options()
-        self._corrected_settings = fixer.correct_dictionary(
-            settings, options.return_template)
-
-        plugin_finder = _utilites.FindPlugins()
-        data_plugins = plugin_finder.find_plugin(builtin)
-
-        self._data_search = _utilites.DataSearch(data_plugins)
-
-    # Going to assume for completions sake that the settings line is just
-    # the file's location. However untrue this may be.
     def parse(self, settings_line):
         """
         Parses a single file into memory then passes that data back to the
@@ -93,6 +72,47 @@ class TrafficCop(object):
                 raise
             else:
                 return 0
+
+    # Going to assume for completions sake that the settings line is just
+    def __init__(
+            self, cache=False, clear_cache=False, plugins=False,
+            settings=False
+    ):
+        """
+        The data plugin.
+
+        Args:
+            settings (dict): The global options.
+            cache (bool): Whether or not to cache data.
+            clear_cache (bool): Should the cache be cleared when called
+            plugins (list[str]): The list of directories that the plugins
+                should be in.
+        """
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+        plugin_finder = _utilites.FindPlugins()
+
+        if settings:
+            fixer = settings_aid.CorrectSettings()
+            options = PyPWA.libs.data.Options()
+            self._corrected_settings = fixer.correct_dictionary(
+                settings, options.return_template)
+            data_plugins = plugin_finder.find_plugin(
+                [builtin, settings["user plugin"]]
+            )
+
+            self._cache = settings["cache"]
+            self._clear_cache = settings["clear cache"]
+
+        else:
+            data_plugins = plugin_finder.find_plugin(
+                [builtin, plugins]
+            )
+            self._cache = cache
+            self._clear_cache = clear_cache
+
+        self._data_search = _utilites.DataSearch(data_plugins)
+    # the file's location. However untrue this may be.
 
     def write(self, file_location, data):
         """
