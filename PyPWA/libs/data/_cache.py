@@ -169,8 +169,10 @@ class MemoryCache(object):
             pickle_location (str): The location of the cache.
             data (dict): A dictionary of arrays to be written to disk.
         """
-        pickle.dump(data, io.open(pickle_location, "wb"),
-                    protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(
+            data, io.open(pickle_location, "wb"),
+            protocol=pickle.HIGHEST_PROTOCOL
+        )
 
     @staticmethod
     def _determine_cache_location(file_location, cache_path):
