@@ -125,26 +125,26 @@ class MemoryCache(object):
             "Attempting to load {0}".format(pickle_location)
         )
 
-        returned_data = self._load_pickle(pickle_location)
+        try:
+            returned_data = self._load_pickle(pickle_location)
+        except IOError:
+            self._logger.info("No cache exists.")
+            raise CacheNotFound()
 
         try:
             if returned_data["hash"] == file_hash:
                 self._logger.info("Cache Hashes match!")
                 return returned_data["data"]
             else:
-                raise CacheFailed()
+                self._logger.warning("File hash has changed.")
 
+                self._logger.debug("{0} != {1}".format(
+                    returned_data["hash"], file_hash)
+                )
+
+                raise CacheChanged()
         except AttributeError:
-            self._logger.info("No cache exists.")
-            raise CacheFailed()
-
-        except CacheFailed:
-            self._logger.warning("File hash has changed.")
-
-            self._logger.debug("{0} != {1}".format(
-                returned_data["hash"], file_hash)
-            )
-
+            self._logger.error("No File hash was saved in the cache.")
             raise CacheFailed()
 
     @staticmethod
@@ -186,8 +186,9 @@ class MemoryCache(object):
         Returns:
             str: The path to the cache file.
         """
-        file_name = "." + os.path.basename(file_location)[0] + ".pickle"
-        path = cache_path + os.path.pathsep + file_name
+        file_name = "." + os.path.basename(file_location).split(".")[0] \
+                    + ".pickle"
+        path = os.path.abspath(cache_path) + os.path.sep + file_name
         return path
 
     def _file_hash(self, file_location):
@@ -197,12 +198,21 @@ class MemoryCache(object):
 
 class CacheFailed(Exception):
     """
-    The Exception for when the Cache Writing has Failed.
+    The Exception for when the Cache Writing or Reading has Failed.
     """
     pass
 
 
-class CacheNoFound(Exception):
+class CacheNotFound(Exception):
     """
     The Exception raised when the cache isn't found.
     """
+    pass
+
+
+class CacheChanged(Exception):
+    """
+    The Exception that is raised when the cache is found but the file
+    hashes don't match.
+    """
+    pass
