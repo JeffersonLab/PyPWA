@@ -153,12 +153,14 @@ class GampWriter(definitions.TemplateWriter):
         Args:
             numpy.ndarray: the file that is to be written to disk.
         """
-        self._file.write(str(len(data)) + "\n")
+        self._file.write(unicode(len(data)) + "\n")
         for particle in data:
             self._file.write(
-                repr(particle[0]) + " " + repr(particle[1]) + " " +
-                repr(particle[2]) + " " + repr(particle[3]) + " " +
-                repr(particle[4]) + " " + repr(particle[5]) + "\n"
+                unicode(
+                    repr(particle[0]) + " " + repr(particle[1]) + " " +
+                    repr(particle[2]) + " " + repr(particle[3]) + " " +
+                    repr(particle[4]) + " " + repr(particle[5]) + "\n"
+                )
             )
 
     def close(self):
