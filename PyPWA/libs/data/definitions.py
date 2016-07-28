@@ -83,6 +83,9 @@ class TemplateReader(object):
             "event properly when its called." % self.__class__.__name__
         )
 
+    def next(self):
+        return self.next_event
+
     def __next__(self):
         return self.next_event
 
