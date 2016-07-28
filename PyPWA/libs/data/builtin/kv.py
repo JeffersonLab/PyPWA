@@ -94,7 +94,7 @@ class DictOfArrays(KvInterface):
 
         types = []
         for name in names:
-            types.append((name, "f8"))
+            types.append((str(name), "f8"))
 
         return numpy.zeros(file_length, types)
 
@@ -152,7 +152,7 @@ class DictOfArrays(KvInterface):
                         ][event])
                     )
                 line += "\n"
-                stream.write(line)
+                stream.write(unicode(line))
 
 
 class ListOfFloats(KvInterface):
@@ -190,7 +190,7 @@ class ListOfFloats(KvInterface):
         """
         with open(file_location, "w") as stream:
             for event in data:
-                stream.write(repr(event) + "\n")
+                stream.write(unicode(repr(event) + "\n"))
 
 
 class ListOfBooleans(KvInterface):
@@ -229,7 +229,7 @@ class ListOfBooleans(KvInterface):
         """
         with open(file_location, "w") as stream:
             for weight in data:
-                stream.write(repr(int(weight)) + "\n")
+                stream.write(unicode(repr(int(weight)) + "\n"))
 
 
 class SomewhatIntelligentSelector(KvInterface):
@@ -454,7 +454,9 @@ class EVILReader(definitions.TemplateReader):
 
         types = []
         for name in names:
-            types.append((name, "f8"))
+            types.append((str(name), "f8"))
+
+        self._logger.debug("Numpy Types = " + repr(types))
 
         final = numpy.zeros(1, types)
 
@@ -491,12 +493,12 @@ class EVILWriter(definitions.TemplateWriter):
             data (numpy.ndarray): The array that contains the data to be
                 writen to the file.
         """
-        string = ""
+        string = u""
         for index, key in enumerate(list(data.dtype.names)):
             if not index == 0:
-                string += ","
-            string += str(key) + "=" + repr(data[0][key])
-        string += "\n"
+                string += u","
+            string += str(key) + u"=" + repr(data[0][key])
+        string += u"\n"
 
         self._file.write(string)
 
