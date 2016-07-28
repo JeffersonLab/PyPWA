@@ -152,7 +152,7 @@ class DictOfArrays(KvInterface):
                         ][event])
                     )
                 line += "\n"
-                stream.write(unicode(line))
+                stream.write(line)
 
 
 class ListOfFloats(KvInterface):
@@ -190,7 +190,7 @@ class ListOfFloats(KvInterface):
         """
         with open(file_location, "w") as stream:
             for event in data:
-                stream.write(unicode(repr(event) + "\n"))
+                stream.write(repr(event) + "\n")
 
 
 class ListOfBooleans(KvInterface):
@@ -229,7 +229,7 @@ class ListOfBooleans(KvInterface):
         """
         with open(file_location, "w") as stream:
             for weight in data:
-                stream.write(unicode(repr(int(weight)) + "\n"))
+                stream.write(repr(int(weight)) + "\n")
 
 
 class SomewhatIntelligentSelector(KvInterface):
@@ -280,7 +280,8 @@ class SomewhatIntelligentSelector(KvInterface):
 
         Args:
             file_location (str): Where to write the data.
-            data numpy.ndarray: The data that needs to be written to disk.
+            data (numpy.ndarray): The data that needs to be written to
+                disk.
         """
         if isinstance(data[0], numpy.float64):
             self._logger.debug("Found type float64, assuming float list.")

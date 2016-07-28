@@ -142,7 +142,7 @@ class GampWriter(definitions.TemplateWriter):
             file_location (str): Where to write the GAMP data.
         """
         super(GampWriter, self).__init__(file_location)
-        self._file = io.open(file_location, "w")
+        self._file = open(file_location, "w")
 
     def write(self, data):
         """
@@ -153,14 +153,12 @@ class GampWriter(definitions.TemplateWriter):
         Args:
             numpy.ndarray: the file that is to be written to disk.
         """
-        self._file.write(unicode(len(data)) + "\n")
+        self._file.write(str(len(data)) + "\n")
         for particle in data:
             self._file.write(
-                unicode(
-                    repr(particle[0]) + " " + repr(particle[1]) + " " +
-                    repr(particle[2]) + " " + repr(particle[3]) + " " +
-                    repr(particle[4]) + " " + repr(particle[5]) + "\n"
-                )
+                repr(particle[0]) + " " + repr(particle[1]) + " " +
+                repr(particle[2]) + " " + repr(particle[3]) + " " +
+                repr(particle[4]) + " " + repr(particle[5]) + "\n"
             )
 
     def close(self):
