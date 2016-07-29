@@ -142,7 +142,7 @@ class GampWriter(definitions.TemplateWriter):
             file_location (str): Where to write the GAMP data.
         """
         super(GampWriter, self).__init__(file_location)
-        self._file = io.open(file_location, "w")
+        self._file = open(file_location, "w")
 
     def write(self, data):
         """

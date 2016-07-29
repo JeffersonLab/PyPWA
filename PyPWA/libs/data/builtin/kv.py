@@ -94,7 +94,7 @@ class DictOfArrays(KvInterface):
 
         types = []
         for name in names:
-            types.append((name, "f8"))
+            types.append((str(name), "f8"))
 
         return numpy.zeros(file_length, types)
 
@@ -280,7 +280,8 @@ class SomewhatIntelligentSelector(KvInterface):
 
         Args:
             file_location (str): Where to write the data.
-            data numpy.ndarray: The data that needs to be written to disk.
+            data (numpy.ndarray): The data that needs to be written to
+                disk.
         """
         if isinstance(data[0], numpy.float64):
             self._logger.debug("Found type float64, assuming float list.")
@@ -454,7 +455,9 @@ class EVILReader(definitions.TemplateReader):
 
         types = []
         for name in names:
-            types.append((name, "f8"))
+            types.append((str(name), "f8"))
+
+        self._logger.debug("Numpy Types = " + repr(types))
 
         final = numpy.zeros(1, types)
 
@@ -491,12 +494,12 @@ class EVILWriter(definitions.TemplateWriter):
             data (numpy.ndarray): The array that contains the data to be
                 writen to the file.
         """
-        string = ""
+        string = u""
         for index, key in enumerate(list(data.dtype.names)):
             if not index == 0:
-                string += ","
-            string += str(key) + "=" + repr(data[0][key])
-        string += "\n"
+                string += u","
+            string += str(key) + u"=" + repr(data[0][key])
+        string += u"\n"
 
         self._file.write(string)
 

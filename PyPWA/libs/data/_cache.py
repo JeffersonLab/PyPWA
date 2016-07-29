@@ -23,10 +23,11 @@ again.
 """
 
 import io
+import os
 import logging
 import pickle
 
-from PyPWA.configurator import tools, definitions, data_types
+from PyPWA.configurator import tools
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -51,10 +52,9 @@ class MemoryCache(object):
 
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
-        self._data_path = tools.DataLocation()
         self._hash_utility = tools.FileHash()
 
-    def make_cache(self, data, file_location):
+    def make_cache(self, data, file_location, cache_path):
         """
         Makes and hashes the cache with data that was loaded from
         disk.
@@ -63,19 +63,17 @@ class MemoryCache(object):
             data (data_types.GenericEvent): Contains the dict of the
                 arrays.
             file_location (str): The location of the original file.
+            cache_path (str): The path to the cache directory.
 
         Raises:
             CacheFailed: Unable to write data to disk.
         """
-        try:
-            the_pickle = self._data_path.find_cache_dir(file_location,
-                                                        '.pickle')
-        except definitions.NoCachePath:
-            self._logger.info("Failed to find cache.")
-            raise CacheFailed("No Cache location found!")
+        pickle_location = self._determine_cache_location(
+            file_location, cache_path
+        )
 
         self._logger.debug(
-            "Cache location is set to {0}".format(the_pickle)
+            "Cache location is set to {0}".format(pickle_location)
         )
 
         file_hash = self._file_hash(file_location)
@@ -94,29 +92,27 @@ class MemoryCache(object):
             "Making cache for {0}".format(file_location)
         )
 
-        self._write_pickle(the_pickle, new_data)
+        self._write_pickle(pickle_location, new_data)
 
-    def read_cache(self, file_location):
+    def read_cache(self, file_location, cache_path):
         """
         Parses the cache from the file and checks the cache's hash with
         the hash recovered from the data file.
 
         Args:
             file_location (str): The location of the original file.
+            cache_path (str): The path to the cache directory.
 
         Returns:
             bool: False if unsuccessful
             dict: Dictionary of Arrays if successful.
         """
-        try:
-            the_location = self._data_path.find_cache_dir(file_location,
-                                                          '.pickle')
-        except definitions.NoCachePath:
-            self._logger.info("Failed to find cache.")
-            raise CacheFailed("No Cache location found!")
+        pickle_location = self._determine_cache_location(
+            file_location, cache_path
+        )
 
         self._logger.debug(
-            "Cache location set to {0}".format(the_location)
+            "Cache location set to {0}".format(pickle_location)
         )
 
         file_hash = self._file_hash(file_location)
@@ -126,23 +122,35 @@ class MemoryCache(object):
         )
 
         self._logger.info(
-            "Attempting to load {0}".format(the_location)
+            "Attempting to load {0}".format(pickle_location)
         )
 
-        returned_data = self._load_pickle(the_location)
+        try:
+            returned_data = self._load_pickle(pickle_location)
+        except IOError:
+            self._logger.info("No cache exists.")
+            raise CacheNotFound()
 
-        if returned_data["hash"] == file_hash:
-            self._logger.info("Cache Hashes match!")
-            return returned_data["data"]
-        else:
-            self._logger.warning("File hash has changed.")
-            self._logger.debug("{0} != {1}".format(
-                returned_data["hash"], file_hash))
-            return False
+        try:
+            if returned_data["hash"] == file_hash:
+                self._logger.info("Cache Hashes match!")
+                return returned_data["data"]
+            else:
+                self._logger.warning("File hash has changed.")
+
+                self._logger.debug("{0} != {1}".format(
+                    returned_data["hash"], file_hash)
+                )
+
+                raise CacheChanged()
+        except AttributeError:
+            self._logger.error("No File hash was saved in the cache.")
+            raise CacheFailed()
 
     @staticmethod
     def _load_pickle(pickle_location):
-        """Loads the cache from file.
+        """
+        Loads the cache from file.
 
         Args:
             pickle_location (str): The location of the cache on disk.
@@ -154,14 +162,36 @@ class MemoryCache(object):
 
     @staticmethod
     def _write_pickle(pickle_location, data):
-        """Writes the data into a cache.
+        """
+        Writes the data into a cache.
 
         Args:
             pickle_location (str): The location of the cache.
             data (dict): A dictionary of arrays to be written to disk.
         """
-        pickle.dump(data, io.open(pickle_location, "wb"),
-                    protocol=pickle.HIGHEST_PROTOCOL)
+        pickle.dump(
+            data, io.open(pickle_location, "wb"),
+            protocol=pickle.HIGHEST_PROTOCOL
+        )
+
+    @staticmethod
+    def _determine_cache_location(file_location, cache_path):
+        """
+        Takes the path to the file, extracts the file name, and appends
+        it to the cache_path with all needed path extras.
+
+        Args:
+            file_location (str): The path to the file that is being
+                cached.
+            cache_path (str): The path to the cache directory.
+
+        Returns:
+            str: The path to the cache file.
+        """
+        file_name = "." + os.path.basename(file_location).split(".")[0] \
+                    + ".pickle"
+        path = os.path.abspath(cache_path) + os.path.sep + file_name
+        return path
 
     def _file_hash(self, file_location):
         with io.open(file_location, "rb") as stream:
@@ -170,6 +200,21 @@ class MemoryCache(object):
 
 class CacheFailed(Exception):
     """
-    The Exception for when the Cache Writing has Failed.
+    The Exception for when the Cache Writing or Reading has Failed.
+    """
+    pass
+
+
+class CacheNotFound(Exception):
+    """
+    The Exception raised when the cache isn't found.
+    """
+    pass
+
+
+class CacheChanged(Exception):
+    """
+    The Exception that is raised when the cache is found but the file
+    hashes don't match.
     """
     pass
