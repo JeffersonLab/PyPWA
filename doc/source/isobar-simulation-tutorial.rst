@@ -55,11 +55,11 @@ A.
     (with 0 \(fail\) and 1 \(pass\) in each line and the same order than
     the gamp file\).
 
-1)
+2)
     This file will map the accepted events after the full simulation
     \(for weighting of the events without resubmitting new simulation).
 
-2)
+3)
     Create a “resonances.txt” file with the resonances you want to
     simulate. You need to choose a set of resonances and the weight of
     each resonance.
@@ -70,7 +70,7 @@ given a weight (0 to 1) for the participation in the resonance
 production. Determine all waves you want to use and write a name
 .keyfile for each according to the gamp format (see general
 documentation). Populate the MAIN/ directory with all your waves as for
-example: 0-1--1-P_rho.keyfile
+example: 0-1--1-P_rho.keyfile.
 
 (name includes wave definition: IGJPCMepsL_isobar-ifany).keyfile)
 
@@ -178,7 +178,7 @@ that-name-of-reaction (“MAIN”)::
 
 
 6.
-    go to the MAIN/GUI directory and run PWA_GUI This is the main GUI for
+    Go to the MAIN/GUI directory and run PWA_GUI This is the main GUI for
     the analysis. It will start with one column an after you make
     selections two new columns will be opening.
 
@@ -243,9 +243,9 @@ of 0).
 12.
     click iMax
     ::
-	    This calculate the maximum intensity in all masses to normalize
+	    This calculates the maximum intensity in all masses to normalize
 	    MC. It is running in your computer is very fast it will print
-	    DONE!.
+	    "DONE!".
 
 
 .. note::
@@ -253,7 +253,7 @@ of 0).
     the corresponding necessary files for your SIMULATION.The number of
     events in the files alphaevents.txt, events.gamp and events.num must
     be the same and the structure should look like this below
-    (for example, for 4 waves in a 1000_MeV mass bin)
+    (for example, for 4 waves in a 1000_MeV mass bin).
 
 
 ::
@@ -275,7 +275,7 @@ of 0).
 		|   |-- rhoAA.npy
 		`-- weight
 		    |-- acc
-	 	   `-- raw
+	 	    `-- raw
 
 
 Simulation for each mass_bin (Mass-independent fit using Minuit) from the
@@ -283,6 +283,7 @@ main GUI:
 
 13.
     click Simulator
+    
     All simulation jobs (one for each mass bin) will be submitted to the
     farm. The time required to run each job depends on number of events
     and number of waves used.
