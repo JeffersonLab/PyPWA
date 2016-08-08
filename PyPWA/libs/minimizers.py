@@ -77,7 +77,7 @@ class Minuit(object):
 
 class MultiNest(object):
     """
-    This is be elegant and amazing, eventually.
+    This will be elegant and amazing, eventually.
     """
 
     builtin_function = u"""\
