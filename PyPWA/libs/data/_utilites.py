@@ -62,12 +62,13 @@ class FindPlugins(object):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
-    def find_plugin(self, package):
+    def find_plugin(self, packages):
         """
         Starts the search for possible plugins.
 
         Args:
-            package (module): The package that might contain the plugin(s)
+            packages (module): The package that might contain the
+                plugin(s)
 
         Returns:
             list[module]: The validated plugins that are likely to work
@@ -75,17 +76,21 @@ class FindPlugins(object):
         """
         possible_plugins = []
 
-        for importer, modname, is_pkg in pkgutil.iter_modules(
-                package.__path__):
+        for module in packages:
+            if module:
+                for importer, modname, is_pkg in pkgutil.iter_modules(
+                        module.__path__
+                ):
 
-            self._logger.debug(
-                "Found Plugin %s, is package %s" % (modname, is_pkg)
-            )
+                    self._logger.debug(
+                        "Found Plugin %s, is package %s" %
+                        (modname, is_pkg)
+                    )
 
-            plugin = self._import_plugin(importer, modname)
-            if not isinstance(plugin, bool):
-                if self._check_metadata(plugin):
-                    possible_plugins.append(plugin)
+                    plugin = self._import_plugin(importer, modname)
+                    if not isinstance(plugin, bool):
+                        if self._check_metadata(plugin):
+                            possible_plugins.append(plugin)
 
         return possible_plugins
 
