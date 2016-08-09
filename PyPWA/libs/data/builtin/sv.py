@@ -98,7 +98,7 @@ class SvMemory(definitions.TemplateMemory):
         else:
             the_dialect = csv.excel
 
-        with io.open(file_location, "wt") as stream:
+        with open(file_location, "wt") as stream:
             field_names = list(data.dtype.names)
 
             writer = csv.DictWriter(stream, fieldnames=field_names,
@@ -197,7 +197,7 @@ class SvWriter(definitions.TemplateWriter):
             file_location (str): Location to  write the data to.
         """
         super(SvWriter, self).__init__(file_location)
-        self._file = io.open(file_location, "w")
+        self._file = open(file_location, "w")
         extension = file_location.split(".")[-1]
 
         if extension == "tsv":
