@@ -30,9 +30,7 @@ Examples:
         file = PyPWA.data.file_manager.MemoryInterface()
         file.write(path_to_file, the_data)
 """
-import ruamel.yaml
-import ruamel.yaml.comments
-
+from PyPWA.configurator import templates
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import traffic_cop
 from PyPWA import VERSION, LICENSE, STATUS
@@ -46,141 +44,70 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Options(object):
+class DataParser(templates.TemplateOptions):
 
-    # Holds the default options for the builtin.
-    _options = {
-        "cache": True,  # Optional
-        "clear cache": False,  # Advanced
-        "fail": False,  # Advanced
-        "user plugin": "cwd=/path/to/file;"  # Advanced
-    }
+    def _plugin_name(self):
+        return _utilites.MODULE_NAME
 
-    # Holds the actual expected options and names for the builtin
-    _template = {
-        "cache": bool,
-        "clear cache": bool,
-        "fail": bool,
-        "user plugin": str
-    }
+    def _plugin_interface(self):
+        return traffic_cop.TrafficCop
 
-    def __init__(self):
-        """
-        Option object for the Data Builtin Plugin.
-        """
-        header = self._build_empty_options_with_comments()
-        self._optional = self._build_optional(header)
-        self._advanced = self._build_advanced(header)
-        self._required = ruamel.yaml.comments.CommentedMap()
+    def _plugin_type(self):
+        return self._data_reader
 
-    @staticmethod
-    def _build_empty_options_with_comments():
-        """
-        Builds an empty dictionary with all the comments for the builtin
-        data dictionary.
+    def _plugin_requires(self):
+        return False
 
-        Returns:
-            ruamel.yaml.comments.CommentedMap: The empty dictionary with
-                the comments.
-        """
-        header = ruamel.yaml.comments.CommentedMap()
-        content = ruamel.yaml.comments.CommentedMap()
+    def _plugin_arguments(self):
+        return False
 
-        header[_utilites.MODULE_NAME] = content
-        header.yaml_add_eol_comment(
-            'This is the builtin data parser, you can replace this with '
-            'your own data parser if you wish.', _utilites.MODULE_NAME
-        )
+    def _default_options(self):
+        return {
+            "cache": True,
+            "clear cache": False,
+            "fail": False,
+            "user plugin": "cwd=/path/to/file;"
+        }
 
-        content.yaml_add_eol_comment(
-            "Should Cache be enabled? The cache will automatically clear "
-            "if it detects a change in any of your data and should be "
-            "safe to leave enabled.", "cache"
-        )
+    def _option_levels(self):
+        return {
+            "cache": self._optional,
+            "clear cache": self._advanced,
+            "fail": self._advanced,
+            "user plugin": self._advanced
+        }
 
-        content.yaml_add_eol_comment(
-            "Should we force the cache to clear? This will destroy all of"
-            " your caches, this means loading your data will take much "
-            "longer, its recommended to leave this off unless you are "
-            "certain its a cache issue.", "clear cache"
-        )
+    def _option_types(self):
+        return {
+            "cache": bool,
+            "clear cache": bool,
+            "fail": bool,
+            "user plugin": str
+        }
 
-        content.yaml_add_eol_comment(
-            "Should the program stop if it fails to load the file? The "
-            "program will already fail if the data is needed for parsing "
-            "to happen, if this is set to true even files that are "
-            "optional will cause the program to stop.", "fail"
-        )
+    def _main_comment(self):
+        return "This is the builtin data parser, you can replace " \
+               "this with your own data parser if you wish."
 
-        content.yaml_add_eol_comment(
-            "A plugin that can be loaded into the the " +
-            _utilites.MODULE_NAME + " for parsing, see the documentation "
-            "on the " + _utilites.MODULE_NAME + " plugin for more "
-            "information.", "user plugin"
-        )
-
-        return header
-
-    def _build_optional(self, header):
-        """
-        Loads the optional data into the dictionary.
-
-        Args:
-            header (ruamel.yaml.comment.CommentedMap): The dictionary with
-                the pre-nested comments.
-
-        Returns:
-            ruamel.yaml.comment.CommentedMap: The dictionary with the
-                optional options.
-        """
-        header[_utilites.MODULE_NAME]["cache"] = self._options["cache"]
-        return header
-
-    def _build_advanced(self, header):
-        """
-        Loads the optional and advanced data into the dictionary.
-
-        Args:
-            header (ruamel.yaml.comment.CommentedMap): The dictionary with
-             the pre-nested comments.
-
-        Returns:
-            ruamel.yaml.comment.CommentedMap: The dictionary with the
-                optional and advanced options.
-        """
-        header = self._build_optional(header)
-        header[_utilites.MODULE_NAME]["clear cache"] = \
-            self._options["clear cache"]
-
-        header[_utilites.MODULE_NAME]["fail"] = self._options["fail"]
-        return header
-
-    @property
-    def return_template(self):
-        return self._template
-
-    @property
-    def return_required(self):
-        return self._required
-
-    @property
-    def return_optional(self):
-        return self._optional
-
-    @property
-    def return_advanced(self):
-        return self._advanced
-
-    @property
-    def return_defaults(self):
-        return self._options
-
-metadata = [{
-    "name": _utilites.MODULE_NAME,
-    "interface": traffic_cop.TrafficCop,
-    "options": Options,
-    "provides": "data",
-    "requires function": False,
-    "arguments": False
-}]
-
+    def _option_comments(self):
+        return {
+            "cache":
+                "Should Cache be enabled? The cache will automatically "
+                "clear if it detects a change in any of your data and "
+                "should be safe to leave enabled.",
+            "clear cache":
+                "Should we force the cache to clear? This will destroy "
+                "all of your caches, this means loading your data will "
+                "take much longer, its recommended to leave this off "
+                "unless you are certain its a cache issue.",
+            "fail":
+                "Should the program stop if it fails to load the file? "
+                "The program will already fail if the data is needed for "
+                "parsing to happen, if this is set to true even files "
+                "that are optional will cause the program to stop.",
+            "user plugin":
+                "A plugin that can be loaded into the the " +
+                _utilites.MODULE_NAME + " for parsing, see the "
+                "documentation on the " + _utilites.MODULE_NAME +
+                " plugin for more information."
+        }
