@@ -11,36 +11,30 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
         options = templates.TemplateOptions()
         options.request_metadata("name")
 
-    minimizer = templates.MinimizerTemplate()
+    minimizer = templates.MinimizerTemplate({"this": "that"})
     with pytest.raises(NotImplementedError):
-        minimizer.configurator_options("this or that")
-
-    with pytest.raises(NotImplementedError):
-        minimizer.main_options("that")
+        minimizer.main_options("function")
 
     with pytest.raises(NotImplementedError):
         minimizer.start()
 
-    processing = templates.KernelProcessingTemplate()
-    with pytest.raises(NotImplementedError):
-        processing.configurator_options("options")
-
+    processing = templates.KernelProcessingTemplate({"this": "that"})
     with pytest.raises(NotImplementedError):
         processing.main_options("more", "less", "something")
 
-    data_reader = templates.DataReaderTemplate()
+    data_reader = templates.DataReaderTemplate({"this": "that"})
     with pytest.raises(NotImplementedError):
         data_reader.return_reader("the file")
 
     with pytest.raises(NotImplementedError):
         data_reader.return_writer("the file")
 
-    data_parser = templates.DataParserTemplate()
+    data_parser = templates.DataParserTemplate({"this": "that"})
     with pytest.raises(NotImplementedError):
-        data_parser.parse_data("the file")
+        data_parser.parse("the file")
 
     with pytest.raises(NotImplementedError):
-        data_parser.write_data("the data", "the file")
+        data_parser.write("the data", "the file")
 
 
 def test_TemplateOptions_CreateMetaObject_HoldData():

@@ -144,7 +144,7 @@ class MinimizerTemplate(_InitialOptions):
     def __init__(self, options):
         super(MinimizerTemplate, self).__init__(options)
 
-    def main_options(self, calc_function):
+    def main_options(self, calc_function, fitting_type=False):
         raise NotImplementedError
 
     def start(self):
