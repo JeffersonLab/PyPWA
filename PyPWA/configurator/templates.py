@@ -185,6 +185,21 @@ class InterfaceTemplate(object):
         raise NotImplementedError
 
 
+class DataParserTemplate(_InitialOptions):
+    """
+    Template for data parser and writing plugins
+    """
+
+    def __init__(self, options):
+        super(DataParserTemplate, self).__init__(options)
+
+    def parse(self, text_file):
+        raise NotImplementedError
+
+    def write(self, data, text_file):
+        raise NotImplementedError
+
+
 class DataReaderTemplate(_InitialOptions):
     """
     Template for data reader and writers plugins.
@@ -200,16 +215,78 @@ class DataReaderTemplate(_InitialOptions):
         raise NotImplementedError
 
 
-class DataParserTemplate(_InitialOptions):
-    """
-    Template for data parser and writing plugins
-    """
+class TemplateReader(object):
 
-    def __init__(self, options):
-        super(DataParserTemplate, self).__init__(options)
+    def __init__(self, file_location):
+        self._the_file = file_location
 
-    def parse(self, text_file):
-        raise NotImplementedError
+    def reset(self):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object reset properly when "
+            "this method is called." % self.__class__.__name__
+        )
 
-    def write(self, data, text_file):
-        raise NotImplementedError
+    @property
+    def next_event(self):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object read in the next "
+            "event properly when its called." % self.__class__.__name__
+        )
+
+    def next(self):
+        return self.next_event
+
+    def __next__(self):
+        return self.next_event
+
+    def __iter__(self):
+        return self
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    @property
+    def previous_event(self):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object return the last "
+            "value that was parsed." % self.__class__.__name__
+        )
+
+    def close(self):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object return the last "
+            "value that was parsed." % self.__class__.__name__
+        )
+
+
+class TemplateWriter(object):
+
+    def __init__(self, file_location):
+        self._the_file = file_location
+
+    def write(self, data):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object write the data out "
+            "to the disk correctly." % self.__class__.__name__
+        )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def close(self):
+        raise NotImplementedError(
+            "%s does not overwrite method write. This is the method that "
+            "you should overwrite to have the object properly operated "
+            "properly when its called" % self.__class__.__name__
+        )
