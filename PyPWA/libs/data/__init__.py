@@ -50,10 +50,10 @@ class DataParser(templates.TemplateOptions):
         return _utilites.MODULE_NAME
 
     def _plugin_interface(self):
-        return traffic_cop.TrafficCop
+        return traffic_cop.Memory
 
     def _plugin_type(self):
-        return self._data_reader
+        return self._data_parser
 
     def _plugin_requires(self):
         return False
@@ -100,6 +100,60 @@ class DataParser(templates.TemplateOptions):
                 "all of your caches, this means loading your data will "
                 "take much longer, its recommended to leave this off "
                 "unless you are certain its a cache issue.",
+            "fail":
+                "Should the program stop if it fails to load the file? "
+                "The program will already fail if the data is needed for "
+                "parsing to happen, if this is set to true even files "
+                "that are optional will cause the program to stop.",
+            "user plugin":
+                "A plugin that can be loaded into the the " +
+                _utilites.MODULE_NAME + " for parsing, see the "
+                "documentation on the " + _utilites.MODULE_NAME +
+                " plugin for more information."
+        }
+
+
+class DataIterator(templates.TemplateOptions):
+
+    def _plugin_name(self):
+        return _utilites.MODULE_NAME
+
+    def _plugin_interface(self):
+        return traffic_cop.Iterator
+
+    def _plugin_type(self):
+        return self._data_reader
+
+    def _plugin_requires(self):
+        return False
+
+    def _plugin_arguments(self):
+        return False
+
+    def _default_options(self):
+        return {
+            "fail": False,
+            "user plugin": "cwd=/path/to/file;"
+        }
+
+    def _option_levels(self):
+        return {
+            "fail": self._advanced,
+            "user plugin": self._advanced
+        }
+
+    def _option_types(self):
+        return {
+            "fail": bool,
+            "user plugin": str
+        }
+
+    def _main_comment(self):
+        return "This is the builtin data parser, you can replace " \
+               "this with your own data parser if you wish."
+
+    def _option_comments(self):
+        return {
             "fail":
                 "Should the program stop if it fails to load the file? "
                 "The program will already fail if the data is needed for "
