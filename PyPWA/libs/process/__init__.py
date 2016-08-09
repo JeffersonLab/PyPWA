@@ -28,8 +28,7 @@ Example:
 """
 import multiprocessing
 
-import ruamel.yaml.comments
-
+from PyPWA.configurator import templates
 from PyPWA.libs.process import kernels
 from PyPWA.libs.process import foreman
 from PyPWA import VERSION, LICENSE, STATUS
@@ -43,94 +42,52 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Options(object):
-    _options = {
+class Processing(templates.TemplateOptions):
 
-        # Optional
-        "number of processes": multiprocessing.cpu_count() * 2
-        #  We set this two 2 times the number of CPUs to account for
-        #  hyper threading.
-    }
+    def _plugin_name(self):
+        return kernels.MODULE_NAME
 
-    _template = {
-        "number of processes": int
-    }
+    def _plugin_interface(self):
+        return foreman.CalculationForeman
 
-    def __init__(self):
-        """
-        Simple Object to hold the options for the Foreman.
-        """
-        header = self._build_empty_options_with_comments()
-        self._optional = self._build_optional(header)
-        self._required = header
+    def _plugin_type(self):
+        return self._kernel_processing
 
-    @staticmethod
-    def _build_empty_options_with_comments():
-        header = ruamel.yaml.comments.CommentedMap()
-        content = ruamel.yaml.comments.CommentedMap()
+    def _plugin_requires(self):
+        return False
 
-        header[kernels.MODULE_NAME] = content
-        header.yaml_add_eol_comment(
-            "This is the builtin processing plugin, you can replace this "
-            "with your own, or use one of the other options that we have."
-            , kernels.MODULE_NAME
-        )
+    def _plugin_arguments(self):
+        return {
+            "interface": kernels.AbstractInterface,
+            "process": kernels.AbstractKernel
+        }
 
-        content.yaml_add_eol_comment(
-            "This is the max number of processes to have running at any "
-            "time in the program, the hard max will always be 2 * the "
-            "number of CPUs in your computer so that we don't resource "
-            "lock your computer. Will work on any Intel  or AMD "
-            "processor, PowerPCs might have difficulty here.",
-            "number of processes"
-        )
+    def _default_options(self):
+        return {
+            "number of processes": multiprocessing.cpu_count() * 2
+        }
 
-        return header
+    def _option_levels(self):
+        return {
+            "number of processes": self._optional
+        }
 
-    def _build_optional(self, header):
-        """
-        Since there is only one option, and its optional, we only have a
-        single building function for the actual options.
+    def _option_types(self):
+        return {
+            "number of processes": int
+        }
 
-        Args:
-            header (ruamel.yaml.comments.CommentedMap): The empty
-                dictionary with the comments included.
+    def _main_comment(self):
+        return "This is the builtin processing plugin, you can replace " \
+               "this with your own, or use one of the other options " \
+               "that we have."
 
-        Returns:
-            ruamel.yaml.comments.CommentedMap: The dictionary with the
-                optional fields.
-        """
-        header[kernels.MODULE_NAME]["number of processes"] = \
-            self._options["number of processes"]
-        return header
-
-    @property
-    def return_template(self):
-        return self._template
-
-    @property
-    def return_required(self):
-        return self._required
-
-    @property
-    def return_optional(self):
-        return self._optional
-
-    @property
-    def return_advanced(self):
-        return self._optional
-
-    @property
-    def return_defaults(self):
-        return self._options
-
-metadata = [{
-    "name": kernels.MODULE_NAME,
-    "provides": "kernel processing",
-    "interface": foreman.CalculationForeman,
-    "arguments": {
-        "interface": kernels.AbstractInterface,
-        "process": kernels.AbstractKernel
-    },
-    "requires function": False
-}]
+    def _option_comments(self):
+        return {
+            "number of processes":
+                "This is the max number of processes to have running at "
+                "any time in the program, the hard max will always be 2 "
+                "* the number of CPUs in your computer so that we don't "
+                "resource lock your computer. Will work on any Intel  or "
+                "AMD processor, PowerPCs might have difficulty here."
+        }
