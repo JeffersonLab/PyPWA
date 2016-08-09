@@ -161,6 +161,29 @@ class KernelProcessingTemplate(_InitialOptions):
     def main_options(self, data, process_template, interface_template):
         raise NotImplementedError
 
+    def fetch_interface(self):
+        raise NotImplementedError
+
+
+class InterfaceTemplate(object):
+    """
+    Template for interface objects to be handed off by the KernelProcessor
+    """
+
+    def run(self, *args):
+        raise NotImplementedError
+
+    @property
+    def previous_value(self):
+        raise NotImplementedError
+
+    def stop(self, force=False):
+        raise NotImplementedError
+
+    @property
+    def is_alive(self):
+        raise NotImplementedError
+
 
 class DataReaderTemplate(_InitialOptions):
     """
