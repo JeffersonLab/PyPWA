@@ -42,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Processing(templates.TemplateOptions):
+class Processing(templates.OptionsTemplate):
 
     def _plugin_name(self):
         return kernels.MODULE_NAME

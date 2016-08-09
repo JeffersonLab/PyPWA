@@ -104,7 +104,7 @@ space. Right now we don't understand this.
 """
 
 
-class MinuitOptions(templates.TemplateOptions):
+class MinuitOptions(templates.OptionsTemplate):
     def _plugin_name(self):
         return "Minuit"
 
@@ -164,7 +164,7 @@ class MinuitOptions(templates.TemplateOptions):
         }
 
 
-class MultiNestOptions(templates.TemplateOptions):
+class MultiNestOptions(templates.OptionsTemplate):
 
     def _plugin_name(self):
         return "MultiNest"

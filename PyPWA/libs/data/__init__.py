@@ -44,7 +44,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class DataParser(templates.TemplateOptions):
+class DataParser(templates.OptionsTemplate):
 
     def _plugin_name(self):
         return _utilites.MODULE_NAME
@@ -113,7 +113,7 @@ class DataParser(templates.TemplateOptions):
         }
 
 
-class DataIterator(templates.TemplateOptions):
+class DataIterator(templates.OptionsTemplate):
 
     def _plugin_name(self):
         return _utilites.MODULE_NAME

@@ -3,7 +3,7 @@ import copy
 import ruamel.yaml.comments
 
 
-class TemplateOptions(object):
+class OptionsTemplate(object):
 
     _required = "required"
     _optional = "optional"
@@ -215,7 +215,7 @@ class DataReaderTemplate(_InitialOptions):
         raise NotImplementedError
 
 
-class TemplateReader(object):
+class ReaderTemplate(object):
 
     def __init__(self, file_location):
         self._the_file = file_location
@@ -266,7 +266,7 @@ class TemplateReader(object):
         )
 
 
-class TemplateWriter(object):
+class WriterTemplate(object):
 
     def __init__(self, file_location):
         self._the_file = file_location
