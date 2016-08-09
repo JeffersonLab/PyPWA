@@ -26,6 +26,7 @@ import multiprocessing
 
 import numpy
 
+from PyPWA.configurator import templates
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import _communication
 from PyPWA.libs.process import kernels
@@ -40,7 +41,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _ProcessInterface(object):
+class _ProcessInterface(templates.InterfaceTemplate):
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
         This object provides all the functions necessary to determine the
@@ -130,11 +131,11 @@ class _ProcessInterface(object):
         return self._processes[0].is_alive()
 
 
-class CalculationForeman(object):
+class CalculationForeman(templates.KernelProcessingTemplate):
+
     def __init__(
-            self, events_dictionary, abstract_template,
-            interface_template,
-            number_of_processes=multiprocessing.cpu_count()
+            self, number_of_processes=multiprocessing.cpu_count() * 2,
+            options=False
     ):
         """
         This is the main object for the Process Plugin. All this object
@@ -142,28 +143,46 @@ class CalculationForeman(object):
         kernel in order to function.
 
         Args:
-            events_dictionary (dict): The dictionary that contains the
-                data that will need to be loaded into the process.
-            abstract_template (kernels.AbstractKernel): An
-                uninitialized object containing the logic for the
-                processes.
-            interface_template (kernels.AbstractInterface): An
-                uninitialized object containing the logic needed for
-                the final calculation.
-            number_of_processes (Optional[int]): The number of
-                processes to create, defaults to the number of CPUs
-                available if not specified.
+            number_of_processes (Optional[int]): Number of processes to
+                use, defaults to twice the available cpus.
+            options (Optional[dict]): The options dictionary rendered by
+                the configurator. Optional.
         """
+        self._process_kernels = False  # type:list[kernels.AbstractKernel]
+        self._duplex = False  # type:bool
+        self._interface = False  # type:kernels.AbstractInterface()
+        self._interface_template = False  # type:kernels.AbstractInterface
 
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
+        self._number_of_processes = number_of_processes
+
+        if options:
+            super(CalculationForeman, self).__init__(options)
+
+    def main_options(self, data, process_template, interface_template):
+        """
+        The options that need to be passed to it from the main object. The
+        data that is needed for processing to occur.
+
+        Args:
+            data (dict):  The dictionary containing the data that needs to
+                be nested into the process.
+            process_template (kernels.AbstractKernel): The kernel that
+                has been extended with the needed information for the
+                process.
+            interface_template (kernels.AbstractInterface): The interface
+                that has been extended to process the information to be
+                passed and from the processes.
+        """
         process_data = self.__split_data(
-            events_dictionary, number_of_processes
+            data, self._number_of_processes
         )
 
         self._process_kernels = self.__create_objects(
-            abstract_template, process_data
+            process_template, process_data
         )
-
-        self._logger = logging.getLogger(__name__)
 
         self._duplex = interface_template.is_duplex
         self._interface_template = interface_template
