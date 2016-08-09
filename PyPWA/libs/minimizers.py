@@ -16,6 +16,7 @@
 
 import iminuit
 
+from PyPWA.configurator import templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -27,11 +28,12 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Minuit(object):
+class Minuit(templates.MinimizerTemplate):
 
     def __init__(
-            self, calc_function, parameters, settings, strategy,
-            set_up, number_of_calls
+            self, calc_function=False, parameters=False, settings=False,
+            fitting_type=False, strategy=1, number_of_calls=10000,
+            options=False
     ):
         """
         Object based off of iminuit, provides an easy way to run
@@ -43,21 +45,37 @@ class Minuit(object):
             parameters (list): List of the parameters
             settings (dict): Dictionary of the settings for iminuit
             strategy (int): iminuit's strategy
-            set_up (int): Todo
+            fitting_type (str): The type of fitting function, either
+                likelihood or chisquared.
             number_of_calls (int): Max number of calls
+            options (dict): The settings dictionary built from the users
+                input and the plugin initializer.
         """
-
         self.final_value = 0
         self.covariance = 0
         self.values = 0
+        self._set_up = 0
+
         self._calc_function = calc_function
         self._parameters = parameters
         self._settings = settings
         self._strategy = strategy
-        self._set_up = set_up
         self._number_of_calls = number_of_calls
 
-    def min(self):
+        self._error_def(fitting_type)
+        super(Minuit, self).__init__(options)
+
+    def main_options(self, calc_function, fitting_type=False):
+        self._calc_function = calc_function
+        self._error_def(fitting_type)
+
+    def _error_def(self, fitting_type):
+        if fitting_type == "chisquared":
+            self._set_up = 1
+        else:
+            self._set_up = .5
+
+    def start(self):
         """
         Method to call to start minimization process
         """
@@ -75,7 +93,7 @@ class Minuit(object):
         self.values = minimal.values
 
 
-class MultiNest(object):
+class MultiNest(templates.MinimizerTemplate):
     """
     This will be elegant and amazing, eventually.
     """
@@ -85,22 +103,96 @@ The function with all the documentation required to build the parameter
 space. Right now we don't understand this.
 """
 
-metadata = [
-    {
-        "name": "Minuit",
-        "provides": "minimization",
-        "interface": Minuit,
-        "require function": False,
-        "arguments": False
-},
-    {
-        "name": "MultiNest",
-        "provides": "minimization",
-        "interface": MultiNest,
-        "require function": {
-            "function": MultiNest.builtin_function,
-            "imports": {"numpy"}
-        },
-        "arguments": False
-    }
-]
+
+class MinuitOptions(templates.TemplateOptions):
+    def _plugin_name(self):
+        return "Minuit"
+
+    def _plugin_interface(self):
+        return Minuit
+
+    def _plugin_type(self):
+        return self._minimization
+
+    def _plugin_arguments(self):
+        return False
+
+    def _plugin_requires(self):
+        return False
+
+    def _default_options(self):
+        return {
+            "parameters": ["A1", "A2", "A3"],
+            "settings": {"A1": 1, "fix_A1": True},
+            "strategy": 1,
+            "number of calls": 10000
+        }
+
+    def _option_levels(self):
+        return {
+            "parameters": self._required,
+            "settings": self._required,
+            "strategy": self._optional,
+            "number of calls": self._advanced
+        }
+
+    def _option_types(self):
+        return {
+            "parameters": list,
+            "settings": dict,
+            "strategy": int,
+            "number of calls": int
+        }
+
+    def _main_comment(self):
+        return "Minuit is the tried and tested minimizer, developed " \
+               "by ROOT"
+
+    def _option_comments(self):
+        return {
+            "parameters":
+                "The parameters used inside your settings and your "
+                "function",
+            "settings":
+                "The settings for iMinuit's fitting. See iMinuit "
+                "documentation",
+            "strategy":
+                "The strategy of Minuit. 0 for fast, 1 default, "
+                "2 for accurate",
+            "number of calls":
+                "The suggested max number of calls for "
+        }
+
+
+class MultiNestOptions(templates.TemplateOptions):
+
+    def _plugin_name(self):
+        return "MultiNest"
+
+    def _plugin_interface(self):
+        return MultiNest
+
+    def _plugin_type(self):
+        return self._minimization
+
+    def _plugin_arguments(self):
+        return False
+
+    def _plugin_requires(self):
+        return self._build_function("numpy", "def function")
+
+    def _default_options(self):
+        return False
+
+    def _option_levels(self):
+        return False
+
+    def _option_types(self):
+        return False
+
+    def _main_comment(self):
+        return False
+
+    def _option_comments(self):
+        return False
+
