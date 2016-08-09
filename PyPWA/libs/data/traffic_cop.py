@@ -27,7 +27,7 @@ this to get started passing data to it.
 import logging
 
 import PyPWA.libs.data
-from PyPWA.configurator import settings_aid
+from PyPWA.configurator import settings_aid, templates
 from PyPWA.libs.data import definitions
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
@@ -44,7 +44,17 @@ __version__ = VERSION
 BUILTIN_PACKAGE_LOCATION = builtin.__file__
 
 
-class TrafficCop(object):
+class Memory(templates.DataParserTemplate):
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+        plugin_finder = _utilites.FindPlugins()
+
+        data_plugins = plugin_finder.find_plugin(
+            [builtin]
+        )
+
+        self._data_search = _utilites.DataSearch(data_plugins)
 
     def parse(self, settings_line):
         """
@@ -73,7 +83,30 @@ class TrafficCop(object):
             else:
                 return 0
 
-    # Going to assume for completions sake that the settings line is just
+    def write(self, file_location, data):
+        """
+        Writes data from memory into a file.
+
+        Args:
+            file_location (str): The file that needs to be parsed.
+            data (numpy.ndarray): The data that needs to be
+                written to disk.
+
+        Raises:
+            definitions.UnknownData: If the loading of the file fails and
+                fail on parse error is set to true then this will be
+                raised.
+        """
+        try:
+            plugin = self._data_search.search(file_location)
+            parser = plugin.metadata_data["memory"]()
+            parser.write(file_location, data)
+        except definitions.UnknownData:
+            if self._corrected_settings["fail"]:
+                raise
+
+
+class Iterator(templates.DataReaderTemplate):
     def __init__(
             self, cache=False, clear_cache=False, plugins=False,
             settings=False
@@ -112,37 +145,14 @@ class TrafficCop(object):
             self._clear_cache = clear_cache
 
         self._data_search = _utilites.DataSearch(data_plugins)
-    # the file's location. However untrue this may be.
 
-    def write(self, file_location, data):
-        """
-        Writes data from memory into a file.
-
-        Args:
-            file_location (str): The file that needs to be parsed.
-            data (numpy.ndarray): The data that needs to be
-                written to disk.
-
-        Raises:
-            definitions.UnknownData: If the loading of the file fails and
-                fail on parse error is set to true then this will be
-                raised.
-        """
-        try:
-            plugin = self._data_search.search(file_location)
-            parser = plugin.metadata_data["memory"]()
-            parser.write(file_location, data)
-        except definitions.UnknownData:
-            if self._corrected_settings["fail"]:
-                raise
-
-    def reader(self, settings_line):
+    def return_reader(self, text_file):
         """
         Searches for the correct reader than passes that back to the
         requesting object.
 
         Args:
-            settings_line (str): The line that contains the settings.
+            text_file (str): The line that contains the settings.
 
         Returns:
             object: The reader that was requested.
@@ -154,8 +164,8 @@ class TrafficCop(object):
                 raised.
         """
         try:
-            plugin = self._data_search.search(settings_line)
-            reader = plugin.metadata_data["reader"](settings_line)
+            plugin = self._data_search.search(text_file)
+            reader = plugin.metadata_data["reader"](text_file)
             return reader
         except definitions.UnknownData:
             if self._corrected_settings["fail"]:
@@ -163,13 +173,13 @@ class TrafficCop(object):
             else:
                 return 0
 
-    def writer(self, settings_line):
+    def return_writer(self, text_file):
         """
         Searches for the correct writer than passes that back to the
         requesting object.
 
         Args:
-            settings_line (str): The line that contains the settings.
+            text_file (str): The line that contains the settings.
 
         Returns:
             object: The writer that was requested.
@@ -181,8 +191,8 @@ class TrafficCop(object):
                 raised.
         """
         try:
-            plugin = self._data_search.search(settings_line)
-            writer = plugin.metadata_data["writer"](settings_line)
+            plugin = self._data_search.search(text_file)
+            writer = plugin.metadata_data["writer"](text_file)
             return writer
         except definitions.UnknownData:
             if self._corrected_settings["fail"]:
