@@ -45,24 +45,36 @@ BUILTIN_PACKAGE_LOCATION = builtin.__file__
 
 
 class Memory(templates.DataParserTemplate):
-    def __init__(self):
+    def __init__(
+            self, cache=True, clear_cache=False, fail=True,
+            user_plugin=False, options=False
+    ):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
+
+        self._cache = cache
+        self._clear_cache = clear_cache
+        self._fail = fail
+        self._user_plugin = user_plugin
+
+        if options:
+            super(Memory, self).__init__(options)
+
         plugin_finder = _utilites.FindPlugins()
 
         data_plugins = plugin_finder.find_plugin(
-            [builtin]
+            [builtin, self._user_plugin]
         )
 
         self._data_search = _utilites.DataSearch(data_plugins)
 
-    def parse(self, settings_line):
+    def parse(self, text_file):
         """
         Parses a single file into memory then passes that data back to the
         main object.
 
         Args:
-            settings_line (str): The non-parsed settings from the
+            text_file (str): The non-parsed settings from the
                 configuration file.
 
         Returns:
@@ -74,23 +86,23 @@ class Memory(templates.DataParserTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(settings_line)
+            plugin = self._data_search.search(text_file)
             parser = plugin.metadata_data["memory"]()
-            return parser.parse(settings_line)
+            return parser.parse(text_file)
         except definitions.UnknownData:
-            if self._corrected_settings["fail"]:
+            if self._fail:
                 raise
             else:
                 return 0
 
-    def write(self, file_location, data):
+    def write(self, data, text_file):
         """
         Writes data from memory into a file.
 
         Args:
-            file_location (str): The file that needs to be parsed.
             data (numpy.ndarray): The data that needs to be
                 written to disk.
+            text_file (str): The file that needs to be parsed.
 
         Raises:
             definitions.UnknownData: If the loading of the file fails and
@@ -98,51 +110,35 @@ class Memory(templates.DataParserTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(file_location)
+            plugin = self._data_search.search(text_file)
             parser = plugin.metadata_data["memory"]()
-            parser.write(file_location, data)
+            parser.write(text_file, data)
         except definitions.UnknownData:
-            if self._corrected_settings["fail"]:
+            if self._fail:
                 raise
 
 
 class Iterator(templates.DataReaderTemplate):
-    def __init__(
-            self, cache=False, clear_cache=False, plugins=False,
-            settings=False
-    ):
+    def __init__(self, fail=True, user_plugin=False, options=False):
         """
         The data plugin.
 
         Args:
-            settings (dict): The global options.
-            cache (bool): Whether or not to cache data.
-            clear_cache (bool): Should the cache be cleared when called
-            plugins (list[str]): The list of directories that the plugins
-                should be in.
+
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
+
+        self._fail = fail
+        self._user_plugin = user_plugin
+
+        if options:
+            super(Iterator, self).__init__(options)
+
         plugin_finder = _utilites.FindPlugins()
-
-        if settings:
-            fixer = settings_aid.CorrectSettings()
-            options = PyPWA.libs.data.Options()
-            self._corrected_settings = fixer.correct_dictionary(
-                settings, options.return_template)
-            data_plugins = plugin_finder.find_plugin(
-                [builtin, settings["user plugin"]]
-            )
-
-            self._cache = settings["cache"]
-            self._clear_cache = settings["clear cache"]
-
-        else:
-            data_plugins = plugin_finder.find_plugin(
-                [builtin, plugins]
-            )
-            self._cache = cache
-            self._clear_cache = clear_cache
+        data_plugins = plugin_finder.find_plugin(
+            [builtin, self._user_plugin]
+        )
 
         self._data_search = _utilites.DataSearch(data_plugins)
 
@@ -168,7 +164,7 @@ class Iterator(templates.DataReaderTemplate):
             reader = plugin.metadata_data["reader"](text_file)
             return reader
         except definitions.UnknownData:
-            if self._corrected_settings["fail"]:
+            if self._fail:
                 raise
             else:
                 return 0
@@ -195,7 +191,7 @@ class Iterator(templates.DataReaderTemplate):
             writer = plugin.metadata_data["writer"](text_file)
             return writer
         except definitions.UnknownData:
-            if self._corrected_settings["fail"]:
+            if self._fail:
                 raise
             else:
                 return 0
