@@ -131,12 +131,18 @@ class TemplateOptions(object):
         }[data]
 
 
-class MinimizerTemplate(object):
+class _InitialOptions(object):
+    def __init__(self, options):
+        for key in list(options.keys()):
+            setattr(self, "_" + key.replace(" ", "_"), options[key])
+
+
+class MinimizerTemplate(_InitialOptions):
     """
     Template for minimization plugins.
     """
-    def configurator_options(self, options):
-        raise NotImplementedError
+    def __init__(self, options):
+        super(MinimizerTemplate, self).__init__(options)
 
     def main_options(self, calc_function):
         raise NotImplementedError
@@ -145,21 +151,25 @@ class MinimizerTemplate(object):
         raise NotImplementedError
 
 
-class KernelProcessingTemplate(object):
+class KernelProcessingTemplate(_InitialOptions):
     """
     Template for kernel processing plugins.
     """
-    def configurator_options(self, options):
-        raise NotImplementedError
+    def __init__(self, options):
+        super(KernelProcessingTemplate, self).__init__(options)
 
     def main_options(self, data, process_template, interface_template):
         raise NotImplementedError
 
 
-class DataReaderTemplate(object):
+class DataReaderTemplate(_InitialOptions):
     """
     Template for data reader and writers plugins.
     """
+
+    def __init__(self, options):
+        super(DataReaderTemplate, self).__init__(options)
+
     def return_reader(self, text_file):
         raise NotImplementedError
 
@@ -167,12 +177,16 @@ class DataReaderTemplate(object):
         raise NotImplementedError
 
 
-class DataParserTemplate(object):
+class DataParserTemplate(_InitialOptions):
     """
-    Template for data parser and writering plugins
+    Template for data parser and writing plugins
     """
-    def parse_data(self, text_file):
+
+    def __init__(self, options):
+        super(DataParserTemplate, self).__init__(options)
+
+    def parse(self, text_file):
         raise NotImplementedError
 
-    def write_data(self, data, text_file):
+    def write(self, data, text_file):
         raise NotImplementedError
