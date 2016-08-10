@@ -26,7 +26,7 @@ this to get started passing data to it.
 import logging
 import pkgutil
 
-from PyPWA.libs.data import templates
+from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -95,9 +95,9 @@ class DataSearch(object):
                 self._logger.info("Found %s will load %s" %
                                   (plugin.__name__, file_location))
                 return plugin
-            except templates.IncompatibleData:
+            except data_templates.IncompatibleData:
                 self._logger.debug("Skipping %s for data %s" %
                                    (plugin.__name__, file_location))
-        raise templates.UnknownData(
+        raise data_templates.UnknownData(
             "Unable to find a plugin that can load %s" % file_location
         )

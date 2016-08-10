@@ -26,11 +26,11 @@ this to get started passing data to it.
 
 import logging
 
-import PyPWA.libs.data
-from PyPWA.configurator import settings_aid, templates
-from PyPWA.libs.data import definitions
+from PyPWA.configurator import plugin_loader, templates
+from PyPWA.libs.data import exceptions
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
+from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -40,8 +40,6 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
-
-BUILTIN_PACKAGE_LOCATION = builtin.__file__
 
 
 class Memory(templates.DataParserTemplate):
@@ -60,9 +58,11 @@ class Memory(templates.DataParserTemplate):
         if options:
             super(Memory, self).__init__(options)
 
-        plugin_finder = _utilites.FindPlugins()
+        plugin_finder = plugin_loader.PluginLoading(
+            data_templates.TemplateDataPlugin
+        )
 
-        data_plugins = plugin_finder.find_plugin(
+        data_plugins = plugin_finder.fetch_plugin(
             [builtin, self._user_plugin]
         )
 
@@ -89,7 +89,7 @@ class Memory(templates.DataParserTemplate):
             plugin = self._data_search.search(text_file)
             parser = plugin.metadata_data["memory"]()
             return parser.parse(text_file)
-        except definitions.UnknownData:
+        except exceptions.UnknownData:
             if self._fail:
                 raise
             else:
@@ -113,7 +113,7 @@ class Memory(templates.DataParserTemplate):
             plugin = self._data_search.search(text_file)
             parser = plugin.metadata_data["memory"]()
             parser.write(text_file, data)
-        except definitions.UnknownData:
+        except exceptions.UnknownData:
             if self._fail:
                 raise
 
@@ -135,8 +135,11 @@ class Iterator(templates.DataReaderTemplate):
         if options:
             super(Iterator, self).__init__(options)
 
-        plugin_finder = _utilites.FindPlugins()
-        data_plugins = plugin_finder.find_plugin(
+        plugin_finder = plugin_loader.PluginLoading(
+            data_templates.TemplateDataPlugin
+        )
+
+        data_plugins = plugin_finder.fetch_plugin(
             [builtin, self._user_plugin]
         )
 
@@ -163,7 +166,7 @@ class Iterator(templates.DataReaderTemplate):
             plugin = self._data_search.search(text_file)
             reader = plugin.metadata_data["reader"](text_file)
             return reader
-        except definitions.UnknownData:
+        except exceptions.UnknownData:
             if self._fail:
                 raise
             else:
@@ -190,7 +193,7 @@ class Iterator(templates.DataReaderTemplate):
             plugin = self._data_search.search(text_file)
             writer = plugin.metadata_data["writer"](text_file)
             return writer
-        except definitions.UnknownData:
+        except exceptions.UnknownData:
             if self._fail:
                 raise
             else:

@@ -60,7 +60,7 @@ class MemoryCache(object):
         disk.
 
         Args:
-            data (data_types.GenericEvent): Contains the dict of the
+            data (data_templates.GenericEvent): Contains the dict of the
                 arrays.
             file_location (str): The location of the original file.
             cache_path (str): The path to the cache directory.
