@@ -22,11 +22,7 @@ requested to determine what information is needed to be loaded and how it
 needs to be structured to be able to function in the users desired way.
 """
 
-import os
 import logging
-import pkgutil
-import importlib
-import sys
 
 import ruamel.yaml.comments
 
@@ -58,70 +54,6 @@ class Configurator(object):
         configuration = reader.read_config(config_file)
 
 
-class PluginLoading(object):
-
-    def __init__(self):
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-
-    @staticmethod
-    def _list_modules(module):
-        """
-        Simple little function that
-
-        Args:
-            module (module): The unknown module that was loaded.
-
-        Returns:
-            list[str]: A list of all the modules found in the package.
-
-        See Also:
-            http://stackoverflow.com/a/1310912
-            http://stackoverflow.com/a/1708706
-        """
-        # Should make a list of:
-        # [ ImporterInstance, name of module, is a package ]
-        names = [name for name in pkgutil.iter_modules(module.__path__)]
-        # Credit to unutbu and jp. for the discovery of how pkgutil works.
-        return names[1]
-
-    @staticmethod
-    def _import_lib(module_name):
-        return importlib.import_module(module_name)
-
-    def _find_libs(self, module):
-        libs = []
-        for module_name in self._list_modules(module):
-            libs.append(
-                importlib.import_module(
-                    module.__name__ + "." + module_name
-                )
-            )
-        return libs
-
-    @staticmethod
-    def _extract_metadata(plugins):
-        plugin_metadata = []
-        for plugin in plugins:
-            try:
-                for metadata in plugin.metadata:
-                    plugin_metadata.append(metadata)
-            except AttributeError:
-                pass
-
-        return plugin_metadata
-
-    def load_plugin(self, plugin_list):
-        for plugin in plugin_list:
-            # Appends the directory containing the
-            sys.path.append(os.path.dirname(os.path.abspath(plugin)))
-            module = self._import_lib(
-                # Extracts the filename from the path provided
-                os.path.splitext(os.path.basename(plugin))[0]
-            )
-
-            libraries = self._find_libs(module)
-#            if not libraries:
 
 
 class MetadataStorage(object):
