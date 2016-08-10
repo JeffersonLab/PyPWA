@@ -29,7 +29,7 @@ import io
 import numpy
 
 from PyPWA.configurator import templates
-from PyPWA.libs.data import definitions
+from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -43,7 +43,7 @@ __version__ = VERSION
 HEADER_SEARCH_BITS = 1024  # type: int
 
 
-class SvMemory(definitions.TemplateMemory):
+class SvMemory(data_templates.TemplateMemory):
     """
     Object for reading and writing delimiter separated data files.
     """
@@ -113,7 +113,7 @@ class SvMemory(definitions.TemplateMemory):
                 writer.writerow(temp)
 
 
-class SvReader(templates.ReaderTemplate):
+class SvReader(data_templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -187,7 +187,7 @@ class SvReader(templates.ReaderTemplate):
         self._file.close()
 
 
-class SvWriter(templates.WriterTemplate):
+class SvWriter(data_templates.WriterTemplate):
 
     def __init__(self, file_location):
         """
@@ -244,7 +244,7 @@ class SvWriter(templates.WriterTemplate):
         self._file.close()
 
 
-class SvValidator(definitions.TemplateValidator):
+class SvDataPlugin(data_templates.TemplateDataPlugin):
 
     def __init__(self, file_location, full=False):
         """
@@ -256,7 +256,7 @@ class SvValidator(definitions.TemplateValidator):
                 validated.
             full (bool): Whether the entire file should be tested or not.
         """
-        super(SvValidator, self).__init__(file_location, full)
+        super(SvDataPlugin, self).__init__(file_location, full)
         self._file = io.open(file_location, "rt")
 
     def _check_header(self):
@@ -267,7 +267,7 @@ class SvValidator(definitions.TemplateValidator):
         if not csv.Sniffer().has_header(
                 self._file.read(HEADER_SEARCH_BITS)
         ):
-            raise definitions.IncompatibleData(
+            raise templates.IncompatibleData(
                 "CSV Module failed to find the files header in " +
                 str(HEADER_SEARCH_BITS) + " characters!"
             )
@@ -278,7 +278,7 @@ class SvValidator(definitions.TemplateValidator):
 metadata_data = {
     "name": "Sv",
     "extensions": [".tsv", ".csv"],
-    "validator": SvValidator,
+    "validator": SvDataPlugin,
     "reader": SvReader,
     "writer": SvWriter,
     "memory": SvMemory

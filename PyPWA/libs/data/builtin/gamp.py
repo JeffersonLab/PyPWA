@@ -28,7 +28,7 @@ import io
 import numpy
 
 from PyPWA.configurator import templates
-from PyPWA.libs.data import definitions
+from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -40,7 +40,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class GampReader(templates.ReaderTemplate):
+class GampReader(data_templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -131,7 +131,7 @@ class GampReader(templates.ReaderTemplate):
         self._file.close()
 
 
-class GampWriter(templates.WriterTemplate):
+class GampWriter(data_templates.WriterTemplate):
 
     def __init__(self, file_location):
         """
@@ -166,7 +166,7 @@ class GampWriter(templates.WriterTemplate):
         self._file.close()
 
 
-class GampMemory(definitions.TemplateMemory):
+class GampMemory(data_templates.TemplateMemory):
     """
     Loads GAMP Data into memory to bypass the disk bottleneck with
     calculations.
@@ -264,7 +264,7 @@ class GampMemory(definitions.TemplateMemory):
         writer.close()
 
 
-class GampValidator(definitions.TemplateValidator):
+class GampDataPlugin(data_templates.TemplateDataPlugin):
 
     def __init__(self, file_location, full=False):
         """
@@ -280,7 +280,7 @@ class GampValidator(definitions.TemplateValidator):
                 or not, useful for debugging unknown issues or
                 complications with reading in GAMP files.
         """
-        super(GampValidator, self).__init__(file_location, full)
+        super(GampDataPlugin, self).__init__(file_location, full)
         self._file = io.open(file_location, "rt")
 
     def _check_events(self):
@@ -310,7 +310,7 @@ class GampValidator(definitions.TemplateValidator):
             try:
                 int(number)
             except ValueError as Error:
-                raise definitions.IncompatibleData(
+                raise templates.IncompatibleData(
                     "Expected particle count. Found " + repr(Error) +
                     str(count)
                 )
@@ -328,7 +328,7 @@ class GampValidator(definitions.TemplateValidator):
                         )
 
             except Exception as Error:
-                raise definitions.IncompatibleData(
+                raise templates.IncompatibleData(
                     "Unexpected exception raised, caught " + repr(Error) +
                     " where it wasn't expected."
                 )
@@ -354,7 +354,7 @@ class GampValidator(definitions.TemplateValidator):
                 for index in range(int(number)):
                     self._file.readline()
             except Exception as Error:
-                raise definitions.IncompatibleData(
+                raise templates.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
                     " where it wasn't expected."
                 )
@@ -367,7 +367,7 @@ class GampValidator(definitions.TemplateValidator):
 metadata_data = {
     "name": "gamp",
     "extension": "gamp",
-    "validator": GampValidator,
+    "validator": GampDataPlugin,
     "reader": GampReader,
     "writer": GampWriter,
     "memory": GampMemory

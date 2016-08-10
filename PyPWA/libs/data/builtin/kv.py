@@ -40,7 +40,7 @@ import numpy
 
 from PyPWA.libs.data import exceptions
 from PyPWA.configurator import templates
-from PyPWA.libs.data import templates as data_templates
+from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
