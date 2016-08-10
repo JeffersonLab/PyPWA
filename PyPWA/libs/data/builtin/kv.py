@@ -38,8 +38,9 @@ import logging
 
 import numpy
 
+from PyPWA.libs.data import exceptions
 from PyPWA.configurator import templates
-from PyPWA.libs.data import definitions
+from PyPWA.libs.data import templates as data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -51,7 +52,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class KvInterface(definitions.TemplateMemory):
+class KvInterface(data_templates.TemplateMemory):
 
     def parse(self, file_location):
         raise NotImplementedError()
@@ -260,7 +261,7 @@ class SomewhatIntelligentSelector(KvInterface):
         Returns:
             numpy.ndarray:  The data that was parsed from the disk.
         """
-        validator = EVILValidator(file_location)
+        validator = EVILDataPlugin(file_location)
         validator.test()
         if validator.evil_type == "DictOfArrays":
             parser = DictOfArrays()
@@ -368,7 +369,7 @@ class EVILReader(templates.ReaderTemplate):
         Sets self._file_data_type using the validator object. Mostly
         Accurate.
         """
-        validator = EVILValidator(self._the_file)
+        validator = EVILDataPlugin(self._the_file)
         validator.test()
         self._file_data_type = validator.evil_type
 
@@ -511,20 +512,21 @@ class EVILWriter(templates.WriterTemplate):
         self._file.close()
 
 
-class EVILValidator(definitions.TemplateValidator):
+class EVILDataPlugin(data_templates.TemplateDataPlugin):
 
-    def __init__(self, file_location, full=False):
+    def __init__(self, file_location, thorough=False):
         """
         This attempts to validate the files to see if it can be read in by
         this plugin.
 
         Args:
             file_location (str): The location of the file.
-            full (Optional[bool]): Whether or not to do a full test of the
-                file.
+            thorough (Optional[bool]): Whether or not to do a full test
+                of the file.
         """
-        super(EVILValidator, self).__init__(file_location, full)
+        super(EVILDataPlugin, self).__init__(file_location, thorough)
         self._the_file = io.open(file_location)
+        self._evil_type = False  # type: str
 
     def _check_data_type(self):
         """
@@ -542,9 +544,9 @@ class EVILValidator(definitions.TemplateValidator):
         elif len(test_data) == 1:
             self._evil_type = "ListOfBools"
         else:
-            raise definitions.IncompatibleData("Failed to find a data")
+            raise exceptions.IncompatibleData("Failed to find a data")
 
-    def test(self):
+    def read_test(self, text_file):
         """
         Runs the various tests included tests.
         """
@@ -564,12 +566,20 @@ class EVILValidator(definitions.TemplateValidator):
             self._check_data_type()
             return self._evil_type
 
+    def write_test(self, data, text_file):
+        return False
 
-metadata_data = {
-    "name": "EVIL",
-    "extension": "txt",
-    "validator": EVILValidator,
-    "reader": EVILReader,
-    "writer": EVILWriter,
-    "memory": SomewhatIntelligentSelector
-}
+    def plugin_name(self):
+        return "EVIL"
+
+    def plugin_supported_extensions(self):
+        return "txt"
+
+    def plugin_memory_parser(self):
+        return SomewhatIntelligentSelector
+
+    def plugin_reader(self):
+        return EVILReader
+
+    def plugin_writer(self):
+        raise EVILWriter

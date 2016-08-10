@@ -32,18 +32,32 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class TemplateValidator(object):
+class TemplateDataPlugin(object):
 
-    def __init__(self, file_location, full=False):
+    def __init__(self, file_location, thorough=False):
         self._file_location = file_location
-        self._full = full
+        self._thorough = thorough
 
-    def test(self):
-        raise NotImplementedError(
-            "%s does not overwrite method test. This is the method that "
-            "you should use to overwrite to nest your individual tests "
-            "into." % self.__class__.__name__
-        )
+    def read_test(self, text_file):
+        raise NotImplementedError
+
+    def write_test(self, data, text_file):
+        raise NotImplementedError
+
+    def plugin_name(self):
+        raise NotImplementedError
+
+    def plugin_supported_extensions(self):
+        raise NotImplementedError
+
+    def plugin_memory_parser(self):
+        raise NotImplementedError
+
+    def plugin_reader(self):
+        raise NotImplementedError
+
+    def plugin_writer(self):
+        raise NotImplementedError
 
 
 class TemplateMemory(object):
