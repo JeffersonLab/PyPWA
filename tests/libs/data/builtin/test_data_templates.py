@@ -29,10 +29,25 @@ def test_TemplateValidator_RaiseNotImplementedError():
     validator = data_templates.TemplateDataPlugin("Something")
 
     with pytest.raises(NotImplementedError):
-        validator.read_test()
+        validator.read_test("test")
 
     with pytest.raises(NotImplementedError):
-        validator.write_test()
+        validator.write_test("test", False)
+
+    with pytest.raises(NotImplementedError):
+        validator.plugin_memory_parser()
+
+    with pytest.raises(NotImplementedError):
+        validator.plugin_name()
+
+    with pytest.raises(NotImplementedError):
+        validator.plugin_reader()
+
+    with pytest.raises(NotImplementedError):
+        validator.plugin_writer()
+
+    with pytest.raises(NotImplementedError):
+        validator.plugin_supported_extensions()
 
 
 def test_TemplateMemory_RaiseNotImplementedError():
