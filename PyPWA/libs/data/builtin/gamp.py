@@ -27,6 +27,7 @@ import io
 
 import numpy
 
+from PyPWA.configurator import templates
 from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -39,7 +40,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class GampReader(definitions.TemplateReader):
+class GampReader(templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -130,7 +131,7 @@ class GampReader(definitions.TemplateReader):
         self._file.close()
 
 
-class GampWriter(definitions.TemplateWriter):
+class GampWriter(templates.WriterTemplate):
 
     def __init__(self, file_location):
         """

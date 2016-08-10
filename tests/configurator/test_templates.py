@@ -8,7 +8,7 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
     Ensures that the objects will raise a NotImplementedError when called.
     """
     with pytest.raises(NotImplementedError):
-        options = templates.TemplateOptions()
+        options = templates.OptionsTemplate()
         options.request_metadata("name")
 
     minimizer = templates.MinimizerTemplate({"this": "that"})
@@ -36,6 +36,27 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
     with pytest.raises(NotImplementedError):
         data_parser.write("the data", "the file")
 
+    writer = templates.WriterTemplate("Something")
+    with pytest.raises(NotImplementedError):
+        writer.write(12)
+
+    with pytest.raises(NotImplementedError):
+        writer.close()
+
+    reader = templates.ReaderTemplate("Something")
+    with pytest.raises(NotImplementedError):
+        reader.next_event
+
+    with pytest.raises(NotImplementedError):
+        reader.previous_event
+
+    with pytest.raises(NotImplementedError):
+        reader.reset()
+
+    with pytest.raises(NotImplementedError):
+        reader.close()
+
+
 
 def test_TemplateOptions_CreateMetaObject_HoldData():
     """
@@ -43,7 +64,7 @@ def test_TemplateOptions_CreateMetaObject_HoldData():
     supplied with usable information.
     """
 
-    class TestObject(templates.TemplateOptions):
+    class TestObject(templates.OptionsTemplate):
         def _plugin_name(self):
             return "test"
 

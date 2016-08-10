@@ -38,6 +38,7 @@ import logging
 
 import numpy
 
+from PyPWA.configurator import templates
 from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -307,7 +308,7 @@ class SomewhatIntelligentSelector(KvInterface):
         writer.write(file_location, data)
 
 
-class EVILReader(definitions.TemplateReader):
+class EVILReader(templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -472,7 +473,7 @@ class EVILReader(definitions.TemplateReader):
         self._file.close()
 
 
-class EVILWriter(definitions.TemplateWriter):
+class EVILWriter(templates.WriterTemplate):
 
     def __init__(self, file_location):
         """

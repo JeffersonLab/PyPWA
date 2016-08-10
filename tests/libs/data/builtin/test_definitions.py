@@ -41,29 +41,3 @@ def test_TemplateMemory_RaiseNotImplementedError():
     with pytest.raises(NotImplementedError):
         memory.write("something", 12)
 
-
-def test_TemplateReader_RaiseNotImplementedError():
-    reader = definitions.TemplateReader("Something")
-
-    with pytest.raises(NotImplementedError):
-        reader.next_event
-
-    with pytest.raises(NotImplementedError):
-        reader.previous_event
-
-    with pytest.raises(NotImplementedError):
-        reader.reset()
-
-    with pytest.raises(NotImplementedError):
-        reader.close()
-
-
-def test_TemplateWriter_RaiseNotImplementedError():
-    writer = definitions.TemplateWriter("Something")
-
-    with pytest.raises(NotImplementedError):
-        writer.write(12)
-
-    with pytest.raises(NotImplementedError):
-        writer.close()
-

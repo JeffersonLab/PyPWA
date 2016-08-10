@@ -28,6 +28,7 @@ import io
 
 import numpy
 
+from PyPWA.configurator import templates
 from PyPWA.libs.data import definitions
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -112,7 +113,7 @@ class SvMemory(definitions.TemplateMemory):
                 writer.writerow(temp)
 
 
-class SvReader(definitions.TemplateReader):
+class SvReader(templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -186,7 +187,7 @@ class SvReader(definitions.TemplateReader):
         self._file.close()
 
 
-class SvWriter(definitions.TemplateWriter):
+class SvWriter(templates.WriterTemplate):
 
     def __init__(self, file_location):
         """
