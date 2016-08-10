@@ -61,11 +61,3 @@ class TemplateMemory(object):
             "you should overwrite to have the object write your data to "
             "disk from memory" % self.__class__.__name__
         )
-
-
-class IncompatibleData(Exception):
-    pass
-
-
-class UnknownData(Exception):
-    pass
