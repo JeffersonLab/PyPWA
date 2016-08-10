@@ -4,7 +4,7 @@ import os
 import pytest
 import numpy
 
-from PyPWA.libs.data import definitions
+from PyPWA.libs.data import data_templates
 from PyPWA.libs.data.builtin import sv
 
 CSV_TEST_DATA = os.path.join(
@@ -28,7 +28,7 @@ def test_Validator_CheckCSVFile_TestPass():
     """
     Checks that it returns valid for CSV Data
     """
-    validator = sv.SvValidator(CSV_TEST_DATA)
+    validator = sv.SvDataPlugin(CSV_TEST_DATA)
     validator.test()
 
 
@@ -36,7 +36,7 @@ def test_Validator_CheckTSVFile_TestPass():
     """
     Checks that it returns valid for TSV Data
     """
-    validator = sv.SvValidator(TSV_TEST_DATA)
+    validator = sv.SvDataPlugin(TSV_TEST_DATA)
     validator.test()
 
 
@@ -44,9 +44,9 @@ def test_Validator_CheckKVFile_TestFail():
     """
     Checks that validator fails when data is not CSV or TSV
     """
-    validator = sv.SvValidator(KV_TEST_DATA)
+    validator = sv.SvDataPlugin(KV_TEST_DATA)
 
-    with pytest.raises(definitions.IncompatibleData):
+    with pytest.raises(data_templates.IncompatibleData):
         validator.test()
 
 

@@ -3,7 +3,8 @@ import os
 import pytest
 import numpy
 
-from PyPWA.libs.data import definitions
+from PyPWA.libs.data import
+from PyPWA.libs.data import data_templates
 from PyPWA.libs.data.builtin import gamp
 
 CSV_TEST_DATA = os.path.join(
@@ -23,7 +24,7 @@ def test_Validator_CheckGAMPValid_TestPass():
     """
     Checks that the validator correctly identifies a GAMP file.
     """
-    validator = gamp.GampValidator(GAMP_TEST_DATA)
+    validator = gamp.GampDataPlugin(GAMP_TEST_DATA)
     validator.test()
 
 
@@ -32,9 +33,9 @@ def test_Validator_CheckCSVValid_TestFail():
     Checks that the validator correctly fails if the file is not a GAMP
     file.
     """
-    validator = gamp.GampValidator(CSV_TEST_DATA)
+    validator = gamp.GampDataPlugin(CSV_TEST_DATA)
 
-    with pytest.raises(definitions.IncompatibleData):
+    with pytest.raises(data_templates.IncompatibleData):
         validator.test()
 
 

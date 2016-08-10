@@ -22,18 +22,21 @@ called it will correctly raise a NotImplementedError.
 
 import pytest
 
-from PyPWA.libs.data import definitions
+from PyPWA.libs.data import data_templates
 
 
 def test_TemplateValidator_RaiseNotImplementedError():
-    validator = definitions.TemplateValidator("Something")
+    validator = data_templates.TemplateDataPlugin("Something")
 
     with pytest.raises(NotImplementedError):
-        validator.test()
+        validator.read_test()
+
+    with pytest.raises(NotImplementedError):
+        validator.write_test()
 
 
 def test_TemplateMemory_RaiseNotImplementedError():
-    memory = definitions.TemplateMemory()
+    memory = data_templates.TemplateMemory()
 
     with pytest.raises(NotImplementedError):
         memory.parse("Something")
