@@ -1,11 +1,12 @@
 import collections
-import os
+import csv
+import io
 
-import pytest
 import numpy
+import os
+import pytest
 
 from PyPWA.libs.data import exceptions
-from PyPWA.libs.data import data_templates
 from PyPWA.libs.data.builtin import sv
 
 CSV_TEST_DATA = os.path.join(
@@ -106,3 +107,18 @@ def test_SvMemory_CheckLoopingReaderAndWrite_ValuesMatchExact():
     reader.close()
 
     os.remove(TEMP_WRITE_LOCATION)
+
+
+def test_SvWriter_TSVFile_UsesTabs():
+    memory = sv.SvMemory()
+    data = memory.parse(TSV_TEST_DATA)
+
+    memory.write(TEMP_WRITE_LOCATION + ".tsv", data)
+
+    with io.open(TEMP_WRITE_LOCATION +".tsv") as stream:
+        dialect = csv.Sniffer().sniff(stream.read())
+
+    assert dialect.delimiter == csv.excel_tab.delimiter
+
+    os.remove(TEMP_WRITE_LOCATION + ".tsv")
+
