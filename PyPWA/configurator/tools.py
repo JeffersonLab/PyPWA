@@ -194,11 +194,11 @@ class DataLocation(object):
             try:
                 self._test_dir(test_dir)
                 return test_dir
-            except PermissionError:
+            except OSError:
                 try:
                     self._test_dir(self._cwd)
                     return self._cwd
-                except PermissionError:
+                except OSError:
                     raise exceptions.NoPath
 
         else:
@@ -206,11 +206,11 @@ class DataLocation(object):
                 os.mkdir(test_dir)
                 self._test_dir(test_dir)
                 return test_dir
-            except PermissionError:
+            except OSError:
                 try:
                     self._test_dir(self._cwd)
                     return self._cwd
-                except PermissionError:
+                except OSError:
                     raise exceptions.NoPath
 
     @staticmethod
