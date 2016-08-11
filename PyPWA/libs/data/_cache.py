@@ -23,12 +23,13 @@ again.
 """
 
 import io
-import os
 import logging
 import pickle
 
-from PyPWA.configurator import tools
+import os
+
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.configurator import tools
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -64,9 +65,6 @@ class MemoryCache(object):
                 arrays.
             file_location (str): The location of the original file.
             cache_path (str): The path to the cache directory.
-
-        Raises:
-            CacheFailed: Unable to write data to disk.
         """
         pickle_location = self._determine_cache_location(
             file_location, cache_path
@@ -106,6 +104,10 @@ class MemoryCache(object):
         Returns:
             bool: False if unsuccessful
             dict: Dictionary of Arrays if successful.
+
+        Raises:
+            CacheError: If the cache is incorrect, doesn't exist, or
+                damaged.
         """
         pickle_location = self._determine_cache_location(
             file_location, cache_path
@@ -129,7 +131,7 @@ class MemoryCache(object):
             returned_data = self._load_pickle(pickle_location)
         except IOError:
             self._logger.info("No cache exists.")
-            raise CacheNotFound()
+            raise CacheError()
 
         try:
             if returned_data["hash"] == file_hash:
@@ -142,10 +144,10 @@ class MemoryCache(object):
                     returned_data["hash"], file_hash)
                 )
 
-                raise CacheChanged()
+                raise CacheError()
         except AttributeError:
             self._logger.error("No File hash was saved in the cache.")
-            raise CacheFailed()
+            raise CacheError()
 
     @staticmethod
     def _load_pickle(pickle_location):
@@ -198,23 +200,8 @@ class MemoryCache(object):
             return self._hash_utility.hash_sha512(stream)
 
 
-class CacheFailed(Exception):
+class CacheError(Exception):
     """
     The Exception for when the Cache Writing or Reading has Failed.
-    """
-    pass
-
-
-class CacheNotFound(Exception):
-    """
-    The Exception raised when the cache isn't found.
-    """
-    pass
-
-
-class CacheChanged(Exception):
-    """
-    The Exception that is raised when the cache is found but the file
-    hashes don't match.
     """
     pass
