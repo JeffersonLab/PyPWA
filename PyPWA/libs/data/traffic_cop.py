@@ -33,7 +33,6 @@ from PyPWA.configurator import plugin_loader
 from PyPWA.configurator import templates
 from PyPWA.configurator import tools
 from PyPWA.libs.data import _cache
-from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
 from PyPWA.libs.data import data_templates
 from PyPWA.libs.data import exceptions
@@ -47,7 +46,45 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Memory(templates.DataParserTemplate):
+MODULE_NAME = "Builtin Parser"  # Name for the module externally.
+
+
+class DataCoreTools(object):
+
+    def _search(self, file_location):
+        """
+        Loops through the objects plugin list until it finds a validator
+        that doesn't fail, then returns that plugin.
+
+        Args:
+            file_location (str): The location of the file that needs to be
+                parsed.
+
+        Returns:
+            data_templates.TemplateDataPlugin
+
+        Raises:
+            exceptions.UnknownData: If no plugin reports that it can read
+                the data then this will be raised to alert the caller that
+                the data is unreadable.
+        """
+        for plugin in self._data_plugins:
+            try:
+                validator = plugin()
+
+                validator.read_test(file_location)
+                self._logger.info("Found %s will load %s" %
+                                  (plugin.__name__, file_location))
+                return validator
+            except exceptions.IncompatibleData:
+                self._logger.debug("Skipping %s for data %s" %
+                                   (plugin.__name__, file_location))
+        raise exceptions.UnknownData(
+            "Unable to find a plugin that can load %s" % file_location
+        )
+
+
+class Memory(templates.DataParserTemplate, DataCoreTools):
     def __init__(
             self, cache=True, clear_cache=False, fail=True,
             user_plugin=False, options=False
@@ -61,7 +98,7 @@ class Memory(templates.DataParserTemplate):
         self._user_plugin = user_plugin
 
         if options:
-            super(Memory, self).__init__(options)
+            super(Memory, self).__init__(options=options)
 
         plugin_finder = plugin_loader.PluginLoading(
             data_templates.TemplateDataPlugin
@@ -72,7 +109,6 @@ class Memory(templates.DataParserTemplate):
         )
 
         self._data_plugins = data_plugins
-        self._data_search = _utilites.DataSearch(data_plugins)
         self._cache_object = _cache.MemoryCache()
         self._data_locator = tools.DataLocation()
 
@@ -118,7 +154,7 @@ class Memory(templates.DataParserTemplate):
                 self._logger.info("No usable cache found.")
 
         try:
-            plugin = self._data_search.search(file_location)
+            plugin = self._search(file_location)
         except exceptions.UnknownData:
             if self._fail:
                 raise
@@ -188,7 +224,7 @@ class Memory(templates.DataParserTemplate):
             raise exceptions.IncompatibleData
 
 
-class Iterator(templates.DataReaderTemplate):
+class Iterator(templates.DataReaderTemplate, DataCoreTools):
     def __init__(self, fail=True, user_plugin=False, options=False):
         """
         Simple plugin that returns a reader or writer that can read and
@@ -207,11 +243,9 @@ class Iterator(templates.DataReaderTemplate):
             data_templates.TemplateDataPlugin
         )
 
-        data_plugins = plugin_finder.fetch_plugin(
+        self._data_plugins = plugin_finder.fetch_plugin(
             [builtin, self._user_plugin]
         )
-
-        self._data_search = _utilites.DataSearch(data_plugins)
 
     def return_reader(self, file_location):
         """
@@ -231,7 +265,7 @@ class Iterator(templates.DataReaderTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(file_location)
+            plugin = self._search(file_location)
             return plugin.plugin_reader()
         except exceptions.UnknownData:
             if self._fail:
@@ -257,7 +291,7 @@ class Iterator(templates.DataReaderTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(file_location)
+            plugin = self._search(file_location)
             return plugin.plugin_writer()
         except exceptions.UnknownData:
             if self._fail:

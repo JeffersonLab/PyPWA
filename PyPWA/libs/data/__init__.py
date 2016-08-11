@@ -31,7 +31,6 @@ Examples:
         file.write(path_to_file, the_data)
 """
 from PyPWA.configurator import templates
-from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import traffic_cop
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -47,7 +46,7 @@ __version__ = VERSION
 class DataParser(templates.OptionsTemplate):
 
     def _plugin_name(self):
-        return _utilites.MODULE_NAME
+        return traffic_cop.MODULE_NAME
 
     def _plugin_interface(self):
         return traffic_cop.Memory
@@ -107,8 +106,8 @@ class DataParser(templates.OptionsTemplate):
                 "that are optional will cause the program to stop.",
             "user plugin":
                 "A plugin that can be loaded into the the " +
-                _utilites.MODULE_NAME + " for parsing, see the "
-                "documentation on the " + _utilites.MODULE_NAME +
+                traffic_cop.MODULE_NAME + " for parsing, see the "
+                "documentation on the " + traffic_cop.MODULE_NAME +
                 " plugin for more information."
         }
 
@@ -116,7 +115,7 @@ class DataParser(templates.OptionsTemplate):
 class DataIterator(templates.OptionsTemplate):
 
     def _plugin_name(self):
-        return _utilites.MODULE_NAME
+        return traffic_cop.MODULE_NAME
 
     def _plugin_interface(self):
         return traffic_cop.Iterator
@@ -161,7 +160,7 @@ class DataIterator(templates.OptionsTemplate):
                 "that are optional will cause the program to stop.",
             "user plugin":
                 "A plugin that can be loaded into the the " +
-                _utilites.MODULE_NAME + " for parsing, see the "
-                "documentation on the " + _utilites.MODULE_NAME +
+                traffic_cop.MODULE_NAME + " for parsing, see the "
+                "documentation on the " + traffic_cop.MODULE_NAME +
                 " plugin for more information."
         }
