@@ -1,6 +1,4 @@
 import os
-
-import pytest
 import numpy
 
 from PyPWA.libs.data import traffic_cop
@@ -24,14 +22,17 @@ def test_Memory_ReadData_DataMatches():
     data = parser.parse(CSV_TEST_DATA)
     assert data["QFactor"][3] == 0.832133
 
-#  This will be uncommented as soon as the plugins are fixed.
-#  def test_Memory_LoopingData_DataMatches():
-#      parser = traffic_cop.Memory(cache=False)
-#      data = numpy.zeros(1000, [("data", "f8")])
-#      data["data"] = numpy.random.rand(1000)
-#
-#      parser.write(data, TEMP_WRITE_LOCATION)
-#      new_data = parser.parse(TEMP_WRITE_LOCATION)
-#
-#      numpy.testing.assert_array_equal(new_data, data)
-#      os.remove(TEMP_WRITE_LOCATION)
+
+def test_Memory_LoopingData_DataMatches():
+    parser = traffic_cop.Memory(cache=False)
+    data = numpy.zeros(1000, [("data", "f8")])
+    data["data"] = numpy.random.rand(1000)
+
+    parser.write(TEMP_WRITE_LOCATION, data)
+    new_data = parser.parse(TEMP_WRITE_LOCATION)
+
+    numpy.testing.assert_array_equal(new_data, data)
+    os.remove(TEMP_WRITE_LOCATION)
+
+
+

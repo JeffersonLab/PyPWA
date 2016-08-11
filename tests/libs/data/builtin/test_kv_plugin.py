@@ -32,6 +32,7 @@ import os
 import numpy
 import pytest
 
+from PyPWA.libs.data import exceptions
 from PyPWA.libs.data import data_templates
 from PyPWA.libs.data.builtin import kv
 
@@ -102,7 +103,8 @@ def EVILValidator_CheckType_ReturnType(data, expected_value):
         expected_value (str):  The expected data type to be returned from
             the validator
     """
-    evil_validator_test = kv.EVILDataPlugin(data)
+    evil_validator_test = kv.EVILDataPlugin()
+    evil_validator_test.read_test(data)
     value = evil_validator_test.evil_type
     assert value == expected_value
 
@@ -132,7 +134,7 @@ def test_EVILValidator_CheckFailedType_RaiseIncompatibleData():
     """
     Tests that Validator fails when reading CSV_TEST_DATA
     """
-    with pytest.raises(data_templates.IncompatibleData):
+    with pytest.raises(exceptions.IncompatibleData):
         EVILValidator_CheckType_ReturnType(CSV_TEST_DATA, "Something")
 
 

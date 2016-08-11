@@ -32,9 +32,6 @@ def test_TemplateValidator_RaiseNotImplementedError():
         validator.read_test("test")
 
     with pytest.raises(NotImplementedError):
-        validator.write_test("test", False)
-
-    with pytest.raises(NotImplementedError):
         validator.plugin_memory_parser()
 
     with pytest.raises(NotImplementedError):

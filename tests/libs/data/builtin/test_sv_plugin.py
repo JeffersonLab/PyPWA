@@ -4,6 +4,7 @@ import os
 import pytest
 import numpy
 
+from PyPWA.libs.data import exceptions
 from PyPWA.libs.data import data_templates
 from PyPWA.libs.data.builtin import sv
 
@@ -28,26 +29,26 @@ def test_Validator_CheckCSVFile_TestPass():
     """
     Checks that it returns valid for CSV Data
     """
-    validator = sv.SvDataPlugin(CSV_TEST_DATA)
-    validator.test()
+    validator = sv.SvDataPlugin()
+    validator.read_test(CSV_TEST_DATA)
 
 
 def test_Validator_CheckTSVFile_TestPass():
     """
     Checks that it returns valid for TSV Data
     """
-    validator = sv.SvDataPlugin(TSV_TEST_DATA)
-    validator.test()
+    validator = sv.SvDataPlugin()
+    validator.read_test(TSV_TEST_DATA)
 
 
 def test_Validator_CheckKVFile_TestFail():
     """
     Checks that validator fails when data is not CSV or TSV
     """
-    validator = sv.SvDataPlugin(KV_TEST_DATA)
+    validator = sv.SvDataPlugin()
 
-    with pytest.raises(data_templates.IncompatibleData):
-        validator.test()
+    with pytest.raises(exceptions.IncompatibleData):
+        validator.read_test(KV_TEST_DATA)
 
 
 def test_SvMemory_CheckStaticData_ValuesMatch():
