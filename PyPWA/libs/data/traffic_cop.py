@@ -25,11 +25,14 @@ this to get started passing data to it.
 """
 
 import logging
+
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.configurator import plugin_loader
 from PyPWA.configurator import templates
+from PyPWA.configurator import tools
+from PyPWA.libs.data import _cache
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
 from PyPWA.libs.data import data_templates
@@ -69,14 +72,17 @@ class Memory(templates.DataParserTemplate):
         )
 
         self._data_plugins = data_plugins
+        self._data_search = _utilites.DataSearch(data_plugins)
+        self._cache_object = _cache.MemoryCache()
+        self._data_locator = tools.DataLocation()
 
-    def parse(self, text_file):
+    def parse(self, file_location):
         """
         Parses a single file into memory then passes that data back to the
         main object.
 
         Args:
-            text_file (str): The non-parsed settings from the
+            file_location (str): The non-parsed settings from the
                 configuration file.
 
         Returns:
@@ -87,17 +93,41 @@ class Memory(templates.DataParserTemplate):
                 fail on parse error is set to true then this will be
                 raised.
         """
+        cache_location = self._data_locator.find_cache_dir(file_location)
+
+        if self._clear_cache:
+            try:
+                os.remove(cache_location)
+            except OSError:
+                pass
+
+        if self._cache and not self._clear_cache:
+            try:
+                return self._cache_object.read_cache(
+                    file_location, cache_location
+                )
+
+            except _cache.CacheError:
+                self._logger.info("No usable cache found.")
+
         try:
-            plugin_search = _utilites.DataSearch(self._data_plugins)
-            plugin = plugin_search.search(text_file)
-            returned_parser = plugin.plugin_memory_parser()
-            parser = returned_parser()
-            return parser.parse(text_file)
+            plugin = self._data_search.search(file_location)
         except exceptions.UnknownData:
             if self._fail:
                 raise
             else:
                 return 0
+
+        returned_parser = plugin.plugin_memory_parser()
+        parser = returned_parser()
+        data = parser.parse(file_location)
+
+        if self._cache:
+            self._cache_object.make_cache(
+                data, file_location, cache_location
+            )
+
+        return data
 
     def write(self, file_location, data):
         """
@@ -113,21 +143,33 @@ class Memory(templates.DataParserTemplate):
                 fail on parse error is set to true then this will be
                 raised.
         """
+        cache_location = self._data_locator.find_cache_dir(file_location)
+        if self._cache:
+            try:
+                self._cache_object.make_cache(
+                    data, file_location, cache_location
+                )
+            except _cache.CacheError:
+                pass
+
         extension = os.path.splitext(file_location)[1]
         length = len(data.shape)
 
         for plugin in self._data_plugins:
-            print(plugin)
             the_plugin = plugin()
-            if length == the_plugin.plugin_supported_length():
-                if extension == "" or \
-                   extension in the_plugin.plugin_supported_extensions():
+            supported_length = the_plugin.plugin_supported_length()
+
+            supported_extensions = \
+                the_plugin.plugin_supported_extensions()
+
+            if length == supported_length:
+                if extension == "" or extension in supported_extensions():
                     returned_parser = the_plugin.plugin_memory_parser()
                     parser = returned_parser()
                     parser.write(file_location, data)
-                    return 0
         if self._fail:
             raise exceptions.IncompatibleData
+
 
 class Iterator(templates.DataReaderTemplate):
     def __init__(self, fail=True, user_plugin=False, options=False):
