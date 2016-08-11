@@ -261,8 +261,8 @@ class SomewhatIntelligentSelector(KvInterface):
         Returns:
             numpy.ndarray:  The data that was parsed from the disk.
         """
-        validator = EVILDataPlugin(file_location)
-        validator.test()
+        validator = EVILDataPlugin()
+        validator.read_test(file_location)
         if validator.evil_type == "DictOfArrays":
             parser = DictOfArrays()
         elif validator.evil_type == "ListOfFloats":
@@ -369,8 +369,8 @@ class EVILReader(templates.ReaderTemplate):
         Sets self._file_data_type using the validator object. Mostly
         Accurate.
         """
-        validator = EVILDataPlugin(self._the_file)
-        validator.test()
+        validator = EVILDataPlugin()
+        validator.read_test(self._the_file)
         self._file_data_type = validator.evil_type
 
     def reset(self):
@@ -514,21 +514,19 @@ class EVILWriter(templates.WriterTemplate):
 
 class EVILDataPlugin(data_templates.TemplateDataPlugin):
 
-    def __init__(self, file_location, thorough=False):
+    def __init__(self, thorough=False):
         """
         This attempts to validate the files to see if it can be read in by
         this plugin.
 
         Args:
-            file_location (str): The location of the file.
             thorough (Optional[bool]): Whether or not to do a full test
                 of the file.
         """
-        super(EVILDataPlugin, self).__init__(file_location, thorough)
-        self._the_file = io.open(file_location)
+        super(EVILDataPlugin, self).__init__(thorough)
         self._evil_type = False  # type: str
 
-    def _check_data_type(self):
+    def _check_data_type(self, file_location):
         """
         Performs a really simple test to see if its a support format.
 
@@ -536,8 +534,9 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the test fails to find a supported format.
         """
-        test_data = self._the_file.read(100).split("\n")[0]
-        if "=" in test_data and "," in test_data:
+        the_file = io.open(file_location)
+        test_data = the_file.readline().strip("\n")
+        if "=" in test_data:
             self._evil_type = "DictOfArrays"
         elif "." in test_data and len(test_data) > 1:
             self._evil_type = "ListOfFloats"
@@ -546,11 +545,11 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         else:
             raise exceptions.IncompatibleData("Failed to find a data")
 
-    def read_test(self, text_file):
+    def read_test(self, file_location):
         """
         Runs the various tests included tests.
         """
-        self._check_data_type()
+        self._check_data_type(file_location)
 
     @property
     def evil_type(self):
@@ -563,17 +562,13 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         try:
             return self._evil_type
         except AttributeError:
-            self._check_data_type()
-            return self._evil_type
-
-    def write_test(self, data, text_file):
-        return False
+            return False
 
     def plugin_name(self):
         return "EVIL"
 
     def plugin_supported_extensions(self):
-        return "txt"
+        return ["txt"]
 
     def plugin_memory_parser(self):
         return SomewhatIntelligentSelector
