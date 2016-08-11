@@ -25,13 +25,15 @@ this to get started passing data to it.
 """
 
 import logging
+import os
 
-from PyPWA.configurator import plugin_loader, templates
-from PyPWA.libs.data import exceptions
+from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.configurator import plugin_loader
+from PyPWA.configurator import templates
 from PyPWA.libs.data import _utilites
 from PyPWA.libs.data import builtin
 from PyPWA.libs.data import data_templates
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.libs.data import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -66,7 +68,7 @@ class Memory(templates.DataParserTemplate):
             [builtin, self._user_plugin]
         )
 
-        self._data_search = _utilites.DataSearch(data_plugins)
+        self._data_plugins = data_plugins
 
     def parse(self, text_file):
         """
@@ -86,8 +88,10 @@ class Memory(templates.DataParserTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(text_file)
-            parser = plugin.metadata_data["memory"]()
+            plugin_search = _utilites.DataSearch(self._data_plugins)
+            plugin = plugin_search.search(text_file)
+            returned_parser = plugin.plugin_memory_parser()
+            parser = returned_parser()
             return parser.parse(text_file)
         except exceptions.UnknownData:
             if self._fail:
@@ -95,36 +99,41 @@ class Memory(templates.DataParserTemplate):
             else:
                 return 0
 
-    def write(self, data, text_file):
+    def write(self, file_location, data):
         """
         Writes data from memory into a file.
 
         Args:
+            file_location (str): The file that needs to be parsed.
             data (numpy.ndarray): The data that needs to be
                 written to disk.
-            text_file (str): The file that needs to be parsed.
 
         Raises:
             definitions.UnknownData: If the loading of the file fails and
                 fail on parse error is set to true then this will be
                 raised.
         """
-        try:
-            plugin = self._data_search.search(text_file)
-            parser = plugin.metadata_data["memory"]()
-            parser.write(text_file, data)
-        except exceptions.UnknownData:
-            if self._fail:
-                raise
+        extension = os.path.splitext(file_location)[1]
+        length = len(data.shape)
 
+        for plugin in self._data_plugins:
+            print(plugin)
+            the_plugin = plugin()
+            if length == the_plugin.plugin_supported_length():
+                if extension == "" or \
+                   extension in the_plugin.plugin_supported_extensions():
+                    returned_parser = the_plugin.plugin_memory_parser()
+                    parser = returned_parser()
+                    parser.write(file_location, data)
+                    return 0
+        if self._fail:
+            raise exceptions.IncompatibleData
 
 class Iterator(templates.DataReaderTemplate):
     def __init__(self, fail=True, user_plugin=False, options=False):
         """
-        The data plugin.
-
-        Args:
-
+        Simple plugin that returns a reader or writer that can read and
+        write the requested data.
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
@@ -145,13 +154,13 @@ class Iterator(templates.DataReaderTemplate):
 
         self._data_search = _utilites.DataSearch(data_plugins)
 
-    def return_reader(self, text_file):
+    def return_reader(self, file_location):
         """
         Searches for the correct reader than passes that back to the
         requesting object.
 
         Args:
-            text_file (str): The line that contains the settings.
+            file_location (str): The line that contains the settings.
 
         Returns:
             object: The reader that was requested.
@@ -163,22 +172,21 @@ class Iterator(templates.DataReaderTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(text_file)
-            reader = plugin.metadata_data["reader"](text_file)
-            return reader
+            plugin = self._data_search.search(file_location)
+            return plugin.plugin_reader()
         except exceptions.UnknownData:
             if self._fail:
                 raise
             else:
                 return 0
 
-    def return_writer(self, text_file):
+    def return_writer(self, file_location):
         """
         Searches for the correct writer than passes that back to the
         requesting object.
 
         Args:
-            text_file (str): The line that contains the settings.
+            file_location (str): The line that contains the settings.
 
         Returns:
             object: The writer that was requested.
@@ -190,9 +198,8 @@ class Iterator(templates.DataReaderTemplate):
                 raised.
         """
         try:
-            plugin = self._data_search.search(text_file)
-            writer = plugin.metadata_data["writer"](text_file)
-            return writer
+            plugin = self._data_search.search(file_location)
+            return plugin.plugin_writer()
         except exceptions.UnknownData:
             if self._fail:
                 raise
