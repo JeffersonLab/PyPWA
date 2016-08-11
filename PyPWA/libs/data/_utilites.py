@@ -24,9 +24,9 @@ this to get started passing data to it.
 """
 
 import logging
-import pkgutil
 
 from PyPWA.libs.data import data_templates
+from PyPWA.libs.data import exceptions
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -77,27 +77,24 @@ class DataSearch(object):
                 parsed.
 
         Returns:
-            module: The plugin that should correctly parse the data that
-                is being loaded from the disk.
+            data_templates.TemplateDataPlugin
 
         Raises:
-            definitions.UnknownData: If no plugin reports that it can read
+            exceptions.UnknownData: If no plugin reports that it can read
                 the data then this will be raised to alert the caller that
                 the data is unreadable.
         """
         for plugin in self._plugins:
             try:
-                validator = plugin.metadata_data["validator"](
-                    file_location
-                )
+                validator = plugin()
 
-                validator.test()
+                validator.read_test(file_location)
                 self._logger.info("Found %s will load %s" %
                                   (plugin.__name__, file_location))
-                return plugin
-            except data_templates.IncompatibleData:
+                return validator
+            except exceptions.IncompatibleData:
                 self._logger.debug("Skipping %s for data %s" %
                                    (plugin.__name__, file_location))
-        raise data_templates.UnknownData(
+        raise exceptions.UnknownData(
             "Unable to find a plugin that can load %s" % file_location
         )
