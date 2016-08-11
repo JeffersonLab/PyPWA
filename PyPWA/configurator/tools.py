@@ -19,15 +19,14 @@
 """
 
 import hashlib
-import os
 import io
 import logging
 
 import appdirs
-import numpy
+import os
 
-from PyPWA.configurator import exceptions
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.configurator import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -349,63 +348,3 @@ class FileHash(object):
             )
 
         return the_hash
-
-
-class DataSplit(object):
-    """
-    Static Object holding the splitting logic for arrays and dictionaries.
-    #Todo: Add support for the new data types.
-    """
-
-    @staticmethod
-    def array_split(array, num_chunks):
-        """
-        Simple wrapper around the numpy array split
-
-        Args:
-            array (numpy.ndarray):  The array that needs to be split.
-            num_chunks (int): The number of arrays that are needed
-        return:
-            list[numpy.ndarray]: The list of the number of arrays that
-                needs to be split.
-        """
-
-        return numpy.array_split(array, num_chunks)
-
-    @staticmethod
-    def dict_split(the_dict, num_chunks):
-        """
-        Splits dictionary into user defined number of chunks
-
-        Args:
-            the_dict (dict): Dictionary of arrays that needs to be split
-            num_chunks (int): Number of chunks
-
-        Returns:
-            list: Each index is a chunk of the returned data in order
-        """
-
-        if num_chunks == 1:
-            return [the_dict]
-
-        split_dict = []
-
-        for x in range(num_chunks):
-            split_dict.append({})
-
-        for data in the_dict:
-            if isinstance(the_dict[data], numpy.ndarray):
-                for index in range(num_chunks):
-                    split_dict[index][data] = numpy.array_split(
-                        the_dict[data], num_chunks)[index]
-
-            elif isinstance(the_dict[data], dict):
-                for index in range(num_chunks):
-                    split_dict[index][data] = {}
-                for key in the_dict[data]:
-                    for index in range(num_chunks):
-                        split_dict[index][data][key] = numpy.array_split(
-                            the_dict[data][key], num_chunks
-                        )[index]
-
-        return split_dict
