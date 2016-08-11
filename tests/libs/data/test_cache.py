@@ -44,7 +44,7 @@ def test_MemoryCache_ReadNoCache_RaisesCacheNotFound():
 
     cache = _cache.MemoryCache()
 
-    with pytest.raises(_cache.CacheNotFound):
+    with pytest.raises(_cache.CacheError):
         cache.read_cache(TEMP_WRITE_LOCATION, CACHE_DIR)
 
     os.remove(TEMP_WRITE_LOCATION)
@@ -83,7 +83,7 @@ def test_MemoryCache_ChangeCacheContents_RaiseCacheChanged():
     with open(TEMP_WRITE_LOCATION, "w") as stream:
         stream.write("else\n")
 
-    with pytest.raises(_cache.CacheChanged):
+    with pytest.raises(_cache.CacheError):
         cache.read_cache(TEMP_WRITE_LOCATION, CACHE_DIR)
 
     os.remove(TEMP_WRITE_LOCATION)
