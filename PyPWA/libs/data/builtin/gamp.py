@@ -27,6 +27,7 @@ import io
 
 import numpy
 
+from PyPWA.libs.data import exceptions
 from PyPWA.configurator import templates
 from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
@@ -40,7 +41,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class GampReader(data_templates.ReaderTemplate):
+class GampReader(templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -131,7 +132,7 @@ class GampReader(data_templates.ReaderTemplate):
         self._file.close()
 
 
-class GampWriter(data_templates.WriterTemplate):
+class GampWriter(templates.WriterTemplate):
 
     def __init__(self, file_location):
         """
@@ -266,7 +267,7 @@ class GampMemory(data_templates.TemplateMemory):
 
 class GampDataPlugin(data_templates.TemplateDataPlugin):
 
-    def __init__(self, file_location, full=False):
+    def __init__(self, full=False):
         """
         Validates the GAMP file to ensure that the file can be read by
         gamp before actually trying to read it. Also is used for the data
@@ -274,16 +275,13 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
         file of an unknown nature.
 
         Args:
-            file_location (str): The location of the file that needs to
-                be read.
             full (Optional[bool]): Whether to do a full test of the file
                 or not, useful for debugging unknown issues or
                 complications with reading in GAMP files.
         """
-        super(GampDataPlugin, self).__init__(file_location, full)
-        self._file = io.open(file_location, "rt")
+        super(GampDataPlugin, self).__init__(full)
 
-    def _check_events(self):
+    def _check_events(self, file_location):
         """
         Checks the events to ensure that the number of particles match the
         number declared by the event.
@@ -292,13 +290,13 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the tests fail for this object and the data.
         """
-        self._file.seek(0)
+        the_file = io.open(file_location)
         count = 0
         while True:
             # Limit how much of the file is tested
-            if count == 3 and not self._full:
+            if count == 3 and not self._thorough:
                 break
-            number = self._file.readline().strip("\n").strip()
+            number = the_file.readline().strip("\n").strip()
 
             # If the test has run at least once and has reached the end
             # then end the test
@@ -310,7 +308,7 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
             try:
                 int(number)
             except ValueError as Error:
-                raise templates.IncompatibleData(
+                raise exceptions.IncompatibleData(
                     "Expected particle count. Found " + repr(Error) +
                     str(count)
                 )
@@ -319,7 +317,7 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
             # expected then end the test with a fail
             try:
                 for index in range(int(number)):
-                    data_length = len(self._file.readline().split(" "))
+                    data_length = len(the_file.readline().split(" "))
                     if data_length != 6:
                         raise ValueError(
                             "Particle doesn't have all the data "
@@ -328,14 +326,15 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
                         )
 
             except Exception as Error:
-                raise templates.IncompatibleData(
+                raise exceptions.IncompatibleData(
                     "Unexpected exception raised, caught " + repr(Error) +
                     " where it wasn't expected."
                 )
 
             count += 1
 
-    def _test_length(self):
+    @staticmethod
+    def _test_length(file_location):
         """
         Tests to make sure that the first number matches the number of
         events. I know that this can be made to be better, however it
@@ -345,30 +344,38 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the tests fail for this object and the data.
         """
-        self._file.seek(0)
+        the_file = io.open(file_location)
         while True:
-            number = self._file.readline().strip().strip("\n")
+            number = the_file.readline().strip().strip("\n")
             try:
                 if number == "":
                     break
                 for index in range(int(number)):
-                    self._file.readline()
+                    the_file.readline()
             except Exception as Error:
-                raise templates.IncompatibleData(
+                raise exceptions.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
                     " where it wasn't expected."
                 )
 
-    def test(self):
-        self._test_length()
-        self._check_events()
+    def read_test(self, text_file):
+        self._test_length(text_file)
+        self._check_events(text_file)
 
+    def plugin_name(self):
+        return "gamp"
 
-metadata_data = {
-    "name": "gamp",
-    "extension": "gamp",
-    "validator": GampDataPlugin,
-    "reader": GampReader,
-    "writer": GampWriter,
-    "memory": GampMemory
-}
+    def plugin_supported_extensions(self):
+        return [".gamp"]
+
+    def plugin_memory_parser(self):
+        return GampMemory
+
+    def plugin_reader(self):
+        return GampReader
+
+    def plugin_writer(self):
+        return GampWriter
+
+    def plugin_supported_length(self):
+        return 3
