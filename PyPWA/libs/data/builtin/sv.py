@@ -29,6 +29,7 @@ import io
 import numpy
 
 from PyPWA.configurator import templates
+from PyPWA.libs.data import exceptions
 from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -102,8 +103,9 @@ class SvMemory(data_templates.TemplateMemory):
         with open(file_location, "wt") as stream:
             field_names = list(data.dtype.names)
 
-            writer = csv.DictWriter(stream, fieldnames=field_names,
-                                    dialect=the_dialect)
+            writer = csv.DictWriter(
+                stream, fieldnames=field_names, dialect=the_dialect
+            )
             writer.writeheader()
 
             for index in range(len(data[field_names[0]])):
@@ -113,7 +115,7 @@ class SvMemory(data_templates.TemplateMemory):
                 writer.writerow(temp)
 
 
-class SvReader(data_templates.ReaderTemplate):
+class SvReader(templates.ReaderTemplate):
 
     def __init__(self, file_location):
         """
@@ -187,7 +189,7 @@ class SvReader(data_templates.ReaderTemplate):
         self._file.close()
 
 
-class SvWriter(data_templates.WriterTemplate):
+class SvWriter(templates.WriterTemplate):
 
     def __init__(self, file_location):
         """
@@ -246,40 +248,39 @@ class SvWriter(data_templates.WriterTemplate):
 
 class SvDataPlugin(data_templates.TemplateDataPlugin):
 
-    def __init__(self, file_location, full=False):
-        """
-        Simple testing object that tries to validate the file, ensures
-        that the object can read the file before parsing begins.
+    def __init__(self, thorough=False):
+        super(SvDataPlugin, self).__init__(thorough)
 
-        Args:
-            file_location (str): The location of the file that needs to
-                validated.
-            full (bool): Whether the entire file should be tested or not.
-        """
-        super(SvDataPlugin, self).__init__(file_location, full)
-        self._file = io.open(file_location, "rt")
+    def read_test(self, text_file):
+        self._check_header(text_file)
 
-    def _check_header(self):
+    @staticmethod
+    def _check_header(text_file):
         """
         Simple test to see if the header for the file is a valid
         CSV Header.
         """
+        the_file = io.open(text_file)
+
         if not csv.Sniffer().has_header(
-                self._file.read(HEADER_SEARCH_BITS)
+                the_file.read(HEADER_SEARCH_BITS)
         ):
-            raise templates.IncompatibleData(
+            raise exceptions.IncompatibleData(
                 "CSV Module failed to find the files header in " +
                 str(HEADER_SEARCH_BITS) + " characters!"
             )
 
-    def test(self):
-        self._check_header()
+    def plugin_name(self):
+        return "Delimiter Separated Variable sheets"
 
-metadata_data = {
-    "name": "Sv",
-    "extensions": [".tsv", ".csv"],
-    "validator": SvDataPlugin,
-    "reader": SvReader,
-    "writer": SvWriter,
-    "memory": SvMemory
-}
+    def plugin_supported_extensions(self):
+        return [".tsv", ".csv"]
+
+    def plugin_memory_parser(self):
+        return SvMemory
+
+    def plugin_reader(self):
+        return SvReader
+
+    def plugin_writer(self):
+        return SvWriter
