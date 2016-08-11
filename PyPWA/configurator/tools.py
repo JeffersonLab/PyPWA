@@ -62,8 +62,13 @@ class DataLocation(object):
         Returns:
             str: The filename.
         """
-        return os.path.splitext(os.path.basename(file_location))[0] + \
-            extension
+        if isinstance(extension, type(None)):
+            extension = ""
+
+        basename = os.path.basename(file_location)
+        file_without_extension = os.path.splitext(basename)[0]
+
+        return file_without_extension + extension
 
     def find_cache_dir(self, file_location=None, extension=None):
         """
