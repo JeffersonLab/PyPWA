@@ -133,20 +133,16 @@ class MemoryCache(object):
             self._logger.info("No cache exists.")
             raise CacheError()
 
-        try:
-            if returned_data["hash"] == file_hash:
-                self._logger.info("Cache Hashes match!")
-                return returned_data["data"]
-            else:
-                self._logger.warning("File hash has changed.")
+        if returned_data["hash"] == file_hash:
+            self._logger.info("Cache Hashes match!")
+            return returned_data["data"]
+        else:
+            self._logger.warning("File hash has changed.")
 
-                self._logger.debug("{0} != {1}".format(
-                    returned_data["hash"], file_hash)
-                )
+            self._logger.debug("{0} != {1}".format(
+                returned_data["hash"], file_hash)
+            )
 
-                raise CacheError()
-        except AttributeError:
-            self._logger.error("No File hash was saved in the cache.")
             raise CacheError()
 
     @staticmethod
