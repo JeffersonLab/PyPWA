@@ -34,14 +34,27 @@ __version__ = VERSION
 
 class TemplateDataPlugin(object):
 
-    def __init__(self, file_location, thorough=False):
-        self._file_location = file_location
+    def __init__(self, thorough=False):
+        """
+        Simple Data Template, needs to be extended for data plugins.
+
+        Args:
+            thorough (bool): Determines if the entire file should be
+                validated.
+        """
         self._thorough = thorough
 
-    def read_test(self, text_file):
-        raise NotImplementedError
+    def read_test(self, file_location):
+        """
+        Command that is called to test if the plugin supports the file.
 
-    def write_test(self, data, text_file):
+        Args:
+            file_location (str): The location of the file.
+
+        Raises:
+            exceptions.IncompatibleData: If data isn't compatible than
+                this error would be raised.
+        """
         raise NotImplementedError
 
     def plugin_name(self):
@@ -58,6 +71,9 @@ class TemplateDataPlugin(object):
 
     def plugin_writer(self):
         raise NotImplementedError
+
+    def plugin_supported_length(self):
+        return 1
 
 
 class TemplateMemory(object):
