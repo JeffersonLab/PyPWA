@@ -22,6 +22,9 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
     with pytest.raises(NotImplementedError):
         processing.main_options("more", "less", "something")
 
+    with pytest.raises(NotImplementedError):
+        processing.fetch_interface()
+
     data_reader = templates.DataReaderTemplate({"this": "that"})
     with pytest.raises(NotImplementedError):
         data_reader.return_reader("the file")
@@ -43,6 +46,10 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
     with pytest.raises(NotImplementedError):
         writer.close()
 
+    with pytest.raises(NotImplementedError):
+        with templates.WriterTemplate("Something") as stream:
+            stream.write("else")
+
     reader = templates.ReaderTemplate("Something")
     with pytest.raises(NotImplementedError):
         reader.next_event
@@ -51,11 +58,31 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
         reader.previous_event
 
     with pytest.raises(NotImplementedError):
+        with templates.ReaderTemplate("Something") as stream:
+            stream.reset()
+
+    with pytest.raises(NotImplementedError):
+        for event in reader:
+            pass
+
+    with pytest.raises(NotImplementedError):
         reader.reset()
 
     with pytest.raises(NotImplementedError):
         reader.close()
 
+    interface = templates.InterfaceTemplate()
+    with pytest.raises(NotImplementedError):
+        interface.run()
+
+    with pytest.raises(NotImplementedError):
+        interface.previous_value
+
+    with pytest.raises(NotImplementedError):
+        interface.stop()
+
+    with pytest.raises(NotImplementedError):
+        interface.is_alive
 
 
 def test_TemplateOptions_CreateMetaObject_HoldData():
