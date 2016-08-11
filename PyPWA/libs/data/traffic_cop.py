@@ -93,15 +93,22 @@ class Memory(templates.DataParserTemplate):
                 fail on parse error is set to true then this will be
                 raised.
         """
-        cache_location = self._data_locator.find_cache_dir(file_location)
 
         if self._clear_cache:
+            cache_location = self._data_locator.find_cache_dir(
+                file_location
+            )
+
             try:
                 os.remove(cache_location)
             except OSError:
                 pass
 
         if self._cache and not self._clear_cache:
+            cache_location = self._data_locator.find_cache_dir(
+                file_location
+            )
+
             try:
                 return self._cache_object.read_cache(
                     file_location, cache_location
@@ -123,6 +130,10 @@ class Memory(templates.DataParserTemplate):
         data = parser.parse(file_location)
 
         if self._cache:
+            cache_location = self._data_locator.find_cache_dir(
+                file_location
+            )
+
             self._cache_object.make_cache(
                 data, file_location, cache_location
             )
@@ -143,8 +154,11 @@ class Memory(templates.DataParserTemplate):
                 fail on parse error is set to true then this will be
                 raised.
         """
-        cache_location = self._data_locator.find_cache_dir(file_location)
         if self._cache:
+            cache_location = self._data_locator.find_cache_dir(
+                file_location
+            )
+
             try:
                 self._cache_object.make_cache(
                     data, file_location, cache_location
