@@ -24,7 +24,7 @@ def test_Memory_ReadData_DataMatches():
 
 
 def test_Memory_LoopingData_DataMatches():
-    parser = traffic_cop.Memory(cache=False)
+    parser = traffic_cop.Memory(options={"cache": False})
     data = numpy.zeros(1000, [("data", "f8")])
     data["data"] = numpy.random.rand(1000)
 
@@ -33,6 +33,3 @@ def test_Memory_LoopingData_DataMatches():
 
     numpy.testing.assert_array_equal(new_data, data)
     os.remove(TEMP_WRITE_LOCATION)
-
-
-
