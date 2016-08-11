@@ -1,8 +1,9 @@
-import sys
-import os
-import logging
 import importlib
+import logging
 import pkgutil
+import sys
+
+import os
 
 import PyPWA
 
@@ -80,7 +81,7 @@ class PluginLoading(object):
             plugins list[module]: The list of modules that were found.
 
         Returns:
-            list[object]: The list of objects that sub-classed the
+            list[type]: The list of objects that sub-classed the
                 template.
         """
         plugin_initializer = []
@@ -106,22 +107,25 @@ class PluginLoading(object):
                 loaded and searched
 
         Returns:
-            list[object]: The list of objects that were found that
+            list[type]: The list of objects that were found that
                 sub-classed the object.
         """
         potential_plugins = []
-        for file in file_list:
-            if isinstance(file, str):
+        for the_file in file_list:
+            if isinstance(the_file, str):
                 # Appends the directory containing the
-                sys.path.append(os.path.dirname(os.path.abspath(file)))
+                sys.path.append(
+                    os.path.dirname(os.path.abspath(the_file))
+                )
+
                 module = self._import_lib(
                     # Extracts the filename from the path provided
-                    os.path.splitext(os.path.basename(file))[0]
+                    os.path.splitext(os.path.basename(the_file))[0]
                 )
 
                 potential_plugins.append(self._find_libs(module))
-            elif isinstance(file, type(PyPWA)):
-                potential_plugins.append(self._find_libs(file))
+            elif isinstance(the_file, type(PyPWA)):
+                potential_plugins.append(self._find_libs(the_file))
 
         flattened_potential = []
         for list_of_plugins in potential_plugins:
