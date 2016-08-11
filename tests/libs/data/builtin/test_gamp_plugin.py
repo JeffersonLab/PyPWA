@@ -1,10 +1,8 @@
-import os
-
-import pytest
 import numpy
+import os
+import pytest
 
 from PyPWA.libs.data import exceptions
-from PyPWA.libs.data import data_templates
 from PyPWA.libs.data.builtin import gamp
 
 CSV_TEST_DATA = os.path.join(
@@ -64,3 +62,15 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
 
     numpy.testing.assert_array_equal(data, new_data)
     os.remove(TEMP_WRITE_LOCATION)
+
+
+def test_GAMPReader_ResetReader_NoFail():
+    reader = gamp.GampReader(GAMP_TEST_DATA)
+    reader.reset()
+
+
+def test_GAMPReader_PreviousEvent_MatchesNext():
+    reader = gamp.GampReader(GAMP_TEST_DATA)
+    old = reader.next_event
+
+    numpy.testing.assert_array_equal(old, reader.previous_event)
