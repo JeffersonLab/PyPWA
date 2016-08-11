@@ -269,8 +269,6 @@ class SomewhatIntelligentSelector(KvInterface):
             parser = ListOfFloats()
         elif validator.evil_type == "ListOfBools":
             parser = ListOfBooleans()
-        else:
-            raise RuntimeError("How did you even break this?")
 
         return parser.parse(file_location)
 
@@ -357,10 +355,10 @@ class EVILReader(templates.ReaderTemplate):
                 self._parameters.append(parameter.split("=")[0])
 
         elif self._file_data_type == "ListOfBools":
-            self._parameters = ["rejection_list"]
+            self._parameters = ["bools"]
 
         elif self._file_data_type == "ListOfFloats":
-            self._parameters = ["QFactor"]
+            self._parameters = ["floats"]
 
         self._file.seek(0)
 
@@ -577,4 +575,4 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         return EVILReader
 
     def plugin_writer(self):
-        raise EVILWriter
+        return EVILWriter
