@@ -154,6 +154,8 @@ class Memory(templates.DataParserTemplate):
 
         extension = os.path.splitext(file_location)[1]
         length = len(data.shape)
+        self._logger.debug("Data's shape is: " + repr(length))
+        self._logger.debug("Data's extension is: " + repr(extension))
 
         for plugin in self._data_plugins:
             the_plugin = plugin()
@@ -167,6 +169,7 @@ class Memory(templates.DataParserTemplate):
                     returned_parser = the_plugin.plugin_memory_parser()
                     parser = returned_parser()
                     parser.write(file_location, data)
+                    return False
         if self._fail:
             raise exceptions.IncompatibleData
 
