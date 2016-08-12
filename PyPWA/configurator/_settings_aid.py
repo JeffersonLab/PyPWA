@@ -43,37 +43,7 @@ FUZZY_STRING_CONFIDENCE_LEVEL = 75  # percent from 0 to 100
 # TODO: Make more todo lists.
 
 
-class BaseSettings(object):
-    """
-    Base Object for manipulating the settings dictionaries are loaded from
-    the yaml and passed to each of the plugins and modules. Should help
-    simplify the process of parsing arguments and even account for user
-    error to a degree.
-    """
-
-    @staticmethod
-    def _string_to_bool(string):
-        """
-        Converts a string to a bool with a level of certainty.
-
-        Args:
-            string (str): The string that needs to be converted into a
-                bool.
-
-        Returns:
-            bool: If the conversion was successful.
-            None: If the conversion fails.
-        """
-        value = fuzzywuzzy.process.extractOne(string, ["true", "false"])
-        if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
-            if value[0] == "true":
-                return True
-            elif value[0] == "false":
-                return False
-            else:
-                return None
-        else:
-            return None
+class Temp(object):
 
     @staticmethod
     def _return_options(string):
@@ -119,6 +89,39 @@ class BaseSettings(object):
             if the_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
                 correct_options[the_key[0]] = the_value
         return correct_options
+
+
+class BaseSettings(object):
+    """
+    Base Object for manipulating the settings dictionaries are loaded from
+    the yaml and passed to each of the plugins and modules. Should help
+    simplify the process of parsing arguments and even account for user
+    error to a degree.
+    """
+
+    @staticmethod
+    def _string_to_bool(string):
+        """
+        Converts a string to a bool with a level of certainty.
+
+        Args:
+            string (str): The string that needs to be converted into a
+                bool.
+
+        Returns:
+            bool: If the conversion was successful.
+            None: If the conversion fails.
+        """
+        value = fuzzywuzzy.process.extractOne(string, ["true", "false"])
+        if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
+            if value[0] == "true":
+                return True
+            elif value[0] == "false":
+                return False
+            else:
+                return None
+        else:
+            return None
 
     @staticmethod
     def _correct_values(supported_values, value):
@@ -177,16 +180,6 @@ class BaseSettings(object):
         else:
             return None
 
-
-class CorrectSettings(BaseSettings):
-
-    def __init__(self):
-        """
-        Corrects simple settings.
-        """
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-
     def correct_dictionary(self, the_dictionary, template_dictionary):
         """
         Corrects the values and keys.
@@ -214,5 +207,3 @@ class CorrectSettings(BaseSettings):
 
                 if not isinstance(value, type(None)):
                     corrected_dict[potential_key] = value
-
-# Accidental Mess
