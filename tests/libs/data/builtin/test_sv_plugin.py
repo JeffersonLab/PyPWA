@@ -115,7 +115,7 @@ def test_SvWriter_TSVFile_UsesTabs():
 
     memory.write(TEMP_WRITE_LOCATION + ".tsv", data)
 
-    with io.open(TEMP_WRITE_LOCATION +".tsv") as stream:
+    with io.open(TEMP_WRITE_LOCATION + ".tsv") as stream:
         dialect = csv.Sniffer().sniff(stream.read())
 
     assert dialect.delimiter == csv.excel_tab.delimiter
