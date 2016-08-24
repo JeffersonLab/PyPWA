@@ -14,10 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-#TODO
-"""
-
 import logging
 
 import fuzzywuzzy.process
@@ -37,173 +33,197 @@ __version__ = VERSION
 FUZZY_STRING_CONFIDENCE_LEVEL = 75  # percent from 0 to 100
 
 
-# TODO: Separate logic types into different objects
-# TODO: Make the Settings more SOLID
-# TODO: Clean up the documentation some.
-# TODO: Make more todo lists.
+class SettingsAid(object):
 
+    _failed = "failed to find"
 
-class Temp(object):
-
-    @staticmethod
-    def _return_options(string):
+    def __init__(self):
         """
-        Extracts options from a single string for inline option parsing.
+        Object that corrects the settings of the dictionaries rendered
+        in from the user.
+        """
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
+    def correct_settings(self, value, correct):
+        """
+        Corrects the settings of the dictionary using a template
+        dictionary.
 
         Args:
-            string (str): The string to be rendered by plugins that
-                support it.
+            value (dict): Users dictionary.
+            correct (dict): Template dictionary
 
         Returns:
-            list[str]: The extracted options, non-parsed.
+            dict: The corrected dictionary.
         """
-        options = []
-        for possible_option in string.split(";"):
-            if "=" in possible_option:
-                options.append(possible_option)
-        return options
+        key_correct_dictionary = self._correct_keys(value, correct)
+        return self._correct_all(key_correct_dictionary, correct)
 
-    @staticmethod
-    def _extract_options(supported_options, options):
+    def _correct_all(self, dictionary, template_dictionary):
         """
-        Extracts the options from an non-parsed string.
+        Corrects all settings types.
 
         Args:
-            supported_options (list[str]): The list of possible options
-                that are supported.
-            options (list[str]): The list of the non-parsed options.
+            dictionary (dict): The users dictionary.
+            template_dictionary (dict): The Template dictionary.
 
         Returns:
-            dict: The completely parsed options from the string.
-                Option = Value
+            dict: The corrected dictionary.
         """
-        correct_options = {}
-        for possible_option in options:
-            option = possible_option.split("=")[0]
-            the_value = option.split("=")[1]
+        corrected_dictionary = {}
+        for key in dictionary.keys():
+            template_value = template_dictionary[key]
+            current_value = dictionary[key]
 
-            the_key = fuzzywuzzy.process.extractOne(
-                option, supported_options
+            if template_value == int:
+                corrected_dictionary[key] = self._correct_integers(
+                    current_value
+                )
+
+            elif template_value == float:
+                corrected_dictionary[key] = self._correct_floats(
+                    current_value
+                )
+
+            elif template_value == bool:
+                corrected_dictionary[key] = self._correct_boolean_values(
+                    current_value
+                )
+
+            elif template_value == str:
+                corrected_dictionary[key] = str(current_value)
+
+            elif template_value == list:
+                corrected_dictionary[key] = list(current_value)
+
+            elif template_value == set:
+                corrected_dictionary[key] = set(current_value)
+
+            elif isinstance(template_value, list):
+                corrected_dictionary[key] = self._correct_from_list(
+                    current_value, template_value
+                )
+
+            elif isinstance(template_value, dict):
+                corrected_dictionary[key] = self.correct_settings(
+                    current_value, template_value
+                )
+
+            else:
+                self._logger.debug(
+                    "Key {0} is not correctable by settings "
+                    "aid.".format(key)
+                )
+
+                corrected_dictionary[key] = current_value
+
+        return corrected_dictionary
+
+    def _correct_keys(self, dictionary, template_dictionary):
+        """
+        Simple method that corrects only the keys in the dictionary.
+
+        Args:
+            dictionary (dict): The users dictionary
+            template_dictionary (dict): The correct template dictionary.
+
+        Returns:
+            dict: The dictionary with the corrected keys.
+        """
+        key_correct_dict = {}
+        correct_keys = list(template_dictionary.keys())
+
+        for key in dictionary.keys():
+            potential_key = fuzzywuzzy.process.extractOne(
+                key, correct_keys
             )
 
-            if the_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
-                correct_options[the_key[0]] = the_value
-        return correct_options
+            if potential_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
+                key_correct_dict[potential_key[0]] = dictionary[key]
 
+            else:
+                self._logger.warning(
+                    "Unknown key {0}, value is being "
+                    "removed!".format(key)
+                )
 
-class BaseSettings(object):
-    """
-    Base Object for manipulating the settings dictionaries are loaded from
-    the yaml and passed to each of the plugins and modules. Should help
-    simplify the process of parsing arguments and even account for user
-    error to a degree.
-    """
+        return key_correct_dict
 
-    @staticmethod
-    def _string_to_bool(string):
+    def _correct_from_list(self, string, value_list):
         """
-        Converts a string to a bool with a level of certainty.
+        Corrects a string using predefined strings inside a list.
 
         Args:
-            string (str): The string that needs to be converted into a
-                bool.
+            string (str): The users string
+            value_list (list): The potential values.
 
         Returns:
-            bool: If the conversion was successful.
-            None: If the conversion fails.
+            str: The corrected values.
         """
-        value = fuzzywuzzy.process.extractOne(string, ["true", "false"])
+        value = fuzzywuzzy.process.extractOne(string, value_list)
+
+        if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
+            return value[0]
+        else:
+            return self._failed
+
+    def _correct_boolean_values(self, value):
+        """
+        Takes boolean values and translates them to Python Booleans.
+
+        Args:
+            value (str): The users supplied value.
+
+        Returns:
+            bool: The correct boolean.
+        """
+        try:
+            exact = int(value)
+            if exact:
+                return True
+            else:
+                return False
+        except ValueError:
+            pass
+
+        value = fuzzywuzzy.process.extractOne(value, ["true", "false"])
         if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
             if value[0] == "true":
                 return True
             elif value[0] == "false":
                 return False
             else:
-                return None
+                return self._failed
         else:
-            return None
+            return self._failed
 
-    @staticmethod
-    def _correct_values(supported_values, value):
+    def _correct_integers(self, value):
         """
-        Corrects a single value to match what is expected.
-        Args:
-            supported_values (list[str]): The possible values.
-            value (str): The parsed value.
-
-        Returns:
-            str: The corrected value.
-        """
-        possible_value = fuzzywuzzy.process.extractOne(
-            value, supported_values
-        )
-
-        if possible_value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
-            return possible_value[0]
-        else:
-            return None
-
-    def _dict_values(self, found_value, template_value):
-        """
-        Corrects the dictionary based off another dictionary.
+        Corrects integers read in to actual integers.
 
         Args:
-            found_value (string): The parsed dictionary with corrected
-                keys.
-            template_value (type): The template dictionary that contains
-                all the possible options and values.
+            value (str): The string of the number.
 
         Returns:
-            dict: The corrected dictionary.
+            int: The correct value.
         """
+        try:
+            return int(value)
+        except ValueError:
+            return self._failed
 
-        # Checks for types that are known, but could be any value
-        if isinstance(template_value, type):
-            if template_value == bool:
-                return self._string_to_bool(found_value)
-            elif template_value == str:
-                return str(found_value)
-            elif template_value == int:
-                try:
-                    return int(found_value)
-                except ValueError:
-                    return None
-            elif template_value == numpy.float64:
-                try:
-                    return numpy.float64(found_value)
-                except ValueError:
-                    return None
-            return None
-
-        elif isinstance(template_value, list):
-            return self._correct_values(template_value, found_value)
-        else:
-            return None
-
-    def correct_dictionary(self, the_dictionary, template_dictionary):
+    def _correct_floats(self, value):
         """
-        Corrects the values and keys.
+        Corrects the floats to numpy.float64s.
 
         Args:
-            the_dictionary (dict): The parsed dictionary.
-            template_dictionary (dict): The template dictionary.
+            value (str): The users float.
 
         Returns:
-            dict: The corrected dictionary.
+            numpy.float64: The corrected value.
         """
-        corrected_dict = {}
-        correct_keys = list(template_dictionary.keys())
-        for key in the_dictionary:
-            potential_key = fuzzywuzzy.process.extractOne(
-                key, correct_keys
-            )
-
-            if potential_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
-
-                value = self._dict_values(
-                    the_dictionary[key],
-                    template_dictionary[potential_key]
-                )
-
-                if not isinstance(value, type(None)):
-                    corrected_dict[potential_key] = value
+        try:
+            return numpy.float64(value)
+        except ValueError:
+            return self._failed
