@@ -190,6 +190,7 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
                 fail on parse error is set to true then this will be
                 raised.
         """
+        plugin_found = False
         extension = os.path.splitext(file_location)[1]
         length = len(data.shape)
         self._logger.debug("Data's shape is: " + repr(length))
@@ -204,10 +205,10 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
 
             if length == supported_length:
                 if extension == "" or extension in supported_extensions():
+                    plugin_found = True
                     returned_parser = the_plugin.plugin_memory_parser()
                     parser = returned_parser()
                     parser.write(file_location, data)
-                    return False
 
         if self._cache:
             cache_location = self._data_locator.find_cache_dir(
@@ -221,7 +222,7 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
             except _cache.CacheError:
                 self._logger.debug("Failed to make cache!")
 
-        if self._fail:
+        if self._fail and not plugin_found:
             raise exceptions.IncompatibleData
 
 
