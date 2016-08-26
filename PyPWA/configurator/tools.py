@@ -324,7 +324,8 @@ class FileHash(object):
         final_hash = self._stream_handle(stream, the_hash)
         return final_hash.hexdigest()
 
-    def _stream_handle(self, stream, the_hash):
+    @staticmethod
+    def _stream_handle(stream, the_hash):
         """
         The actual method that does the hashing, loads 4096 bit chunks
         into memory to hash against until there is no data left.
@@ -336,20 +337,9 @@ class FileHash(object):
         Returns:
 
         """
-        try:
-            current = stream.tell()
-            stream.seek(0)
-            for chunk in iter(lambda: stream.read(4096), b""):
-                the_hash.update(chunk)
-            stream.seek(current)
-        except AttributeError:
-            for chunk in iter(lambda: stream.read(4096), b""):
-                the_hash.update(chunk)
-
-            self._logger.warning(
-                "Stream " + stream.name + "is not seekable, a crash is "
-                "probably fixing to happen if the application is "
-                "expecting the cursor to be where it left it."
-            )
-
+        current = stream.tell()
+        stream.seek(0)
+        for chunk in iter(lambda: stream.read(4096), b""):
+            the_hash.update(chunk)
+        stream.seek(current)
         return the_hash
