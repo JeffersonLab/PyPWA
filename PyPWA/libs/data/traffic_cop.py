@@ -140,7 +140,7 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
             except OSError:
                 pass
 
-        if self._cache and not self._clear_cache:
+        if self._cache:
             cache_location = self._data_locator.find_cache_dir(
                 file_location
             )
