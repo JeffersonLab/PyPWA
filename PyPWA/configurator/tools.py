@@ -242,7 +242,7 @@ class FileHash(object):
         Makes a sha512 hash of the stream.
 
         Args:
-            stream (file): The stream that has all the data that
+            stream: The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA512 sum of the file.
@@ -254,7 +254,7 @@ class FileHash(object):
         Makes a sha384 hash of the stream.
 
         Args:
-            stream (file): The stream that has all the data that
+            stream: The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA384 sum of the file.
@@ -266,7 +266,7 @@ class FileHash(object):
         Makes a sha256 hash of the stream.
 
         Args:
-            stream (file): The stream that has all the data that
+            stream: The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA256 sum of the file.
@@ -278,7 +278,7 @@ class FileHash(object):
         Makes a sha224 hash of the stream.
 
         Args:
-            stream (file): The stream that has all the data that
+            stream: The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA224 sum of the file.
@@ -290,7 +290,7 @@ class FileHash(object):
         Makes a sha1 hash of the stream.
 
         Args:
-            stream (file): The stream that has all the data that
+            stream: The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA1 sum of the file.
@@ -302,7 +302,7 @@ class FileHash(object):
         Makes a md5 hash of the stream.
 
         Args:
-            stream (file): The stream that has all the data that
+            stream: The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The MD5 sum of the file.
@@ -315,7 +315,7 @@ class FileHash(object):
         processed, the returns the hex of the hash.
 
         Args:
-            stream (file): The stream that holds the data that is
+            stream: The stream that holds the data that is
                 to be hashed.
             the_hash (hashlib.HASH): The loaded hashing method.
         Returns:
@@ -330,7 +330,7 @@ class FileHash(object):
         into memory to hash against until there is no data left.
 
         Args:
-            stream (file): The stream that holds the data that is
+            stream: The stream that holds the data that is
             to be hashed.
             the_hash (hashlib.HASH): The loaded hashing utility.
         Returns:

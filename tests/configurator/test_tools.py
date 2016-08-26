@@ -1,11 +1,17 @@
 import os
+import io
 
 from PyPWA.configurator import tools
+
+FILE_LOCATION = os.path.join(
+    os.path.dirname(__file__),
+    "../libs/data/builtin/test_docs/sv_test_data.tsv"
+)
 
 data_loc = tools.DataLocation()
 hashing = tools.FileHash()
 
-test_file = open(tools.__file__, "r")
+test_file = io.open(FILE_LOCATION, "br")
 
 
 def DataLocation_TestHelper(location):
