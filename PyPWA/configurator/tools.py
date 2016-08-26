@@ -221,7 +221,7 @@ class DataLocation(object):
         Args:
             test_location (str): The directory that needs to be tested.
         """
-        with io.open(test_location + "/test", "wt") as stream:
+        with open(test_location + "/test", "wt") as stream:
             stream.write("test\n")
         os.remove(test_location + "/test")
 
@@ -242,7 +242,7 @@ class FileHash(object):
         Makes a sha512 hash of the stream.
 
         Args:
-            stream (io.FileIO): The stream that has all the data that
+            stream (file): The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA512 sum of the file.
@@ -254,7 +254,7 @@ class FileHash(object):
         Makes a sha384 hash of the stream.
 
         Args:
-            stream (io.FileIO): The stream that has all the data that
+            stream (file): The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA384 sum of the file.
@@ -266,7 +266,7 @@ class FileHash(object):
         Makes a sha256 hash of the stream.
 
         Args:
-            stream (io.FileIO): The stream that has all the data that
+            stream (file): The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA256 sum of the file.
@@ -278,7 +278,7 @@ class FileHash(object):
         Makes a sha224 hash of the stream.
 
         Args:
-            stream (io.FileIO): The stream that has all the data that
+            stream (file): The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA224 sum of the file.
@@ -290,7 +290,7 @@ class FileHash(object):
         Makes a sha1 hash of the stream.
 
         Args:
-            stream (io.FileIO): The stream that has all the data that
+            stream (file): The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The SHA1 sum of the file.
@@ -302,7 +302,7 @@ class FileHash(object):
         Makes a md5 hash of the stream.
 
         Args:
-            stream (io.FileIO): The stream that has all the data that
+            stream (file): The stream that has all the data that
                 needs to be hashed.
         Returns:
             str: The MD5 sum of the file.
@@ -315,7 +315,7 @@ class FileHash(object):
         processed, the returns the hex of the hash.
 
         Args:
-            stream (io.FileIO): The stream that holds the data that is
+            stream (file): The stream that holds the data that is
                 to be hashed.
             the_hash (hashlib.HASH): The loaded hashing method.
         Returns:
@@ -330,26 +330,26 @@ class FileHash(object):
         into memory to hash against until there is no data left.
 
         Args:
-            stream (io.FileIO): The stream that holds the data that is
+            stream (file): The stream that holds the data that is
             to be hashed.
             the_hash (hashlib.HASH): The loaded hashing utility.
         Returns:
 
         """
-        if stream.seekable():
+        try:
             current = stream.tell()
             stream.seek(0)
             for chunk in iter(lambda: stream.read(4096), b""):
                 the_hash.update(chunk)
             stream.seek(current)
-        else:
+        except AttributeError:
             for chunk in iter(lambda: stream.read(4096), b""):
                 the_hash.update(chunk)
 
             self._logger.warning(
                 "Stream " + stream.name + "is not seekable, a crash is "
                 "probably fixing to happen if the application is "
-                "expecting the handle to be  it left it."
+                "expecting the cursor to be where it left it."
             )
 
         return the_hash
