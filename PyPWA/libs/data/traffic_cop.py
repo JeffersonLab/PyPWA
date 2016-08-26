@@ -190,18 +190,6 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
                 fail on parse error is set to true then this will be
                 raised.
         """
-        if self._cache:
-            cache_location = self._data_locator.find_cache_dir(
-                file_location
-            )
-
-            try:
-                self._cache_object.make_cache(
-                    data, file_location, cache_location
-                )
-            except _cache.CacheError:
-                pass
-
         extension = os.path.splitext(file_location)[1]
         length = len(data.shape)
         self._logger.debug("Data's shape is: " + repr(length))
@@ -220,6 +208,19 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
                     parser = returned_parser()
                     parser.write(file_location, data)
                     return False
+
+        if self._cache:
+            cache_location = self._data_locator.find_cache_dir(
+                file_location
+            )
+
+            try:
+                self._cache_object.make_cache(
+                    data, file_location, cache_location
+                )
+            except _cache.CacheError:
+                self._logger.debug("Failed to make cache!")
+
         if self._fail:
             raise exceptions.IncompatibleData
 
