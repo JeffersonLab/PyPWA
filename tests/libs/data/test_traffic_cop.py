@@ -33,3 +33,19 @@ def test_Memory_LoopingData_DataMatches():
 
     numpy.testing.assert_array_equal(new_data, data)
     os.remove(TEMP_WRITE_LOCATION)
+
+
+def test_MemoryLoopingDataWithCache_DataMatches():
+    parser = traffic_cop.Memory(options={
+        "cache": True,
+        "clea cache": True
+    })
+
+    data = numpy.zeros(1000, [("data", "f8")])
+    data["data"] = numpy.random.rand(1000)
+
+    parser.write(TEMP_WRITE_LOCATION, data)
+    new_data = parser.parse(TEMP_WRITE_LOCATION)
+
+    numpy.testing.assert_array_equal(new_data, data)
+    os.remove(TEMP_WRITE_LOCATION)
