@@ -25,7 +25,8 @@ def test_Memory_ReadData_DataMatches():
 
 def test_Memory_LoopingData_DataMatches():
     parser = traffic_cop.Memory(options={"cache": False})
-    data = numpy.zeros(1000, [("data", "f8")])
+    data = numpy.zeros(1000, [("data", "f8"), ("more_data", "f8")])
+    data["more_data"] = numpy.random.rand(1000)
     data["data"] = numpy.random.rand(1000)
 
     parser.write(TEMP_WRITE_LOCATION, data)
@@ -38,10 +39,12 @@ def test_Memory_LoopingData_DataMatches():
 def test_MemoryLoopingDataWithCache_DataMatches():
     parser = traffic_cop.Memory(options={
         "cache": True,
-        "clea cache": True
+        "clear cache": True,
+        "fail": True
     })
 
-    data = numpy.zeros(1000, [("data", "f8")])
+    data = numpy.zeros(1000, [("data", "f8"), ("more_data", "f8")])
+    data["more_data"] = numpy.random.rand(1000)
     data["data"] = numpy.random.rand(1000)
 
     parser.write(TEMP_WRITE_LOCATION, data)
