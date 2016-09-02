@@ -26,6 +26,7 @@ this to get started passing data to it.
 
 import logging
 
+import numpy
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
@@ -51,7 +52,7 @@ MODULE_NAME = "Builtin Parser"  # Name for the module externally.
 
 class DataCoreTools(object):
 
-    def _search(self, file_location):
+    def _reader_search(self, file_location):
         """
         Loops through the objects plugin list until it finds a validator
         that doesn't fail, then returns that plugin.
@@ -82,6 +83,44 @@ class DataCoreTools(object):
         raise exceptions.UnknownData(
             "Unable to find a plugin that can load %s" % file_location
         )
+
+    def _writer_search(self, file_location, data):
+        """
+        Uses the supported extensions and the shape of the data to
+        determine the proper reader to use.
+
+        Args:
+            file_location (str): The location to the file to be writen.
+            data: Either the data, or the shape of the data.
+
+        Returns:
+            list[bool, object]: The Success of the search and the
+                validator of the found plugin.
+        """
+        final_plugin = False
+        plugin_found = False
+        extension = os.path.splitext(file_location)[1]
+        if isinstance(data, numpy.ndarray):
+            length = len(data.shape)
+        else:
+            length = data
+
+        self._logger.debug("Data's shape is: " + repr(length))
+        self._logger.debug("Data's extension is: " + repr(extension))
+
+        for plugin in self._data_plugins:
+            the_plugin = plugin()
+            supported_length = the_plugin.plugin_supported_length()
+
+            supported_extensions = \
+                the_plugin.plugin_supported_extensions()
+
+            if length == supported_length:
+                if extension == "" or extension in supported_extensions():
+                    plugin_found = True
+                    final_plugin = the_plugin
+
+        return [plugin_found, final_plugin]
 
 
 class Memory(templates.DataParserTemplate, DataCoreTools):
@@ -154,7 +193,7 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
                 self._logger.info("No usable cache found.")
 
         try:
-            plugin = self._search(file_location)
+            plugin = self._reader_search(file_location)
         except exceptions.UnknownData:
             if self._fail:
                 raise
@@ -190,25 +229,16 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
                 fail on parse error is set to true then this will be
                 raised.
         """
-        plugin_found = False
-        extension = os.path.splitext(file_location)[1]
-        length = len(data.shape)
-        self._logger.debug("Data's shape is: " + repr(length))
-        self._logger.debug("Data's extension is: " + repr(extension))
+        plugin_found, the_plugin = self._writer_search(
+            file_location, data
+        )
 
-        for plugin in self._data_plugins:
-            the_plugin = plugin()
-            supported_length = the_plugin.plugin_supported_length()
-
-            supported_extensions = \
-                the_plugin.plugin_supported_extensions()
-
-            if length == supported_length:
-                if extension == "" or extension in supported_extensions():
-                    plugin_found = True
-                    returned_parser = the_plugin.plugin_memory_parser()
-                    parser = returned_parser()
-                    parser.write(file_location, data)
+        try:
+            returned_parser = the_plugin.plugin_memory_parser()
+            parser = returned_parser()
+            parser.write(file_location, data)
+        except AttributeError:
+            pass
 
         if self._cache:
             cache_location = self._data_locator.find_cache_dir(
@@ -258,8 +288,7 @@ class Iterator(templates.DataReaderTemplate, DataCoreTools):
             file_location (str): The line that contains the settings.
 
         Returns:
-            object: The reader that was requested.
-            bool: False if it failed to find a reader.
+            PyPWA.configurator.templates.ReaderTemplate
 
         Raises:
             definitions.UnknownData: If the loading of the file fails and
@@ -267,7 +296,7 @@ class Iterator(templates.DataReaderTemplate, DataCoreTools):
                 raised.
         """
         try:
-            plugin = self._search(file_location)
+            plugin = self._reader_search(file_location)
             return plugin.plugin_reader()
         except exceptions.UnknownData:
             if self._fail:
@@ -275,28 +304,32 @@ class Iterator(templates.DataReaderTemplate, DataCoreTools):
             else:
                 return 0
 
-    def return_writer(self, file_location):
+    def return_writer(self, file_location, data_shape):
         """
         Searches for the correct writer than passes that back to the
         requesting object.
 
         Args:
             file_location (str): The line that contains the settings.
+            data_shape (int): The shape of the data the is going to be
+                written.
 
         Returns:
-            object: The writer that was requested.
-            bool: False if it failed to find a writer
+            PyPWA.configurator.templates.WriterTemplate
 
         Raises:
             definitions.UnknownData: If the loading of the file fails and
                 fail on parse error is set to true then this will be
                 raised.
         """
+        plugin_found, the_plugin = self._writer_search(
+            file_location, data_shape
+        )
+
         try:
-            plugin = self._search(file_location)
-            return plugin.plugin_writer()
-        except exceptions.UnknownData:
-            if self._fail:
-                raise
-            else:
-                return 0
+            return the_plugin.plugin_writer()
+        except AttributeError:
+            pass
+
+        if self._fail and not plugin_found:
+            raise exceptions.IncompatibleData
