@@ -20,8 +20,9 @@ Simple Tests for Configurator
 See Also:
     PyPWA.configurator.configurator
 """
+import PyPWA.libs
 
-from PyPWA.configurator import configurator
+from PyPWA.configurator import configurator, plugin_loader, templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -30,45 +31,14 @@ __email__ = "maj@jlab.org"
 
 
 def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
-    metadata = [
-        {
-            "name": "test minimizer",
-            "provides": "minimization",
-            "interface": object,
-            "require function": False,
-            "arguments": False
-        },
-        {
-            "name": "second minimizer",
-            "provides": "minimization",
-            "interface": object,
-            "require function": {
-                "function": object,
-                "imports": {"numpy"}
-            },
-            "arguments": False
-        },
-        {
-            "name": "processor",
-            "provides": "kernel processing",
-            "interface": object,
-            "require function": False,
-            "arguments": False
-        },
-        {
-            "name": "the data",
-            "provides": "data",
-            "interface": object,
-            "require function": False,
-            "arguments": False
-        }
-    ]
+    loader = plugin_loader.PluginLoading(templates.OptionsTemplate)
+    plugin_list = loader.fetch_plugin([PyPWA.libs])
 
     metadata_storage = configurator.MetadataStorage()
+    metadata_storage.add_plugins(plugin_list)
 
-    metadata_storage.add_plugins(metadata)
-
-    assert len(metadata_storage.data) == 1
+    assert len(metadata_storage.data_parser) == 1
+    assert len(metadata_storage.data_reader) == 1
     assert len(metadata_storage.minimization) == 2
     assert len(metadata_storage.kernel_processing) == 1
 
