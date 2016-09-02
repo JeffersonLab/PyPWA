@@ -188,7 +188,10 @@ class MemoryCache(object):
         """
         file_name = "." + os.path.basename(file_location).split(".")[0] \
                     + ".pickle"
-        path = os.path.abspath(cache_path) + os.path.sep + file_name
+
+        path = os.path.abspath(os.path.split(cache_path)[0]) + \
+            os.path.sep + file_name
+
         return path
 
     def _file_hash(self, file_location):
