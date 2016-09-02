@@ -30,7 +30,7 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
         data_reader.return_reader("the file")
 
     with pytest.raises(NotImplementedError):
-        data_reader.return_writer("the file")
+        data_reader.return_writer("the file", 1)
 
     data_parser = templates.DataParserTemplate({"this": "that"})
     with pytest.raises(NotImplementedError):
