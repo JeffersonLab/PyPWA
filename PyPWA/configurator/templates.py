@@ -14,9 +14,14 @@ class OptionsTemplate(object):
     _data_parser = "data parser"
 
     def __init__(self):
-        self.__processed = self.__build_options_dictionary()
-        self.__the_required, self.__the_optional, self.__the_advanced = \
-            self.__build_leveled_dictionaries()
+        if self._default_options():
+            self.__processed = self.__build_options_dictionary()
+            self.__the_required, self.__the_optional, \
+                self.__the_advanced = self.__build_leveled_dictionaries()
+        else:
+            self.__the_required = {}
+            self.__the_optional = {}
+            self.__the_advanced = {}
 
     def _plugin_name(self):
         raise NotImplementedError
