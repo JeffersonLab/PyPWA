@@ -22,16 +22,17 @@ writing data to SV to disk. This is the preferred and default method of
 handling data to disk as of version PyPWA 2.0.0
 """
 
-import csv
 import collections
+import csv
 import io
+import logging
 
 import numpy
 
-from PyPWA.configurator import templates
-from PyPWA.libs.data import exceptions
-from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.configurator import templates
+from PyPWA.libs.data import data_templates
+from PyPWA.libs.data import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -49,6 +50,10 @@ class SvMemory(data_templates.TemplateMemory):
     Object for reading and writing delimiter separated data files.
     """
 
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
     def parse(self, file_location):
         """
         Reads a delimiter separated file containing data from disk.
@@ -65,7 +70,10 @@ class SvMemory(data_templates.TemplateMemory):
                 pass
 
         with io.open(file_location, "rt") as stream:
-            dialect = csv.Sniffer().sniff(stream.read(HEADER_SEARCH_BITS))
+            dialect = csv.Sniffer().sniff(
+                stream.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
+            )
+
             stream.seek(0)
 
             sv = csv.reader(stream, dialect)
@@ -76,12 +84,13 @@ class SvMemory(data_templates.TemplateMemory):
             for element in elements:
                 types.append((element, "f8"))
 
+            self._logger.debug("Types: " + repr(types))
             parsed = numpy.zeros(line_count, types)
+            self._logger.debug("Line count: " + repr(line_count))
 
             for index, row in enumerate(sv):
                 for count in range(len(row)):
                     parsed[elements[count]][index] = row[count]
-
         return parsed
 
     def write(self, file_location, data):
@@ -144,7 +153,9 @@ class SvReader(templates.ReaderTemplate):
             self._file.close()
 
         self._file = io.open(self._file_location)
-        dialect = csv.Sniffer().sniff(self._file.read(HEADER_SEARCH_BITS))
+        dialect = csv.Sniffer().sniff(
+            self._file.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
+        )
         self._file.seek(0)
 
         self._reader = csv.reader(self._file, dialect)
@@ -263,7 +274,7 @@ class SvDataPlugin(data_templates.TemplateDataPlugin):
         the_file = io.open(text_file)
 
         if not csv.Sniffer().has_header(
-                the_file.read(HEADER_SEARCH_BITS)
+                the_file.read(HEADER_SEARCH_BITS),
         ):
             raise exceptions.IncompatibleData(
                 "CSV Module failed to find the files header in " +
