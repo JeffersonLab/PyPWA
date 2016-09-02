@@ -211,7 +211,7 @@ class DataReaderTemplate(_InitialOptions):
     def return_reader(self, text_file):
         raise NotImplementedError
 
-    def return_writer(self, text_file):
+    def return_writer(self, text_file, data_shape):
         raise NotImplementedError
 
 
