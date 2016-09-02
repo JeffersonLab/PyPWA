@@ -64,7 +64,7 @@ class Processing(templates.OptionsTemplate):
 
     def _default_options(self):
         return {
-            "number of processes": multiprocessing.cpu_count() * 2
+            "number of processes": multiprocessing.cpu_count()
         }
 
     def _option_levels(self):
