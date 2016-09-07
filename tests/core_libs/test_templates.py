@@ -84,6 +84,13 @@ def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():
     with pytest.raises(NotImplementedError):
         interface.is_alive
 
+    empty_shell = templates.ShellCoreTemplate()
+    with pytest.raises(NotImplementedError):
+        empty_shell.make_config({})
+
+    with pytest.raises(NotImplementedError):
+        empty_shell.run({})
+
 
 def test_TemplateOptions_CreateMetaObject_HoldData():
     """

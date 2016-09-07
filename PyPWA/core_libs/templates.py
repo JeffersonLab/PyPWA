@@ -2,6 +2,10 @@ import copy
 
 import ruamel.yaml.comments
 
+"""
+Just Breath, take it slow, its all abstract.
+"""
+
 
 class OptionsTemplate(object):
 
@@ -295,3 +299,11 @@ class WriterTemplate(object):
             "you should overwrite to have the object properly operated "
             "properly when its called" % self.__class__.__name__
         )
+
+
+class ShellCoreTemplate(object):
+    def make_config(self, application_data):
+        raise NotImplementedError
+
+    def run(self, application_data):
+        raise NotImplementedError

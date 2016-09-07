@@ -41,7 +41,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Configurator(object):
+class Configurator(templates.ShellCoreTemplate):
 
     def __init__(self):
         self._loader = plugin_loader.PluginLoading(
