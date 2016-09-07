@@ -21,12 +21,12 @@ requested to determine what information is needed to be loaded and how it
 needs to be structured to be able to function in the users desired way.
 """
 
-import logging
 import argparse
+import logging
 import sys
 
-from PyPWA.configurator import initial_logging
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import initial_logging
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

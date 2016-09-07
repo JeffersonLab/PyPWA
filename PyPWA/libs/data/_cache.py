@@ -29,7 +29,7 @@ import pickle
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import tools
+from PyPWA.core_libs import tools
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

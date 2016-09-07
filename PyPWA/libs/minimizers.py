@@ -16,8 +16,8 @@
 
 import iminuit
 
-from PyPWA.configurator import templates
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

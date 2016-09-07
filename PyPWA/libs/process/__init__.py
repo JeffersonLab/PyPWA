@@ -28,10 +28,10 @@ Example:
 """
 import multiprocessing
 
-from PyPWA.configurator import templates
-from PyPWA.libs.process import kernels
-from PyPWA.libs.process import foreman
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import templates
+from PyPWA.libs.process import foreman
+from PyPWA.libs.process import kernels
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -1,6 +1,5 @@
-from PyPWA.configurator import plugin_loader, templates
 from PyPWA import libs
-
+from PyPWA.core_libs import templates, plugin_loader
 from PyPWA.libs import data, process, minimizers
 
 

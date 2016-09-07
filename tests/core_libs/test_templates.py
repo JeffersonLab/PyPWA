@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.configurator import templates
+from PyPWA.core_libs import templates
 
 
 def test_AllObjects_CallAbstractMethod_RaiseNotImplementedError():

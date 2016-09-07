@@ -24,9 +24,9 @@ needs to be structured to be able to function in the users desired way.
 
 import logging
 
-from PyPWA.configurator import plugin_loader, templates
 import PyPWA.libs
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import templates, plugin_loader
 
 __author__ = ["Mark Jones"]
 __credits__ = [

@@ -19,14 +19,13 @@
 """
 
 import hashlib
-import io
 import logging
 
 import appdirs
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import exceptions
+from PyPWA.core_libs import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

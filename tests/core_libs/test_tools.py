@@ -1,7 +1,8 @@
-import os
 import io
 
-from PyPWA.configurator import tools
+import os
+
+from PyPWA.core_libs import tools
 
 FILE_LOCATION = os.path.join(
     os.path.dirname(__file__),

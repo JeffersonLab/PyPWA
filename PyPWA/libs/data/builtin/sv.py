@@ -30,7 +30,7 @@ import logging
 import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import templates
+from PyPWA.core_libs import templates
 from PyPWA.libs.data import data_templates
 from PyPWA.libs.data import exceptions
 

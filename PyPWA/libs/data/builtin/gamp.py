@@ -27,10 +27,10 @@ import io
 
 import numpy
 
-from PyPWA.libs.data import exceptions
-from PyPWA.configurator import templates
-from PyPWA.libs.data import data_templates
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import templates
+from PyPWA.libs.data import data_templates
+from PyPWA.libs.data import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -22,7 +22,8 @@ See Also:
 """
 import PyPWA.libs
 
-from PyPWA.configurator import configurator, plugin_loader, templates
+from PyPWA.configurator import configurator
+from PyPWA.core_libs import templates, plugin_loader
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

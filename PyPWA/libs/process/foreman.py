@@ -26,11 +26,11 @@ import multiprocessing
 
 import numpy
 
-from PyPWA.configurator import templates
-from PyPWA.libs.process import _processing
-from PyPWA.libs.process import _communication
-from PyPWA.libs.process import kernels
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import templates
+from PyPWA.libs.process import _communication
+from PyPWA.libs.process import _processing
+from PyPWA.libs.process import kernels
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -23,7 +23,7 @@ import ruamel.yaml.parser
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
-__credits__ = ["Mark Jones", "Markus Jarderot @ Stack Overflow"]
+__credits__ = ["Mark Jones"]
 __maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
 __status__ = STATUS
@@ -31,7 +31,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class ConfigReader(object):
+class ConfigParser(object):
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -48,8 +48,7 @@ class ConfigReader(object):
             dict: The configuration of the program.
         """
         # Using the word 'unclean' is hip, right?
-        unclean_configuration = self._parse_config(configuration)
-        return self._sanitize_keys(unclean_configuration)
+        return self._parse_config(configuration)
 
     def _parse_config(self, configuration):
         """
@@ -80,34 +79,3 @@ class ConfigReader(object):
             except ruamel.yaml.parser.ParserError as UserError:
                 self._logger.exception(UserError)
                 raise SyntaxError(str(UserError))
-
-    def _sanitize_keys(self, obj):
-        """
-        Cleans the keys of the loaded configuration. Should lowercase
-        all keys no matter how many dictionaries are nested into the
-        configuration.
-
-        Args:
-            obj (dict | list | str): The object that needs the keys of
-                the dictionaries to be lower cased.
-
-        Returns:
-            dict: The object with the keys lower cased.
-
-        See Also:
-            http://stackoverflow.com/a/823072
-        """
-        if hasattr(obj, 'iteritems'):
-            # A dictionary like object.
-            new_dictionary = {}
-            for key, value in obj.items():
-                new_dictionary[key.lower()] = self._sanitize_keys(value)
-            return new_dictionary
-        elif hasattr(obj, '__iter__'):
-            # An object that is list like.
-            new_list = []
-            for item in obj:
-                new_list.append(self._sanitize_keys(item))
-            return new_list
-        else:
-            return obj

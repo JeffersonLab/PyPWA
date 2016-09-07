@@ -30,9 +30,7 @@ import numpy
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import plugin_loader
-from PyPWA.configurator import templates
-from PyPWA.configurator import tools
+from PyPWA.core_libs import templates, plugin_loader, tools
 from PyPWA.libs.data import _cache
 from PyPWA.libs.data import builtin
 from PyPWA.libs.data import data_templates
