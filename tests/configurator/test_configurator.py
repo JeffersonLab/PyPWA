@@ -41,5 +41,3 @@ def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
     assert len(metadata_storage.data_reader) == 1
     assert len(metadata_storage.minimization) == 2
     assert len(metadata_storage.kernel_processing) == 1
-
-
