@@ -32,43 +32,62 @@ __version__ = VERSION
 
 
 @StartProgram(configurator.Configurator)
+def general_fitting(*args):
+    description = u"An extremely fitting shell that allows the User" \
+                  u"to select their own likelihood and function."
+    configuration = {
+        "description": description,
+        "main": "shell fitting",
+        "extras": args
+    }
+    return configuration
+
+
+@StartProgram(configurator.Configurator)
 def likelihood_fitting(*args):
     description = u"Amplitude Fitting using the Likelihood Estimation " \
                   u"Method."
     configuration = {
-        "Description": description,
+        "description": description,
         "main": "shell fitting",
-        "kernel plugin": "Builtin Multiprocessing",
-        "data plugin": "Builtin Parser",
-        "Extras": args
+        "main options": {"type": "shell"},
+        "extras": args
+    }
+    return configuration
+
+
+@StartProgram(configurator.Configurator)
+def chi_squared(*args):
+    description = u"Amplitude Fitting using the ChiSquared Method."
+    configuration = {
+        "description": description,
+        "main": "shell fitting",
+        "main options": {"type": "chi-squared"},
+        "extras": args
     }
     return configuration
 
 
 @StartProgram(configurator.Configurator)
 def simulator(*args):
-    description = u"Simulation using the the Acceptance Reject Method"
+    description = u"Simulation using the the Acceptance Reject Method."
     configuration = {
-        "Description": description,
+        "description": description,
         "main": "shell simulation",
-        "options": "simulation = main",
-        "kernel plugin": "Builtin Multiprocessing",
-        "data plugin": "Builtin Parser",
-        "Extras": args
+        "main options": {"type": "complete"},
+        "extras": args
     }
     return configuration
 
 
 @StartProgram(configurator.Configurator)
 def intensities(*args):
-    description = u"Generates the Intensities for Rejection Method"
+    description = u"Generates the Intensities for Rejection Method."
     configuration = {
-        "Description": description,
+        "description": description,
         "main": "shell simulation",
-        "options": "simulation = intensities",
-        "kernel plugin": "Builtin Multiprocessing",
-        "data plugin": "Builtin Parser",
-        "Extras": args
+        "main options": {"type": "intensities"},
+        "extras": args
     }
     return configuration
 
@@ -76,27 +95,11 @@ def intensities(*args):
 @StartProgram(configurator.Configurator)
 def rejection_method(*args):
     description = u"Takes generated intensities to run through the " \
-                  u"Rejection Method"
+                  u"Rejection Method."
     configuration = {
-        "Description": description,
+        "description": description,
         "main": "shell simulation",
-        "options": "simulation = rejection",
-        "kernel plugin": "Builtin Multiprocessing",
-        "data plugin": "Builtin Parser",
-        "Extras": args
-    }
-    return configuration
-
-
-@StartProgram(configurator.Configurator)
-def chi_squared(*args):
-    description = u"Amplitude Fitting using the ChiSquared Method"
-    configuration = {
-        "Description": description,
-        "main": "shell fitting",
-        "options": "likelihood = ChiSquared",
-        "kernel plugin": "Builtin Multiprocessing",
-        "data plugin": "Builtin Parser",
-        "Extras": args
+        "main options": {"type": "rejection"},
+        "extras": args
     }
     return configuration

@@ -24,9 +24,7 @@ needs to be structured to be able to function in the users desired way.
 
 import logging
 
-import ruamel.yaml.comments
-
-from PyPWA.configurator import config_loader, templates
+from PyPWA.configurator import plugin_loader, templates
 import PyPWA.libs
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -41,6 +39,35 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+
+class Configurator(object):
+
+    def __init__(self):
+        self._loader = plugin_loader.PluginLoading(
+            templates.OptionsTemplate
+        )
+
+        builtins = self._loader.fetch_plugin([PyPWA.libs])
+
+        self._storage = MetadataStorage()
+        self._storage.add_plugins(builtins)
+
+    def make_config(self, application_settings):
+        """
+
+        Args:
+            application_settings (dict):
+        """
+
+    def run(self, application_settings):
+        """
+
+        Args:
+            application_settings (dict):
+        """
+
+
 
 
 class MetadataStorage(object):

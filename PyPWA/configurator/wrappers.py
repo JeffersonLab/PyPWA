@@ -23,10 +23,9 @@ needs to be structured to be able to function in the users desired way.
 
 import logging
 import argparse
-import os
 import sys
 
-from PyPWA.configurator import internal_logging
+from PyPWA.configurator import initial_logging
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -46,8 +45,9 @@ class StartProgram(object):
         along with any arguments received for the builder.
 
         Args:
-            builder (Object): The object that will build the main from the
-                plugins and execute it to begin the actual processing.
+            builder (PyPWA.configurator.Configurator): The object that
+                will build the main from the plugins and execute it to
+                begin the actual processing.
             *args: The arguments received from the wrapper.
         """
         self.builder = builder(*args)
@@ -67,38 +67,41 @@ class StartProgram(object):
         """
         def decorated_builder(*args):
             application_configuration = function(args)
-            if application_configuration["Extras"]:
-                return
-            arguments = self.parse_arguments(application_configuration)
+            if application_configuration["extras"]:
+                print(
+                    "[INFO] Caught something unaccounted for, "
+                    "this should be reported, caught: "
+                    "{}".format(application_configuration["extras"])
+                )
+
+            arguments = self.parse_arguments(
+                application_configuration["description"]
+            )
 
             self._return_logging_level(arguments.verbose)
 
             if arguments.WriteConfig:
-                self.write_config(
-                    application_configuration["Configuration"],
-                    application_configuration["Python File"]
-                )
+                self.write_config(application_configuration)
 
             sys.stdout.write("\x1b[2J\x1b[H")
 
-            self.builder.run(application_configuration,
-                             arguments.configuration)
+            self.builder.run(application_configuration)
 
         return decorated_builder()
 
     @staticmethod
-    def parse_arguments(app_config):
+    def parse_arguments(description):
         """
         Parses the standard arguments for the PyPWA program.
 
         Args:
-            app_config (dict): The dictionary contain the program info.
+            description (str): Description for the .
 
         Returns:
-            argparse.Namespace: The parsed arguments.
+            The parsed arguments.
         """
         parser = argparse.ArgumentParser(
-            description=app_config["Description"]
+            description=description
         )
 
         parser.add_argument(
@@ -138,27 +141,21 @@ class StartProgram(object):
             count (int): The count of the logging counter.
         """
         if count == 1:
-            internal_logging.define_logger(logging.WARNING)
+            initial_logging.define_logger(logging.WARNING)
         elif count == 2:
-            internal_logging.define_logger(logging.INFO)
+            initial_logging.define_logger(logging.INFO)
         elif count >= 3:
-            internal_logging.define_logger(logging.DEBUG)
+            initial_logging.define_logger(logging.DEBUG)
         else:
-            internal_logging.define_logger(logging.ERROR)
+            initial_logging.define_logger(logging.ERROR)
 
-    @staticmethod
-    def write_config(configuration, python, cwd=os.getcwd()):
+    def write_config(self, application_settings):
         """
         Writes the configuration files for the program.
 
         Args:
-            configuration (str): The example file that needs to be
-                written.
-            python (str): The example function that needs to be written.
-            cwd (Optional[str]): The common working directory for the
-                function, defaults to the value from os.getcwd
+            application_settings (dict): The settings received from the
+                start function.
         """
-        with open(cwd + "/Example.yml", "w") as stream:
-            stream.write(configuration)
-        with open(cwd + "/Example.py", "w") as stream:
-            stream.write(python)
+        self.builder.make_config(application_settings)
+
