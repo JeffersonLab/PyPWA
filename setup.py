@@ -36,11 +36,17 @@ setup(
     test_suite="tests",
     entry_points={
         "console_scripts": [
-            "GeneralFitting = PyPWA.entry.console:start_console_general_fitting",
-            "GeneralSimulator = PyPWA.entry.console:start_console_general_simulator",
-            "GenerateIntensities = PyPWA.entry.console:start_console_general_intensities",
-            "GenerateWeights = PyPWA.entry.console:start_console_general_weights",
-            "GeneralChiSquared = PyPWA.entry.console:start_console_general_chisquared"
+            "GeneralFitting = "
+                "PyPWA.entries.shell"
+                ":start_console_general_fitting",
+            "GeneralSimulator = "
+                "PyPWA.entries.shell:start_console_general_simulator",
+            "GenerateIntensities = "
+                "PyPWA.entries.shell:start_console_general_intensities",
+            "GenerateWeights = "
+                "PyPWA.entries.shell:start_console_general_weights",
+            "GeneralChiSquared = "
+                "PyPWA.entry.shell:start_console_general_chisquared"
         ]
     },
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
