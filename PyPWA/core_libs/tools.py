@@ -25,7 +25,6 @@ import appdirs
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -86,7 +85,7 @@ class DataLocation(object):
         cache_dir = appdirs.user_cache_dir("PyPWA", "JLab", __version__)
 
         return self._start_test(
-            file_location, extension, cache_dir, exceptions.NoCachePath,
+            file_location, extension, cache_dir, OSError,
             "Unable to find an appropriate cache directory."
         )
 
@@ -107,7 +106,7 @@ class DataLocation(object):
         data_dir = appdirs.user_data_dir("PyPWA", "JLab", __version__)
 
         return self._start_test(
-            file_location, extension, data_dir, exceptions.NoDataPath,
+            file_location, extension, data_dir, OSError,
             "Unable to find an appropriate data directory."
         )
 
@@ -128,7 +127,7 @@ class DataLocation(object):
         log_dir = appdirs.user_log_dir("PyPWA", "JLab", __version__)
 
         return self._start_test(
-            file_location, extension, log_dir, exceptions.NoLogPath,
+            file_location, extension, log_dir, OSError,
             "Unable to find log directory."
         )
 
@@ -149,7 +148,7 @@ class DataLocation(object):
         conf_dir = appdirs.user_config_dir("PyPWA", "JLab", __version__)
 
         return self._start_test(
-            file_location, extension, conf_dir, exceptions.NoConfigPath,
+            file_location, extension, conf_dir, OSError,
             "Unable to find config directory."
         )
 
@@ -173,7 +172,7 @@ class DataLocation(object):
         file_name = self._make_filename(location, extension)
         try:
             return self._test_dir_group(directory) + "/" + file_name
-        except exceptions.NoPath:
+        except OSError:
             raise error(message)
 
     def _test_dir_group(self, test_dir):
@@ -194,11 +193,8 @@ class DataLocation(object):
                 self._test_dir(test_dir)
                 return test_dir
             except OSError:
-                try:
-                    self._test_dir(self._cwd)
-                    return self._cwd
-                except OSError:
-                    raise exceptions.NoPath
+                self._test_dir(self._cwd)
+                return self._cwd
 
         else:
             try:
@@ -206,11 +202,8 @@ class DataLocation(object):
                 self._test_dir(test_dir)
                 return test_dir
             except OSError:
-                try:
-                    self._test_dir(self._cwd)
-                    return self._cwd
-                except OSError:
-                    raise exceptions.NoPath
+                self._test_dir(self._cwd)
+                return self._cwd
 
     @staticmethod
     def _test_dir(test_location):
