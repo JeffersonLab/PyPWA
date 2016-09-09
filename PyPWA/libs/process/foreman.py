@@ -27,7 +27,8 @@ import multiprocessing
 import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates
+from PyPWA.core_libs.templates import interface_templates
+from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.libs.process import _communication
 from PyPWA.libs.process import _processing
 from PyPWA.libs.process import kernels
@@ -41,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _ProcessInterface(templates.InterfaceTemplate):
+class _ProcessInterface(interface_templates.InterfaceTemplate):
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
         This object provides all the functions necessary to determine the
@@ -131,7 +132,7 @@ class _ProcessInterface(templates.InterfaceTemplate):
         return self._processes[0].is_alive()
 
 
-class CalculationForeman(templates.KernelProcessingTemplate):
+class CalculationForeman(plugin_templates.KernelProcessingTemplate):
 
     def __init__(
             self, number_of_processes=multiprocessing.cpu_count() * 2,

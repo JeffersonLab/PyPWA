@@ -23,7 +23,8 @@ See Also:
 import PyPWA.libs
 
 from PyPWA.configurator import configurator
-from PyPWA.core_libs import templates, plugin_loader
+from PyPWA.core_libs import plugin_loader
+from PyPWA.core_libs.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -32,7 +33,10 @@ __email__ = "maj@jlab.org"
 
 
 def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
-    loader = plugin_loader.PluginLoading(templates.OptionsTemplate)
+    loader = plugin_loader.PluginLoading(
+        option_templates.PluginsOptionsTemplate
+    )
+
     plugin_list = loader.fetch_plugin([PyPWA.libs])
 
     metadata_storage = configurator.MetadataStorage()

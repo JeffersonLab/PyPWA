@@ -1,4 +1,3 @@
-
 #    PyPWA, a scientific analysis toolkit.
 #    Copyright (C) 2016  JLab
 #
@@ -26,7 +25,9 @@ import logging
 
 import PyPWA.libs
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates, plugin_loader
+from PyPWA.core_libs import plugin_loader
+from PyPWA.core_libs.templates import option_templates
+from PyPWA.core_libs.templates import configurator_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = [
@@ -41,11 +42,11 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Configurator(templates.ShellCoreTemplate):
+class Configurator(configurator_templates.ShellCoreTemplate):
 
     def __init__(self):
         self._loader = plugin_loader.PluginLoading(
-            templates.OptionsTemplate
+            option_templates.PluginsOptionsTemplate
         )
 
         builtins = self._loader.fetch_plugin([PyPWA.libs])
@@ -161,7 +162,7 @@ class MetadataStorage(object):
         return self._data_parser
 
 
-class ConfiguratorOptions(templates.OptionsTemplate):
+class ConfiguratorOptions(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
         return "Global Options"

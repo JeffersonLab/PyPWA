@@ -17,7 +17,7 @@
 import iminuit
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates
+from PyPWA.core_libs.templates import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -28,7 +28,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Minuit(templates.MinimizerTemplate):
+class Minuit(plugin_templates.MinimizerTemplate):
 
     def __init__(
             self, calc_function=False, parameters=False, settings=False,

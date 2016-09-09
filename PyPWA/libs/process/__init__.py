@@ -29,7 +29,7 @@ Example:
 import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates
+from PyPWA.core_libs.templates import option_templates
 from PyPWA.libs.process import foreman
 from PyPWA.libs.process import kernels
 
@@ -42,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Processing(templates.OptionsTemplate):
+class Processing(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
         return kernels.MODULE_NAME

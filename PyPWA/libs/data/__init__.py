@@ -31,7 +31,7 @@ Examples:
         file.write(path_to_file, the_data)
 """
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates
+from PyPWA.core_libs.templates import option_templates
 from PyPWA.libs.data import traffic_cop
 
 __author__ = ["Mark Jones"]
@@ -43,7 +43,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class DataParser(templates.OptionsTemplate):
+class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
         return traffic_cop.MODULE_NAME
@@ -112,7 +112,7 @@ class DataParser(templates.OptionsTemplate):
         }
 
 
-class DataIterator(templates.OptionsTemplate):
+class DataIterator(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
         return traffic_cop.MODULE_NAME

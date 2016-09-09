@@ -16,7 +16,7 @@
 
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates
+from PyPWA.core_libs.templates import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -27,7 +27,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class MultiNest(templates.MinimizerTemplate):
+class MultiNest(plugin_templates.MinimizerTemplate):
     """
     This will be elegant and amazing, eventually.
     """

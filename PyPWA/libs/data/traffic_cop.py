@@ -30,7 +30,8 @@ import numpy
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates, plugin_loader, tools
+from PyPWA.core_libs import plugin_loader, tools
+from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.libs.data import _cache
 from PyPWA.libs.data import builtin
 from PyPWA.libs.data import data_templates
@@ -121,7 +122,7 @@ class DataCoreTools(object):
         return [plugin_found, final_plugin]
 
 
-class Memory(templates.DataParserTemplate, DataCoreTools):
+class Memory(plugin_templates.DataParserTemplate, DataCoreTools):
     def __init__(
             self, cache=True, clear_cache=False, fail=True,
             user_plugin=False, options=False
@@ -254,7 +255,7 @@ class Memory(templates.DataParserTemplate, DataCoreTools):
             raise exceptions.IncompatibleData
 
 
-class Iterator(templates.DataReaderTemplate, DataCoreTools):
+class Iterator(plugin_templates.DataReaderTemplate, DataCoreTools):
     def __init__(self, fail=True, user_plugin=False, options=False):
         """
         Simple plugin that returns a reader or writer that can read and

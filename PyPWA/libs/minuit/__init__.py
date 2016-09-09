@@ -15,8 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs.templates import option_templates
 from PyPWA.libs.minuit import minimization
-from PyPWA.core_libs import templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -27,7 +27,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class MinuitOptions(templates.OptionsTemplate):
+class MinuitOptions(option_templates.PluginsOptionsTemplate):
     def _plugin_name(self):
         return "Minuit"
 

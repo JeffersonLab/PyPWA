@@ -30,7 +30,7 @@ import logging
 import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import templates
+from PyPWA.core_libs.templates import interface_templates
 from PyPWA.libs.data import data_templates
 from PyPWA.libs.data import exceptions
 
@@ -124,7 +124,7 @@ class SvMemory(data_templates.TemplateMemory):
                 writer.writerow(temp)
 
 
-class SvReader(templates.ReaderTemplate):
+class SvReader(interface_templates.ReaderInterfaceTemplate):
 
     def __init__(self, file_location):
         """
@@ -200,7 +200,7 @@ class SvReader(templates.ReaderTemplate):
         self._file.close()
 
 
-class SvWriter(templates.WriterTemplate):
+class SvWriter(interface_templates.WriterInterfaceTemplate):
 
     def __init__(self, file_location):
         """
