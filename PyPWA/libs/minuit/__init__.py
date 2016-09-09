@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.libs.minuit import minimization
 from PyPWA.core_libs import templates
 
 __author__ = ["Mark Jones"]
@@ -26,24 +27,12 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class MultiNest(templates.MinimizerTemplate):
-    """
-    This will be elegant and amazing, eventually.
-    """
-
-    builtin_function = u"""\
-The function with all the documentation required to build the parameter
-space. Right now we don't understand this.
-"""
-
-
-class MultiNestOptions(templates.OptionsTemplate):
-
+class MinuitOptions(templates.OptionsTemplate):
     def _plugin_name(self):
-        return "MultiNest"
+        return "Minuit"
 
     def _plugin_interface(self):
-        return MultiNest
+        return minimization.Minuit
 
     def _plugin_type(self):
         return self._minimization
@@ -52,19 +41,47 @@ class MultiNestOptions(templates.OptionsTemplate):
         return False
 
     def _plugin_requires(self):
-        return self._build_function("numpy", "def function")
+        return False
 
     def _default_options(self):
-        return False
+        return {
+            "parameters": ["A1", "A2", "A3"],
+            "settings": {"A1": 1, "fix_A1": True},
+            "strategy": 1,
+            "number of calls": 10000
+        }
 
     def _option_levels(self):
-        return False
+        return {
+            "parameters": self._required,
+            "settings": self._required,
+            "strategy": self._optional,
+            "number of calls": self._advanced
+        }
 
     def _option_types(self):
-        return False
+        return {
+            "parameters": list,
+            "settings": dict,
+            "strategy": int,
+            "number of calls": int
+        }
 
     def _main_comment(self):
-        return False
+        return "Minuit is the tried and tested minimizer, developed " \
+               "by ROOT"
 
     def _option_comments(self):
-        return False
+        return {
+            "parameters":
+                "The parameters used inside your settings and your "
+                "function",
+            "settings":
+                "The settings for iMinuit's fitting. See iMinuit "
+                "documentation",
+            "strategy":
+                "The strategy of Minuit. 0 for fast, 1 default, "
+                "2 for accurate",
+            "number of calls":
+                "The suggested max number of calls for "
+        }
