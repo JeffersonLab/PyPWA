@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.libs.multinest_minimization import minimization
 from PyPWA.core_libs import templates
 
 __author__ = ["Mark Jones"]
@@ -26,24 +27,13 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class MultiNest(templates.MinimizerTemplate):
-    """
-    This will be elegant and amazing, eventually.
-    """
-
-    builtin_function = u"""\
-The function with all the documentation required to build the parameter
-space. Right now we don't understand this.
-"""
-
-
 class MultiNestOptions(templates.OptionsTemplate):
 
     def _plugin_name(self):
         return "MultiNest"
 
     def _plugin_interface(self):
-        return MultiNest
+        return minimization.MultiNest
 
     def _plugin_type(self):
         return self._minimization
