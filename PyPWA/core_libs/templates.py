@@ -7,15 +7,11 @@ Just Breath, take it slow, its all abstract.
 """
 
 
-class OptionsTemplate(object):
+class CoreOptionsParsing(object):
 
     _required = "required"
     _optional = "optional"
     _advanced = "advanced"
-    _kernel_processing = "kernel processing"
-    _minimization = "minimization"
-    _data_reader = "data reader"
-    _data_parser = "data parser"
 
     def __init__(self):
         if self._default_options():
@@ -28,18 +24,6 @@ class OptionsTemplate(object):
             self.__the_advanced = {}
 
     def _plugin_name(self):
-        raise NotImplementedError
-
-    def _plugin_interface(self):
-        raise NotImplementedError
-
-    def _plugin_type(self):
-        raise NotImplementedError
-
-    def _plugin_requires(self):
-        raise NotImplementedError
-
-    def _plugin_arguments(self):
         raise NotImplementedError
 
     def _default_options(self):
@@ -121,6 +105,52 @@ class OptionsTemplate(object):
             "optional": self.__the_optional,
             "advanced": self.__the_advanced
         }[level]
+
+    def request_metadata(self, data):
+        raise NotImplementedError
+
+
+class OptionsTemplate(CoreOptionsParsing):
+
+    _kernel_processing = "kernel processing"
+    _minimization = "minimization"
+    _data_reader = "data reader"
+    _data_parser = "data parser"
+    _shell_main = "main shell"
+    _gui_main = "main gui"
+
+    def __init__(self):
+        super(OptionsTemplate, self).__init__()
+
+    def _plugin_name(self):
+        raise NotImplementedError
+
+    def _default_options(self):
+        raise NotImplementedError
+
+    def _option_levels(self):
+        raise NotImplementedError
+
+    def _option_types(self):
+        raise NotImplementedError
+
+    def _main_comment(self):
+        raise NotImplementedError
+
+    def _option_comments(self):
+        raise NotImplementedError
+
+    def _plugin_interface(self):
+        raise NotImplementedError
+
+    def _plugin_type(self):
+        raise NotImplementedError
+
+    def _plugin_requires(self):
+        raise NotImplementedError
+
+    def _plugin_arguments(self):
+        raise NotImplementedError
 
     def request_metadata(self, data):
         """
@@ -224,6 +254,15 @@ class DataReaderTemplate(_InitialOptions):
         raise NotImplementedError
 
     def return_writer(self, text_file, data_shape):
+        raise NotImplementedError
+
+
+class ShellMain(_InitialOptions):
+
+    def __init__(self, options):
+        super(ShellMain, self).__init__(options)
+
+    def start(self):
         raise NotImplementedError
 
 
