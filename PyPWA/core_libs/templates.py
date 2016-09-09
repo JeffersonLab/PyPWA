@@ -156,6 +156,9 @@ class MinimizerTemplate(_InitialOptions):
     def main_options(self, calc_function, fitting_type=False):
         raise NotImplementedError
 
+    def convert(self, passed_value):
+        raise NotImplementedError
+
     def start(self):
         raise NotImplementedError
 
