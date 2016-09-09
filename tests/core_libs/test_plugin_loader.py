@@ -1,6 +1,6 @@
 from PyPWA import libs
 from PyPWA.core_libs import templates, plugin_loader
-from PyPWA.libs import data, process, minimizers
+from PyPWA.libs import data, process, multinest_minimization, minuit
 
 
 def test_PluginLoading_ImportsPlugins_FindsAllLibs():
@@ -14,7 +14,7 @@ def test_PluginLoading_ImportsPlugins_FindsAllLibs():
     assert data.DataIterator in plugins
     assert data.DataParser in plugins
     assert process.Processing in plugins
-    assert minimizers.MinuitOptions in plugins
-    assert minimizers.MultiNestOptions in plugins
+    assert minuit.MinuitOptions in plugins
+    assert multinest_minimization.MultiNestOptions in plugins
 
     assert len(plugins) == 5

@@ -1,4 +1,4 @@
-from PyPWA.libs import data, minimizers, process
+from PyPWA.libs import data, process, minuit
 
 
 def check_for_data(data_object):
@@ -29,5 +29,5 @@ def test_CheckProcess_OptionPasses():
 
 
 def test_CheckMinimizer_OptionPasses():
-    options = minimizers.MinuitOptions()
+    options = minuit.MinuitOptions()
     check_for_data(options)

@@ -1,5 +1,5 @@
 from PyPWA.configurator import configurator
-from PyPWA.libs import process, data, minimizers
+from PyPWA.libs import process, data, minuit, multinest_minimization
 
 
 def the_real_options_test(options):
@@ -26,12 +26,12 @@ def test_ConfiguratorOptions_AllOptionsValid():
 
 
 def test_MinuitOptions_AllOptionsValid():
-    minuit_options = minimizers.MinuitOptions()
+    minuit_options = minuit.MinuitOptions()
     the_real_options_test(minuit_options)
 
 
 def test_MultiNestOptions_AllOptionsValid():
-    multinest_options = minimizers.MultiNestOptions()
+    multinest_options = multinest_minimization.MultiNestOptions()
     the_real_options_test(multinest_options)
 
 
