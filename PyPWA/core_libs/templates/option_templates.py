@@ -38,6 +38,10 @@ class _CoreOptionsParsing(object):
     _required = "required"
     _optional = "optional"
     _advanced = "advanced"
+    _kernel_processing = "kernel processing"
+    _minimization = "minimization"
+    _data_reader = "data reader"
+    _data_parser = "data parser"
 
     def __init__(self):
         if self._default_options():
@@ -138,13 +142,6 @@ class _CoreOptionsParsing(object):
 
 class PluginsOptionsTemplate(_CoreOptionsParsing):
 
-    _kernel_processing = "kernel processing"
-    _minimization = "minimization"
-    _data_reader = "data reader"
-    _data_parser = "data parser"
-    _shell_main = "main shell"
-    _gui_main = "main gui"
-
     def __init__(self):
         super(PluginsOptionsTemplate, self).__init__()
 
@@ -193,4 +190,55 @@ class PluginsOptionsTemplate(_CoreOptionsParsing):
             "provides": self._plugin_type(),
             "requires function": self._plugin_requires(),
             "arguments": self._plugin_arguments()
+        }[data]
+
+
+class MainOptionsTemplate(_CoreOptionsParsing):
+
+    _shell_main = "main shell"
+    _gui_main = "main gui"
+
+    def __init__(self):
+        super(MainOptionsTemplate, self).__init__()
+
+    def _plugin_name(self):
+        return self._shell_id()
+
+    def _shell_id(self):
+        raise NotImplementedError
+
+    def _default_options(self):
+        raise NotImplementedError
+
+    def _option_levels(self):
+        raise NotImplementedError
+
+    def _option_types(self):
+        raise NotImplementedError
+
+    def _main_comment(self):
+        raise NotImplementedError
+
+    def _option_comments(self):
+        raise NotImplementedError
+
+    def _main_type(self):
+        raise NotImplementedError
+
+    def _main_requires(self):
+        raise NotImplementedError
+
+    def request_metadata(self, data):
+        """
+
+        Args:
+            data (str):
+
+        Returns:
+
+        """
+        return {
+            "id": self._shell_id(),
+            "ui": self._main_type(),
+            "requires plugin": self._main_requires()
         }[data]
