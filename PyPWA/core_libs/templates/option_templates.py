@@ -53,7 +53,7 @@ class _CoreOptionsParsing(object):
             self.__the_optional = {}
             self.__the_advanced = {}
 
-    def _plugin_name(self):
+    def _id(self):
         raise NotImplementedError
 
     def _default_options(self):
@@ -84,18 +84,18 @@ class _CoreOptionsParsing(object):
 
         header = ruamel.yaml.comments.CommentedMap()
         header.yaml_add_eol_comment(
-            self._main_comment(), self._plugin_name()
+            self._main_comment(), self._id()
         )
 
         content = ruamel.yaml.comments.CommentedMap()
-        header[self._plugin_name()] = content
+        header[self._id()] = content
 
         for key in list(self._option_comments().keys()):
             header.yaml_add_eol_comment(
                 self._option_comments()[key], key
             )
 
-            header[self._plugin_name()][key] = defaults[key]
+            header[self._id()][key] = defaults[key]
 
         return header
 
@@ -118,10 +118,10 @@ class _CoreOptionsParsing(object):
             if levels[key] == self._required:
                 pass
             elif levels[key] == self._optional:
-                required[self._plugin_name()].pop(key)
+                required[self._id()].pop(key)
             elif levels[key] == self._advanced:
-                required[self._plugin_name()].pop(key)
-                optional[self._plugin_name()].pop(key)
+                required[self._id()].pop(key)
+                optional[self._id()].pop(key)
 
         return [required, optional, advanced]
 
@@ -144,6 +144,9 @@ class PluginsOptionsTemplate(_CoreOptionsParsing):
 
     def __init__(self):
         super(PluginsOptionsTemplate, self).__init__()
+
+    def _id(self):
+        return self._plugin_name()
 
     def _plugin_name(self):
         raise NotImplementedError
@@ -201,7 +204,7 @@ class MainOptionsTemplate(_CoreOptionsParsing):
     def __init__(self):
         super(MainOptionsTemplate, self).__init__()
 
-    def _plugin_name(self):
+    def _id(self):
         return self._shell_id()
 
     def _shell_id(self):
