@@ -31,7 +31,6 @@ from PyPWA.core_libs.templates import interface_templates
 from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.libs.process import _communication
 from PyPWA.libs.process import _processing
-from PyPWA.libs.process import kernels
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -149,10 +148,10 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
             options (Optional[dict]): The options dictionary rendered by
                 the configurator. Optional.
         """
-        self._process_kernels = False  # type:list[kernels.AbstractKernel]
-        self._duplex = False  # type:bool
-        self._interface = False  # type:kernels.AbstractInterface()
-        self._interface_template = False  # type:kernels.AbstractInterface
+        self._process_kernels = False
+        self._duplex = False
+        self._interface = False
+        self._interface_template = False
 
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
@@ -243,7 +242,7 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
                 into the processes.
 
         Returns:
-            list[kernels.AbstractKernel]
+            list
         """
         processes = []
         for chunk in data_chunks:

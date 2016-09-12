@@ -22,7 +22,6 @@ so that offload process and worker processes can be generated.
 """
 
 import multiprocessing
-import logging
 
 from PyPWA import VERSION, LICENSE, STATUS
 

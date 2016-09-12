@@ -31,7 +31,6 @@ import multiprocessing
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import option_templates
 from PyPWA.libs.process import foreman
-from PyPWA.libs.process import kernels
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -45,7 +44,7 @@ __version__ = VERSION
 class Processing(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
-        return kernels.MODULE_NAME
+        return "Builtin Multiprocessing"
 
     def _plugin_interface(self):
         return foreman.CalculationForeman
@@ -57,10 +56,7 @@ class Processing(option_templates.PluginsOptionsTemplate):
         return False
 
     def _plugin_arguments(self):
-        return {
-            "interface": kernels.AbstractInterface,
-            "process": kernels.AbstractKernel
-        }
+        return None
 
     def _default_options(self):
         return {
