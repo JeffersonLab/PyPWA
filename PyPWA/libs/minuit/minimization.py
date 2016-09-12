@@ -15,10 +15,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import iminuit
+import numpy
+import tabulate
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.core_libs.templates import interface_templates
+from PyPWA.core_libs.templates import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -52,9 +54,9 @@ class Minuit(plugin_templates.MinimizerTemplate):
             options (dict): The settings dictionary built from the users
                 input and the plugin initializer.
         """
-        self.final_value = 0
-        self.covariance = 0
-        self.values = 0
+        self._final_value = 0  # type: numpy.float64
+        self._covariance = 0  # type: numpy.ndarray
+        self._values = 0
         self._set_up = 0
 
         self._calc_function = calc_function
@@ -89,9 +91,9 @@ class Minuit(plugin_templates.MinimizerTemplate):
         minimal.set_strategy(self._strategy)
         minimal.set_up(self._set_up)
         minimal.migrad(ncall=self._number_of_calls)
-        self.final_value = minimal.fval
-        self.covariance = minimal.covariance
-        self.values = minimal.values
+        self._final_value = minimal.fval
+        self._covariance = minimal.covariance
+        self._values = minimal.values
 
     def return_parser(self):
         """
@@ -113,3 +115,47 @@ class Minuit(plugin_templates.MinimizerTemplate):
                 return parameters_with_values
 
         return ParserObject(self._parameters)
+
+    def save_extra(self, save_name):
+        if not isinstance(self._covariance, type(None)):
+            print("Covariance.\n")
+            the_x = []
+            the_y = []
+            for field in self._covariance:
+                the_x.append(field[0])
+                the_y.append(field[1])
+
+            x_true = set(the_x)
+            y_true = set(the_y)
+
+            covariance = []
+            for x in x_true:
+                holding = [x]
+                for y in y_true:
+                    holding.append(self._covariance[(x, y)])
+                covariance.append(holding)
+
+            table_fancy = tabulate.tabulate(
+                covariance, y_true, "fancy_grid", numalign="center"
+            )
+
+            table = tabulate.tabulate(
+                covariance, y_true, "grid", numalign="center"
+            )
+
+            try:
+                print(table_fancy)
+            except UnicodeEncodeError:
+                    print(table)
+
+            with open(save_name + ".txt", "w") as stream:
+                stream.write("Covariance.\n")
+                stream.write(table)
+                stream.write("\n")
+                stream.write("fval: "+str(self._final_value))
+
+            numpy.save(save_name + ".npy", {
+                "covariance": self._covariance,
+                "fval": self._final_value,
+                "values": self._values
+            })
