@@ -31,4 +31,72 @@ __version__ = VERSION
 
 
 class ShellFitting(option_templates.MainOptionsTemplate):
+
+    def _user_defined_function(self):
+        return self._build_function("numpy", """\
+
+def processing_function(the_array, the params):
     pass
+
+def setup_function():
+    pass
+
+        """)
+
+    def _shell_id(self):
+        return "shell fitting method"
+
+    def _default_options(self):
+        return {
+            "generated length": 10000,
+            "function's location": "/path/to/the/function.py",
+            "processing name": "processing_function",
+            "setup name": "setup_function",
+            "data location": "/path/to/the/data.csv",
+            "accepted monte carlo location": "/path/to/monte/carlo.csv",
+            "save name": "output"
+        }
+
+    def _option_levels(self):
+        return {
+            "generated length": self._optional,
+            "function's location": self._required,
+            "processing name": self._required,
+            "setup name": self._required,
+            "data location": self._required,
+            "accepted monte carlo location": self._optional,
+            "save name": self._required
+        }
+
+    def _option_types(self):
+        return {
+            "generated length": int,
+            "function's location": str,
+            "processing name": str,
+            "setup name": str,
+            "data location": str,
+            "accepted monte carlo location": str,
+            "save name": str
+        }
+
+    def _main_comment(self):
+        return "The General Shell, a simple multiprocessing enabled " \
+               "data analysis tool."
+
+    def _option_comments(self):
+        return {
+            "generated length": "The length of the generated data.",
+            "function's location":
+                "The location of the file that holds your defined "
+                "functions.",
+            "processing name": "The name of your main function.",
+            "setup name": "The name of your setup function",
+            "data location": "The location of your data.",
+            "accepted monte carlo location":
+                "The location to your accepted monte carlo",
+            "save name": "The name out the output files."
+        }
+
+    def _main_type(self):
+        return self._shell_main
+
