@@ -40,7 +40,8 @@ class _CoreProcessingKernel(interface_templates.AbstractKernel):
         self._processing_function = processing_function
 
     def setup(self):
-        self._setup_function()
+        if self._setup_function:
+            self._setup_function()
 
     def process(self, data=False):
         raise NotImplementedError
