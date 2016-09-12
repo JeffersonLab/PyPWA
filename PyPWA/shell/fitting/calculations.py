@@ -59,7 +59,7 @@ class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
         self._processed = 1.0/generated_length
         self.data = None  # type: numpy.ndarray
         self.monte_carlo = None  # type: numpy.ndarray
-        self.qfactor = None  # type: numpy.ndarray
+        self.qfactor = 1  # type: numpy.ndarray
 
     def process(self, data=False):
         processed_data = self._processing_function(self.data, data)
@@ -93,8 +93,8 @@ class UnextendedLikelihoodAmplitude(_CoreProcessingKernel):
         )
 
         self.data = None     # type: numpy.ndarray
-        self.qfactor = None  # type: numpy.ndarray
-        self.binned = None   # type: numpy.ndarray
+        self.qfactor = 1  # type: numpy.ndarray
+        self.binned = 1   # type: numpy.ndarray
 
     def process(self, data=False):
         processed_data = self._processing_function(self.data, data)
