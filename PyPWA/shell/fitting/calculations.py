@@ -140,6 +140,11 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
     is_duplex = True
 
     def __init__(self, minimizer_function):
+        """
+
+        Args:
+            minimizer_function (interface_templates.MinimizerParserTemplate):
+        """
         self._parameter_parser = minimizer_function
 
     def run(self, communication, *args):
@@ -155,7 +160,7 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
             float: The final value from the likelihood function
         """
 
-        parsed_arguments = self._parameter_parser.parse(args)
+        parsed_arguments = self._parameter_parser.convert(args)
 
         for pipe in communication:
             pipe.send(parsed_arguments)
