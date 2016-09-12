@@ -37,7 +37,7 @@ def general_fitting(*args):
                   u"to select their own likelihood and function."
     configuration = {
         "description": description,
-        "main": "shell fitting",
+        "main": "shell fitting method",
         "extras": args
     }
     return configuration
@@ -49,8 +49,8 @@ def likelihood_fitting(*args):
                   u"Method."
     configuration = {
         "description": description,
-        "main": "shell fitting",
-        "main options": {"type": "shell"},
+        "main": "shell fitting method",
+        "main options": {"type": "likelihood"},
         "extras": args
     }
     return configuration
@@ -61,8 +61,12 @@ def chi_squared(*args):
     description = u"Amplitude Fitting using the ChiSquared Method."
     configuration = {
         "description": description,
-        "main": "shell fitting",
-        "main options": {"type": "chi-squared"},
+        "main": "shell fitting method",
+        "main options": {
+            "type": "chi-squared",
+            "generated length": None,
+            "accepted monte carlo location": None
+        },
         "extras": args
     }
     return configuration
