@@ -48,6 +48,7 @@ def setup_function():
 
     def _default_options(self):
         return {
+            "likelihood type": "likelihood",
             "generated length": 10000,
             "function's location": "/path/to/the/function.py",
             "processing name": "processing_function",
@@ -59,6 +60,7 @@ def setup_function():
 
     def _option_levels(self):
         return {
+            "likelihood type": self._required,
             "generated length": self._optional,
             "function's location": self._required,
             "processing name": self._required,
@@ -70,6 +72,7 @@ def setup_function():
 
     def _option_types(self):
         return {
+            "likelihood type": ["likelihood", "chi-squared"],
             "generated length": int,
             "function's location": str,
             "processing name": str,
@@ -85,6 +88,9 @@ def setup_function():
 
     def _option_comments(self):
         return {
+            "likelihood type":
+                "The type of likelihood to calculate with, possible "
+                "values are 'likelihood' and 'chi-squared'",
             "generated length": "The length of the generated data.",
             "function's location":
                 "The location of the file that holds your defined "
