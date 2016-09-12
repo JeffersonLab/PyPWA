@@ -85,7 +85,9 @@ class StartProgram(object):
 
             sys.stdout.write("\x1b[2J\x1b[H")
 
-            self.builder.run(application_configuration)
+            self.builder.run(
+                application_configuration, arguments.configuration
+            )
 
         return decorated_builder()
 

@@ -33,5 +33,5 @@ class ShellCoreTemplate(object):
     def make_config(self, application_data):
         raise NotImplementedError
 
-    def run(self, application_data):
+    def run(self, function_settings, configuration_location):
         raise NotImplementedError

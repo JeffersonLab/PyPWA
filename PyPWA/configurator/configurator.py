@@ -61,7 +61,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
             application_settings (dict):
         """
 
-    def run(self, application_settings):
+    def run(self, function_settings, configuration_location):
         """
 
         Args:
