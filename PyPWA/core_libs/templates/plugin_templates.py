@@ -51,6 +51,9 @@ class MinimizerTemplate(_InitialOptions):
     def start(self):
         raise NotImplementedError
 
+    def return_parser(self):
+        raise NotImplementedError
+
 
 class KernelProcessingTemplate(_InitialOptions):
     """

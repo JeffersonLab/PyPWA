@@ -217,3 +217,9 @@ class AbstractInterface(object):
             Interface Object.
         """
         raise NotImplementedError("The run method must be extended!")
+
+
+class MinimizerParserTemplate(object):
+
+    def convert(self, passed_value):
+        raise NotImplementedError

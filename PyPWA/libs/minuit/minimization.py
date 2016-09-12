@@ -18,6 +18,7 @@ import iminuit
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import plugin_templates
+from PyPWA.core_libs.templates import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -92,9 +93,23 @@ class Minuit(plugin_templates.MinimizerTemplate):
         self.covariance = minimal.covariance
         self.values = minimal.values
 
-    def convert(self, passed_value):
-        parameters_with_values = {}
-        for parameter, arg in zip(self._parameters, passed_value):
-            parameters_with_values[parameter] = arg
+    def return_parser(self):
+        """
 
-        return parameters_with_values
+        Returns:
+            interface_templates.MinimizerParserTemplate
+        """
+
+        class ParserObject(interface_templates.MinimizerParserTemplate):
+
+            def __init__(self, parameters):
+                self._parameters = parameters
+
+            def convert(self, passed_value):
+                parameters_with_values = {}
+                for parameter, arg in zip(self._parameters, passed_value):
+                    parameters_with_values[parameter] = arg
+
+                return parameters_with_values
+
+        return ParserObject(self._parameters)
