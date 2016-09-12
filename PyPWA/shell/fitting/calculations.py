@@ -20,6 +20,8 @@ Holds the various likelihood calculations.
 
 import numpy
 
+from PyPWA.core_libs.templates import interface_templates
+
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -31,21 +33,50 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class ExtendedLikelihoodAmplitude(object):
-    def __init__(self, generated_length):
-        self._processed = 1.0/generated_length
+class _CoreProcessingKernel(interface_templates.AbstractKernel):
 
-    def likelihood(self, data, accepted, qfactor):
+    def __init__(self, setup_function, processing_function):
+        self._setup_function = setup_function
+        self._processing_function = processing_function
+
+    def setup(self):
+        self._setup_function()
+
+    def process(self, data=False):
+        raise NotImplementedError
+
+
+class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
+
+    def __init__(
+            self, setup_function, processing_function, generated_length
+    ):
+        super(ExtendedLikelihoodAmplitude, self).__init__(
+           setup_function, processing_function
+        )
+
+        self._processed = 1.0/generated_length
+        self.data = None  # type: numpy.ndarray
+        self.monte_carlo = None  # type: numpy.ndarray
+        self.qfactor = None  # type: numpy.ndarray
+
+    def process(self, data=False):
+        processed_data = self._processing_function(self.data, data)
+        processed_monte_carlo = self._processing_function(
+            self.monte_carlo, data
+        )
+        return self._likelihood(processed_data, processed_monte_carlo)
+
+    def _likelihood(self, data, accepted):
         """
         Calculates the extended likelihood function
 
         Args:
             data:
             accepted:
-            qfactor:
         """
         try:
-            value = -(numpy.sum(qfactor * numpy.log(data))) + \
+            value = -(numpy.sum(self.qfactor * numpy.log(data))) + \
                      (self._processed * numpy.sum(accepted))
         except ZeroDivisionError:
             value = numpy.NaN
@@ -53,46 +84,62 @@ class ExtendedLikelihoodAmplitude(object):
         return value
 
 
-class UnextendedLikelihoodAmplitude(object):
+class UnextendedLikelihoodAmplitude(_CoreProcessingKernel):
 
-    @staticmethod
-    def likelihood(data, binned, q_factor):
+    def __init__(self, setup_function, processing_function):
+        super(UnextendedLikelihoodAmplitude, self).__init__(
+            setup_function, processing_function
+        )
+
+        self.data = None     # type: numpy.ndarray
+        self.qfactor = None  # type: numpy.ndarray
+        self.binned = None   # type: numpy.ndarray
+
+    def process(self, data=False):
+        processed_data = self._processing_function(self.data, data)
+        return self._likelihood(processed_data)
+
+    def _likelihood(self, data):
         """
         Calculates the binned likelihood function
 
         Args:
             data:
-            binned:
-            q_factor:
         """
-        try:
-            value = -(numpy.sum(q_factor * binned * numpy.log(data)))
-        except ZeroDivisionError:
-            value = numpy.NaN
-
+        value = -(
+            numpy.sum(self.qfactor * self.binned * numpy.log(data))
+        )
         return value
 
 
-class Chi(object):
+class Chi(_CoreProcessingKernel):
 
-    @staticmethod
-    def likelihood(data, binned, qfactor):
+    def __init__(self, setup_function, processing_function):
+        super(Chi, self).__init__(setup_function, processing_function)
+
+        self.data = None  # type: numpy.ndarray
+        self.binned = None  # type: numpy.ndarray
+
+    def process(self, data=False):
+        processed_data = self._processing_function(self.data, data)
+        return self._likelihood(processed_data)
+
+    def _likelihood(self, data):
         """
         Calculates the ChiSquare function
 
         Args:
             data:
-            binned:
-            qfactor:
         """
-        masked_data = numpy.ma.masked_equal(data, 0)
-        return ((masked_data - binned)**2) / binned
+        return ((data - self.binned)**2) / self.binned
 
 
-class FittingRunKernel(object):
-    def __init__(self, num_processes, parameter_names):
-        self._num_processes = num_processes
-        self._parameter_names = parameter_names
+class FittingInterfaceKernel(interface_templates.AbstractInterface):
+
+    is_duplex = True
+
+    def __init__(self, minimizer_function):
+        self._parameter_parser = minimizer_function
 
     def run(self, communication, *args):
         """
@@ -107,14 +154,12 @@ class FittingRunKernel(object):
             float: The final value from the likelihood function
         """
 
-        parameters_with_values = {}
-        for parameter, arg in zip(self._parameter_names, args):
-            parameters_with_values[parameter] = arg
+        parsed_arguments = self._parameter_parser.parse(args)
 
         for pipe in communication:
-            pipe.send(parameters_with_values)
+            pipe.send(parsed_arguments)
 
-        values = numpy.zeros(shape=self._num_processes)
+        values = numpy.zeros(shape=len(communication))
 
         for index, pipe in enumerate(communication):
             values[index] = pipe.recieve()
