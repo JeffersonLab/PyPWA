@@ -38,14 +38,8 @@ class MultiNestOptions(option_templates.PluginsOptionsTemplate):
     def _plugin_type(self):
         return self._minimization
 
-    def _plugin_arguments(self):
-        return False
-
-    def _plugin_requires(self):
+    def _user_defined_function(self):
         return self._build_function("numpy", "def function")
-
-    def _default_options(self):
-        return False
 
     def _option_levels(self):
         return False

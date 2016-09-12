@@ -46,12 +46,12 @@ class _CoreOptionsParsing(object):
     def __init__(self):
         if self._default_options():
             self.__processed = self.__build_options_dictionary()
-            self.__the_required, self.__the_optional, \
-                self.__the_advanced = self.__build_leveled_dictionaries()
+            self.__req_func, self.__opt_func, \
+            self.__adv_func = self.__build_leveled_dictionaries()
         else:
-            self.__the_required = {}
-            self.__the_optional = {}
-            self.__the_advanced = {}
+            self.__req_func = {}
+            self.__opt_func = {}
+            self.__adv_func = {}
 
     def _id(self):
         raise NotImplementedError
@@ -131,9 +131,9 @@ class _CoreOptionsParsing(object):
 
     def request_options(self, level):
         return {
-            "required": self.__the_required,
-            "optional": self.__the_optional,
-            "advanced": self.__the_advanced
+            "required": self.__req_func,
+            "optional": self.__opt_func,
+            "advanced": self.__adv_func
         }[level]
 
     def request_metadata(self, data):
@@ -172,10 +172,7 @@ class PluginsOptionsTemplate(_CoreOptionsParsing):
     def _plugin_type(self):
         raise NotImplementedError
 
-    def _plugin_requires(self):
-        raise NotImplementedError
-
-    def _plugin_arguments(self):
+    def _user_defined_function(self):
         raise NotImplementedError
 
     def request_metadata(self, data):
@@ -191,8 +188,7 @@ class PluginsOptionsTemplate(_CoreOptionsParsing):
             "name": self._plugin_name(),
             "interface": self._plugin_interface(),
             "provides": self._plugin_type(),
-            "requires function": self._plugin_requires(),
-            "arguments": self._plugin_arguments()
+            "user functions": self._user_defined_function()
         }[data]
 
 
@@ -228,7 +224,7 @@ class MainOptionsTemplate(_CoreOptionsParsing):
     def _main_type(self):
         raise NotImplementedError
 
-    def _main_requires(self):
+    def _user_defined_function(self):
         raise NotImplementedError
 
     def request_metadata(self, data):
@@ -243,5 +239,5 @@ class MainOptionsTemplate(_CoreOptionsParsing):
         return {
             "id": self._shell_id(),
             "ui": self._main_type(),
-            "requires plugin": self._main_requires()
+            "user functions": self._user_defined_function()
         }[data]

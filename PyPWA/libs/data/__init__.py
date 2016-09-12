@@ -54,12 +54,6 @@ class DataParser(option_templates.PluginsOptionsTemplate):
     def _plugin_type(self):
         return self._data_parser
 
-    def _plugin_requires(self):
-        return False
-
-    def _plugin_arguments(self):
-        return False
-
     def _default_options(self):
         return {
             "cache": True,
@@ -123,11 +117,8 @@ class DataIterator(option_templates.PluginsOptionsTemplate):
     def _plugin_type(self):
         return self._data_reader
 
-    def _plugin_requires(self):
-        return False
-
-    def _plugin_arguments(self):
-        return False
+    def _user_defined_function(self):
+        return None
 
     def _default_options(self):
         return {

@@ -52,10 +52,7 @@ class Processing(option_templates.PluginsOptionsTemplate):
     def _plugin_type(self):
         return self._kernel_processing
 
-    def _plugin_requires(self):
-        return False
-
-    def _plugin_arguments(self):
+    def _user_defined_function(self):
         return None
 
     def _default_options(self):
