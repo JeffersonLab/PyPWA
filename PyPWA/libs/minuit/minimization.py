@@ -71,7 +71,7 @@ class Minuit(plugin_templates.MinimizerTemplate):
         self._error_def(fitting_type)
 
     def _error_def(self, fitting_type):
-        if fitting_type == "chisquared":
+        if fitting_type == "chi-squared":
             self._set_up = 1
         else:
             self._set_up = .5
