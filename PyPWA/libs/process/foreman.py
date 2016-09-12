@@ -21,6 +21,7 @@ is all done by extending the kernels with your needed information then
 passing those kernels back to the Foreman.
 """
 
+import copy
 import logging
 import multiprocessing
 
@@ -59,7 +60,7 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
         """
         self._logger = logging.getLogger(__name__)
         self._com = process_com
-        self._interface_kernel = interface_kernel()
+        self._interface_kernel = interface_kernel
         self._processes = processes
         self._held_value = False
         self._duplex = duplex
@@ -246,7 +247,7 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
         """
         processes = []
         for chunk in data_chunks:
-            temp_kernel = kernel_template()
+            temp_kernel = copy.deepcopy(kernel_template)
             for key in chunk.keys():
                 setattr(temp_kernel, key, chunk[key])
             processes.append(temp_kernel)
