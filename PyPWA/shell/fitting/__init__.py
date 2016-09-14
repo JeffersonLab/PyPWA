@@ -18,8 +18,9 @@
 This line is green in PyCharm, however in Github its blue.
 """
 
-from PyPWA.core_libs.templates import option_templates
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs.templates import option_templates
+from PyPWA.shell.fitting import main
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -106,3 +107,17 @@ def setup_function():
     def _main_type(self):
         return self._shell_main
 
+    def _requires_data_parser(self):
+        return True
+
+    def _requires_data_reader(self):
+        return False
+
+    def _requires_kernel_processing(self):
+        return True
+
+    def _requires_minimization(self):
+        return False
+
+    def _interface_object(self):
+        return main.Fitting

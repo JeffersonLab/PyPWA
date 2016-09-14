@@ -47,7 +47,7 @@ class _CoreOptionsParsing(object):
         if self._default_options():
             self.__processed = self.__build_options_dictionary()
             self.__req_func, self.__opt_func, \
-            self.__adv_func = self.__build_leveled_dictionaries()
+                self.__adv_func = self.__build_leveled_dictionaries()
         else:
             self.__req_func = {}
             self.__opt_func = {}
@@ -133,7 +133,8 @@ class _CoreOptionsParsing(object):
         return {
             "required": self.__req_func,
             "optional": self.__opt_func,
-            "advanced": self.__adv_func
+            "advanced": self.__adv_func,
+            "template": self._option_types()
         }[level]
 
     def request_metadata(self, data):
@@ -227,6 +228,21 @@ class MainOptionsTemplate(_CoreOptionsParsing):
     def _user_defined_function(self):
         raise NotImplementedError
 
+    def _interface_object(self):
+        raise NotImplementedError
+
+    def _requires_data_parser(self):
+        raise NotImplementedError
+
+    def _requires_kernel_processing(self):
+        raise NotImplementedError
+
+    def _requires_minimization(self):
+        raise NotImplementedError
+
+    def _requires_data_reader(self):
+        raise NotImplementedError
+
     def request_metadata(self, data):
         """
 
@@ -239,5 +255,14 @@ class MainOptionsTemplate(_CoreOptionsParsing):
         return {
             "id": self._shell_id(),
             "ui": self._main_type(),
+            "object": self._interface_object(),
             "user functions": self._user_defined_function()
         }[data]
+
+    def requires(self, the_type):
+        return {
+            self._data_parser: self._requires_data_parser(),
+            self._data_reader: self._requires_data_reader(),
+            self._kernel_processing: self._requires_kernel_processing(),
+            self._minimization: self._requires_minimization()
+        }[the_type]
