@@ -24,10 +24,13 @@ needs to be structured to be able to function in the users desired way.
 import logging
 
 import PyPWA.libs
+import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.configurator import _settings_aid
+from PyPWA.configurator import config_loader
 from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import option_templates
 from PyPWA.core_libs.templates import configurator_templates
+from PyPWA.core_libs.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = [
@@ -45,14 +48,8 @@ __version__ = VERSION
 class Configurator(configurator_templates.ShellCoreTemplate):
 
     def __init__(self):
-        self._loader = plugin_loader.PluginLoading(
-            option_templates.PluginsOptionsTemplate
-        )
-
-        builtins = self._loader.fetch_plugin([PyPWA.libs])
-
-        self._storage = MetadataStorage()
-        self._storage.add_plugins(builtins)
+        self._config_parser = config_loader.ConfigParser()
+        self._settings_aid = _settings_aid.SettingsAid()
 
     def make_config(self, application_settings):
         """
@@ -65,10 +62,155 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         """
 
         Args:
-            application_settings (dict):
+            function_settings (dict):
+            configuration_location:
+
+        Returns:
+
+        """
+        extra_plugins = ""
+
+        parsed_config = self._config_parser.read_config(
+            configuration_location
+        )
+
+        for key in list(function_settings["main options"].keys()):
+            parsed_config[function_settings["main name"]][key] = \
+                function_settings["main options"][key]
+
+        parsed_config[function_settings["main"]] = \
+            parsed_config[function_settings["main name"]]
+
+        parsed_config.pop(function_settings["main name"])
+
+        try:
+            extra_plugins = \
+                parsed_config["Global Options"]["plugin directory"]
+        except KeyError:
+            pass
+
+        storage = PluginStorage(extra_plugins)
+        plugins_template = storage.templates_config
+
+        complete_templates = \
+            self._add_configuration_settings(plugins_template)
+
+        correct_settings = self._settings_aid.correct_settings(
+            parsed_config, complete_templates
+        )
+
+        launcher = ShellLauncher(storage, correct_settings)
+        launcher.start()
+
+    @staticmethod
+    def _add_configuration_settings(templates):
+        special_sauce = ConfiguratorOptions()
+        templates[special_sauce.request_metadata("name")] = \
+            special_sauce.request_options("templates")
+        return templates
+
+
+class ShellLauncher(object):
+
+    def __init__(self, plugin_storage, settings):
         """
 
+        Args:
+            plugin_storage (PluginStorage):
+            settings (dict):
+        """
+        self._plugin_storage = plugin_storage
+        self._settings = settings
 
+    def start(self):
+        the_ids = list(self._settings.keys())
+        main = None  # type: option_templates.MainOptionsTemplate
+        plugins = {}
+        initialized_plugins = {}
+
+        for the_id in the_ids:
+            temp = self._plugin_storage.request_plugin_by_name(the_id)
+            if temp:
+                plugins[the_id] = temp
+
+        for the_id in the_ids:
+            temp = self._plugin_storage.request_main_by_id(the_id)
+            if temp:
+                main = temp
+
+        for plugin in plugins:
+            name = plugin.request_metadata("name")
+            the_type = plugin.request_metadata("provides")
+            interface = plugin.request_metadata("interface")
+            initialized = interface(self._settings[name])
+            initialized_plugins[the_type] = initialized
+
+        main_settings = self._settings[main.request_metadata("name")]
+
+        for key in list(initialized_plugins.keys()):
+            main_settings[key] = plugins[key]
+
+        shell = main.request_metadata("object")
+        initialized_shell = shell(main_settings)
+        initialized_shell.start()
+
+
+class PluginStorage(object):
+
+    def __init__(self, extra_locations=None):
+        plugins = [PyPWA.libs, PyPWA.shell]
+
+        if isinstance(extra_locations, str):
+            plugins.append(extra_locations)
+        elif isinstance(extra_locations, list):
+            for plugin in extra_locations:
+                plugins.append(plugin)
+
+        options_loader = plugin_loader.PluginLoading(
+            option_templates.PluginsOptionsTemplate
+        )
+
+        shell_loader = plugin_loader.PluginLoading(
+            option_templates.MainOptionsTemplate
+        )
+
+        self._plugins = options_loader.fetch_plugin(plugins)
+        self._shell = shell_loader.fetch_plugin(plugins)
+
+        templates = {}
+        for plugin in self._plugins:
+            templates[plugin.request_metadata("name")] = \
+                plugin.request_options("template")
+
+        for main in self._shell:
+            templates[main.request_metadata("id")] = \
+                main.request_options("template")
+
+        self._templates = templates
+
+    def request_main_by_id(self, the_id):
+        """
+
+        Args:
+            the_id (str):
+
+        Returns:
+
+        """
+        for main in self._shell:
+            if main.request_metadata("id") == the_id:
+                return main
+        return False
+
+    def request_plugin_by_name(self, name):
+        for plugin in self._plugins:
+            if plugin.request_metadata("name") == name:
+                return plugin
+        return False
+
+    @property
+    def templates_config(self):
+        return self._templates
 
 
 class MetadataStorage(object):
@@ -173,11 +315,8 @@ class ConfiguratorOptions(option_templates.PluginsOptionsTemplate):
     def _plugin_type(self):
         return False
 
-    def _plugin_arguments(self):
-        return False
-
-    def _plugin_requires(self):
-        return False
+    def _user_defined_function(self):
+        return None
 
     def _default_options(self):
         return {
