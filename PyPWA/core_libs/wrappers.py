@@ -67,11 +67,11 @@ class StartProgram(object):
         """
         def decorated_builder(*args):
             application_configuration = function(args)
-            if application_configuration["extras"]:
+            if application_configuration["extras"][0]:
                 print(
                     "[INFO] Caught something unaccounted for, "
                     "this should be reported, caught: "
-                    "{}".format(application_configuration["extras"])
+                    "{}".format(application_configuration["extras"][0])
                 )
 
             arguments = self.parse_arguments(
