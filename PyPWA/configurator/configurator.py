@@ -21,11 +21,10 @@ requested to determine what information is needed to be loaded and how it
 needs to be structured to be able to function in the users desired way.
 """
 
-import logging
-
 import PyPWA.libs
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.configurator import _storage
 from PyPWA.configurator import _tools
 from PyPWA.configurator import config_loader
 from PyPWA.core_libs import plugin_loader
@@ -83,7 +82,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
                 main_plugin = temp_object
                 break
 
-        config_maker = _tools.MakeConfiguration()
+        config_maker = config_loader.MakeConfiguration()
 
         config_maker.make_configuration(
             plugin_name, main_plugin, settings,
@@ -121,7 +120,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         except KeyError:
             pass
 
-        storage = _tools.PluginStorage(extra_plugins)
+        storage = _storage.PluginStorage(extra_plugins)
         plugins_template = storage.templates_config
 
         complete_templates = \
