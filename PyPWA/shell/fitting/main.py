@@ -38,18 +38,18 @@ __version__ = VERSION
 class Fitting(plugin_templates.ShellMain):
 
     def __init__(
-            self, data_plugin=None, minimizer=None, processing=None,
-            likelihood_type=None, generated_length=None,
-            function_location=None, processing_name=None, setup_name=None,
-            data_location=None, monte_carlo_location=None, save_name=None,
-            options=None
+            self, data_parser=None, minimization=None,
+            kernel_processing=None, likelihood_type=None,
+            generated_length=None, function_location=None,
+            processing_name=None, setup_name=None, data_location=None,
+            monte_carlo_location=None, save_name=None, options=None
     ):
         """
 
         Args:
-            data_plugin (plugin_templates.DataParserTemplate):
-            minimizer (plugin_templates.MinimizerTemplate):
-            processing (plugin_templates.KernelProcessingTemplate):
+            data_parser (plugin_templates.DataParserTemplate):
+            minimization (plugin_templates.MinimizerTemplate):
+            kernel_processing (plugin_templates.KernelProcessingTemplate):
             likelihood_type (str):
             generated_length (int):
             function_location (str):
@@ -64,9 +64,9 @@ class Fitting(plugin_templates.ShellMain):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
-        self._data_plugin = data_plugin
-        self._minimizer = minimizer
-        self._processing = processing
+        self._data_parser = data_parser
+        self._minimization = minimization
+        self._kernel_processing = kernel_processing
         self._likelihood_type = likelihood_type
         self._generated_length = generated_length
         self._function_location = function_location
@@ -85,10 +85,10 @@ class Fitting(plugin_templates.ShellMain):
         self._setup_function = None  # type: object
 
     def _load_data(self):
-        self._data_raw_data = self._data_plugin.parse(self._data_location)
+        self._data_raw_data = self._data_parser.parse(self._data_location)
 
         if self._monte_carlo_location:
-            self._monte_carlo_raw_data = self._data_plugin.parse(
+            self._monte_carlo_raw_data = self._data_parser.parse(
                 self._monte_carlo_location
             )
 
@@ -110,7 +110,7 @@ class Fitting(plugin_templates.ShellMain):
         self._setup_data()
         self._load_functions()
 
-        minimizer_parser = self._minimizer.return_parser()
+        minimizer_parser = self._minimization.return_parser()
 
         interface_kernel = calculations.FittingInterfaceKernel(
             minimizer_parser
@@ -126,11 +126,11 @@ class Fitting(plugin_templates.ShellMain):
             self._setup_function, self._processing_function
         )
 
-        self._processing.main_options(
+        self._kernel_processing.main_options(
             self._corrected_data, chi_kernel, interface_kernel
         )
 
-        interface = self._processing.fetch_interface()
+        interface = self._kernel_processing.fetch_interface()
 
         self._the_end(interface, "chi-squared")
 
@@ -145,11 +145,11 @@ class Fitting(plugin_templates.ShellMain):
                 self._setup_function, self._processing_function
             )
 
-        self._processing.main_options(
+        self._kernel_processing.main_options(
             self._corrected_data, kernel, interface_kernel
         )
 
-        interface = self._processing.fetch_interface()
+        interface = self._kernel_processing.fetch_interface()
 
         self._the_end(interface, "likelihood")
 
@@ -162,11 +162,11 @@ class Fitting(plugin_templates.ShellMain):
         Returns:
 
         """
-        self._minimizer.main_options(interface.run, fitting_type)
+        self._minimization.main_options(interface.run, fitting_type)
 
-        self._minimizer.start()
+        self._minimization.start()
         interface.stop()
-        self._minimizer.save_extra(self._save_name)
+        self._minimization.save_extra(self._save_name)
 
     def _setup_data(self):
         corrected = {}
