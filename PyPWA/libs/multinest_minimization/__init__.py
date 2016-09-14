@@ -26,7 +26,7 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-
+"""
 class MultiNestOptions(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
@@ -55,3 +55,4 @@ class MultiNestOptions(option_templates.PluginsOptionsTemplate):
 
     def _option_comments(self):
         return False
+"""
