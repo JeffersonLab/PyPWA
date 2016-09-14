@@ -40,8 +40,8 @@ def function(this, that)
 
             return self._build_function("numpy", function)
 
-        def _plugin_arguments(self):
-            return False
+        def _user_defined_function(self):
+            return None
 
         def _default_options(self):
             return {
@@ -78,7 +78,6 @@ def function(this, that)
     assert options.request_metadata("name") == "test"
     assert options.request_metadata("interface") == "nothing"
     assert options.request_metadata("provides") == "data parser"
-    assert options.request_metadata("arguments") is False
     assert options.request_options("required")["test"]["this"] == 1
     assert options.request_options("optional")["test"]["this"] == 1
     assert options.request_options("optional")["test"]["that"] == 2
@@ -105,6 +104,24 @@ def test_MainOptionsTemplate_CreateMetaObject_HoldData():
 
         def _main_requires(self):
             return self._data_parser
+
+        def _interface_object(self):
+            return None
+
+        def _requires_data_parser(self):
+            return False
+
+        def _requires_data_reader(self):
+            return False
+
+        def _requires_kernel_processing(self):
+            return False
+
+        def _requires_minimization(self):
+            return False
+
+        def _user_defined_function(self):
+            return False
 
         def _default_options(self):
             return {
@@ -140,7 +157,7 @@ def test_MainOptionsTemplate_CreateMetaObject_HoldData():
     options = TestObject()
     assert options.request_metadata("id") == "test"
     assert options.request_metadata("ui") == "main shell"
-    assert options.request_metadata("requires plugin") == "data parser"
+    assert not options.requires("data parser")
     assert options.request_options("required")["test"]["this"] == 1
     assert options.request_options("optional")["test"]["this"] == 1
     assert options.request_options("optional")["test"]["that"] == 2
