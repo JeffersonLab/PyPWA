@@ -1,11 +1,14 @@
-from PyPWA.configurator import _settings_aid
+import PyPWA.libs
+from PyPWA.configurator import _tools
+from PyPWA.core_libs import plugin_loader
+from PyPWA.core_libs.templates import option_templates
 
 
 def test_SettingsAid_SimpleDict_ValuesCorrected():
     """
     Ensures that the right values are returned for a simple dictionary
     """
-    aid = _settings_aid.SettingsAid()
+    aid = _tools.SettingsAid()
 
     temp_dict = {
         "predetermined value": ["this", "that", "other"],
@@ -37,7 +40,7 @@ def test_SettingsAid_NestedDict_ValuesCorrected():
     Ensures that the right values are returned for multiple nested
     dictionaries.
     """
-    aid = _settings_aid.SettingsAid()
+    aid = _tools.SettingsAid()
 
     temp_dict = {
         "general settings": {
@@ -73,4 +76,20 @@ def test_SettingsAid_NestedDict_ValuesCorrected():
     assert correct["general settings"]["debug"] == "info"
     assert correct["main"]["settings"] == {"limit_A1"}
     assert correct["main"]["data"] == "/usr/local/this"
-    assert correct["main"]["more nests"]["correct"] == True
+    assert correct["main"]["more nests"]["correct"] is True
+
+
+def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
+    loader = plugin_loader.PluginLoading(
+        option_templates.PluginsOptionsTemplate
+    )
+
+    plugin_list = loader.fetch_plugin([PyPWA.libs])
+
+    metadata_storage = _tools.MetadataStorage()
+    metadata_storage.add_plugins(plugin_list)
+
+    assert len(metadata_storage.data_parser) == 1
+    assert len(metadata_storage.data_reader) == 1
+    assert len(metadata_storage.minimization) == 2
+    assert len(metadata_storage.kernel_processing) == 1

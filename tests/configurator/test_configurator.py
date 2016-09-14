@@ -20,11 +20,6 @@ Simple Tests for Configurator
 See Also:
     PyPWA.configurator.configurator
 """
-import PyPWA.libs
-
-from PyPWA.configurator import configurator
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -32,17 +27,4 @@ __maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
 
 
-def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
-    loader = plugin_loader.PluginLoading(
-        option_templates.PluginsOptionsTemplate
-    )
 
-    plugin_list = loader.fetch_plugin([PyPWA.libs])
-
-    metadata_storage = configurator.MetadataStorage()
-    metadata_storage.add_plugins(plugin_list)
-
-    assert len(metadata_storage.data_parser) == 1
-    assert len(metadata_storage.data_reader) == 1
-    assert len(metadata_storage.minimization) == 2
-    assert len(metadata_storage.kernel_processing) == 1
