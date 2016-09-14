@@ -41,6 +41,9 @@ class MultiNestOptions(option_templates.PluginsOptionsTemplate):
     def _user_defined_function(self):
         return self._build_function("numpy", "def function")
 
+    def _default_options(self):
+        return False
+
     def _option_levels(self):
         return False
 

@@ -6,6 +6,7 @@ def the_real_options_test(options):
     required = options.request_options("required")
     optional = options.request_options("optional")
     advanced = options.request_options("advanced")
+    template = options.request_options("template")
 
     assert isinstance(required, bool) or isinstance(required, dict)
     assert isinstance(optional, bool) or isinstance(optional, dict)
@@ -14,8 +15,7 @@ def the_real_options_test(options):
     name = options.request_metadata("name")
     interface = options.request_metadata("interface")
     provides = options.request_metadata("provides")
-    requires_function = options.request_metadata("requires function")
-    arguments = options.request_metadata("arguments")
+    requires_function = options.request_metadata("user functions")
 
     assert isinstance(name, str)
 
