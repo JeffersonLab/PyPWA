@@ -86,7 +86,9 @@ class PluginLoading(object):
         """
         plugin_initializer = []
         for plugin in plugins:
-            print(plugin)
+            self._logger.info(
+                "Found the following modules: \n{0}".format(repr(plugin))
+            )
             for object_name in dir(plugin):
                 the_object = getattr(plugin, object_name)
                 try:
