@@ -82,8 +82,10 @@ class StartProgram(object):
 
             if arguments.WriteConfig:
                 self.write_config(application_configuration)
+                return
 
             sys.stdout.write("\x1b[2J\x1b[H")
+            sys.stdout.write(self._opening_art())
 
             self.builder.run(
                 application_configuration, arguments.configuration
@@ -160,4 +162,30 @@ class StartProgram(object):
                 start function.
         """
         self.builder.make_config(application_settings)
+
+    @staticmethod
+    def _opening_art():
+        return """\
+########          ######## ##                ##  ###
+##     ##         ##     ## ##              ##  ## ##
+##     ##         ##     ##  ##            ##  ##   ##
+########          ########    ##    ##    ##  ##     ##
+##     ##     ##  ##           ##  ####  ##  ## ##### ##
+##      ##   ##   ##            ####  ####  ##         ##
+##       ## ##    ##             ##    ##  ##           ##
+          ##
+         ##        $$$$$$$$ $$   $$  $$$$$ $$      $$
+       ###        $$$       $$   $$ $      $$      $$
+                   $$$$$$$   $$$$$  $$$$$$ $$      $$
+                        $$$ $$   $$ $      $$      $$
+                  $$$$$$$$  $$   $$  $$$$$  $$$$$$  $$$$$$
+
+Developed By:
+    Mark Jones: maj@jlab.org
+
+Credit:
+    Dr. Carlos Salgado: salgado@jlab.org
+    Will Phelps: wphelps@jlab.org
+    Joshua Pond
+"""
 
