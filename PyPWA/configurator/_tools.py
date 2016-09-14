@@ -16,10 +16,13 @@
 
 import logging
 
+import PyPWA.libs
+import PyPWA.shell
 import fuzzywuzzy.process
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs import plugin_loader
+from PyPWA.core_libs.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -227,3 +230,61 @@ class SettingsAid(object):
             return numpy.float64(value)
         except ValueError:
             return self._failed
+
+
+class PluginStorage(object):
+
+    def __init__(self, extra_locations=None):
+        plugins = [PyPWA.libs, PyPWA.shell]
+
+        if isinstance(extra_locations, str):
+            plugins.append(extra_locations)
+        elif isinstance(extra_locations, list):
+            for plugin in extra_locations:
+                plugins.append(plugin)
+
+        options_loader = plugin_loader.PluginLoading(
+            option_templates.PluginsOptionsTemplate
+        )
+
+        shell_loader = plugin_loader.PluginLoading(
+            option_templates.MainOptionsTemplate
+        )
+
+        self._plugins = options_loader.fetch_plugin(plugins)
+        self._shell = shell_loader.fetch_plugin(plugins)
+
+        templates = {}
+        for plugin in self._plugins:
+            templates[plugin.request_metadata("name")] = \
+                plugin.request_options("template")
+
+        for main in self._shell:
+            templates[main.request_metadata("id")] = \
+                main.request_options("template")
+
+        self._templates = templates
+
+    def request_main_by_id(self, the_id):
+        """
+
+        Args:
+            the_id (str):
+
+        Returns:
+
+        """
+        for main in self._shell:
+            if main.request_metadata("id") == the_id:
+                return main
+        return False
+
+    def request_plugin_by_name(self, name):
+        for plugin in self._plugins:
+            if plugin.request_metadata("name") == name:
+                return plugin
+        return False
+
+    @property
+    def templates_config(self):
+        return self._templates
