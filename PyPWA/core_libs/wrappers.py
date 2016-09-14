@@ -78,10 +78,13 @@ class StartProgram(object):
                 application_configuration["description"]
             )
 
-            self._return_logging_level(arguments.verbose)
+            if arguments.verbose:
+                self._return_logging_level(arguments.verbose)
+            else:
+                self._return_logging_level()
 
             if arguments.WriteConfig:
-                self.write_config(application_configuration)
+                self.write_config(application_configuration, arguments)
                 return
 
             sys.stdout.write("\x1b[2J\x1b[H")
@@ -137,7 +140,7 @@ class StartProgram(object):
         return arguments
 
     @staticmethod
-    def _return_logging_level(count):
+    def _return_logging_level(count=1):
         """
         Sets the logging level for the program.
 
@@ -153,15 +156,16 @@ class StartProgram(object):
         else:
             initial_logging.define_logger(logging.ERROR)
 
-    def write_config(self, application_settings):
+    def write_config(self, function_settings, arguments):
         """
         Writes the configuration files for the program.
 
         Args:
-            application_settings (dict): The settings received from the
+            function_settings (dict):
+            arguments: The settings received from the
                 start function.
         """
-        self.builder.make_config(application_settings)
+        self.builder.make_config(function_settings, arguments)
 
     @staticmethod
     def _opening_art():
