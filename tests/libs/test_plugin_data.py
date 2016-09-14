@@ -5,12 +5,12 @@ def check_for_data(data_object):
     data_object.request_options("required")
     data_object.request_options("optional")
     data_object.request_options("advanced")
+    data_object.request_options("template")
 
     data_object.request_metadata("name")
     data_object.request_metadata("interface")
     data_object.request_metadata("provides")
-    data_object.request_metadata("requires function")
-    data_object.request_metadata("arguments")
+    data_object.request_metadata("user functions")
 
 
 def test_CheckDataIterator_OptionPasses():
