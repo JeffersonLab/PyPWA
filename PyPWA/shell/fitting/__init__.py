@@ -117,7 +117,7 @@ def setup_function():
         return True
 
     def _requires_minimization(self):
-        return False
+        return True
 
     def _interface_object(self):
         return main.Fitting
