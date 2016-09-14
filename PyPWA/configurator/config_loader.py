@@ -317,6 +317,7 @@ location, if NO then just press ENTER.
                 return answer
 
     def _request_level(self):
+        final_answer = False
         string = """\
 How much control would you like to have over the configuration?
 required
@@ -325,11 +326,10 @@ advanced
 
 [optional]: """
 
-        while True:
+        while not final_answer:
             answer = input(string)
             if answer == "":
-                self._level = "optional"
-                break
+                final_answer = "optional"
 
             new_answer = fuzzywuzzy.process.extractOne(
                 answer, ["required", "optional", "advanced"]
@@ -337,15 +337,18 @@ advanced
 
             if new_answer[1] > FUZZY_STRING_CONFIDENCE_LEVEL:
                 if self._is_correct(new_answer[0]):
-                    self._level = new_answer[0]
+                    final_answer = new_answer[0]
+
+        self._level = final_answer
 
     @staticmethod
     def _is_correct(answer):
+        final_answer = False
         string = """\
 It looks like you selected '{0}', is this correct?
 [Y]es/No: """
 
-        while True:
+        while not final_answer:
             is_correct = input(string.format(answer))
 
             value = fuzzywuzzy.process.extractOne(
@@ -354,6 +357,11 @@ It looks like you selected '{0}', is this correct?
 
             if value[1] > FUZZY_STRING_CONFIDENCE_LEVEL:
                 if value[0] == "yes":
-                    return True
+                    final_answer = "yes"
                 else:
-                    return False
+                    final_answer = "no"
+
+        if final_answer == "yes":
+            return True
+        else:
+            return False
