@@ -421,19 +421,30 @@ class MakeConfiguration(object):
 
         selected_plugins = self._parse_plugins(main_plugin, storage)
         configuration = self._build_configuration(selected_plugins)
+        full_configuration = self._add_main_plugin_to_configuration(
+            configuration, main_plugin
+        )
 
         fixed_config = self._correct_main_name(
-            main_plugin, plugin_name, configuration, provided_options
+            main_plugin, plugin_name, full_configuration, provided_options
         )
 
         self._write_config(fixed_config)
+
+    def _add_main_plugin_to_configuration(
+            self, configuration, main_plugin
+    ):
+        configuration[main_plugin.request_metadata("id")] = \
+            main_plugin.request_options(self._level)
+
+        return configuration
 
     def _write_config(self, configuration):
         string = """\
 What would you like to name the configuration file?
 [File Name?]: """
 
-        if len(self._save_location):
+        if self._save_location == "":
             while True:
                 value = input(string)
 
@@ -463,14 +474,16 @@ What would you like to name the configuration file?
         Returns:
 
         """
+        shell_id = main_plugin.request_metadata("id")
+
         if provided_options:
             for option in provided_options:
-                configuration[main_name].pop(option)
+                configuration[shell_id].pop(option)
 
         configuration[main_name] = \
-            configuration[main_plugin.request_options("id")]
+            configuration[shell_id]
 
-        configuration.pop(main_plugin.request_options("id"))
+        configuration.pop(shell_id)
 
         return configuration
 
@@ -504,30 +517,36 @@ What would you like to name the configuration file?
         plugins = []
         if main_plugin.requires("data parser"):
             plugins.append(self._process_plugins(
-                "data parser", "Data Parsing", storage
+                "data parser", "Data Parsing", storage,
+                storage.data_parser
             ))
 
         if main_plugin.requires("data reader"):
             plugins.append(self._process_plugins(
-                "data reader", "Data Iterator", storage
+                "data reader", "Data Iterator", storage,
+                storage.data_reader
             ))
 
         if main_plugin.requires("kernel processing"):
             plugins.append(self._process_plugins(
-                "kernel processing", "Kernel Processor", storage
+                "kernel processing", "Kernel Processor", storage,
+                storage.kernel_processing
             ))
 
         if main_plugin.requires("minimization"):
             plugins.append(self._process_plugins(
-                "minimization", "Minimizer", storage
+                "minimization", "Minimizer", storage,
+                storage.minimization
             ))
 
         return plugins
 
-    def _process_plugins(self, plugin_type, plugin_type_name, storage):
+    def _process_plugins(
+            self, plugin_type, plugin_type_name, storage, plugin_list
+    ):
 
-        if len(storage.data_parser) == 1:
-            empty_plugin = storage.data_parser[0]
+        if len(plugin_list) == 1:
+            empty_plugin = plugin_list[0]
         else:
             name = self._ask_plugin(
                 storage.data_parser, plugin_type_name
