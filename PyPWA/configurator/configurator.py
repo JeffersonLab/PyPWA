@@ -51,12 +51,43 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         self._config_parser = config_loader.ConfigParser()
         self._settings_aid = _tools.SettingsAid()
 
-    def make_config(self, application_settings):
+    def make_config(self, function_settings, application_settings):
         """
 
         Args:
-            application_settings (dict):
+            function_settings:
+            application_settings:
+
+        Returns:
+
         """
+        main_plugin = None
+        plugin_name = function_settings["main name"]
+        plugin_id = function_settings["main"]
+        settings = None
+
+        try:
+            settings = function_settings["main options"]
+        except KeyError:
+            pass
+
+        loader = plugin_loader.PluginLoading(
+            option_templates.MainOptionsTemplate
+        )
+
+        plugin_list = loader.fetch_plugin([PyPWA.shell])
+
+        for plugin in plugin_list:
+            if plugin.request_metadata("id") == plugin_id:
+                main_plugin = plugin
+                break
+
+        config_maker = _tools.MakeConfiguration()
+
+        config_maker.make_configuration(
+            plugin_name, main_plugin, settings,
+            application_settings.configuration
+        )
 
     def run(self, function_settings, configuration_location):
         """
@@ -153,97 +184,6 @@ class ShellLauncher(object):
         shell = main.request_metadata("object")
         initialized_shell = shell(main_settings)
         initialized_shell.start()
-
-
-class MetadataStorage(object):
-
-    def __init__(self):
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-        self._minimization = []
-        self._kernel_processing = []
-        self._data_reader = []
-        self._data_parser = []
-        self._main = []
-
-    def add_plugins(self, plugins):
-        for plugin in plugins:
-            self._plugin_filter(plugin)
-
-    def _plugin_filter(self, plugin):
-        try:
-            temp_object = plugin()
-            plugin_type = temp_object.request_metadata("provides")
-
-            if plugin_type == "data reader":
-                self._data_reader.append(plugin)
-            elif plugin_type == "data parser":
-                self._data_parser.append(plugin)
-            elif plugin_type == "minimization":
-                self._minimization.append(plugin)
-            elif plugin_type == "kernel processing":
-                self._kernel_processing.append(plugin)
-            elif plugin_type == "main":
-                self._main.append(plugin)
-
-        except Exception as Error:
-            self._logger.error(Error)
-
-    def search_plugin(self, plugin_name, plugin_type):
-        if plugin_type is "data reader":
-            return self._plugin_name_search(
-                plugin_name, self._data_reader
-            )
-
-        elif plugin_type is "data parser":
-            return self._plugin_name_search(
-                plugin_name, self._data_parser
-            )
-
-        elif plugin_type is "minimization":
-            return self._plugin_name_search(
-                plugin_name, self._minimization
-            )
-
-        elif plugin_type is "kernel processing":
-            return self._plugin_name_search(
-                plugin_name, self._kernel_processing
-            )
-
-        elif plugin_type is "main":
-            return self._plugin_name_search(
-                plugin_name, self._main
-            )
-
-    @staticmethod
-    def _plugin_name_search(plugin_name, plugins):
-        for plugin in plugins:
-            if plugin["name"] == plugin_name:
-                return plugin
-        else:
-            raise ImportError(
-                "Failed to find plugin {0}".format(plugin_name)
-            )
-
-    @property
-    def minimization(self):
-        return self._minimization
-
-    @property
-    def main(self):
-        return self._main
-
-    @property
-    def kernel_processing(self):
-        return self._kernel_processing
-
-    @property
-    def data_reader(self):
-        return self._data_reader
-
-    @property
-    def data_parser(self):
-        return self._data_parser
 
 
 class ConfiguratorOptions(option_templates.PluginsOptionsTemplate):

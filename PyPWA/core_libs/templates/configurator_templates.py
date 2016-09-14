@@ -30,7 +30,7 @@ __version__ = VERSION
 
 
 class ShellCoreTemplate(object):
-    def make_config(self, application_data):
+    def make_config(self, function_settings, application_data):
         raise NotImplementedError
 
     def run(self, function_settings, configuration_location):
