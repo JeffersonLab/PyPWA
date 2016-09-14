@@ -48,7 +48,7 @@ def test_DuplexProcess_SumOfIntegers_Return50():
 
     # Initialize the Foreman
     process_builder = foreman.CalculationForeman(3)
-    process_builder.main_options(test_data, TestKernel, TestInterface)
+    process_builder.main_options(test_data, TestKernel(), TestInterface())
 
     # Attach to interface
     interface = process_builder.fetch_interface
@@ -95,7 +95,7 @@ def test_SimplexProcess_SumIntegers_Return50():
 
     # Setup Foreman
     process_builder = foreman.CalculationForeman(3)
-    process_builder.main_options(test_data, TestKernel, TestInterface)
+    process_builder.main_options(test_data, TestKernel(), TestInterface())
 
     # Fetch interface
     interface = process_builder.fetch_interface
