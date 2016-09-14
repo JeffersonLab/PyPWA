@@ -485,6 +485,7 @@ What would you like to name the configuration file?
         """
         configuration = {}
         for plugin in plugin_list:
+            print("Level is: " + self._level)
             configuration[plugin.request_metadata("name")] = \
                 plugin.request_options(self._level)
 
@@ -526,13 +527,15 @@ What would you like to name the configuration file?
     def _process_plugins(self, plugin_type, plugin_type_name, storage):
 
         if len(storage.data_parser) == 1:
-            return storage.data_parser[0]
+            empty_plugin = storage.data_parser[0]
         else:
             name = self._ask_plugin(
                 storage.data_parser, plugin_type_name
             )
 
-            return storage.search_plugin(name, plugin_type)
+            empty_plugin = storage.search_plugin(name, plugin_type)
+
+        return empty_plugin()
 
     def _ask_plugin(self, plugin_list, plugin_type):
         """
@@ -591,9 +594,9 @@ advanced
 
         while True:
             answer = input(string)
-            if len(answer) == 0:
-                answer = "optional"
-                return answer
+            if answer == "":
+                self._level = "optional"
+                break
 
             new_answer = fuzzywuzzy.process.extractOne(
                 answer, ["required", "optional", "advanced"]
@@ -603,7 +606,8 @@ advanced
                 if self._is_correct(new_answer[0]):
                     self._level = new_answer[0]
 
-    def _is_correct(self, answer):
+    @staticmethod
+    def _is_correct(answer):
         string = """\
 It looks like you selected '{0}', is this correct?
 [Y]es/No: """
