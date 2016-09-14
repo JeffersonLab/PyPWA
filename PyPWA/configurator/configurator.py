@@ -78,8 +78,9 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         plugin_list = loader.fetch_plugin([PyPWA.shell])
 
         for plugin in plugin_list:
-            if plugin.request_metadata("id") == plugin_id:
-                main_plugin = plugin
+            temp_object = plugin()
+            if temp_object.request_metadata("id") == plugin_id:
+                main_plugin = temp_object
                 break
 
         config_maker = _tools.MakeConfiguration()
