@@ -26,7 +26,7 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-"""
+
 class MultiNestOptions(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
@@ -39,20 +39,41 @@ class MultiNestOptions(option_templates.PluginsOptionsTemplate):
         return self._minimization
 
     def _user_defined_function(self):
-        return self._build_function("numpy", "def function")
+        function = """\
+def the_prior(cube, ndim, nparams):
+    for index in range(ndim):
+        cube[index] = numpy.cos(cube[index] / 2.)
+        """
+        return self._build_function("numpy", function)
 
     def _default_options(self):
-        return False
+        return {
+            "prior location": "/path/to/function.py",
+            "prior name": "the_prior",
+            "number of parameters": ""
+        }
 
     def _option_levels(self):
-        return False
+        return {
+            "prior location": self._required,
+            "prior name": self._required,
+            "number of parameters": self._required
+        }
 
     def _option_types(self):
-        return False
+        return {
+            "prior location": str,
+            "prior name": str,
+            "number of parameters": int
+        }
 
     def _main_comment(self):
-        return False
+        return "A full parameter space minimizer."
 
     def _option_comments(self):
-        return False
-"""
+        return {
+            "prior location": "The location of the prior function file.",
+            "prior name": "The name of the prior function.",
+            "number of parameters": "The number of parameters."
+        }
+
