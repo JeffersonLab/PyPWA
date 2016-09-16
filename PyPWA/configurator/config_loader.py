@@ -14,16 +14,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import io
 import logging
-
-import fuzzywuzzy.process
-import os
-import ruamel.yaml
-import ruamel.yaml.parser
+import sys
 
 import PyPWA.libs
 import PyPWA.shell
+import fuzzywuzzy.process
+import io
+import os
+import ruamel.yaml
+import ruamel.yaml.parser
+import ruamel.yaml.comments
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.configurator import _storage
 from PyPWA.core_libs import plugin_loader
@@ -36,8 +37,6 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
-
-FUZZY_STRING_CONFIDENCE_LEVEL = 75
 
 
 class ConfigParser(object):
@@ -99,6 +98,8 @@ class MakeConfiguration(object):
             option_templates.PluginsOptionsTemplate
         )
 
+        self._input_manager = SimpleInputObject()
+
         self._settings = {}
 
         self._save_location = ""
@@ -159,12 +160,7 @@ What would you like to name the configuration file?
 [File Name?]: """
 
         if self._save_location == "":
-            while True:
-                value = input(string)
-
-                if self._is_correct(value):
-                    self._save_location = value
-                    break
+            self._save_location = self._input_manager.input(string)
 
         with io.open(self._save_location, "w") as stream:
             stream.write(
@@ -210,11 +206,9 @@ What would you like to name the configuration file?
         Returns:
 
         """
-        configuration = {}
+        configuration = ruamel.yaml.comments.CommentedMap()
         for plugin in plugin_list:
-            print("Level is: " + self._level)
-            configuration[plugin.request_metadata("name")] = \
-                plugin.request_options(self._level)
+            configuration.update(plugin.request_options(self._level))
 
         return configuration
 
@@ -223,7 +217,7 @@ What would you like to name the configuration file?
 
         Args:
             main_plugin (option_templates.MainOptionsTemplate):
-            storage:
+            storage (_storage.MetadataStorage):
 
         Returns:
 
@@ -258,6 +252,17 @@ What would you like to name the configuration file?
     def _process_plugins(
             self, plugin_type, plugin_type_name, storage, plugin_list
     ):
+        """
+
+        Args:
+            plugin_type (str):
+            plugin_type_name (str):
+            storage (_storage.MetadataStorage):
+            plugin_list (list):
+
+        Returns:
+
+        """
 
         if len(plugin_list) == 1:
             empty_plugin = plugin_list[0]
@@ -292,13 +297,7 @@ Which would plugin would you like to use for {0}?
 
         string += "\nPlugin?: "
 
-        while True:
-            value = input(string)
-
-            corrected_value = fuzzywuzzy.process.extractOne(value, names)
-            if corrected_value[1] > FUZZY_STRING_CONFIDENCE_LEVEL:
-                if self._is_correct(corrected_value[0]):
-                    return corrected_value[0]
+        return self._input_manager.input(string, possible_answers=names)
 
     def _request_plugin(self):
         string = """
@@ -306,18 +305,9 @@ Would you like to use your own plugins? If YES then please enter the
 location, if NO then just press ENTER.
 [None]: """
 
-        while True:
-            answer = input(string)
-
-            if len(answer) == 0:
-                return False
-            elif not os.path.isdir(answer):
-                print("Error! '{0}' Doesn't Exist!".format(answer))
-            elif self._is_correct(answer):
-                return answer
+        return self._input_manager.input(string, is_dir=True)
 
     def _request_level(self):
-        final_answer = False
         string = """\
 How much control would you like to have over the configuration?
 required
@@ -326,36 +316,79 @@ advanced
 
 [optional]: """
 
+        levels = ["required", "optional", "advanced"]
+
+        self._level = self._input_manager.input(
+            string, possible_answers=levels, default_answer="optional"
+        )
+
+
+class SimpleInputObject(object):
+
+    def __init__(self, auto_correct_percentage=75):
+        if sys.version_info.major == "2":
+            self.__input = raw_input
+        else:
+            self.__input = input
+
+        self._auto_correction_percentage = auto_correct_percentage
+
+    def input(
+            self, string, possible_answers=False,
+            default_answer=False, is_dir=False
+    ):
+        """
+
+        Args:
+            string (str):
+            possible_answers (list):
+            default_answer (str):
+            is_dir (bool):
+
+        Returns:
+
+        """
+        final_answer = False
+
         while not final_answer:
-            answer = input(string)
-            if answer == "":
-                final_answer = "optional"
+            answer = self.__input(string)
 
-            new_answer = fuzzywuzzy.process.extractOne(
-                answer, ["required", "optional", "advanced"]
-            )
+            if answer is "" and default_answer:
+                final_answer = default_answer
+                continue
 
-            if new_answer[1] > FUZZY_STRING_CONFIDENCE_LEVEL:
-                if self._is_correct(new_answer[0]):
-                    final_answer = new_answer[0]
+            else:
+                if possible_answers:
+                    corrected_answer = fuzzywuzzy.process.extractOne(
+                        answer, possible_answers
+                    )
 
-        self._level = final_answer
+                    if corrected_answer[1] > \
+                            self._auto_correction_percentage:
+                        answer = corrected_answer[0]
 
-    @staticmethod
-    def _is_correct(answer):
+                if is_dir:
+                    if not os.path.isdir(answer):
+                        continue
+                if self._is_correct(answer):
+                    final_answer = answer
+
+        return final_answer
+
+    def _is_correct(self, answer):
         final_answer = False
         string = """\
 It looks like you selected '{0}', is this correct?
 [Y]es/No: """
 
         while not final_answer:
-            is_correct = input(string.format(answer))
+            is_correct = self.__input(string.format(answer))
 
             value = fuzzywuzzy.process.extractOne(
                 is_correct.lower(), ["yes", "no"]
             )
 
-            if value[1] > FUZZY_STRING_CONFIDENCE_LEVEL:
+            if value[1] > self._auto_correction_percentage:
                 if value[0] == "yes":
                     final_answer = "yes"
                 else:
@@ -363,5 +396,5 @@ It looks like you selected '{0}', is this correct?
 
         if final_answer == "yes":
             return True
-        else:
+        elif final_answer == "no":
             return False
