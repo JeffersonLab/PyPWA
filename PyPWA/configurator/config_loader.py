@@ -120,6 +120,7 @@ class SimpleConfigBuilder(object):
         self._add_main_to_configuration(main_plugin)
         self._correct_options(main_plugin, plugin_name, provided_options)
         self._set_save_location(save_location)
+        self._write_final_config()
 
     def _determine_plugin_level(self):
         possible_levels = ["required", "optional", "advanced"]
