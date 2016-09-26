@@ -65,36 +65,34 @@ class StartProgram(object):
         Returns:
             The final value of the wrapped function.
         """
-        def decorated_builder(*args):
-            application_configuration = function(args)
-            if application_configuration["extras"][0]:
-                print(
-                    "[INFO] Caught something unaccounted for, "
-                    "this should be reported, caught: "
-                    "{}".format(application_configuration["extras"][0])
-                )
-
-            arguments = self.parse_arguments(
-                application_configuration["description"]
+        application_configuration = function()
+        if application_configuration["extras"]:
+            print(
+                "[INFO] Caught something unaccounted for, "
+                "this should be reported, caught: "
+                "{}".format(application_configuration["extras"][0])
             )
 
-            if arguments.verbose:
-                self._return_logging_level(arguments.verbose)
-            else:
-                self._return_logging_level()
+        arguments = self.parse_arguments(
+            application_configuration["description"]
+        )
 
-            if arguments.WriteConfig:
-                self.write_config(application_configuration, arguments)
-                return
+        if arguments.verbose:
+            self._return_logging_level(arguments.verbose)
+        else:
+            self._return_logging_level()
 
-            sys.stdout.write("\x1b[2J\x1b[H")
-            sys.stdout.write(self._opening_art())
+        if arguments.WriteConfig:
+            self.write_config(application_configuration, arguments)
+            sys.exit()
 
-            self.builder.run(
-                application_configuration, arguments.configuration
-            )
+        sys.stdout.write("\x1b[2J\x1b[H")
+        sys.stdout.write(self._opening_art())
 
-        return decorated_builder()
+        self.builder.run(
+            application_configuration, arguments.configuration
+        )
+        sys.exit()
 
     @staticmethod
     def parse_arguments(description):
