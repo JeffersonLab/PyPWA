@@ -82,9 +82,9 @@ class Configurator(configurator_templates.ShellCoreTemplate):
                 main_plugin = temp_object
                 break
 
-        config_maker = config_loader.MakeConfiguration()
+        config_maker = config_loader.SimpleConfigBuilder()
 
-        config_maker.make_configuration(
+        config_maker.build_configuration(
             plugin_name, main_plugin, settings,
             application_settings.configuration
         )
