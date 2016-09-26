@@ -18,7 +18,6 @@ import logging
 
 import numpy
 import pymultinest
-
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs import plugin_loader
 from PyPWA.core_libs.templates import interface_templates
