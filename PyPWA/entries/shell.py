@@ -38,7 +38,7 @@ def general_fitting(*args):
     configuration = {
         "description": description,
         "main": "shell fitting method",
-        "main name": "general fitting",
+        "main name": "General Fitting",
         "extras": args
     }
     return configuration
@@ -51,7 +51,7 @@ def likelihood_fitting(*args):
     configuration = {
         "description": description,
         "main": "shell fitting method",
-        "main name": "likelihood fitting",
+        "main name": "Likelihood Fitting",
         "main options": {"type": "likelihood"},
         "extras": args
     }
@@ -64,7 +64,7 @@ def chi_squared(*args):
     configuration = {
         "description": description,
         "main": "shell fitting method",
-        "main name": "chi-squared fitting",
+        "main name": "Chi-Squared Fitting",
         "main options": {
             "type": "chi-squared",
             "generated length": None,
@@ -81,7 +81,7 @@ def simulator(*args):
     configuration = {
         "description": description,
         "main": "shell simulation",
-        "main name": "simulator",
+        "main name": "Simulator",
         "main options": {"type": "complete"},
         "extras": args
     }
@@ -94,7 +94,7 @@ def intensities(*args):
     configuration = {
         "description": description,
         "main": "shell simulation",
-        "main name": "intensities",
+        "main name": "Intensities",
         "main options": {"type": "intensities"},
         "extras": args
     }
@@ -108,7 +108,7 @@ def rejection_method(*args):
     configuration = {
         "description": description,
         "main": "shell simulation",
-        "main name": "rejection method",
+        "main name": "Rejection Method",
         "main options": {"type": "rejection"},
         "extras": args
     }
