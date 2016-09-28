@@ -105,9 +105,12 @@ class Configurator(configurator_templates.ShellCoreTemplate):
             configuration_location
         )
 
-        for key in list(function_settings["main options"].keys()):
-            parsed_config[function_settings["main name"]][key] = \
-                function_settings["main options"][key]
+        try:
+            for key in list(function_settings["main options"].keys()):
+                parsed_config[function_settings["main name"]][key] = \
+                    function_settings["main options"][key]
+        except KeyError:
+            pass
 
         parsed_config[function_settings["main"]] = \
             parsed_config[function_settings["main name"]]
