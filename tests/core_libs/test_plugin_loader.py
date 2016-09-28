@@ -18,6 +18,5 @@ def test_PluginLoading_ImportsPlugins_FindsAllLibs():
     assert data.DataParser in plugins
     assert process.Processing in plugins
     assert minuit.MinuitOptions in plugins
-    assert multinest_minimization.MultiNestOptions in plugins
 
     assert len(plugins) == 5
