@@ -140,20 +140,20 @@ class PluginLoading(object):
 
 
 class SingleFunctionLoader(object):
-    def __init__(self, file):
+    def __init__(self, the_file):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
         self._module = None  # type: type(PyPWA)
 
-        self._load_module(file)
+        self._load_module(the_file)
 
-    def _load_module(self, file):
+    def _load_module(self, the_file):
         sys.path.append(
-            os.path.dirname(os.path.abspath(file))
+            os.path.dirname(os.path.abspath(the_file))
         )
 
         self._module = importlib.import_module(
-            os.path.splitext(os.path.basename(file))[0]
+            os.path.splitext(os.path.basename(the_file))[0]
         )
 
     def fetch_function(self, function_name, fail=False):
