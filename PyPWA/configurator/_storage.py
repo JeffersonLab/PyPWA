@@ -30,12 +30,14 @@ class PluginStorage(object):
 
         templates = {}
         for plugin in self._plugins:
-            templates[plugin.request_metadata("name")] = \
-                plugin.request_options("template")
+            the_plugin = plugin()
+            templates[the_plugin.request_metadata("name")] = \
+                the_plugin.request_options("template")
 
         for main in self._shell:
-            templates[main.request_metadata("id")] = \
-                main.request_options("template")
+            the_main = main()
+            templates[the_main.request_metadata("id")] = \
+                the_main.request_options("template")
 
         self._templates = templates
 
