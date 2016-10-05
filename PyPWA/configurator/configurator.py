@@ -155,13 +155,13 @@ class ShellLauncher(object):
     def start(self):
         the_ids = list(self._settings.keys())
         main = None  # type: option_templates.MainOptionsTemplate
-        plugins = {}
+        plugins = []
         initialized_plugins = {}
 
         for the_id in the_ids:
             temp = self._plugin_storage.request_plugin_by_name(the_id)
             if temp:
-                plugins[the_id] = temp
+                plugins.append(temp)
 
         for the_id in the_ids:
             temp = self._plugin_storage.request_main_by_id(the_id)
@@ -172,13 +172,13 @@ class ShellLauncher(object):
             name = plugin.request_metadata("name")
             the_type = plugin.request_metadata("provides")
             interface = plugin.request_metadata("interface")
-            initialized = interface(self._settings[name])
+            initialized = interface(options=self._settings[name])
             initialized_plugins[the_type] = initialized
 
-        main_settings = self._settings[main.request_metadata("name")]
+        main_settings = self._settings[main.request_metadata("id")]
 
         for key in list(initialized_plugins.keys()):
-            main_settings[key] = plugins[key]
+            main_settings[key] = initialized_plugins[key]
 
         shell = main.request_metadata("object")
         initialized_shell = shell(main_settings)
