@@ -18,7 +18,7 @@ from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
 __license__ = "MIT"
-__version__ = "2.0.0-beta.2"
+__version__ = "2.0.0-rc1"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "beta"
