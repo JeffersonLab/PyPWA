@@ -51,14 +51,16 @@ class PluginStorage(object):
 
         """
         for main in self._shell:
-            if main.request_metadata("id") == the_id:
-                return main
+            the_main = main()
+            if the_main.request_metadata("id") == the_id:
+                return the_main
         return False
 
     def request_plugin_by_name(self, name):
         for plugin in self._plugins:
-            if plugin.request_metadata("name") == name:
-                return plugin
+            the_plugin = plugin()
+            if the_plugin.request_metadata("name") == name:
+                return the_plugin
         return False
 
     @property
