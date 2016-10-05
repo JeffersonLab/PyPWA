@@ -136,7 +136,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
     def _add_configuration_settings(templates):
         special_sauce = ConfiguratorOptions()
         templates[special_sauce.request_metadata("name")] = \
-            special_sauce.request_options("templates")
+            special_sauce.request_options("template")
         return templates
 
 
