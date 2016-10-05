@@ -32,11 +32,7 @@ from PyPWA.core_libs.templates import configurator_templates
 from PyPWA.core_libs.templates import option_templates
 
 __author__ = ["Mark Jones"]
-__credits__ = [
-    "Mark Jones",
-    "jp. @ Stack Overflow",
-    "unutbu @ Stack Overflow"
-]
+__credits__ = ["Mark Jones"]
 __maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
 __status__ = STATUS
@@ -99,7 +95,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         Returns:
 
         """
-        extra_plugins = ""
+        extra_plugins = False
 
         parsed_config = self._config_parser.read_config(
             configuration_location
