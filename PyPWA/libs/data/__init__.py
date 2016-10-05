@@ -46,7 +46,7 @@ __version__ = VERSION
 class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
-        return traffic_cop.MODULE_NAME
+        return "Builtin Parser"
 
     def _plugin_interface(self):
         return traffic_cop.Memory
@@ -112,7 +112,7 @@ class DataParser(option_templates.PluginsOptionsTemplate):
 class DataIterator(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
-        return traffic_cop.MODULE_NAME
+        return "Builtin Reader"
 
     def _plugin_interface(self):
         return traffic_cop.Iterator
@@ -154,7 +154,7 @@ class DataIterator(option_templates.PluginsOptionsTemplate):
                 "that are optional will cause the program to stop.",
             "user plugin":
                 "A plugin that can be loaded into the the " +
-                traffic_cop.MODULE_NAME + " for parsing, see the "
-                "documentation on the " + traffic_cop.MODULE_NAME +
+                "Builtin Reader for parsing, see the "
+                "documentation on the Builtin Reader " +
                 " plugin for more information."
         }
