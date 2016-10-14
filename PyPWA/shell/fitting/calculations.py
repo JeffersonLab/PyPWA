@@ -168,6 +168,6 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         values = numpy.zeros(shape=len(communication))
 
         for index, pipe in enumerate(communication):
-            values[index] = pipe.recieve()
+            values[index] = pipe.receive()
 
         return numpy.sum(values)
