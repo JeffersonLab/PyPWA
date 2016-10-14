@@ -172,7 +172,7 @@ class ShellLauncher(object):
             name = plugin.request_metadata("name")
             the_type = plugin.request_metadata("provides")
             interface = plugin.request_metadata("interface")
-            initialized = interface(options=self._settings[name])
+            initialized = interface(**self._settings[name])
             initialized_plugins[the_type] = initialized
 
         main_settings = self._settings[main.request_metadata("id")]
@@ -181,7 +181,7 @@ class ShellLauncher(object):
             main_settings[key] = initialized_plugins[key]
 
         shell = main.request_metadata("object")
-        initialized_shell = shell(main_settings)
+        initialized_shell = shell(**main_settings)
         initialized_shell.start()
 
 

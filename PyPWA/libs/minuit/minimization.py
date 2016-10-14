@@ -36,7 +36,7 @@ class Minuit(plugin_templates.MinimizerTemplate):
     def __init__(
             self, calc_function=False, parameters=False, settings=False,
             fitting_type=False, strategy=1, number_of_calls=10000,
-            options=False
+            **options
     ):
         """
         Object based off of iminuit, provides an easy way to run

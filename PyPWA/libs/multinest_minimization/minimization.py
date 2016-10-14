@@ -44,7 +44,7 @@ space. Right now we don't understand this.
 
     def __init__(
             self, prior_location=None, prior_name=None,
-            number_of_parameters=None, options=None
+            number_of_parameters=None, **options
     ):
         """
 

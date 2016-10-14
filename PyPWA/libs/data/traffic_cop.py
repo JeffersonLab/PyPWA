@@ -125,7 +125,7 @@ class DataCoreTools(object):
 class Memory(plugin_templates.DataParserTemplate, DataCoreTools):
     def __init__(
             self, cache=True, clear_cache=False, fail=True,
-            user_plugin=False, options=False
+            user_plugin=False, **options
     ):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
@@ -256,7 +256,7 @@ class Memory(plugin_templates.DataParserTemplate, DataCoreTools):
 
 
 class Iterator(plugin_templates.DataReaderTemplate, DataCoreTools):
-    def __init__(self, fail=True, user_plugin=False, options=False):
+    def __init__(self, fail=True, user_plugin=False, **options):
         """
         Simple plugin that returns a reader or writer that can read and
         write the requested data.

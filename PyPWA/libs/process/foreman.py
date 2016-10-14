@@ -136,7 +136,7 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
 
     def __init__(
             self, number_of_processes=multiprocessing.cpu_count() * 2,
-            options=False
+            **options
     ):
         """
         This is the main object for the Process Plugin. All this object

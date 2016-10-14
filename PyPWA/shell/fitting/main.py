@@ -44,7 +44,7 @@ class Fitting(plugin_templates.ShellMain):
             kernel_processing=None, likelihood_type=None,
             generated_length=None, functions_location=None,
             processing_name=None, setup_name=None, data_location=None,
-            monte_carlo_location=None, save_name=None, options=None
+            monte_carlo_location=None, save_name=None, **options
     ):
         """
 
@@ -163,7 +163,7 @@ class Fitting(plugin_templates.ShellMain):
             self._corrected_data, kernel, interface_kernel
         )
 
-        interface = self._kernel_processing.fetch_interface()
+        interface = self._kernel_processing.fetch_interface
 
         self._the_end(interface, "likelihood")
 
