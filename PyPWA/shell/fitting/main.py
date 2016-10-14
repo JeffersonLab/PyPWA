@@ -17,6 +17,8 @@
 """
 Holds the various likelihood calculations.
 """
+import os
+
 import logging
 
 import numpy
@@ -40,7 +42,7 @@ class Fitting(plugin_templates.ShellMain):
     def __init__(
             self, data_parser=None, minimization=None,
             kernel_processing=None, likelihood_type=None,
-            generated_length=None, function_location=None,
+            generated_length=None, functions_location=None,
             processing_name=None, setup_name=None, data_location=None,
             monte_carlo_location=None, save_name=None, options=None
     ):
@@ -52,7 +54,7 @@ class Fitting(plugin_templates.ShellMain):
             kernel_processing (plugin_templates.KernelProcessingTemplate):
             likelihood_type (str):
             generated_length (int):
-            function_location (str):
+            functions_location (str):
             processing_name (str):
             setup_name (str):
             data_location (str):
@@ -69,7 +71,7 @@ class Fitting(plugin_templates.ShellMain):
         self._kernel_processing = kernel_processing
         self._likelihood_type = likelihood_type
         self._generated_length = generated_length
-        self._function_location = function_location
+        self._functions_location = functions_location
         self._processing_name = processing_name
         self._setup_name = setup_name
         self._data_location = data_location
@@ -84,6 +86,17 @@ class Fitting(plugin_templates.ShellMain):
         self._processing_function = None  # type: object
         self._setup_function = None  # type: object
 
+    def _check_params(self):
+        if isinstance(self._functions_location, type(None)):
+            raise ValueError(
+                "Received nothing for the function's location! \n"
+                "Set 'function's location' under 'General Fitting'"
+            )
+        if not os.path.exists(os.path.abspath(self._functions_location)):
+            raise ValueError(
+                "The 'function's location' doesn't point to a valid path!"
+            )
+
     def _load_data(self):
         self._data_raw_data = self._data_parser.parse(self._data_location)
 
@@ -94,7 +107,7 @@ class Fitting(plugin_templates.ShellMain):
 
     def _load_functions(self):
         loader = plugin_loader.SingleFunctionLoader(
-            self._function_location
+            self._functions_location
         )
 
         self._processing_function = loader.fetch_function(
@@ -106,6 +119,7 @@ class Fitting(plugin_templates.ShellMain):
         )
 
     def start(self):
+        self._check_params()
         self._load_data()
         self._setup_data()
         self._load_functions()
