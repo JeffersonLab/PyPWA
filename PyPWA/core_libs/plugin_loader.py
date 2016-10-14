@@ -176,7 +176,13 @@ class SingleFunctionLoader(object):
         self._logger.addHandler(logging.NullHandler())
         self._module = None  # type: type(PyPWA)
 
-        self._load_module(the_file)
+        try:
+            self._load_module(the_file)
+        except AttributeError:
+            if isinstance(the_file, type(None)):
+                raise ValueError(
+                    "Expected a file location, received None instead!"
+                )
 
     def _load_module(self, the_file):
         sys.path.append(
@@ -193,3 +199,11 @@ class SingleFunctionLoader(object):
         except Exception:
             if fail:
                 raise
+            else:
+                return empty
+
+
+# A simple empty function for when we don't care too much about what is
+# loaded for the program.
+def empty():
+    pass
