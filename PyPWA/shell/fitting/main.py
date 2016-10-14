@@ -44,7 +44,7 @@ class Fitting(plugin_templates.ShellMain):
             kernel_processing=None, likelihood_type=None,
             generated_length=None, functions_location=None,
             processing_name=None, setup_name=None, data_location=None,
-            monte_carlo_location=None, save_name=None, **options
+            accepted_monte_carlo_location=None, save_name=None, **options
     ):
         """
 
@@ -58,7 +58,7 @@ class Fitting(plugin_templates.ShellMain):
             processing_name (str):
             setup_name (str):
             data_location (str):
-            monte_carlo_location (str):
+            accepted_monte_carlo_location (str):
             save_name (str):
             options (dict):
         """
@@ -75,7 +75,8 @@ class Fitting(plugin_templates.ShellMain):
         self._processing_name = processing_name
         self._setup_name = setup_name
         self._data_location = data_location
-        self._monte_carlo_location = monte_carlo_location
+        self._accepted_monte_carlo_location \
+            = accepted_monte_carlo_location
         self._save_name = save_name
         if options:
             super(Fitting, self).__init__(options)
@@ -100,9 +101,9 @@ class Fitting(plugin_templates.ShellMain):
     def _load_data(self):
         self._data_raw_data = self._data_parser.parse(self._data_location)
 
-        if self._monte_carlo_location:
+        if self._accepted_monte_carlo_location:
             self._monte_carlo_raw_data = self._data_parser.parse(
-                self._monte_carlo_location
+                self._accepted_monte_carlo_location
             )
 
     def _load_functions(self):
@@ -189,7 +190,7 @@ class Fitting(plugin_templates.ShellMain):
             self._data_raw_data, "data"
         )
 
-        if self._monte_carlo_raw_data:
+        if isinstance(self._monte_carlo_raw_data, numpy.ndarray):
             corrected_monte_carlo = self._filter_data(
                 self._monte_carlo_raw_data, "monte_carlo"
             )
