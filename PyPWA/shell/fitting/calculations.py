@@ -18,11 +18,11 @@
 Holds the various likelihood calculations.
 """
 
+import logging
+
 import numpy
-
-from PyPWA.core_libs.templates import interface_templates
-
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs.templates import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -145,6 +145,8 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         Args:
             minimizer_function (interface_templates.MinimizerParserTemplate):
         """
+        self._logger = logging.getLogger(__name__)
+
         self._parameter_parser = minimizer_function
 
     def run(self, communication, *args):
@@ -170,4 +172,6 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         for index, pipe in enumerate(communication):
             values[index] = pipe.receive()
 
-        return numpy.sum(values)
+        final_value = numpy.sum(values)
+        self._logger.info("Final Value is: %f15" % final_value)
+        return final_value
