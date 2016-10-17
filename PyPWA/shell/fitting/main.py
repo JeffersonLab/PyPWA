@@ -116,6 +116,10 @@ class Fitting(plugin_templates.ShellMain):
             self._data_raw_data, "data"
         )
 
+        data_length = len(
+            corrected_data["data"][corrected_data["data"].dtype.names[0]]
+        )
+
         if isinstance(self._monte_carlo_raw_data, numpy.ndarray):
             self._logger.info("Corrected monte carlo")
             corrected_monte_carlo = self._filter_data(
@@ -125,8 +129,21 @@ class Fitting(plugin_templates.ShellMain):
             corrected["monte_carlo"] \
                 = corrected_monte_carlo["monte_carlo"]
 
-        corrected["data"] = corrected_data["data"]
+        if "qfactor" in corrected_data.keys():
+            self._logger.info("Extracted QFactors")
+            corrected["qfactor"] = corrected_data["qfactor"]
+        else:
+            self._logger.info("No QFactor found, defaulting to ones.")
+            corrected["qfactor"] = numpy.ones(data_length)
 
+        if "binned" in corrected_data.keys():
+            self._logger.info("Found binned data.")
+            corrected["binned"] = corrected_data["binned"]
+        else:
+            self._logger.info("No binned data found, defaulting to ones.")
+            corrected["binned"] = numpy.ones(data_length)
+
+        corrected["data"] = corrected_data["data"]
         self._logger.debug("Corrected data: " + repr(corrected))
         self._corrected_data = corrected
 
