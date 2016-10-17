@@ -97,7 +97,7 @@ class Minuit(plugin_templates.MinimizerTemplate):
         """
         self._check_params()
 
-        self._logger.debug(self._settings)
+        self._logger.debug("Found settings: " + repr(self._settings))
         minimal = iminuit.Minuit(
             self._calc_function,
             forced_parameters=self._parameters,
