@@ -99,12 +99,36 @@ class Fitting(plugin_templates.ShellMain):
             )
 
     def _load_data(self):
+        self._logger.info("Found data.")
         self._data_raw_data = self._data_parser.parse(self._data_location)
 
         if self._accepted_monte_carlo_location:
+            self._logger.info("Found monte carlo.")
             self._monte_carlo_raw_data = self._data_parser.parse(
                 self._accepted_monte_carlo_location
             )
+
+    def _setup_data(self):
+        corrected = {}
+
+        self._logger.info("Corrected data.")
+        corrected_data = self._filter_data(
+            self._data_raw_data, "data"
+        )
+
+        if isinstance(self._monte_carlo_raw_data, numpy.ndarray):
+            self._logger.info("Corrected monte carlo")
+            corrected_monte_carlo = self._filter_data(
+                self._monte_carlo_raw_data, "monte_carlo"
+            )
+
+            corrected["monte_carlo"] \
+                = corrected_monte_carlo["monte_carlo"]
+
+        corrected["data"] = corrected_data["data"]
+
+        self._logger.debug("Corrected data: " + repr(corrected))
+        self._corrected_data = corrected
 
     def _load_functions(self):
         loader = plugin_loader.SingleFunctionLoader(
@@ -137,6 +161,8 @@ class Fitting(plugin_templates.ShellMain):
             self._start_likelihood(interface_kernel)
 
     def _start_chi(self, interface_kernel):
+        self._logger.info("Using likelihood: chi-squared")
+
         chi_kernel = calculations.Chi(
             self._setup_function, self._processing_function
         )
@@ -151,11 +177,17 @@ class Fitting(plugin_templates.ShellMain):
 
     def _start_likelihood(self, interface_kernel):
         if "monte_carlo" in list(self._corrected_data.keys()):
+            self._logger.info("Using likelihood: Extended Likelihood")
+
             kernel = calculations.ExtendedLikelihoodAmplitude(
                 self._setup_function, self._processing_function,
                 self._generated_length
             )
         else:
+            self._logger.info(
+                "Using likelihood: Unextended binned likelihood"
+            )
+
             kernel = calculations.UnextendedLikelihoodAmplitude(
                 self._setup_function, self._processing_function
             )
@@ -182,26 +214,6 @@ class Fitting(plugin_templates.ShellMain):
         self._minimization.start()
         interface.stop()
         self._minimization.save_extra(self._save_name)
-
-    def _setup_data(self):
-        corrected = {}
-
-        corrected_data = self._filter_data(
-            self._data_raw_data, "data"
-        )
-
-        if isinstance(self._monte_carlo_raw_data, numpy.ndarray):
-            corrected_monte_carlo = self._filter_data(
-                self._monte_carlo_raw_data, "monte_carlo"
-            )
-
-            for key in list(corrected_monte_carlo.keys()):
-                corrected[key] = corrected_monte_carlo[key]
-
-        for key in list(corrected_data.keys()):
-            corrected[key] = corrected_data[key]
-
-        self._corrected_data = corrected_data
 
     @staticmethod
     def _filter_data(array, main_name):
