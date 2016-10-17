@@ -217,6 +217,8 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
         for process in processes:
             process.start()
 
+        self._logger.debug("I have {0} processes!".format(len(processes)))
+
         return _ProcessInterface(
             self._interface_template, com, processes, self._duplex
         )
@@ -251,6 +253,7 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
             for key in chunk.keys():
                 setattr(temp_kernel, key, chunk[key])
             processes.append(temp_kernel)
+
         return processes
 
     @staticmethod
