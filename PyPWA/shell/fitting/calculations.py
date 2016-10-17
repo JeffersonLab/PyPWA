@@ -76,11 +76,12 @@ class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
             data:
             accepted:
         """
-        try:
-            value = -(numpy.sum(self.qfactor * numpy.log(data))) + \
-                     (self._processed * numpy.sum(accepted))
-        except ZeroDivisionError:
-            value = numpy.NaN
+        if numpy.any(data == 0):
+            print("WARNING, Found Zeros! " + repr(
+                numpy.count_nonzero(data == 0)
+            ))
+        value = -(numpy.sum(self.qfactor * numpy.log(data))) + \
+                 (self._processed * numpy.sum(accepted))
 
         return value
 
