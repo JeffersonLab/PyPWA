@@ -100,7 +100,7 @@ class Simulator(plugin_templates.ShellMain):
             self._raw_data, the_kernel, the_interface
         )
 
-        operational_interface = self._kernel_processing.fetch_interface()
+        operational_interface = self._kernel_processing.fetch_interface
         self._intensities, self._max_intensity = operational_interface.run()
 
     def _rejection_method(self):
