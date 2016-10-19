@@ -135,6 +135,7 @@ class StartProgram(object):
 
         if not arguments.WriteConfig and arguments.configuration == "":
             parser.print_help()
+            sys.exit()
 
         return arguments
 
