@@ -21,6 +21,8 @@ requested to determine what information is needed to be loaded and how it
 needs to be structured to be able to function in the users desired way.
 """
 
+import logging
+
 import PyPWA.libs
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
@@ -43,6 +45,9 @@ __version__ = VERSION
 class Configurator(configurator_templates.ShellCoreTemplate):
 
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
         self._config_parser = config_loader.ConfigParser()
         self._settings_aid = _tools.SettingsAid()
 
@@ -60,6 +65,9 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         plugin_name = function_settings["main name"]
         plugin_id = function_settings["main"]
         settings = None
+
+        self._logger.debug("Searching for ID: {0}".format(plugin_id))
+        self._logger.debug("Searching for name: {0}".format(plugin_name))
 
         try:
             settings = function_settings["main options"]
