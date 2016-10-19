@@ -1,12 +1,12 @@
-import numpy
-
 import io
+import logging
 import random
 import time
 
+import numpy
 from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.core_libs.templates import interface_templates
+from PyPWA.core_libs.templates import plugin_templates
 
 
 class Simulator(plugin_templates.ShellMain):
@@ -122,6 +122,10 @@ class IntensityInterface(interface_templates.AbstractInterface):
 
     is_duplex = False
 
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
     def run(self, communicator, args):
         """
 
@@ -133,12 +137,15 @@ class IntensityInterface(interface_templates.AbstractInterface):
 
         """
 
-        final_array = numpy.zeros(len(communicator))
+        list_of_data = list(range(len(communicator)))
 
         for communication in communicator:
             data = communication.receive()
-            final_array[data[0]] = data[1]
+            self._logger.debug("Received data: " + repr(data))
+            list_of_data[data[0]] = data[1]
 
+        final_array = numpy.concatenate(list_of_data)
+        self._logger.debug("Final Array: " + repr(final_array))
         return [final_array, final_array.max()]
 
 
