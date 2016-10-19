@@ -175,7 +175,12 @@ class SimpleConfigBuilder(object):
 
         if provided_options:
             for option in provided_options:
-                self._settings[shell_id].pop(option)
+                try:
+                    self._settings[shell_id].pop(option)
+                except KeyError:
+                    raise AttributeError(
+                        "There is no option '{0}'!".format(option)
+                    )
 
         self._settings[main_name] = self._settings[shell_id]
         self._settings.pop(shell_id)
