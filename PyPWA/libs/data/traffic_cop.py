@@ -118,6 +118,9 @@ class DataCoreTools(object):
                 if extension == "" or extension in supported_extensions:
                     plugin_found = True
                     final_plugin = the_plugin
+                    break
+
+        self._logger.debug("Found Plugin: " + repr(final_plugin))
 
         return [plugin_found, final_plugin]
 
@@ -232,12 +235,9 @@ class Memory(plugin_templates.DataParserTemplate, DataCoreTools):
             file_location, data
         )
 
-        try:
-            returned_parser = the_plugin.plugin_memory_parser()
-            parser = returned_parser()
-            parser.write(file_location, data)
-        except AttributeError:
-            pass
+        returned_parser = the_plugin.plugin_memory_parser()
+        parser = returned_parser()
+        parser.write(file_location, data)
 
         if self._cache:
             cache_location = self._data_locator.find_cache_dir(
