@@ -36,10 +36,10 @@ setup(
     test_suite="tests",
     entry_points={
         "console_scripts": [
-            "GeneralFitting = PyPWA.entries.shell:general_fitting",
-            "LikelihoodFitting = PyPWA.entries.shell:likelihood_fitting",
-            "ChiSquaredFitting = PyPWA.entries.shell:chi_squared",
-            "PySimulator = PyPWA.entries.shell:simulator",
+            "PyFit = PyPWA.entries.shell:general_fitting",
+            "LikelihoodFit = PyPWA.entries.shell:likelihood_fitting",
+            "ChiSquaredFit = PyPWA.entries.shell:chi_squared",
+            "PySimulate = PyPWA.entries.shell:simulator",
             "GenerateIntensities = PyPWA.entries.shell:intensities",
             "GenerateWeights = PyPWA.entries.shell:rejection_method"
         ]
