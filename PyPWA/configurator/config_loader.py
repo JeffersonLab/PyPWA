@@ -187,7 +187,7 @@ class SimpleConfigBuilder(object):
 
     def _set_save_location(self, save_location=False):
         question = "\nWhat would you like to name the configuration " \
-                   "file?\n[File Name?]: "
+                   "file?\nFile Name?: "
 
         if save_location:
             self._save_location = save_location
@@ -328,6 +328,10 @@ It looks like you selected '{0}', is this correct?
             value = fuzzywuzzy.process.extractOne(
                 is_correct.lower(), ["yes", "no"]
             )
+
+            if is_correct == "":
+                final_answer = "yes"
+                break
 
             if value[1] > self._auto_correction_percentage:
                 if value[0] == "yes":
