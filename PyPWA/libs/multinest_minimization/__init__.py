@@ -30,7 +30,7 @@ MULTINEST_FAIL = False
 try:
     import pymultinest
     from PyPWA.libs.multinest_minimization import minimization
-except ImportError:
+except (ImportError, AttributeError):
     MULTINEST_FAIL = True
 
 if not MULTINEST_FAIL:
