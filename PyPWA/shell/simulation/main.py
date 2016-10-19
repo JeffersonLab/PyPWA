@@ -54,10 +54,18 @@ class Simulator(plugin_templates.ShellMain):
         self._intensities = None  # type: numpy.ndarray
 
     def start(self):
-        if self._the_type == "full" or self._the_type == "intensities":
+        if self._the_type == "full":
             self._calc_intensities()
-        if self._the_type == "full" or self._the_type == "weighting":
             self._rejection_method()
+        elif self._the_type == "intensities":
+            self._calc_intensities()
+        elif self._the_type == "weighting":
+            self._rejection_method()
+        else:
+            raise RuntimeError(
+                "The type is not set correctly! Found: " +
+                repr(self._the_type)
+            )
 
         if self._the_type == "intesities":
             self._data_parser.write(
