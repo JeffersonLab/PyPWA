@@ -30,12 +30,14 @@ class PluginStorage(object):
 
         templates = {}
         for plugin in self._plugins:
-            templates[plugin.request_metadata("name")] = \
-                plugin.request_options("template")
+            the_plugin = plugin()
+            templates[the_plugin.request_metadata("name")] = \
+                the_plugin.request_options("template")
 
         for main in self._shell:
-            templates[main.request_metadata("id")] = \
-                main.request_options("template")
+            the_main = main()
+            templates[the_main.request_metadata("id")] = \
+                the_main.request_options("template")
 
         self._templates = templates
 
@@ -49,14 +51,16 @@ class PluginStorage(object):
 
         """
         for main in self._shell:
-            if main.request_metadata("id") == the_id:
-                return main
+            the_main = main()
+            if the_main.request_metadata("id") == the_id:
+                return the_main
         return False
 
     def request_plugin_by_name(self, name):
         for plugin in self._plugins:
-            if plugin.request_metadata("name") == name:
-                return plugin
+            the_plugin = plugin()
+            if the_plugin.request_metadata("name") == name:
+                return the_plugin
         return False
 
     @property

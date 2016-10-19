@@ -30,86 +30,82 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+initializer = StartProgram(configurator.Configurator)
 
-@StartProgram(configurator.Configurator)
+
 def general_fitting(*args):
-    description = u"An extremely fitting shell that allows the User" \
+    description = u"A fitting shell that allows the User " \
                   u"to select their own likelihood and function."
     configuration = {
         "description": description,
         "main": "shell fitting method",
-        "main name": "general fitting",
+        "main name": "General Fitting",
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def likelihood_fitting(*args):
     description = u"Amplitude Fitting using the Likelihood Estimation " \
                   u"Method."
     configuration = {
         "description": description,
         "main": "shell fitting method",
-        "main name": "likelihood fitting",
-        "main options": {"type": "likelihood"},
+        "main name": "Likelihood Fitting",
+        "main options": {"likelihood type": "likelihood"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def chi_squared(*args):
     description = u"Amplitude Fitting using the ChiSquared Method."
     configuration = {
         "description": description,
         "main": "shell fitting method",
-        "main name": "chi-squared fitting",
+        "main name": "Chi-Squared Fitting",
         "main options": {
-            "type": "chi-squared",
+            "likelihood type": "chi-squared",
             "generated length": None,
             "accepted monte carlo location": None
         },
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def simulator(*args):
     description = u"Simulation using the the Acceptance Reject Method."
     configuration = {
         "description": description,
         "main": "shell simulation",
-        "main name": "simulator",
-        "main options": {"type": "complete"},
+        "main name": "Simulator",
+        "main options": {"the type": "complete"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def intensities(*args):
     description = u"Generates the Intensities for Rejection Method."
     configuration = {
         "description": description,
         "main": "shell simulation",
-        "main name": "intensities",
-        "main options": {"type": "intensities"},
+        "main name": "Intensities",
+        "main options": {"the type": "intensities"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def rejection_method(*args):
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method."
     configuration = {
         "description": description,
         "main": "shell simulation",
-        "main name": "rejection method",
-        "main options": {"type": "rejection"},
+        "main name": "Rejection Method",
+        "main options": {"the type": "rejection"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)

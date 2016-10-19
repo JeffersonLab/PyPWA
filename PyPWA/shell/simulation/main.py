@@ -1,8 +1,13 @@
 import numpy
 
+import io
+import random
+import time
+
 from PyPWA.core_libs import plugin_loader
 from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.core_libs.templates import interface_templates
+
 
 class Simulator(plugin_templates.ShellMain):
 
@@ -36,6 +41,8 @@ class Simulator(plugin_templates.ShellMain):
         self._processing_name = processing_name
         self._setup_name = setup_name
         self._data_location = data_location
+        self._intensities = False
+        self._rejection_list = False
         self._parameters = parameters
         self._max_intensity = max_intensity
         self._save_name = save_name
@@ -51,6 +58,20 @@ class Simulator(plugin_templates.ShellMain):
             self._calc_intensities()
         if self._the_type == "full" or self._the_type == "weighting":
             self._rejection_method()
+
+        if self._the_type == "intesities":
+            self._data_parser.write(
+                self._intensities, self._save_name + "_intensities.txt"
+            )
+
+            with io.open(self._save_name + "_max.txt") as stream:
+                stream.write(str(self._max_intensity))
+
+        elif self._the_type == "weighting" or self._the_type == "full":
+            self._data_parser.write(
+                self._rejection_list,
+                self._save_name + "_rejection.txt"
+            )
 
     def _calc_intensities(self):
         loader = plugin_loader.SingleFunctionLoader(
@@ -72,12 +93,21 @@ class Simulator(plugin_templates.ShellMain):
         )
 
         operational_interface = self._kernel_processing.fetch_interface()
-        final_value = operational_interface.run()
-
+        self._intensities, self._max_intensity = operational_interface.run()
 
     def _rejection_method(self):
+        if not self._intensities:
+            self._intensities = self._data_parser.parse(self._data_location)
 
+        the_random = random.SystemRandom(time.gmtime())
 
+        weighted_list = self._intensities / self._max_intensity
+        rejection = numpy.zeros(shape=len(weighted_list), dtype=bool)
+        for index, event in enumerate(rejection):
+            if event > the_random.random():
+                rejection[index] = True
+
+        self._rejection_list = rejection
 
 
 class IntensityInterface(interface_templates.AbstractInterface):
@@ -97,10 +127,12 @@ class IntensityInterface(interface_templates.AbstractInterface):
 
         final_array = numpy.zeros(len(communicator))
 
-        for index, communication in enumerate(communicator):
-            final_array[index] = communication.recv()
+        for communication in communicator:
+            data = communication.recv()
+            final_array[data[0]] = data[1]
 
-        return final_array
+        return [final_array, final_array.max()]
+
 
 class IntensityKernel(interface_templates.AbstractKernel):
 
@@ -121,4 +153,7 @@ class IntensityKernel(interface_templates.AbstractKernel):
         self._setup_function()
 
     def process(self, data=False):
-        return self._processing_function(self._parameters, self.data)
+        return [
+            self.processor_id,
+            self._processing_function(self._parameters, self.data)
+            ]

@@ -21,6 +21,8 @@ requested to determine what information is needed to be loaded and how it
 needs to be structured to be able to function in the users desired way.
 """
 
+import logging
+
 import PyPWA.libs
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
@@ -32,11 +34,7 @@ from PyPWA.core_libs.templates import configurator_templates
 from PyPWA.core_libs.templates import option_templates
 
 __author__ = ["Mark Jones"]
-__credits__ = [
-    "Mark Jones",
-    "jp. @ Stack Overflow",
-    "unutbu @ Stack Overflow"
-]
+__credits__ = ["Mark Jones"]
 __maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
 __status__ = STATUS
@@ -47,6 +45,9 @@ __version__ = VERSION
 class Configurator(configurator_templates.ShellCoreTemplate):
 
     def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
         self._config_parser = config_loader.ConfigParser()
         self._settings_aid = _tools.SettingsAid()
 
@@ -65,6 +66,9 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         plugin_id = function_settings["main"]
         settings = None
 
+        self._logger.debug("Searching for ID: {0}".format(plugin_id))
+        self._logger.debug("Searching for name: {0}".format(plugin_name))
+
         try:
             settings = function_settings["main options"]
         except KeyError:
@@ -82,9 +86,16 @@ class Configurator(configurator_templates.ShellCoreTemplate):
                 main_plugin = temp_object
                 break
 
-        config_maker = config_loader.MakeConfiguration()
+        if not main_plugin:
+            raise RuntimeError(
+                "There was no main plugin found for id '{0}'!".format(
+                    plugin_id
+                )
+            )
 
-        config_maker.make_configuration(
+        config_maker = config_loader.SimpleConfigBuilder()
+
+        config_maker.build_configuration(
             plugin_name, main_plugin, settings,
             application_settings.configuration
         )
@@ -99,15 +110,18 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         Returns:
 
         """
-        extra_plugins = ""
+        extra_plugins = False
 
         parsed_config = self._config_parser.read_config(
             configuration_location
         )
 
-        for key in list(function_settings["main options"].keys()):
-            parsed_config[function_settings["main name"]][key] = \
-                function_settings["main options"][key]
+        try:
+            for key in list(function_settings["main options"].keys()):
+                parsed_config[function_settings["main name"]][key] = \
+                    function_settings["main options"][key]
+        except KeyError:
+            pass
 
         parsed_config[function_settings["main"]] = \
             parsed_config[function_settings["main name"]]
@@ -137,7 +151,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
     def _add_configuration_settings(templates):
         special_sauce = ConfiguratorOptions()
         templates[special_sauce.request_metadata("name")] = \
-            special_sauce.request_options("templates")
+            special_sauce.request_options("template")
         return templates
 
 
@@ -156,13 +170,13 @@ class ShellLauncher(object):
     def start(self):
         the_ids = list(self._settings.keys())
         main = None  # type: option_templates.MainOptionsTemplate
-        plugins = {}
+        plugins = []
         initialized_plugins = {}
 
         for the_id in the_ids:
             temp = self._plugin_storage.request_plugin_by_name(the_id)
             if temp:
-                plugins[the_id] = temp
+                plugins.append(temp)
 
         for the_id in the_ids:
             temp = self._plugin_storage.request_main_by_id(the_id)
@@ -173,16 +187,16 @@ class ShellLauncher(object):
             name = plugin.request_metadata("name")
             the_type = plugin.request_metadata("provides")
             interface = plugin.request_metadata("interface")
-            initialized = interface(self._settings[name])
+            initialized = interface(**self._settings[name])
             initialized_plugins[the_type] = initialized
 
-        main_settings = self._settings[main.request_metadata("name")]
+        main_settings = self._settings[main.request_metadata("id")]
 
         for key in list(initialized_plugins.keys()):
-            main_settings[key] = plugins[key]
+            main_settings[key] = initialized_plugins[key]
 
         shell = main.request_metadata("object")
-        initialized_shell = shell(main_settings)
+        initialized_shell = shell(**main_settings)
         initialized_shell.start()
 
 

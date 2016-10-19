@@ -52,49 +52,45 @@ class StartProgram(object):
         """
         self.builder = builder(*args)
 
-    def __call__(self, function):
+    def start(self, configuration):
         """
         The method that will be passed the function when the function is
         called.
 
         Args:
-            function (function): The simple function that contains
-                whatever default logic that is needed for the program to
-                work.
+            configuration (dict): The configuration that should be passed
+                to the builder.
 
         Returns:
             The final value of the wrapped function.
         """
-        def decorated_builder(*args):
-            application_configuration = function(args)
-            if application_configuration["extras"][0]:
-                print(
-                    "[INFO] Caught something unaccounted for, "
-                    "this should be reported, caught: "
-                    "{}".format(application_configuration["extras"][0])
-                )
 
-            arguments = self.parse_arguments(
-                application_configuration["description"]
+        if configuration["extras"]:
+            print(
+                "[INFO] Caught something unaccounted for, "
+                "this should be reported, caught: "
+                "{}".format(configuration["extras"][0])
             )
 
-            if arguments.verbose:
-                self._return_logging_level(arguments.verbose)
-            else:
-                self._return_logging_level()
+        arguments = self.parse_arguments(
+            configuration["description"]
+        )
 
-            if arguments.WriteConfig:
-                self.write_config(application_configuration, arguments)
-                return
+        if arguments.verbose:
+            self._return_logging_level(arguments.verbose)
+        else:
+            self._return_logging_level()
 
-            sys.stdout.write("\x1b[2J\x1b[H")
-            sys.stdout.write(self._opening_art())
+        if arguments.WriteConfig:
+            self.write_config(configuration, arguments)
+            sys.exit()
 
-            self.builder.run(
-                application_configuration, arguments.configuration
-            )
+        sys.stdout.write("\x1b[2J\x1b[H")
+        sys.stdout.write(self._opening_art())
 
-        return decorated_builder()
+        self.builder.run(
+            configuration, arguments.configuration
+        )
 
     @staticmethod
     def parse_arguments(description):
@@ -128,7 +124,8 @@ class StartProgram(object):
         parser.add_argument(
             "--verbose", "-v", action="count",
             help="Adds logging, defaults to errors, then setups up on "
-                 "from there. -v will include warning, -vvv will show "
+                 "from there. -v will include warning, -vv will show "
+                 "warnings and info, and -vvv will show info, warnings, "
                  "debugging."
         )
 
@@ -136,6 +133,7 @@ class StartProgram(object):
 
         if not arguments.WriteConfig and arguments.configuration == "":
             parser.print_help()
+            sys.exit()
 
         return arguments
 

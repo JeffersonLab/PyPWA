@@ -1,11 +1,42 @@
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+"""
 import importlib
 import logging
+import os
 import pkgutil
 import sys
 
-import os
-
 import PyPWA
+from PyPWA import VERSION, LICENSE, STATUS
+
+__author__ = ["Mark Jones"]
+__credits__ = [
+    "Mark Jones",
+    "jp. @ Stack Overflow",
+    "unutbu @ Stack Overflow"
+]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class PluginLoading(object):
@@ -140,20 +171,26 @@ class PluginLoading(object):
 
 
 class SingleFunctionLoader(object):
-    def __init__(self, file):
+    def __init__(self, the_file):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
         self._module = None  # type: type(PyPWA)
 
-        self._load_module(file)
+        try:
+            self._load_module(the_file)
+        except AttributeError:
+            if isinstance(the_file, type(None)):
+                raise ValueError(
+                    "Expected a file location, received None instead!"
+                )
 
-    def _load_module(self, file):
+    def _load_module(self, the_file):
         sys.path.append(
-            os.path.dirname(os.path.abspath(file))
+            os.path.dirname(os.path.abspath(the_file))
         )
 
         self._module = importlib.import_module(
-            os.path.splitext(os.path.basename(file))[0]
+            os.path.splitext(os.path.basename(the_file))[0]
         )
 
     def fetch_function(self, function_name, fail=False):
@@ -162,3 +199,11 @@ class SingleFunctionLoader(object):
         except Exception:
             if fail:
                 raise
+            else:
+                return empty
+
+
+# A simple empty function for when we don't care too much about what is
+# loaded for the program.
+def empty():
+    pass

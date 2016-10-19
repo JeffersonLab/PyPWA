@@ -17,6 +17,8 @@
 """
 
 """
+import logging
+import re
 
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -31,8 +33,15 @@ __version__ = VERSION
 
 class _InitialOptions(object):
     def __init__(self, options):
+        local_logger = logging.getLogger(__name__)
+        local_logger.addHandler(logging.NullHandler())
+
         for key in list(options.keys()):
-            setattr(self, "_" + key.replace(" ", "_"), options[key])
+            underscores = "_" + key.replace(" ", "_")
+            lowercase = underscores.lower()
+            final = re.sub(r'[^a-z0-9_]', '', lowercase)
+            local_logger.debug("Converted {0} to {1}".format(key, final))
+            setattr(self, final, options[key])
 
 
 class MinimizerTemplate(_InitialOptions):

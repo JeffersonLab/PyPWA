@@ -134,6 +134,9 @@ class AbstractKernel(object):
     processes.
     """
 
+    # The ID of the process to aid in ordering.
+    processor_id = None
+
     def setup(self):
         """
         This method will be called once before any processing occurs, if

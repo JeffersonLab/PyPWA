@@ -17,12 +17,21 @@
 """
 Holds the various likelihood calculations.
 """
+from __future__ import print_function
+
+import threading
+import logging
+import time
+
+try:
+    from queue import Queue
+except ImportError:
+    from Queue import Queue
+
 
 import numpy
-
-from PyPWA.core_libs.templates import interface_templates
-
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core_libs.templates import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -76,11 +85,12 @@ class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
             data:
             accepted:
         """
-        try:
-            value = -(numpy.sum(self.qfactor * numpy.log(data))) + \
-                     (self._processed * numpy.sum(accepted))
-        except ZeroDivisionError:
-            value = numpy.NaN
+        if numpy.any(data == 0):
+            print("WARNING, Found Zeros! " + repr(
+                numpy.count_nonzero(data == 0)
+            ))
+        value = -(numpy.sum(self.qfactor * numpy.log(data))) + \
+                 (self._processed * numpy.sum(accepted))
 
         return value
 
@@ -145,7 +155,14 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         Args:
             minimizer_function (interface_templates.MinimizerParserTemplate):
         """
+        self._logger = logging.getLogger(__name__)
+
         self._parameter_parser = minimizer_function
+        self._last_value = None
+        self._send_queue = Queue()
+        self._receive_queue = Queue()
+        self._times = []
+        self._thread = None
 
     def run(self, communication, *args):
         """
@@ -159,6 +176,7 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         Returns:
             float: The final value from the likelihood function
         """
+        self._output_handler()
 
         parsed_arguments = self._parameter_parser.convert(args)
 
@@ -168,6 +186,93 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         values = numpy.zeros(shape=len(communication))
 
         for index, pipe in enumerate(communication):
-            values[index] = pipe.recieve()
+            values[index] = pipe.receive()
 
-        return numpy.sum(values)
+        final_value = numpy.sum(values)
+        self._last_value = final_value
+        self._output_handler(True)
+        self._logger.info("Final Value is: %f15" % final_value)
+        return final_value
+
+    def _output_handler(self, end=False):
+        if end:
+            self._kill_thread()
+        else:
+            self._create_thread()
+
+    def _kill_thread(self):
+        self._send_queue.put("die")
+        self._times.append(float(self._receive_queue.get()))
+
+    def _average_time(self):
+        if len(self._times) > 0:
+            return sum(self._times) / len(self._times)
+        else:
+            return 0
+
+    def _create_thread(self):
+        if len(self._times) == 0:
+            last_time = 0
+        else:
+            last_time = self._times[-1]
+
+        self._thread = OutputThread(
+            self._receive_queue, self._send_queue,
+            self._last_value, last_time, self._average_time()
+        )
+        self._thread.start()
+
+
+class OutputThread(threading.Thread):
+
+    def __init__(
+            self, send_queue, receive_queue, last_value,
+            last_time, average_time
+    ):
+        self._output_pulse = "-"
+        self._send_queue = send_queue
+        self._receive_queue = receive_queue
+        self._last_value = last_value
+        self._last_time = last_time
+        self._average_time = average_time
+        self._initial_time = time.time()
+        super(OutputThread, self).__init__()
+
+    def _pulse(self):
+        if self._output_pulse is "-":
+            self._output_pulse = "/"
+        elif self._output_pulse is "/":
+            self._output_pulse = "\\"
+        elif self._output_pulse is "\\":
+            self._output_pulse = "-"
+
+    def _create_output(self):
+        self._pulse()
+
+        current_time = time.time() - self._initial_time
+
+        if isinstance(self._last_value, type(None)):
+            string = "Elapsed time: {0:.2f} {1}".format(
+                current_time, self._output_pulse
+            )
+        else:
+            string = "Last Value: {0}, Average Time: {1:.4f}, " \
+                     "Elapsed Time: {2:.2f} {3}".format(
+                      self._last_value, self._average_time,
+                      current_time, self._output_pulse
+                      )
+
+        return string
+
+    def _return_time(self):
+        self._receive_queue.get()
+        current_time = time.time() - self._initial_time
+        self._send_queue.put(current_time)
+
+    def run(self):
+        while True:
+            if not self._receive_queue.empty():
+                self._return_time()
+                break
+            time.sleep(.05)
+            print("\r" + self._create_output(), end="\r")

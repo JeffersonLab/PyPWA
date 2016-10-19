@@ -45,7 +45,7 @@ def setup_function():
         """)
 
     def _shell_id(self):
-        return "shell simulation method"
+        return "shell simulation"
 
     def _default_options(self):
         return {

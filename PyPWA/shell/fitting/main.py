@@ -17,6 +17,8 @@
 """
 Holds the various likelihood calculations.
 """
+import os
+
 import logging
 
 import numpy
@@ -40,9 +42,9 @@ class Fitting(plugin_templates.ShellMain):
     def __init__(
             self, data_parser=None, minimization=None,
             kernel_processing=None, likelihood_type=None,
-            generated_length=None, function_location=None,
+            generated_length=None, functions_location=None,
             processing_name=None, setup_name=None, data_location=None,
-            monte_carlo_location=None, save_name=None, options=None
+            accepted_monte_carlo_location=None, save_name=None, **options
     ):
         """
 
@@ -52,11 +54,11 @@ class Fitting(plugin_templates.ShellMain):
             kernel_processing (plugin_templates.KernelProcessingTemplate):
             likelihood_type (str):
             generated_length (int):
-            function_location (str):
+            functions_location (str):
             processing_name (str):
             setup_name (str):
             data_location (str):
-            monte_carlo_location (str):
+            accepted_monte_carlo_location (str):
             save_name (str):
             options (dict):
         """
@@ -69,11 +71,12 @@ class Fitting(plugin_templates.ShellMain):
         self._kernel_processing = kernel_processing
         self._likelihood_type = likelihood_type
         self._generated_length = generated_length
-        self._function_location = function_location
+        self._functions_location = functions_location
         self._processing_name = processing_name
         self._setup_name = setup_name
         self._data_location = data_location
-        self._monte_carlo_location = monte_carlo_location
+        self._accepted_monte_carlo_location \
+            = accepted_monte_carlo_location
         self._save_name = save_name
         if options:
             super(Fitting, self).__init__(options)
@@ -84,17 +87,69 @@ class Fitting(plugin_templates.ShellMain):
         self._processing_function = None  # type: object
         self._setup_function = None  # type: object
 
+    def _check_params(self):
+        if isinstance(self._functions_location, type(None)):
+            raise ValueError(
+                "Received nothing for the function's location! \n"
+                "Set 'function's location' under 'General Fitting'"
+            )
+        if not os.path.exists(os.path.abspath(self._functions_location)):
+            raise ValueError(
+                "The 'function's location' doesn't point to a valid path!"
+            )
+
     def _load_data(self):
+        self._logger.info("Found data.")
         self._data_raw_data = self._data_parser.parse(self._data_location)
 
-        if self._monte_carlo_location:
+        if self._accepted_monte_carlo_location:
+            self._logger.info("Found monte carlo.")
             self._monte_carlo_raw_data = self._data_parser.parse(
-                self._monte_carlo_location
+                self._accepted_monte_carlo_location
             )
+
+    def _setup_data(self):
+        corrected = {}
+
+        self._logger.info("Corrected data.")
+        corrected_data = self._filter_data(
+            self._data_raw_data, "data"
+        )
+
+        data_length = len(
+            corrected_data["data"][corrected_data["data"].dtype.names[0]]
+        )
+
+        if isinstance(self._monte_carlo_raw_data, numpy.ndarray):
+            self._logger.info("Corrected monte carlo")
+            corrected_monte_carlo = self._filter_data(
+                self._monte_carlo_raw_data, "monte_carlo"
+            )
+
+            corrected["monte_carlo"] \
+                = corrected_monte_carlo["monte_carlo"]
+
+        if "qfactor" in corrected_data.keys():
+            self._logger.info("Extracted QFactors")
+            corrected["qfactor"] = corrected_data["qfactor"]
+        else:
+            self._logger.info("No QFactor found, defaulting to ones.")
+            corrected["qfactor"] = numpy.ones(data_length)
+
+        if "binned" in corrected_data.keys():
+            self._logger.info("Found binned data.")
+            corrected["binned"] = corrected_data["binned"]
+        else:
+            self._logger.info("No binned data found, defaulting to ones.")
+            corrected["binned"] = numpy.ones(data_length)
+
+        corrected["data"] = corrected_data["data"]
+        self._logger.debug("Corrected data: " + repr(corrected))
+        self._corrected_data = corrected
 
     def _load_functions(self):
         loader = plugin_loader.SingleFunctionLoader(
-            self._function_location
+            self._functions_location
         )
 
         self._processing_function = loader.fetch_function(
@@ -106,6 +161,7 @@ class Fitting(plugin_templates.ShellMain):
         )
 
     def start(self):
+        self._check_params()
         self._load_data()
         self._setup_data()
         self._load_functions()
@@ -122,6 +178,8 @@ class Fitting(plugin_templates.ShellMain):
             self._start_likelihood(interface_kernel)
 
     def _start_chi(self, interface_kernel):
+        self._logger.info("Using likelihood: chi-squared")
+
         chi_kernel = calculations.Chi(
             self._setup_function, self._processing_function
         )
@@ -136,11 +194,17 @@ class Fitting(plugin_templates.ShellMain):
 
     def _start_likelihood(self, interface_kernel):
         if "monte_carlo" in list(self._corrected_data.keys()):
+            self._logger.info("Using likelihood: Extended Likelihood")
+
             kernel = calculations.ExtendedLikelihoodAmplitude(
                 self._setup_function, self._processing_function,
                 self._generated_length
             )
         else:
+            self._logger.info(
+                "Using likelihood: Unextended binned likelihood"
+            )
+
             kernel = calculations.UnextendedLikelihoodAmplitude(
                 self._setup_function, self._processing_function
             )
@@ -149,7 +213,7 @@ class Fitting(plugin_templates.ShellMain):
             self._corrected_data, kernel, interface_kernel
         )
 
-        interface = self._kernel_processing.fetch_interface()
+        interface = self._kernel_processing.fetch_interface
 
         self._the_end(interface, "likelihood")
 
@@ -167,26 +231,6 @@ class Fitting(plugin_templates.ShellMain):
         self._minimization.start()
         interface.stop()
         self._minimization.save_extra(self._save_name)
-
-    def _setup_data(self):
-        corrected = {}
-
-        corrected_data = self._filter_data(
-            self._data_raw_data, "data"
-        )
-
-        if self._monte_carlo_raw_data:
-            corrected_monte_carlo = self._filter_data(
-                self._monte_carlo_raw_data, "monte_carlo"
-            )
-
-            for key in list(corrected_monte_carlo.keys()):
-                corrected[key] = corrected_monte_carlo[key]
-
-        for key in list(corrected_data.keys()):
-            corrected[key] = corrected_data[key]
-
-        self._corrected_data = corrected_data
 
     @staticmethod
     def _filter_data(array, main_name):

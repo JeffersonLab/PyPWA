@@ -18,7 +18,7 @@ from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
 __license__ = "MIT"
-__version__ = "2.0.0-beta.2"
+__version__ = "2.0.0-rc1"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "beta"
@@ -36,10 +36,10 @@ setup(
     test_suite="tests",
     entry_points={
         "console_scripts": [
-            "GeneralFitting = PyPWA.entries.shell:general_fitting",
-            "LikelihoodFitting = PyPWA.entries.shell:likelihood_fitting",
-            "ChiSquaredFitting = PyPWA.entries.shell:chi_squared",
-            "PySimulator = PyPWA.entries.shell:simulator",
+            "PyFit = PyPWA.entries.shell:general_fitting",
+            "LikelihoodFit = PyPWA.entries.shell:likelihood_fitting",
+            "ChiSquaredFit = PyPWA.entries.shell:chi_squared",
+            "PySimulate = PyPWA.entries.shell:simulator",
             "GenerateIntensities = PyPWA.entries.shell:intensities",
             "GenerateWeights = PyPWA.entries.shell:rejection_method"
         ]
