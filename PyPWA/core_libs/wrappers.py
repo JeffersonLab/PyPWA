@@ -126,7 +126,8 @@ class StartProgram(object):
         parser.add_argument(
             "--verbose", "-v", action="count",
             help="Adds logging, defaults to errors, then setups up on "
-                 "from there. -v will include warning, -vvv will show "
+                 "from there. -v will include warning, -vv will show "
+                 "warnings and info, and -vvv will show info, warnings, "
                  "debugging."
         )
 
