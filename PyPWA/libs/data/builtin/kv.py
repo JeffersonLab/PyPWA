@@ -566,7 +566,7 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         return "EVIL"
 
     def plugin_supported_extensions(self):
-        return ["txt"]
+        return [".txt"]
 
     def plugin_memory_parser(self):
         return SomewhatIntelligentSelector
