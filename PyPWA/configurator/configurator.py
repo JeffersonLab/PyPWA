@@ -86,6 +86,13 @@ class Configurator(configurator_templates.ShellCoreTemplate):
                 main_plugin = temp_object
                 break
 
+        if not main_plugin:
+            raise RuntimeError(
+                "There was no main plugin found for id '{0}'!".format(
+                    plugin_id
+                )
+            )
+
         config_maker = config_loader.SimpleConfigBuilder()
 
         config_maker.build_configuration(
