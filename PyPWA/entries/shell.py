@@ -80,7 +80,7 @@ def simulator(*args):
         "description": description,
         "main": "shell simulation",
         "main name": "Simulator",
-        "main options": {"type": "complete"},
+        "main options": {"the type": "complete"},
         "extras": args
     }
     initializer.start(configuration)
@@ -92,7 +92,7 @@ def intensities(*args):
         "description": description,
         "main": "shell simulation",
         "main name": "Intensities",
-        "main options": {"type": "intensities"},
+        "main options": {"the type": "intensities"},
         "extras": args
     }
     initializer.start(configuration)
@@ -105,7 +105,7 @@ def rejection_method(*args):
         "description": description,
         "main": "shell simulation",
         "main name": "Rejection Method",
-        "main options": {"type": "rejection"},
+        "main options": {"the type": "rejection"},
         "extras": args
     }
     initializer.start(configuration)
