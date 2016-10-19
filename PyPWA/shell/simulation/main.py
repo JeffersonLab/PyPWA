@@ -69,7 +69,7 @@ class Simulator(plugin_templates.ShellMain):
 
         if self._the_type == "intesities":
             self._data_parser.write(
-                self._intensities, self._save_name + "_intensities.txt"
+                self._save_name + "_intensities.txt", self._intensities
             )
 
             with io.open(self._save_name + "_max.txt") as stream:
@@ -77,8 +77,8 @@ class Simulator(plugin_templates.ShellMain):
 
         elif self._the_type == "weighting" or self._the_type == "full":
             self._data_parser.write(
-                self._rejection_list,
-                self._save_name + "_rejection.txt"
+                self._save_name + "_rejection.txt",
+                self._rejection_list
             )
 
     def _calc_intensities(self):
@@ -104,14 +104,14 @@ class Simulator(plugin_templates.ShellMain):
         self._intensities, self._max_intensity = operational_interface.run()
 
     def _rejection_method(self):
-        if not self._intensities:
+        if not isinstance(self._intensities, numpy.ndarray):
             self._intensities = self._data_parser.parse(self._data_location)
 
         the_random = random.SystemRandom(time.gmtime())
 
         weighted_list = self._intensities / self._max_intensity
         rejection = numpy.zeros(shape=len(weighted_list), dtype=bool)
-        for index, event in enumerate(rejection):
+        for index, event in enumerate(weighted_list):
             if event > the_random.random():
                 rejection[index] = True
 
