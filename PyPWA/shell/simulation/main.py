@@ -16,7 +16,7 @@ class Simulator(plugin_templates.ShellMain):
             the_type=None, functions_location=None,
             processing_name=None, setup_name=None, data_location=None,
             parameters=None, max_intensity=None, save_name=None,
-            options=None
+            **options
     ):
         """
 
