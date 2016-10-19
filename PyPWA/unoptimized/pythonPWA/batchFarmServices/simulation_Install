@@ -1,0 +1,74 @@
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
+import os
+import numpy,sys
+import subprocess as sp
+from subprocess import Popen
+"""
+    This program is the first step for the PyPWA simulation process. It sets up all directories and files needed for simulation
+    as well as all binning in mass as prescribed by the pwa_controls GUI.
+"""
+indir = os.path.split(os.path.split(os.getcwd())[0])[0]
+print( "Top Directory: ",indir )
+sys.path.append(os.path.join(indir,"pythonPWA"))
+if not os.path.isfile(os.path.join("Control_List.npy")):
+    sp.call(os.path.abspath("pwa_controls"))
+Control = numpy.load(os.path.join("Control_List.npy"))
+print("Creating directory structure for PyPWA fitting")
+tdirs = ("GUI","keyfiles","scripts","simulation")
+for i in tdirs:
+    directoryBuffer=os.path.join(indir,str(i))
+    os.makedirs(directoryBuffer)
+    if i != tdirs[-1]:
+        sys.stdout.write("Writing Directories"+"."*(tdirs.index(i)+1)+"\r")
+        sys.stdout.flush()
+    elif i == tdirs[-1]:
+        sys.stdout.write("Writing Directories"+"."*(tdirs.index(i)+1)+"\r\n")
+        sys.stdout.flush()
+    if i == "simulation":
+        directoryBuffer=os.path.join(indir,"simulation","overflow")
+        os.makedirs(directoryBuffer)
+    if i == "GUI":
+        directoryBuffer=os.path.join(indir,"GUI","plotLists")
+        os.makedirs(directoryBuffer)
+    if i == "scripts":
+        directoryBuffer=os.path.join(indir,"scripts","submitions")
+        os.makedirs(directoryBuffer)
+progs = ("generateAlphaNPY.py","GUI_alpha_main.py",
+"GUI_gamp_main.py","GUI_subPyNormInt.py","mvBAMP_GUI",
+"run_normintFARM.py","MassBinner.py",
+"getImax.py","resonances.txt","simulatorMain.py","subSimulator")
+for s in progs:
+    cmd = 'cp '+os.path.join(os.getcwd(),str(s))+" "+os.path.join(indir,"scripts")
+    proc = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+    proc.wait()
+    if s != progs[-1]:
+        sys.stdout.write("Filling scripts"+"."*(progs.index(s)+1)+"\r")
+        sys.stdout.flush()
+    elif s == progs[-1]:
+        sys.stdout.write("Filling scripts"+"."*(progs.index(s)+1)+"\r\n")
+        sys.stdout.flush()
+guis = ("graphicPlotSim","pwa_controls","PWA_GUI","Control_List.npy")
+for g in guis:
+    if g != guis[-1]:
+        cmd = 'cp '+os.path.join(os.getcwd(),str(g))+" "+os.path.join(indir,"GUI")
+        proc = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+        proc.wait()
+        sys.stdout.write("Filling GUI"+"."*(guis.index(g)+1)+"\r")
+        sys.stdout.flush()
+    elif g == guis[-1]:
+        cmd = 'mv '+os.path.join(os.getcwd(),str(g))+" "+os.path.join(indir,"GUI")
+        proc = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+        proc.wait()
+        sys.stdout.write("Filling GUI"+"."*(guis.index(g)+1)+"\r\n")
+        sys.stdout.flush()
+cmd = "mv "+indir+"/*.keyfile "+os.path.join(indir,"keyfiles")
+procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+procx.wait()
+print( "Filling keyfiles" )
+for fil in os.listdir(indir):
+    if ".gamp" in fil:
+        cmd = indir+"/scripts/massBinner2.py "+os.path.join(indir)+" "+os.path.join(indir,"simulation")+" "+str(fil).rstrip(".gamp")+" v"
+        procx = Popen(cmd,shell = True,executable = os.environ.get('SHELL', '/bin/tcsh'),env = os.environ)
+        procx.wait()
+
+print( "Welcome to PyPWA!\nYou are now ready to start Partial Wave Analysis!" )

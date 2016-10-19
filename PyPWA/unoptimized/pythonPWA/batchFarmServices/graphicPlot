@@ -1,0 +1,587 @@
+#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
+import matplotlib.pyplot as plt
+from multiprocessing import Process
+import subprocess as sp
+import numpy
+import os
+import sys
+import Tkinter as tk
+import itertools
+import argparse
+
+from PyPWA.unoptimized.pythonPWA.batchFarmServices.graphicHelp import Help
+class graphicPlot(object):
+
+    def __init__(self,
+                    topDir = os.getcwd().strip("GUI"),
+                    dataL = [],
+                    simL = [],
+                    accMC = [],
+                    rawMC = [],
+                    normL = [],
+                    normC = 0,
+                    percL = [],
+                    nT0 = [],
+                    nTA = [],
+                    nE0 = [],
+                    nEA = [],
+                    ran = [],
+                    wvs = [],
+                    delF = [],
+                    allL = [[] for i in range(18)],
+                    plts = [],
+                    nms = [],
+                    iL = 1,
+                    nT0E = [],
+                    nTAE = [],
+                    nE0E = [],
+                    nEAE = [],
+                    er = 0,
+                    cW = 0,
+                    errs = []):
+        self.topDir = topDir
+        self.dataL = dataL
+        self.simL = simL
+        self.accMC = accMC
+        self.rawMC = rawMC
+        self.normL = normL
+        self.normC = normC
+        self.percL = percL
+        self.nT0 = nT0
+        self.nTA = nTA
+        self.nE0 = nE0
+        self.nEA = nEA
+        self.ran = ran
+        self.wvs = wvs
+        self.delF = delF
+        self.allL = allL
+        self.plts = plts
+        self.nms = nms
+        self.iL = iL
+        self.nT0E = nT0E
+        self.nTAE = nTAE
+        self.nE0E = nE0E
+        self.nEAE = nEAE
+        self.cW = cW
+        self.er = er
+        self.errs = errs
+        self.Control = numpy.load("Control_List.npy")
+
+
+    def loadl(self):
+        self.Control = numpy.load("Control_List.npy")
+        if os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            self.allL = numpy.load(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"))
+            self.dataL = self.allL[0]
+            self.simL = self.allL[1]
+            self.accMC = self.allL[2]
+            self.rawMC = self.allL[3]
+            self.normL = self.allL[4]
+            self.normC = self.allL[5]
+            self.percL = self.allL[6]
+            self.nT0 = self.allL[7]
+            self.nTA = self.allL[8]
+            self.nE0 = self.allL[9]
+            self.nEA = self.allL[10]
+            self.ran = self.allL[11]
+            self.wvs = self.allL[12]
+            self.delF = self.allL[13]
+            self.nT0E = self.allL[14]
+            self.nTAE = self.allL[15]
+            self.nE0E = self.allL[16]
+            self.nEAE = self.allL[17]
+            text.delete("0.0wordstart", "end")
+            text.insert("end",self.Control[8]+"\n"+"LOADED")
+        elif not os.path.isfile(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy")):
+            text.delete("0.0wordstart", "end")
+            text.insert("end","NO LIST"+"\n"+"UPDATE AND PRESS SAVE "+"\n"+"FOR FITTED WAVES")
+            self.allL = [[] for i in range(18)]
+
+    def mk_all(self):
+        self.allL = [self.dataL,
+                        self.simL,
+                        self.accMC,
+                        self.rawMC,
+                        self.normL,
+                        self.normC,
+                        self.percL,
+                        self.nT0,
+                        self.nTA,
+                        self.nE0,
+                        self.nEA,
+                        self.ran,
+                        self.wvs,
+                        self.delF,
+                        self.nT0E,
+                        self.nTAE,
+                        self.nE0E,
+                        self.nEAE]
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PLotList UPDATED")
+        return self.allL
+
+    def file_len(self,fname):
+        with open(fname) as f:
+            num = f.readlines()
+        return int(num[0])
+
+    def up_range(self):
+        rang = []
+        for r in sorted(os.listdir(os.path.join(self.topDir,"fitting"))):
+            if "_MeV" in r:
+                rang.append(r.strip("_MeV"))
+        self.ran = rang
+        text.delete("0.0wordstart", "end")
+        text.insert("end","RANGE UPDATED")
+
+    def up_perc(self):
+        self.percL = []
+        for i in range(len(self.ran)):
+            self.percL.append(float(float(self.dataL[i])/float(self.simL[i])))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PERC UPDATED")
+
+    def up_data(self):
+        self.dataL = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/data/_events.num"):
+                self.dataL.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/data/_events.num"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","data UPDATED")
+
+    def up_sim(self):
+        self.simL = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/simulation/"+str(d)+"_MeV/data/raw/_events.num"):
+                self.simL.append(self.file_len(self.topDir+"/simulation/"+str(d)+"_MeV/weight/acc/rawDATA.num"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","sim UPDATED")
+
+    def up_accMC(self):
+        self.accMC = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/_events.num"):
+                self.accMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/acc/_events.num"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","accMC UPDATED")
+
+    def up_rawMC(self):
+        self.rawMC = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/_events.num"):
+                self.rawMC.append(self.file_len(self.topDir+"/fitting/"+str(d)+"_MeV/mc/raw/_events.num"))
+        text.delete("0.0wordstart", "end")
+        text.insert("end","rawMC UPDATED")
+
+    def up_norms(self):
+        self.normL = []
+        self.normC = (sum(self.simL))/(sum(self.dataL))
+        for t in self.dataL:
+            self.normL.append(t*self.normC)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","NORM UPDATED")
+
+    def up_fits(self):
+        self.nT0 = []
+        self.nE0 = []
+        self.nT0E = []
+        self.nE0E = []
+        for d in self.ran:
+            if os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy"):
+                r0 = numpy.load(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy")
+                self.nT0.append(float(r0[0][1]))
+                self.nE0.append(float(r0[0][3]))
+                self.nT0E.append(float(r0[0][2]))
+                self.nE0E.append(float(r0[0][4]))
+            elif not os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-0_"+str(d)+".npy"):
+                self.nT0.append(0)
+                self.nE0.append(0)
+                self.nT0E.append(0)
+                self.nE0E.append(0)
+        b = 0
+        for dirs in sorted(os.listdir(os.path.join(self.topDir,"fitting","results"))):
+            if os.path.isfile(self.topDir+"/fitting/results/"+dirs+"/nTrueList-"+str(self.iL)+"_"+str(dirs.strip("_MeV"))+".npy"):
+                break
+            else:
+                b+=1
+        while self.iL < 100:
+            if os.path.isfile(self.topDir+"/fitting/results/"+str(self.ran[b])+"_MeV/nTrueList-"+str(self.iL)+"_"+str(self.ran[b])+".npy"):
+                self.iL += 1
+            elif not os.path.isfile(self.topDir+"/fitting/results/"+str(self.ran[b])+"_MeV/nTrueList-"+str(self.iL)+"_"+str(self.ran[b])+".npy"):
+                break
+        self.nTA = [[] for i in range(self.iL-1)]
+        self.nEA = [[] for i in range(self.iL-1)]
+        self.nTAE = [[] for i in range(self.iL-1)]
+        self.nEAE = [[] for i in range(self.iL-1)]
+        self.wvs = []
+        for g in range(1,self.iL):
+            for d in self.ran:
+                if os.path.isfile(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy"):
+                    rx = numpy.load(self.topDir+"/fitting/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy")
+                    self.nTA[g-1].append(float(rx[0][1]))
+                    self.nEA[g-1].append(float(rx[0][4]))
+                    self.nTAE[g-1].append(float(rx[0][2]))
+                    self.nEAE[g-1].append(float(rx[0][5]))
+                    if d == self.ran[b]:
+                        self.wvs.append(rx[0][3])
+                elif not os.path.isfile(self.topDir+"/fittiing/results/"+str(d)+"_MeV/nTrueList-"+str(g)+"_"+str(d)+".npy"):
+                    self.nTA[g-1].append(0)
+                    self.nEA[g-1].append(0)
+                    self.nTAE[g-1].append(0)
+                    self.nEAE[g-1].append(0)
+        if len(self.nT0) == len(self.ran) and len(self.simL) == len(self.ran):
+            self.up_delF()
+        text.delete("0.0wordstart", "end")
+        text.insert("end","FITS UPDATED")
+
+    def up_delF(self):
+        self.delF = []
+        for i in range(len(self.ran)):
+            if float(float(self.nT0[i])-float(self.simL[i])) > 100.0 or float(float(self.nT0[i])-float(self.simL[i]))< -100.0:
+                self.delF.append(float(float(self.nT0[i])-float(self.simL[i])))
+            else:
+                self.delF.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","Delta UPDATED")
+
+    def savel(self):
+        self.mk_all()
+        numpy.save(os.path.join(os.getcwd(),"plotLists",self.Control[8]+".npy"),self.allL)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","SAVED")
+        self.destrFr()
+        self.wv_Buttons(len(GP.allL[8]))
+        root.update()
+
+    def up_all(self):
+        text.delete("0.0wordstart", "end")
+        text.insert("end","UPDATE STARTED")
+        root.update()
+        self.up_range()
+        root.update()
+        self.up_data()
+        root.update()
+        self.up_sim()
+        root.update()
+        self.up_accMC()
+        root.update()
+        self.up_rawMC()
+        root.update()
+        self.up_norms()
+        root.update()
+        self.up_fits()
+        root.update()
+        self.up_perc()
+        root.update()
+        self.mk_all()
+
+    def add_all(self):
+        self.add_data()
+        self.add_sim()
+        self.add_nTrue()
+        self.add_nExp()
+        text.delete("0.0wordstart", "end")
+        text.insert("end","DATA, SIM, nTRUE, nEXP"+"\n"+"\t"+"ADDED")
+
+    def add_data(self):
+        self.plts.append(self.dataL)
+        self.nms.append("data")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","data ADDED")
+
+    def add_sim(self):
+        self.plts.append(self.simL)
+        self.nms.append("sim")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","sim ADDED")
+
+    def add_accMC(self):
+        self.plts.append(self.accMC)
+        self.nms.append("accMC")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","accMC ADDED")
+
+    def add_rawMC(self):
+        self.plts.append(self.rawMC)
+        self.nms.append("rawMC")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","rawMC ADDED")
+
+    def add_norms(self):
+        self.plts.append(self.normL)
+        self.nms.append("norm")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","NORM ADDED")
+
+    def add_perc(self):
+        self.plts.append(self.percL)
+        self.nms.append("% Accepted")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PERC ADDED")
+
+    def add_nTrue(self):
+        self.plts.append(self.nT0)
+        self.nms.append("Total number_true")
+        self.errs.append(self.nT0E)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","number_true ADDED")
+
+    def add_nExp(self):
+        self.plts.append(self.nE0)
+        self.nms.append("Total nExp")
+        self.errs.append(self.nE0E)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","nExp ADDED")
+
+    def add_nTrue_wave(self,x):
+        if self.cW == 0:
+            self.plts.append(self.nTA[x])
+            self.nms.append(self.wvs[x].strip(".bamp")+"True")
+            self.errs.append(self.nTAE[x])
+            text.delete("0.0wordstart", "end")
+            text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")
+        if self.cW ==1:
+            if len(self.nms) == 0 or not "combined(" in self.nms[-1] or ")Exp" in self.nms[-1]:
+                self.plts.append(self.nTA[x])
+                self.nms.append("combined("+self.wvs[x].strip(".bamp")+")True")
+                self.errs.append(self.nTAE[x])
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED")
+            else:
+                for i , val in enumerate(self.plts[-1]):
+                    self.plts[-1][i]+=self.nTA[x][i]
+                self.nms[-1]=(self.nms[-1].rstrip(")True"))+(",\n"+self.wvs[x].strip(".bamp")+")True")
+                for j in range(len(self.errs[-1])):
+                    self.errs[-1][j]=self.errs[-1][j]+self.nTAE[x][j]
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"True ADDED to last wave")
+
+    def add_nExp_wave(self,x):
+        if self.cW == 0:
+            self.plts.append(self.nEA[x])
+            self.nms.append(self.wvs[x].strip(".bamp")+"Exp")
+            self.errs.append(self.nEAE[x])
+            text.delete("0.0wordstart", "end")
+            text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED")
+        if self.cW ==1:
+            if len(self.nms) == 0 or not "combined(" in self.nms[-1] or ")True" in self.nms[-1]:
+                self.plts.append(self.nEA[x])
+                self.nms.append("combined("+self.wvs[x].strip(".bamp")+")Exp")
+                self.errs.append(self.nEAE[x])
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED")
+            else:
+                for i in range(len(self.plts[-1])):
+                    self.plts[-1][i]=self.plts[-1][i]+self.nEA[x][i]
+                self.nms[-1]=(self.nms[-1].rstrip(")Exp"))+(",\n"+self.wvs[x].strip(".bamp")+")Exp")
+                for j in range(len(self.errs[-1])):
+                    self.errs[-1][j]=self.errs[-1][j]+self.nEAE[x][j]
+                text.delete("0.0wordstart", "end")
+                text.insert("end",self.wvs[x].strip(".bamp")+"Exp ADDED to last wave")
+
+    def add_delF(self):
+        self.plts.append(self.delF)
+        self.nms.append("Delta fit-sim")
+        self.errs.append(0)
+        text.delete("0.0wordstart", "end")
+        text.insert("end","Delta ADDED")
+
+    def mk_plot(self,lis):
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PLOTTING")
+        marker = itertools.cycle(('D','8','o','^','h','p','s','*','x','+'))
+        fig, ax1 = plt.subplots()
+        if self.percL in lis and len(lis)>1:
+            for i in range(len(lis)):
+                if lis[i] != self.percL:
+                    if self.er == 1:
+                        ax1.errorbar(self.ran,lis[i],yerr=self.errs[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                    elif self.er == 0:
+                        ax1.plot(self.ran,lis[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                    ax1.legend(loc = 2)
+                    ax1.set_ylabel("Events")
+                    ax1.set_xlabel("Mass (MeV)")
+                else:
+                    ax2 = ax1.twinx()
+                    ax2.plot(self.ran,lis[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                    ax2.legend()
+                    ax2.set_ylabel("Percent")
+        elif not self.percL in lis:
+            for i in range(len(lis)):
+                if self.er == 1:
+                    ax1.errorbar(self.ran,lis[i],yerr=self.errs[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                elif self.er == 0:
+                    ax1.plot(self.ran,lis[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                ax1.legend()
+                ax1.set_ylabel("Events")
+                ax1.set_xlabel("Mass (MeV)")
+        elif self.percL in lis and len(lis)== 1:
+            for i in range(len(lis)):
+                ax1.plot(self.ran,self.lis[i],linestyle='',marker=marker.next(),label=self.nms[i])
+                ax1.legend()
+                ax1.set_ylabel("Percent")
+                ax1.set_xlabel("Mass (MeV)")
+        plt.title(self.Control[7]+" "+self.Control[8])
+        plt.show()
+        self.plts = []
+        self.nms = []
+        self.errs = []
+
+    def plot(self, lis):
+        text.delete("0.0wordstart", "end")
+        text.insert("end","PLOTTING")
+        p = Process(target=self.mk_plot,args=(lis,))
+        p.start()
+        self.__init__()
+        self.loadl()
+        self.plts = []
+        self.nms = []
+        self.errs = []
+
+    def wv_Buttons(self,lent):
+        frame4=tk.Frame(frame3)
+        frame5=tk.Frame(frame3)
+        frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+        frame5.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+        x = 0
+        t = 0
+        for y in range(lent):
+            btn = tk.Button(frame4, text = GP.wvs[y].strip(".bamp")+"\n"+"number_true", command = lambda x=x,t=t: GP.add_nTrue_wave((x*9)+t+x))
+            btn.grid(column=t,row=x)
+            btn = tk.Button(frame5, text = GP.wvs[y].strip(".bamp")+"\n"+"nExp", command = lambda x=x,t=t: GP.add_nExp_wave((x*9)+t+x))
+            btn.grid(column=t,row=x)
+            t += 1
+            if t > 9:
+                t = 0
+                x += 1
+
+    def destrFr(self):
+        frame4.destroy()
+        frame5.destroy()
+
+    def help_window(self):
+        window = tk.Toplevel(root)
+        window.wm_title("HELP")
+        tx = Help()
+        label = tk.Label(window, text=tx.GPhelp)
+        label.pack(side="top", fill="both", padx=10, pady=10)
+
+    def error(self):
+        if self.er == 0:
+            self.er = 1
+            text.delete("0.0wordstart", "end")
+            text.insert("end","ERROR ON")
+        elif self.er == 1:
+            self.er = 0
+            text.delete("0.0wordstart", "end")
+            text.insert("end","ERROR OFF")
+
+    def combiWaves(self):
+        if self.cW == 0:
+            self.cW = 1
+            text.delete("0.0wordstart", "end")
+            text.insert("end","Combining waves")
+        elif self.cW == 1:
+            self.cW = 0
+            text.delete("0.0wordstart", "end")
+            text.insert("end","Not combining waves")
+
+parser = argparse.ArgumentParser(description="""A graphing utility for the PyPWA partial wave analysis toolkit.""")
+parser.add_argument("-t", "--topDir", help="Run graphicPlot with a different top directory than the current working directory.",default=os.getcwd().strip("GUI"))
+args = parser.parse_args()
+
+GP = graphicPlot(topDir=args.topDir)
+
+root = tk.Tk()
+
+frame=tk.Frame(root)
+frame1=tk.Frame(root)
+frame2=tk.Frame(root)
+frame3=tk.Frame(root)
+frame4=tk.Frame(frame3)
+frame5=tk.Frame(frame3)
+
+frame.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+frame1.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
+frame2.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+frame3.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
+frame4.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+frame5.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+
+text=tk.Text(frame1, height = 3, width = 23, font = 13)
+text.pack(side="top")
+text.tag_config("0.0wordstart", justify = "center")
+
+root.wm_title("GRAPHIC PLOT"+args.topDir)
+
+GP.loadl()
+lent = len(GP.allL[8])
+
+
+GP.wv_Buttons(lent)
+
+Pall = tk.Button(frame2, text="PLOT"+"\n"+"ALL",  command=lambda: GP.add_all())
+Pdata = tk.Button(frame2, text="PLOT"+"\n"+"data",  command=lambda: GP.add_data())
+Psim = tk.Button(frame2, text="PLOT"+"\n"+"sim",  command=lambda: GP.add_sim())
+PaccMC = tk.Button(frame2, text="PLOT"+"\n"+"accMC",  command=lambda: GP.add_accMC())
+PrawMC = tk.Button(frame2, text="PLOT"+"\n"+"rawMC",  command=lambda: GP.add_rawMC())
+Pnorm = tk.Button(frame2, text="PLOT"+"\n"+"NORM",  command=lambda: GP.add_norms())
+Pperc = tk.Button(frame2, text="PLOT"+"\n"+"PERC",  command=lambda: GP.add_perc())
+PnT0 = tk.Button(frame2, text="PLOT"+"\n"+"number_true",  command=lambda: GP.add_nTrue())
+PnE0 = tk.Button(frame2, text="PLOT"+"\n"+"nExp",  command=lambda: GP.add_nExp())
+PdelF = tk.Button(frame2, text="PLOT"+"\n"+"delta",  command=lambda: GP.add_delF())
+help = tk.Button(frame2, text="HELP",  command=lambda: GP.help_window())
+Plot = tk.Button(frame2, text="PLOT", fg = "red", command=lambda: GP.plot(GP.plts))
+err = tk.Button(frame2, text="ERROR",  command=lambda: GP.error())
+coW = tk.Button(frame2, text="ADD"+"\n"+"WAVES",  command=lambda: GP.combiWaves())
+
+Pall.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+Pdata.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
+Psim.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
+PaccMC.grid(row=0,column=3,sticky="N"+"S"+"E"+"W")
+PrawMC.grid(row=0,column=4,sticky="N"+"S"+"E"+"W")
+Pnorm.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+Pperc.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
+PnT0.grid(row=1,column=2,sticky="N"+"S"+"E"+"W")
+PnE0.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
+PdelF.grid(row=1,column=4,sticky="N"+"S"+"E"+"W")
+help.grid(row=0,column=5,sticky="N"+"S"+"E"+"W")
+Plot.grid(row=1,column=6,sticky="N"+"S"+"E"+"W")
+coW.grid(row=1,column=5,sticky="N"+"S"+"E"+"W")
+err.grid(row=0,column=6,sticky="N"+"S"+"E"+"W")
+
+cob = tk.Button(frame, text="pwa"+"\n"+"Controls", command=lambda: sp.call(os.getcwd()+"/pwa_controls"))
+load = tk.Button(frame, text="LOAD", command=lambda: GP.loadl())
+Uall = tk.Button(frame, text="UPDATE"+"\n"+"ALL", command=lambda: GP.up_all())
+Uran = tk.Button(frame, text="UPDATE"+"\n"+"RANGE", command=lambda: GP.up_range())
+Udata = tk.Button(frame, text="UPDATE"+"\n"+"data", command=lambda: GP.up_data())
+Usim = tk.Button(frame, text="UPDATE"+"\n"+"sim", command=lambda: GP.up_sim())
+UaccMC = tk.Button(frame, text="UPDATE"+"\n"+"accMC", command=lambda: GP.up_accMC())
+UrawMC = tk.Button(frame, text="UPDATE"+"\n"+"rawMC", command=lambda: GP.up_rawMC())
+Uperc = tk.Button(frame, text="UPDATE"+"\n"+"PERC", command=lambda: GP.up_perc())
+Unorm = tk.Button(frame, text="UPDATE"+"\n"+"NORM", command=lambda: GP.up_norms())
+Ufit = tk.Button(frame, text="UPDATE"+"\n"+"FITTED",  command=lambda: GP.up_fits())
+save = tk.Button(frame, text="SAVE",  command=lambda: GP.savel())
+
+cob.grid(row=0,column=0,sticky="N"+"S"+"E"+"W")
+Uall.grid(row=0,column=1,sticky="N"+"S"+"E"+"W")
+Uran.grid(row=0,column=2,sticky="N"+"S"+"E"+"W")
+Udata.grid(row=0,column=3,sticky="N"+"S"+"E"+"W")
+Usim.grid(row=0,column=4,sticky="N"+"S"+"E"+"W")
+UaccMC.grid(row=0,column=5,sticky="N"+"S"+"E"+"W")
+load.grid(row=1,column=0,sticky="N"+"S"+"E"+"W")
+UrawMC.grid(row=1,column=1,sticky="N"+"S"+"E"+"W")
+Uperc.grid(row=1,column=2,sticky="N"+"S"+"E"+"W")
+Unorm.grid(row=1,column=3,sticky="N"+"S"+"E"+"W")
+Ufit.grid(row=1,column=4,sticky="N"+"S"+"E"+"W")
+save.grid(row=1,column=5,sticky="N"+"S"+"E"+"W")
+
+
+
+root.mainloop()
