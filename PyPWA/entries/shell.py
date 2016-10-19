@@ -81,7 +81,7 @@ def simulator(*args):
         "main": "shell simulation",
         "main name": "Simulator",
         "main options": {
-            "the type": "complete",
+            "the type": "full",
             "max intensity": None
         },
         "extras": args
