@@ -37,7 +37,7 @@ class _DuplexProcess(multiprocessing.Process):
     daemon = True  # This is set to true so that if the main process
     # dies the child processes will die as well.
 
-    def __init__(self, kernel, communicator):
+    def __init__(self, index, kernel, communicator):
         """
         Main object for duplex processes. These processes are worker
         processes and as such will continue to run indefinitely until
@@ -54,6 +54,7 @@ class _DuplexProcess(multiprocessing.Process):
         """
         super(_DuplexProcess, self).__init__()
         self._kernel = kernel
+        self._kernel.processor_id = index
         self._communicator = communicator
 
     def run(self):
@@ -78,7 +79,7 @@ class _SimplexProcess(multiprocessing.Process):
     daemon = True  # Set to true so that if the main process dies,
     # the children will die as well.
 
-    def __init__(self, single_kernel, communicator):
+    def __init__(self, index, single_kernel, communicator):
         """
         The simplex process is the simple offload process, anything
         passed to here will be ran immediately then send to the result
@@ -94,6 +95,7 @@ class _SimplexProcess(multiprocessing.Process):
         """
         super(_SimplexProcess, self).__init__()
         self._kernel = single_kernel
+        self._kernel.processor_id = index
         self._communicator = communicator
 
     def run(self):
@@ -134,8 +136,10 @@ class CalculationFactory(object):
 
         sends, receives = CommunicationFactory.simplex_build(count)
 
-        for kernel, send in zip(process_kernels, sends):
-            processes.append(_SimplexProcess(kernel, send))
+        for index, internals in enumerate(zip(process_kernels, sends)):
+            processes.append(_SimplexProcess(
+                index, internals[0], internals[1]
+            ))
 
         return [processes, receives]
 
@@ -156,7 +160,9 @@ class CalculationFactory(object):
         processes = []
         main_com, process_com = CommunicationFactory.duplex_build(count)
 
-        for kernel, process_com in zip(process_kernels, process_com):
-            processes.append(_DuplexProcess(kernel, process_com))
+        for index, internals in enumerate(zip(process_kernels, process_com)):
+            processes.append(_DuplexProcess(
+                index, internals[0], internals[1]
+            ))
 
         return [processes, main_com]
