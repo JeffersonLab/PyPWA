@@ -136,7 +136,7 @@ class IntensityInterface(interface_templates.AbstractInterface):
         final_array = numpy.zeros(len(communicator))
 
         for communication in communicator:
-            data = communication.recv()
+            data = communication.receive()
             final_array[data[0]] = data[1]
 
         return [final_array, final_array.max()]
@@ -163,5 +163,5 @@ class IntensityKernel(interface_templates.AbstractKernel):
     def process(self, data=False):
         return [
             self.processor_id,
-            self._processing_function(self._parameters, self.data)
+            self._processing_function(self.data, self._parameters)
             ]
