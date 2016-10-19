@@ -30,10 +30,11 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+initializer = StartProgram(configurator.Configurator)
 
-@StartProgram(configurator.Configurator)
+
 def general_fitting(*args):
-    description = u"An extremely fitting shell that allows the User" \
+    description = u"A fitting shell that allows the User " \
                   u"to select their own likelihood and function."
     configuration = {
         "description": description,
@@ -41,10 +42,9 @@ def general_fitting(*args):
         "main name": "General Fitting",
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def likelihood_fitting(*args):
     description = u"Amplitude Fitting using the Likelihood Estimation " \
                   u"Method."
@@ -55,10 +55,9 @@ def likelihood_fitting(*args):
         "main options": {"type": "likelihood"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def chi_squared(*args):
     description = u"Amplitude Fitting using the ChiSquared Method."
     configuration = {
@@ -72,10 +71,9 @@ def chi_squared(*args):
         },
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def simulator(*args):
     description = u"Simulation using the the Acceptance Reject Method."
     configuration = {
@@ -85,10 +83,9 @@ def simulator(*args):
         "main options": {"type": "complete"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def intensities(*args):
     description = u"Generates the Intensities for Rejection Method."
     configuration = {
@@ -98,10 +95,9 @@ def intensities(*args):
         "main options": {"type": "intensities"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)
 
 
-@StartProgram(configurator.Configurator)
 def rejection_method(*args):
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method."
@@ -112,4 +108,4 @@ def rejection_method(*args):
         "main options": {"type": "rejection"},
         "extras": args
     }
-    return configuration
+    initializer.start(configuration)

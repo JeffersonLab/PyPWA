@@ -52,29 +52,28 @@ class StartProgram(object):
         """
         self.builder = builder(*args)
 
-    def __call__(self, function):
+    def start(self, configuration):
         """
         The method that will be passed the function when the function is
         called.
 
         Args:
-            function (function): The simple function that contains
-                whatever default logic that is needed for the program to
-                work.
+            configuration (dict): The configuration that should be passed
+                to the builder.
 
         Returns:
             The final value of the wrapped function.
         """
-        application_configuration = function()
-        if application_configuration["extras"]:
+
+        if configuration["extras"]:
             print(
                 "[INFO] Caught something unaccounted for, "
                 "this should be reported, caught: "
-                "{}".format(application_configuration["extras"][0])
+                "{}".format(configuration["extras"][0])
             )
 
         arguments = self.parse_arguments(
-            application_configuration["description"]
+            configuration["description"]
         )
 
         if arguments.verbose:
@@ -83,16 +82,15 @@ class StartProgram(object):
             self._return_logging_level()
 
         if arguments.WriteConfig:
-            self.write_config(application_configuration, arguments)
+            self.write_config(configuration, arguments)
             sys.exit()
 
         sys.stdout.write("\x1b[2J\x1b[H")
         sys.stdout.write(self._opening_art())
 
         self.builder.run(
-            application_configuration, arguments.configuration
+            configuration, arguments.configuration
         )
-        sys.exit()
 
     @staticmethod
     def parse_arguments(description):
