@@ -20,7 +20,7 @@ This line is green in PyCharm, however in Github its blue.
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import option_templates
-from PyPWA.shell.fitting import main
+from PyPWA.shell.simulation import main
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -118,4 +118,4 @@ def setup_function():
         return False
 
     def _interface_object(self):
-        return main.Fitting
+        return main.Simulator

@@ -164,6 +164,9 @@ class ShellLauncher(object):
             plugin_storage (PluginStorage):
             settings (dict):
         """
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
         self._plugin_storage = plugin_storage
         self._settings = settings
 
@@ -181,6 +184,7 @@ class ShellLauncher(object):
         for the_id in the_ids:
             temp = self._plugin_storage.request_main_by_id(the_id)
             if temp:
+                self._logger.debug("Found: " + repr(temp))
                 main = temp
 
         for plugin in plugins:
@@ -194,6 +198,8 @@ class ShellLauncher(object):
 
         for key in list(initialized_plugins.keys()):
             main_settings[key] = initialized_plugins[key]
+
+        self._logger.debug("Found settings: " + repr(main_settings))
 
         shell = main.request_metadata("object")
         initialized_shell = shell(**main_settings)

@@ -52,9 +52,11 @@ setup(
         "tabulate",
         "appdirs",
         "fuzzywuzzy",
-        "python-Levenshtein",
-        "pymultinest"
+        "python-Levenshtein"
     ],
+    extras_require={
+        'multinest': ["pymultinest"]
+    },
     setup_requires=['pytest-runner'],
     tests_require=['pytest', "pytest-cov", "pytest-logging"],
     classifiers=[
