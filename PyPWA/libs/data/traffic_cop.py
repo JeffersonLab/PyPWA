@@ -115,7 +115,7 @@ class DataCoreTools(object):
                 the_plugin.plugin_supported_extensions()
 
             if length == supported_length:
-                if extension == "" or extension in supported_extensions():
+                if extension == "" or extension in supported_extensions:
                     plugin_found = True
                     final_plugin = the_plugin
 
