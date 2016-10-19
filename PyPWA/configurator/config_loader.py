@@ -346,7 +346,7 @@ It looks like you selected '{0}', is this correct?
 
     @staticmethod
     def __input(string):
-        if sys.version_info.major == "2":
+        if sys.version_info.major == 2:
             return raw_input(string)
         else:
             return input(string)
