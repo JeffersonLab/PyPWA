@@ -8,6 +8,7 @@ from PyPWA.core_libs import plugin_loader
 from PyPWA.core_libs.templates import plugin_templates
 from PyPWA.core_libs.templates import interface_templates
 
+
 class Simulator(plugin_templates.ShellMain):
 
     def __init__(
@@ -131,6 +132,7 @@ class IntensityInterface(interface_templates.AbstractInterface):
             final_array[data[0]] = data[1]
 
         return [final_array, final_array.max()]
+
 
 class IntensityKernel(interface_templates.AbstractKernel):
 
