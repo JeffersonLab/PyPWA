@@ -52,7 +52,7 @@ def likelihood_fitting(*args):
         "description": description,
         "main": "shell fitting method",
         "main name": "Likelihood Fitting",
-        "main options": {"type": "likelihood"},
+        "main options": {"likelihood type": "likelihood"},
         "extras": args
     }
     initializer.start(configuration)
@@ -65,7 +65,7 @@ def chi_squared(*args):
         "main": "shell fitting method",
         "main name": "Chi-Squared Fitting",
         "main options": {
-            "type": "chi-squared",
+            "likelihood type": "chi-squared",
             "generated length": None,
             "accepted monte carlo location": None
         },
