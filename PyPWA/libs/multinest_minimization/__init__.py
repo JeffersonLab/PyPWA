@@ -28,8 +28,9 @@ __version__ = VERSION
 MULTINEST_FAIL = False
 
 try:
+    import pymultinest
     from PyPWA.libs.multinest_minimization import minimization
-except AttributeError:
+except (ImportError, AttributeError):
     MULTINEST_FAIL = True
 
 if not MULTINEST_FAIL:
