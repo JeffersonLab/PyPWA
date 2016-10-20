@@ -14,12 +14,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+
+"""
+
 import logging
-import sys
 
 import fuzzywuzzy.process
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -32,9 +34,6 @@ __version__ = VERSION
 
 
 FUZZY_STRING_CONFIDENCE_LEVEL = 75  # percent from 0 to 100
-
-if sys.version_info.major == 2:
-    input = raw_input
 
 
 class SettingsAid(object):

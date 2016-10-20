@@ -37,7 +37,6 @@ import io
 import logging
 
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
 from PyPWA.libs.data import data_templates
@@ -55,9 +54,26 @@ __version__ = VERSION
 class KvInterface(data_templates.TemplateMemory):
 
     def parse(self, file_location):
+        """
+
+        Args:
+            file_location:
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     def write(self, file_location, data):
+        """
+
+        Args:
+            file_location:
+            data:
+
+        Returns:
+
+        """
         raise NotImplementedError()
 
     @staticmethod
@@ -83,6 +99,14 @@ class DictOfArrays(KvInterface):
     """
 
     def _create_empty_array(self, file_location):
+        """
+
+        Args:
+            file_location:
+
+        Returns:
+
+        """
 
         file_length = self.file_length(file_location)
 

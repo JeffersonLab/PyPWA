@@ -28,7 +28,6 @@ import io
 import logging
 
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
 from PyPWA.libs.data import data_templates
@@ -260,9 +259,22 @@ class SvWriter(interface_templates.WriterInterfaceTemplate):
 class SvDataPlugin(data_templates.TemplateDataPlugin):
 
     def __init__(self, thorough=False):
+        """
+
+        Args:
+            thorough:
+        """
         super(SvDataPlugin, self).__init__(thorough)
 
     def read_test(self, text_file):
+        """
+
+        Args:
+            text_file:
+
+        Returns:
+
+        """
         self._check_header(text_file)
 
     @staticmethod

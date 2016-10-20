@@ -15,15 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-#TODO
+
 """
 
 import hashlib
 import logging
-
-import appdirs
 import os
 
+import appdirs
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]

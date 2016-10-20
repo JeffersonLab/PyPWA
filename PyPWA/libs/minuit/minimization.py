@@ -14,11 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
 import iminuit
 import numpy
 import tabulate
-import logging
-
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
 from PyPWA.core_libs.templates import plugin_templates
@@ -72,10 +72,24 @@ class Minuit(plugin_templates.MinimizerTemplate):
             super(Minuit, self).__init__(options)
 
     def main_options(self, calc_function, fitting_type=False):
+        """
+
+        Args:
+            calc_function:
+            fitting_type:
+
+        Returns:
+
+        """
         self._calc_function = calc_function
         self._error_def(fitting_type)
 
     def _check_params(self):
+        """
+
+        Returns:
+
+        """
         if isinstance(self._parameters, bool):
             raise ValueError(
                 "There are no supplied parameters! Please set "
@@ -86,6 +100,14 @@ class Minuit(plugin_templates.MinimizerTemplate):
         )
 
     def _error_def(self, fitting_type):
+        """
+
+        Args:
+            fitting_type:
+
+        Returns:
+
+        """
         if fitting_type == "chi-squared":
             self._set_up = 1
         else:
@@ -133,6 +155,14 @@ class Minuit(plugin_templates.MinimizerTemplate):
         return ParserObject(self._parameters)
 
     def save_extra(self, save_name):
+        """
+
+        Args:
+            save_name:
+
+        Returns:
+
+        """
         if not isinstance(self._covariance, type(None)):
             print("Covariance.\n")
             the_x = []

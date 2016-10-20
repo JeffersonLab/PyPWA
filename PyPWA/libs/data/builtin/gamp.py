@@ -26,7 +26,6 @@ will not be saved in memory by these object.
 import io
 
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
 from PyPWA.libs.data import data_templates

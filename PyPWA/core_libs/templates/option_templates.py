@@ -21,7 +21,6 @@
 import copy
 
 import ruamel.yaml.comments
-
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -44,6 +43,9 @@ class _CoreOptionsParsing(object):
     _data_parser = "data parser"
 
     def __init__(self):
+        """
+
+        """
         if self._default_options():
             self.__processed = self.__build_options_dictionary()
             self.__req_func, self.__opt_func, \
@@ -54,21 +56,51 @@ class _CoreOptionsParsing(object):
             self.__adv_func = {}
 
     def _id(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _default_options(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_levels(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_types(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _main_comment(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_comments(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def __build_options_dictionary(self):
@@ -127,9 +159,26 @@ class _CoreOptionsParsing(object):
 
     @staticmethod
     def _build_function(imports, function):
+        """
+
+        Args:
+            imports:
+            function:
+
+        Returns:
+
+        """
         return {"function": function, "imports": set(imports)}
 
     def request_options(self, level):
+        """
+
+        Args:
+            level:
+
+        Returns:
+
+        """
         return {
             "required": self.__req_func,
             "optional": self.__opt_func,
@@ -138,42 +187,103 @@ class _CoreOptionsParsing(object):
         }[level]
 
     def request_metadata(self, data):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         raise NotImplementedError
 
 
 class PluginsOptionsTemplate(_CoreOptionsParsing):
 
     def __init__(self):
+        """
+
+        """
         super(PluginsOptionsTemplate, self).__init__()
 
     def _id(self):
+        """
+
+        Returns:
+
+        """
         return self._plugin_name()
 
     def _plugin_name(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _default_options(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_levels(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_types(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _main_comment(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_comments(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _plugin_interface(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _plugin_type(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _user_defined_function(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def request_metadata(self, data):
@@ -199,48 +309,121 @@ class MainOptionsTemplate(_CoreOptionsParsing):
     _gui_main = "main gui"
 
     def __init__(self):
+        """
+
+        """
         super(MainOptionsTemplate, self).__init__()
 
     def _id(self):
+        """
+
+        Returns:
+
+        """
         return self._shell_id()
 
     def _shell_id(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _default_options(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_levels(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_types(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _main_comment(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _option_comments(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _main_type(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _user_defined_function(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _interface_object(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _requires_data_parser(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _requires_kernel_processing(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _requires_minimization(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def _requires_data_reader(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def request_metadata(self, data):
@@ -260,6 +443,14 @@ class MainOptionsTemplate(_CoreOptionsParsing):
         }[data]
 
     def requires(self, the_type):
+        """
+
+        Args:
+            the_type:
+
+        Returns:
+
+        """
         return {
             self._data_parser: self._requires_data_parser(),
             self._data_reader: self._requires_data_reader(),

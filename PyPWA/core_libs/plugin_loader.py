@@ -17,6 +17,7 @@
 """
 
 """
+
 import importlib
 import logging
 import os
@@ -81,6 +82,14 @@ class PluginLoading(object):
 
     @staticmethod
     def _import_lib(module_name):
+        """
+
+        Args:
+            module_name:
+
+        Returns:
+
+        """
         return importlib.import_module(module_name)
 
     def _find_libs(self, module):
@@ -171,7 +180,13 @@ class PluginLoading(object):
 
 
 class SingleFunctionLoader(object):
+
     def __init__(self, the_file):
+        """
+
+        Args:
+            the_file:
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
         self._module = None  # type: type(PyPWA)
@@ -185,6 +200,14 @@ class SingleFunctionLoader(object):
                 )
 
     def _load_module(self, the_file):
+        """
+
+        Args:
+            the_file:
+
+        Returns:
+
+        """
         sys.path.append(
             os.path.dirname(os.path.abspath(the_file))
         )
@@ -194,6 +217,15 @@ class SingleFunctionLoader(object):
         )
 
     def fetch_function(self, function_name, fail=False):
+        """
+
+        Args:
+            function_name:
+            fail:
+
+        Returns:
+
+        """
         try:
             return getattr(self._module, function_name)
         except Exception:

@@ -14,14 +14,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+
+"""
+
 import io
 import logging
+import os
 import sys
 
 import PyPWA.libs
 import PyPWA.shell
 import fuzzywuzzy.process
-import os
 import ruamel.yaml
 import ruamel.yaml.comments
 import ruamel.yaml.parser
@@ -42,6 +46,9 @@ __version__ = VERSION
 class ConfigParser(object):
 
     def __init__(self):
+        """
+
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
@@ -92,6 +99,9 @@ class ConfigParser(object):
 class SimpleConfigBuilder(object):
 
     def __init__(self):
+        """
+
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
@@ -112,6 +122,17 @@ class SimpleConfigBuilder(object):
             self, plugin_name, main_plugin,
             provided_options=None, save_location=False
     ):
+        """
+
+        Args:
+            plugin_name:
+            main_plugin:
+            provided_options:
+            save_location:
+
+        Returns:
+
+        """
         self._determine_plugin_level()
         self._determine_plugin_directory()
         self._build_storage()
@@ -123,6 +144,11 @@ class SimpleConfigBuilder(object):
         self._write_final_config()
 
     def _determine_plugin_level(self):
+        """
+
+        Returns:
+
+        """
         possible_levels = ["required", "optional", "advanced"]
 
         question = "\nHow much control would you like to have over the " \
@@ -134,6 +160,11 @@ class SimpleConfigBuilder(object):
         )
 
     def _determine_plugin_directory(self):
+        """
+
+        Returns:
+
+        """
         question = "\nWould you like to use your own plugins? If YES " \
                    "then please enter the location, if NO then just " \
                    "press ENTER.\n[None]: "
@@ -146,6 +177,11 @@ class SimpleConfigBuilder(object):
             self._plugin_directory = None
 
     def _build_storage(self):
+        """
+
+        Returns:
+
+        """
         plugins = self._plugin_handler.fetch_plugin(
             [PyPWA.libs, self._plugin_directory]
         )
@@ -154,23 +190,54 @@ class SimpleConfigBuilder(object):
         self._storage.add_plugins(plugins)
 
     def _make_plugin_list(self, main_plugin):
+        """
+
+        Args:
+            main_plugin:
+
+        Returns:
+
+        """
         list_maker = PluginList()
         self._plugins = list_maker.parse_plugins(
             main_plugin, self._storage
         )
 
     def _build_configuration(self):
+        """
+
+        Returns:
+
+        """
         configuration = ruamel.yaml.comments.CommentedMap()
         for plugin in self._plugins:
             configuration.update(plugin.request_options(self._level))
         self._settings = configuration
 
     def _add_main_to_configuration(self, main_plugin):
+        """
+
+        Args:
+            main_plugin:
+
+        Returns:
+
+        """
         self._settings.update(main_plugin.request_options(self._level))
 
     def _correct_options(
             self, main_plugin, main_name, provided_options
     ):
+        """
+
+        Args:
+            main_plugin:
+            main_name:
+            provided_options:
+
+        Returns:
+
+        """
         shell_id = main_plugin.request_metadata("id")
 
         if provided_options:
@@ -186,6 +253,14 @@ class SimpleConfigBuilder(object):
         self._settings.pop(shell_id)
 
     def _set_save_location(self, save_location=False):
+        """
+
+        Args:
+            save_location:
+
+        Returns:
+
+        """
         question = "\nWhat would you like to name the configuration " \
                    "file?\nFile Name?: "
 
@@ -195,6 +270,11 @@ class SimpleConfigBuilder(object):
             self._save_location = self._input_manager.input(question)
 
     def _write_final_config(self):
+        """
+
+        Returns:
+
+        """
         with io.open(self._save_location, "w") as stream:
             stream.write(ruamel.yaml.dump(
                 self._settings, Dumper=ruamel.yaml.RoundTripDumper
@@ -204,12 +284,24 @@ class SimpleConfigBuilder(object):
 class PluginList(object):
 
     def __init__(self):
+        """
+
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
         self._input_manager = SimpleInputObject()
 
     def parse_plugins(self, main_plugin, storage):
+        """
+
+        Args:
+            main_plugin:
+            storage:
+
+        Returns:
+
+        """
         plugins = []
         if main_plugin.requires("data parser"):
             plugins.append(self._process_plugins(
@@ -240,6 +332,17 @@ class PluginList(object):
     def _process_plugins(
             self, plugin_type, plugin_type_name, storage, plugin_list
     ):
+        """
+
+        Args:
+            plugin_type:
+            plugin_type_name:
+            storage:
+            plugin_list:
+
+        Returns:
+
+        """
         if len(plugin_list) == 1:
             empty_plugin = plugin_list[0]
         else:
@@ -252,6 +355,15 @@ class PluginList(object):
         return empty_plugin()
 
     def _ask_plugin(self, plugin_list, plugin_type):
+        """
+
+        Args:
+            plugin_list:
+            plugin_type:
+
+        Returns:
+
+        """
         names = []
         for plugin in plugin_list:
             the_plugin = plugin()
@@ -271,6 +383,11 @@ class PluginList(object):
 class SimpleInputObject(object):
 
     def __init__(self, auto_correct_percentage=75):
+        """
+
+        Args:
+            auto_correct_percentage:
+        """
         self._auto_correction_percentage = auto_correct_percentage
 
     def input(
@@ -346,6 +463,14 @@ It looks like you selected '{0}', is this correct?
 
     @staticmethod
     def __input(string):
+        """
+
+        Args:
+            string:
+
+        Returns:
+
+        """
         if sys.version_info.major == 2:
             return raw_input(string)
         else:

@@ -58,27 +58,68 @@ class TemplateDataPlugin(object):
         raise NotImplementedError
 
     def plugin_name(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def plugin_supported_extensions(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def plugin_memory_parser(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def plugin_reader(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def plugin_writer(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     def plugin_supported_length(self):
+        """
+
+        Returns:
+
+        """
         return 1
 
 
 class TemplateMemory(object):
+    """
+
+    """
 
     def parse(self, file_location):
+        """
+
+        Args:
+            file_location:
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method parse. This is the method that "
             "you should overwrite to have the object read data into "
@@ -86,6 +127,15 @@ class TemplateMemory(object):
         )
 
     def write(self, file_location, data):
+        """
+
+        Args:
+            file_location:
+            data:
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object write your data to "

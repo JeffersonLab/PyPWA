@@ -26,6 +26,7 @@ Example:
     interface = foreman.fetch_interface()
     processed_value = interface.run("Your args")
 """
+
 import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS

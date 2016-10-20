@@ -1,14 +1,48 @@
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+
+"""
+
 import logging
 
 import PyPWA.libs
 import PyPWA.shell
+from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs import plugin_loader
 from PyPWA.core_libs.templates import option_templates
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class PluginStorage(object):
 
     def __init__(self, extra_locations=None):
+        """
+
+        Args:
+            extra_locations:
+        """
         plugins = [PyPWA.libs, PyPWA.shell]
 
         if isinstance(extra_locations, str):
@@ -71,6 +105,9 @@ class PluginStorage(object):
 class MetadataStorage(object):
 
     def __init__(self):
+        """
+
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
         self._minimization = []
@@ -79,10 +116,26 @@ class MetadataStorage(object):
         self._data_parser = []
 
     def add_plugins(self, plugins):
+        """
+
+        Args:
+            plugins:
+
+        Returns:
+
+        """
         for plugin in plugins:
             self._plugin_filter(plugin)
 
     def _plugin_filter(self, plugin):
+        """
+
+        Args:
+            plugin:
+
+        Returns:
+
+        """
         try:
             temp_object = plugin()
             plugin_type = temp_object.request_metadata("provides")
@@ -100,6 +153,15 @@ class MetadataStorage(object):
             self._logger.error(Error)
 
     def search_plugin(self, plugin_name, plugin_type):
+        """
+
+        Args:
+            plugin_name:
+            plugin_type:
+
+        Returns:
+
+        """
         if plugin_type is "data reader":
             return self._plugin_name_search(
                 plugin_name, self._data_reader
@@ -122,6 +184,15 @@ class MetadataStorage(object):
 
     @staticmethod
     def _plugin_name_search(plugin_name, plugins):
+        """
+
+        Args:
+            plugin_name:
+            plugins:
+
+        Returns:
+
+        """
         for plugin in plugins:
             if plugin["name"] == plugin_name:
                 return plugin
@@ -132,16 +203,36 @@ class MetadataStorage(object):
 
     @property
     def minimization(self):
+        """
+
+        Returns:
+
+        """
         return self._minimization
 
     @property
     def kernel_processing(self):
+        """
+
+        Returns:
+
+        """
         return self._kernel_processing
 
     @property
     def data_reader(self):
+        """
+
+        Returns:
+
+        """
         return self._data_reader
 
     @property
     def data_parser(self):
+        """
+
+        Returns:
+
+        """
         return self._data_parser

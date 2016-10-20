@@ -24,9 +24,8 @@ again.
 
 import io
 import logging
-import pickle
-
 import os
+import pickle
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs import tools
@@ -41,6 +40,7 @@ __version__ = VERSION
 
 
 class MemoryCache(object):
+
     def __init__(self):
         """
         Just like the old one, but new!

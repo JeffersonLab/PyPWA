@@ -26,7 +26,6 @@ import logging
 import multiprocessing
 
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
 from PyPWA.core_libs.templates import plugin_templates
@@ -43,6 +42,7 @@ __version__ = VERSION
 
 
 class _ProcessInterface(interface_templates.InterfaceTemplate):
+
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
         This object provides all the functions necessary to determine the

@@ -45,6 +45,9 @@ __version__ = VERSION
 class Configurator(configurator_templates.ShellCoreTemplate):
 
     def __init__(self):
+        """
+
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
@@ -149,6 +152,14 @@ class Configurator(configurator_templates.ShellCoreTemplate):
 
     @staticmethod
     def _add_configuration_settings(templates):
+        """
+
+        Args:
+            templates:
+
+        Returns:
+
+        """
         special_sauce = ConfiguratorOptions()
         templates[special_sauce.request_metadata("name")] = \
             special_sauce.request_options("template")
@@ -171,6 +182,11 @@ class ShellLauncher(object):
         self._settings = settings
 
     def start(self):
+        """
+
+        Returns:
+
+        """
         the_ids = list(self._settings.keys())
         main = None  # type: option_templates.MainOptionsTemplate
         plugins = []

@@ -35,6 +35,9 @@ __version__ = VERSION
 
 
 class CommunicationFactory(object):
+    """
+
+    """
 
     @staticmethod
     def simplex_build(count):
@@ -111,6 +114,7 @@ class _CommunicationInterface(object):
 
 
 class _SimplexSend(_CommunicationInterface):
+
     def __init__(self, send_pipe):
         """
         Simple Send object
@@ -145,6 +149,7 @@ class _SimplexSend(_CommunicationInterface):
 
 
 class _SimplexReceive(_CommunicationInterface):
+
     def __init__(self, receive_pipe):
         """
         Simple Receive object
@@ -178,6 +183,7 @@ class _SimplexReceive(_CommunicationInterface):
 
 
 class _DuplexCommunication(_CommunicationInterface):
+
     def __init__(self, send_pipe, receive_pipe):
         """
         The Duplex communication object, use for inter-communication

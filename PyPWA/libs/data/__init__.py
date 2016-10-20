@@ -30,6 +30,7 @@ Examples:
         file = PyPWA.data.file_manager.MemoryInterface()
         file.write(path_to_file, the_data)
 """
+
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import option_templates
 from PyPWA.libs.data import traffic_cop

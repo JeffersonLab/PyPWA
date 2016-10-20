@@ -32,9 +32,19 @@ __version__ = VERSION
 class ReaderInterfaceTemplate(object):
 
     def __init__(self, file_location):
+        """
+
+        Args:
+            file_location:
+        """
         self._the_file = file_location
 
     def reset(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object reset properly when "
@@ -43,6 +53,11 @@ class ReaderInterfaceTemplate(object):
 
     @property
     def next_event(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object read in the next "
@@ -73,6 +88,11 @@ class ReaderInterfaceTemplate(object):
         )
 
     def close(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object return the last "
@@ -83,9 +103,22 @@ class ReaderInterfaceTemplate(object):
 class WriterInterfaceTemplate(object):
 
     def __init__(self, file_location):
+        """
+
+        Args:
+            file_location:
+        """
         self._the_file = file_location
 
     def write(self, data):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object write the data out "
@@ -99,6 +132,11 @@ class WriterInterfaceTemplate(object):
         self.close()
 
     def close(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError(
             "%s does not overwrite method write. This is the method that "
             "you should overwrite to have the object properly operated "
@@ -112,6 +150,14 @@ class InterfaceTemplate(object):
     """
 
     def run(self, *args):
+        """
+
+        Args:
+            *args:
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     @property
@@ -119,10 +165,23 @@ class InterfaceTemplate(object):
         raise NotImplementedError
 
     def stop(self, force=False):
+        """
+
+        Args:
+            force:
+
+        Returns:
+
+        """
         raise NotImplementedError
 
     @property
     def is_alive(self):
+        """
+
+        Returns:
+
+        """
         raise NotImplementedError
 
 
@@ -223,6 +282,17 @@ class AbstractInterface(object):
 
 
 class MinimizerParserTemplate(object):
+    """
+
+    """
 
     def convert(self, passed_value):
+        """
+
+        Args:
+            passed_value:
+
+        Returns:
+
+        """
         raise NotImplementedError

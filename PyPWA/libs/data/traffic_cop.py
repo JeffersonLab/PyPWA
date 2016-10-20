@@ -25,10 +25,9 @@ this to get started passing data to it.
 """
 
 import logging
-
-import numpy
 import os
 
+import numpy
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs import plugin_loader, tools
 from PyPWA.core_libs.templates import plugin_templates
@@ -50,6 +49,9 @@ MODULE_NAME = "Builtin Parser"  # Name for the module externally.
 
 
 class DataCoreTools(object):
+    """
+
+    """
 
     def _reader_search(self, file_location):
         """
@@ -126,10 +128,20 @@ class DataCoreTools(object):
 
 
 class Memory(plugin_templates.DataParserTemplate, DataCoreTools):
+
     def __init__(
             self, cache=True, clear_cache=False, fail=True,
             user_plugin=False, **options
     ):
+        """
+
+        Args:
+            cache:
+            clear_cache:
+            fail:
+            user_plugin:
+            **options:
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
@@ -256,10 +268,14 @@ class Memory(plugin_templates.DataParserTemplate, DataCoreTools):
 
 
 class Iterator(plugin_templates.DataReaderTemplate, DataCoreTools):
+
     def __init__(self, fail=True, user_plugin=False, **options):
         """
-        Simple plugin that returns a reader or writer that can read and
-        write the requested data.
+
+        Args:
+            fail:
+            user_plugin:
+            **options:
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
