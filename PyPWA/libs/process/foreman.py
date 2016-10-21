@@ -99,18 +99,10 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
                 processes to stop.
         """
         if self._duplex and not force:
-            for pipe in self._com:
-                self._logger.debug("Killing duplex processes.")
-                pipe.send("DIE")
+            self._ask_processes_to_stop()
         else:
             if force:
-                self._logger.warn(
-                    "KILLING PROCESSES, THIS IS !EXPERIMENTAL! AND WILL "
-                    "PROBABLY BREAK THINGS."
-                )
-
-                for process in self._processes:
-                    process.terminate()
+                self._terminate_processes()
             else:
                 self._logger.warn(
                     "The communication object is Simplex, can not shut "
@@ -119,6 +111,20 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
                     "functions will shutdown, or force the thread to die "
                     "[EXPERIMENTAL]"
                 )
+
+    def _ask_processes_to_stop(self):
+        for pipe in self._com:
+            self._logger.debug("Killing duplex processes.")
+            pipe.send("DIE")
+
+    def _terminate_processes(self):
+        self._logger.warn(
+            "KILLING PROCESSES, THIS IS !EXPERIMENTAL! AND WILL "
+            "PROBABLY BREAK THINGS."
+        )
+
+        for process in self._processes:
+            process.terminate()
 
     @property
     def is_alive(self):
