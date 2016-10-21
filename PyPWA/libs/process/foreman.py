@@ -223,7 +223,6 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
             self._interface_template, com, processes, self._duplex
         )
 
-    @property
     def fetch_interface(self):
         """
         Returns the built Process Interface

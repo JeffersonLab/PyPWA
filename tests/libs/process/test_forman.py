@@ -51,7 +51,7 @@ def test_DuplexProcess_SumOfIntegers_Return50():
     process_builder.main_options(test_data, TestKernel(), TestInterface())
 
     # Attach to interface
-    interface = process_builder.fetch_interface
+    interface = process_builder.fetch_interface()
 
     final_value = interface.run("go")
     if interface.is_alive:
@@ -98,7 +98,7 @@ def test_SimplexProcess_SumIntegers_Return50():
     process_builder.main_options(test_data, TestKernel(), TestInterface())
 
     # Fetch interface
-    interface = process_builder.fetch_interface
+    interface = process_builder.fetch_interface()
 
     final_value = interface.run()
     interface.stop()
