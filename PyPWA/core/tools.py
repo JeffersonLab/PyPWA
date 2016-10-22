@@ -58,13 +58,13 @@ class DataLocation(object):
         self._add_filename_to_uri(filename)
         return self._found_uri
 
-    def find_log_dir(self, filename: str) -> str:
+    def get_log_uri(self, filename: str) -> str:
         log_dir = appdirs.user_log_dir("PyPWA", "JLab", __version__)
         self._find_usable_uri(log_dir)
         self._add_filename_to_uri(filename)
         return self._found_uri
 
-    def find_config_dir(self, filename: str) -> str:
+    def get_config_uri(self, filename: str) -> str:
         conf_dir = appdirs.user_config_dir("PyPWA", "JLab", __version__)
         self._find_usable_uri(conf_dir)
         self._add_filename_to_uri(filename)
