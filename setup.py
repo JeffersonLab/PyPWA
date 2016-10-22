@@ -46,6 +46,7 @@ setup(
     },
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
     install_requires=[
+        "typing",       # Support for function typing
         "iminuit<2.0",  # Default minimizer
         "numpy<2.0",    # Arrays and optimizations
         "ruamel.yaml",  # Advanced YAML Parser
