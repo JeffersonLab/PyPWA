@@ -6,13 +6,12 @@ from PyPWA.core import tools
 
 FILE_LOCATION = os.path.join(
     os.path.dirname(__file__),
-    "../libs/data/builtin/test_docs/sv_test_data.tsv"
+    "../builtin_plugins/data/builtin/test_docs/sv_test_data.tsv"
 )
 
 data_loc = tools.DataLocation()
-hashing = tools.FileHash()
-
 test_file = io.open(FILE_LOCATION, "br")
+hashing = tools.FileHashString(test_file)
 
 
 def DataLocation_TestHelper(location):
@@ -28,74 +27,62 @@ def DataLocation_TestHelper(location):
 
 
 def test_DataLocation_FindCache_DirectoryReturned():
-    location = data_loc.find_cache_dir("here", ".cache")
+    location = data_loc.get_cache_uri("here.cache")
     DataLocation_TestHelper(location)
 
 
 def test_DataLocation_FindData_DirectoryReturned():
-    location = data_loc.find_data_dir("here", ".data")
+    location = data_loc.get_data_uri("here.data")
     DataLocation_TestHelper(location)
 
 
 def test_DataLocation_FindLog_DirectoryReturned():
-    location = data_loc.find_log_dir("here", ".log")
+    location = data_loc.get_log_uri("here.log")
     DataLocation_TestHelper(location)
 
 
 def test_DataLocation_FindConfig_DirectoryReturned():
-    location = data_loc.find_config_dir("here")
+    location = data_loc.get_config_uri("here")
     DataLocation_TestHelper(location)
 
 
 def test_FileHash_md5_StringReturned():
-    test_file.seek(0)
-    the_hash = hashing.get_md5(test_file)
-    test_file.seek(0)
+    the_hash = hashing.get_md5_hash()
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha1_StringReturned():
-    test_file.seek(0)
-    the_hash = hashing.get_sha1(test_file)
-    test_file.seek(0)
+    the_hash = hashing.get_sha1_hash()
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha224_StringReturned():
-    test_file.seek(0)
-    the_hash = hashing.get_sha224(test_file)
-    test_file.seek(0)
+    the_hash = hashing.get_sha224_hash()
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha256_StringReturned():
-    test_file.seek(0)
-    the_hash = hashing.get_sha256_hash(test_file)
-    test_file.seek(0)
+    the_hash = hashing.get_sha256_hash()
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha384_StringReturned():
-    test_file.seek(0)
-    the_hash = hashing.get_sha384_hash(test_file)
-    test_file.seek(0)
+    the_hash = hashing.get_sha384_hash()
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha512_StringReturned():
-    test_file.seek(0)
-    the_hash = hashing.get_sha512_hash(test_file)
-    test_file.seek(0)
+    the_hash = hashing.get_sha512_hash()
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
