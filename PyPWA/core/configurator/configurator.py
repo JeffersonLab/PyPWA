@@ -26,12 +26,12 @@ import logging
 import PyPWA.builtin_plugins
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import _storage
-from PyPWA.configurator import _tools
-from PyPWA.configurator import config_loader
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import configurator_templates
-from PyPWA.core_libs.templates import option_templates
+from PyPWA.core import plugin_loader
+from PyPWA.core.configurator import _storage
+from PyPWA.core.configurator import _tools
+from PyPWA.core.configurator import config_loader
+from PyPWA.core.templates import configurator_templates
+from PyPWA.core.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -30,9 +30,9 @@ import ruamel.yaml
 import ruamel.yaml.comments
 import ruamel.yaml.parser
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import _storage
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import option_templates
+from PyPWA.core import plugin_loader
+from PyPWA.core.configurator import _storage
+from PyPWA.core.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
