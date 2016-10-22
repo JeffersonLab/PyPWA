@@ -59,6 +59,8 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
                 processing processes.
         """
         self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
+
         self._com = process_com
         self._interface_kernel = interface_kernel
         self._processes = processes
@@ -67,10 +69,8 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
 
     def run(self, *args):
         """
-        This is the wrapping method for the process kernel, it passes the
-        communication and the received arguments to the kernel, then saves
-        the value that was returned so that it can be called at a later
-        time if needed.
+        Passes received arguments to the interface kernel and returns the
+        result.
 
         Args:
             *args: The arguments received through the run interface.
@@ -83,16 +83,13 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
     @property
     def previous_value(self):
         """
-        Returns the previous value calculated from the processes.
-
-        Returns:
-            Last value calculated from the processes.
+        Returns previous found value.
         """
         return self._held_value
 
     def stop(self, force=False):
         """
-        The method used to kill processes.
+        Stops processes.
 
         Args:
             force (Optional[bool]): Set to true if you want to force the
@@ -114,7 +111,7 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
 
     def _ask_processes_to_stop(self):
         for pipe in self._com:
-            self._logger.debug("Killing duplex processes.")
+            self._logger.debug("Attempting to kill processes.")
             pipe.send("DIE")
 
     def _terminate_processes(self):
