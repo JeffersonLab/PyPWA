@@ -106,43 +106,40 @@ class FileHashString(object):
         """
         A simple utility that loads a full stream, hashes it, then returns
         the string of that stream.
-
-        Args:
-            stream: Any file opened with io.open()
         """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
-        self._stream = None  # type: io.TextIOWrapper
+        self._stream = None  # type: io.FileIO
         self._hash = None  # type: hashlib.md5
         self._current = 0
 
-    def get_sha512_hash(self, stream: io.TextIOWrapper) -> str:
+    def get_sha512_hash(self, stream: io.FileIO) -> str:
         self._set_stream(stream)
         self._set_hash_type(hashlib.sha512())
         return self._get_stream_hash()
 
-    def get_sha384_hash(self, stream: io.TextIOWrapper) -> str:
+    def get_sha384_hash(self, stream: io.FileIO) -> str:
         self._set_stream(stream)
         self._set_hash_type(hashlib.sha384())
         return self._get_stream_hash()
 
-    def get_sha256_hash(self, stream: io.TextIOWrapper) -> str:
+    def get_sha256_hash(self, stream: io.FileIO) -> str:
         self._set_stream(stream)
         self._set_hash_type(hashlib.sha256())
         return self._get_stream_hash()
 
-    def get_sha224_hash(self, stream: io.TextIOWrapper) -> str:
+    def get_sha224_hash(self, stream: io.FileIO) -> str:
         self._set_stream(stream)
         self._set_hash_type(hashlib.sha224())
         return self._get_stream_hash()
 
-    def get_sha1_hash(self, stream: io.TextIOWrapper) -> str:
+    def get_sha1_hash(self, stream: io.FileIO) -> str:
         self._set_stream(stream)
         self._set_hash_type(hashlib.sha1())
         return self._get_stream_hash()
 
-    def get_md5_hash(self, stream: io.TextIOWrapper) -> str:
+    def get_md5_hash(self, stream: io.FileIO) -> str:
         self._set_stream(stream)
         self._set_hash_type(hashlib.md5())
         return self._get_stream_hash()
