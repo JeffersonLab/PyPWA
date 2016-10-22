@@ -11,7 +11,7 @@ FILE_LOCATION = os.path.join(
 
 data_loc = tools.DataLocation()
 test_file = io.open(FILE_LOCATION, "br")
-hashing = tools.FileHashString(test_file)
+hashing = tools.FileHashString()
 
 
 def DataLocation_TestHelper(location):
@@ -47,42 +47,42 @@ def test_DataLocation_FindConfig_DirectoryReturned():
 
 
 def test_FileHash_md5_StringReturned():
-    the_hash = hashing.get_md5_hash()
+    the_hash = hashing.get_md5_hash(test_file)
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha1_StringReturned():
-    the_hash = hashing.get_sha1_hash()
+    the_hash = hashing.get_sha1_hash(test_file)
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha224_StringReturned():
-    the_hash = hashing.get_sha224_hash()
+    the_hash = hashing.get_sha224_hash(test_file)
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha256_StringReturned():
-    the_hash = hashing.get_sha256_hash()
+    the_hash = hashing.get_sha256_hash(test_file)
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha384_StringReturned():
-    the_hash = hashing.get_sha384_hash()
+    the_hash = hashing.get_sha384_hash(test_file)
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
 
 
 def test_FileHash_sha512_StringReturned():
-    the_hash = hashing.get_sha512_hash()
+    the_hash = hashing.get_sha512_hash(test_file)
 
     assert isinstance(the_hash, str)
     assert len(the_hash) > 5
