@@ -70,8 +70,6 @@ class DataLocation(object):
         self._add_filename_to_uri(filename)
         return self._found_uri
 
-    def
-
     def _find_usable_uri(self, potential_uri: str) -> str:
         self._recursively_make_uri_directories(potential_uri)
         self._determine_potential_or_cwd(potential_uri)
