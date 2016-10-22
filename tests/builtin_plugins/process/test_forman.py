@@ -4,7 +4,7 @@ import numpy
 import pytest
 
 from PyPWA.builtin_plugins.process import foreman, _communication
-from PyPWA.core_libs.templates import interface_templates
+from PyPWA.core.templates import interface_templates
 
 
 def test_DuplexProcess_SumOfIntegers_Return50():

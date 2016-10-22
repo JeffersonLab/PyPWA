@@ -2,7 +2,7 @@ import io
 
 import os
 
-from PyPWA.core_libs import tools
+from PyPWA.core import tools
 
 FILE_LOCATION = os.path.join(
     os.path.dirname(__file__),
@@ -49,7 +49,7 @@ def test_DataLocation_FindConfig_DirectoryReturned():
 
 def test_FileHash_md5_StringReturned():
     test_file.seek(0)
-    the_hash = hashing.hash_md5(test_file)
+    the_hash = hashing.get_md5(test_file)
     test_file.seek(0)
 
     assert isinstance(the_hash, str)
@@ -58,7 +58,7 @@ def test_FileHash_md5_StringReturned():
 
 def test_FileHash_sha1_StringReturned():
     test_file.seek(0)
-    the_hash = hashing.hash_sha1(test_file)
+    the_hash = hashing.get_sha1(test_file)
     test_file.seek(0)
 
     assert isinstance(the_hash, str)
@@ -67,7 +67,7 @@ def test_FileHash_sha1_StringReturned():
 
 def test_FileHash_sha224_StringReturned():
     test_file.seek(0)
-    the_hash = hashing.hash_sha224(test_file)
+    the_hash = hashing.get_sha224(test_file)
     test_file.seek(0)
 
     assert isinstance(the_hash, str)
@@ -76,7 +76,7 @@ def test_FileHash_sha224_StringReturned():
 
 def test_FileHash_sha256_StringReturned():
     test_file.seek(0)
-    the_hash = hashing.hash_sha256(test_file)
+    the_hash = hashing.get_sha256_hash(test_file)
     test_file.seek(0)
 
     assert isinstance(the_hash, str)
@@ -85,7 +85,7 @@ def test_FileHash_sha256_StringReturned():
 
 def test_FileHash_sha384_StringReturned():
     test_file.seek(0)
-    the_hash = hashing.hash_sha384(test_file)
+    the_hash = hashing.get_sha384_hash(test_file)
     test_file.seek(0)
 
     assert isinstance(the_hash, str)
@@ -94,7 +94,7 @@ def test_FileHash_sha384_StringReturned():
 
 def test_FileHash_sha512_StringReturned():
     test_file.seek(0)
-    the_hash = hashing.hash_sha512(test_file)
+    the_hash = hashing.get_sha512_hash(test_file)
     test_file.seek(0)
 
     assert isinstance(the_hash, str)

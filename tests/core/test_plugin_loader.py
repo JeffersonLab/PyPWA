@@ -1,6 +1,6 @@
 from PyPWA import builtin_plugins
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import option_templates
+from PyPWA.core import plugin_loader
+from PyPWA.core.templates import option_templates
 from PyPWA.builtin_plugins import data, process, multinest_minimization, minuit
 
 

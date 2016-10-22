@@ -1,5 +1,5 @@
-from PyPWA.configurator import configurator
 from PyPWA.builtin_plugins import process, data, minuit
+from PyPWA.core.configurator import configurator
 
 
 def the_real_options_test(options):

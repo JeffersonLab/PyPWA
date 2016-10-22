@@ -1,4 +1,4 @@
-from PyPWA.configurator import _tools
+from PyPWA.core.configurator import _tools
 
 
 def test_SettingsAid_SimpleDict_ValuesCorrected():

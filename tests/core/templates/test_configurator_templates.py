@@ -1,4 +1,4 @@
-from PyPWA.core_libs.templates import configurator_templates
+from PyPWA.core.templates import configurator_templates
 
 import pytest
 
