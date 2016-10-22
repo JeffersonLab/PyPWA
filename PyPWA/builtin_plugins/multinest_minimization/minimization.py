@@ -19,9 +19,9 @@ import logging
 import numpy
 import pymultinest
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import interface_templates
-from PyPWA.core_libs.templates import plugin_templates
+from PyPWA.core import plugin_loader
+from PyPWA.core.templates import interface_templates
+from PyPWA.core.templates import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -29,8 +29,8 @@ import os
 
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import plugin_loader, tools
-from PyPWA.core_libs.templates import plugin_templates
+from PyPWA.core import plugin_loader, tools
+from PyPWA.core.templates import plugin_templates
 from PyPWA.builtin_plugins.data import _cache
 from PyPWA.builtin_plugins.data import builtin
 from PyPWA.builtin_plugins.data import data_templates

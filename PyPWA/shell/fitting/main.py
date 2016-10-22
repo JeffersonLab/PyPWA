@@ -23,8 +23,8 @@ import os
 
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import plugin_templates
+from PyPWA.core import plugin_loader
+from PyPWA.core.templates import plugin_templates
 from PyPWA.shell.fitting import calculations
 
 __author__ = ["Mark Jones"]

@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs.templates import option_templates
+from PyPWA.core.templates import option_templates
 from PyPWA.builtin_plugins.minuit import minimization
 
 __author__ = ["Mark Jones"]

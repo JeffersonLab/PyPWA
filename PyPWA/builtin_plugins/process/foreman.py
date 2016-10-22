@@ -27,8 +27,8 @@ import multiprocessing
 
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs.templates import interface_templates
-from PyPWA.core_libs.templates import plugin_templates
+from PyPWA.core.templates import interface_templates
+from PyPWA.core.templates import plugin_templates
 from PyPWA.builtin_plugins.process import _communication
 from PyPWA.builtin_plugins.process import _processing
 

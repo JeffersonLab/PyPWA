@@ -19,8 +19,8 @@ Entry point for console PyShell
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import configurator
-from PyPWA.core_libs.wrappers import StartProgram
+from PyPWA.core.configurator import configurator
+from PyPWA.core.wrappers import StartProgram
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

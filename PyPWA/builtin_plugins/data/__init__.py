@@ -32,7 +32,7 @@ Examples:
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs.templates import option_templates
+from PyPWA.core.templates import option_templates
 from PyPWA.builtin_plugins.data import traffic_cop
 
 __author__ = ["Mark Jones"]

@@ -28,7 +28,7 @@ import os
 import pickle
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs import tools
+from PyPWA.core import tools
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -196,7 +196,7 @@ class MemoryCache(object):
 
     def _file_hash(self, file_location):
         with io.open(file_location, "rb") as stream:
-            return self._hash_utility.hash_sha512(stream)
+            return self._hash_utility.get_sha512_hash(stream)
 
 
 class CacheError(Exception):
