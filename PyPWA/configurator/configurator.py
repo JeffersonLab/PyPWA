@@ -23,7 +23,7 @@ needs to be structured to be able to function in the users desired way.
 
 import logging
 
-import PyPWA.libs
+import PyPWA.builtin_plugins
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.configurator import _storage

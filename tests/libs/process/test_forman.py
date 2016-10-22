@@ -3,7 +3,7 @@ import time
 import numpy
 import pytest
 
-from PyPWA.libs.process import foreman, _communication
+from PyPWA.builtin_plugins.process import foreman, _communication
 from PyPWA.core_libs.templates import interface_templates
 
 

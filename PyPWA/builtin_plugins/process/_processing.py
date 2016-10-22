@@ -22,7 +22,7 @@ methods are Duplex for worker processes and Simplex for offload processes.
 import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.libs.process._communication import CommunicationFactory
+from PyPWA.builtin_plugins.process._communication import CommunicationFactory
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

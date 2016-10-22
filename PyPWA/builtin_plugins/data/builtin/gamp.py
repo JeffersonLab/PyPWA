@@ -28,8 +28,8 @@ import io
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
-from PyPWA.libs.data import data_templates
-from PyPWA.libs.data import exceptions
+from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.builtin_plugins.data import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

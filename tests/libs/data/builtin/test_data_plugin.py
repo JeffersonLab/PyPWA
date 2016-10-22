@@ -1,4 +1,4 @@
-from PyPWA.libs.data.builtin import sv, kv, gamp
+from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp
 
 
 def DataPlugin_CheckPlugin(the_object):

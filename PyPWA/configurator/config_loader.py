@@ -23,7 +23,7 @@ import logging
 import os
 import sys
 
-import PyPWA.libs
+import PyPWA.builtin_plugins
 import PyPWA.shell
 import fuzzywuzzy.process
 import ruamel.yaml
@@ -183,7 +183,7 @@ class SimpleConfigBuilder(object):
 
         """
         plugins = self._plugin_handler.fetch_plugin(
-            [PyPWA.libs, self._plugin_directory]
+            [PyPWA.builtin_plugins, self._plugin_directory]
         )
 
         self._storage = _storage.MetadataStorage()

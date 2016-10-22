@@ -31,10 +31,10 @@ import numpy
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs import plugin_loader, tools
 from PyPWA.core_libs.templates import plugin_templates
-from PyPWA.libs.data import _cache
-from PyPWA.libs.data import builtin
-from PyPWA.libs.data import data_templates
-from PyPWA.libs.data import exceptions
+from PyPWA.builtin_plugins.data import _cache
+from PyPWA.builtin_plugins.data import builtin
+from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.builtin_plugins.data import exceptions
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

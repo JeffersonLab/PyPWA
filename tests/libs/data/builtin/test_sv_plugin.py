@@ -6,8 +6,8 @@ import numpy
 import os
 import pytest
 
-from PyPWA.libs.data import exceptions
-from PyPWA.libs.data.builtin import sv
+from PyPWA.builtin_plugins.data import exceptions
+from PyPWA.builtin_plugins.data.builtin import sv
 
 CSV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/sv_test_data.csv"

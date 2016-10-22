@@ -22,7 +22,7 @@ called it will correctly raise a NotImplementedError.
 
 import pytest
 
-from PyPWA.libs.data import data_templates
+from PyPWA.builtin_plugins.data import data_templates
 
 
 def test_TemplateValidator_RaiseNotImplementedError():

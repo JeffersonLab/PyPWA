@@ -3,7 +3,7 @@ import collections
 import numpy
 import os
 
-from PyPWA.libs.data import traffic_cop
+from PyPWA.builtin_plugins.data import traffic_cop
 
 CSV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "builtin/test_docs/sv_test_data.csv"

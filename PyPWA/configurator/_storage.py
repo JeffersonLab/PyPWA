@@ -20,7 +20,7 @@
 
 import logging
 
-import PyPWA.libs
+import PyPWA.builtin_plugins
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs import plugin_loader
@@ -43,7 +43,7 @@ class PluginStorage(object):
         Args:
             extra_locations:
         """
-        plugins = [PyPWA.libs, PyPWA.shell]
+        plugins = [PyPWA.builtin_plugins, PyPWA.shell]
 
         if isinstance(extra_locations, str):
             plugins.append(extra_locations)

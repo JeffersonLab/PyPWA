@@ -29,7 +29,7 @@ MULTINEST_FAIL = False
 
 try:
     import pymultinest
-    from PyPWA.libs.multinest_minimization import minimization
+    from PyPWA.builtin_plugins.multinest_minimization import minimization
 except (ImportError, AttributeError):
     MULTINEST_FAIL = True
 

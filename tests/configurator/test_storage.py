@@ -1,4 +1,4 @@
-import PyPWA.libs
+import PyPWA.builtin_plugins
 from PyPWA.configurator import _storage
 from PyPWA.core_libs import plugin_loader
 from PyPWA.core_libs.templates import option_templates
@@ -14,7 +14,7 @@ def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
         option_templates.PluginsOptionsTemplate
     )
 
-    plugin_list = loader.fetch_plugin([PyPWA.libs])
+    plugin_list = loader.fetch_plugin([PyPWA.builtin_plugins])
 
     metadata_storage = _storage.MetadataStorage()
     metadata_storage.add_plugins(plugin_list)

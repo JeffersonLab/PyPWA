@@ -32,9 +32,9 @@ import os
 import numpy
 import pytest
 
-from PyPWA.libs.data import exceptions
-from PyPWA.libs.data import data_templates
-from PyPWA.libs.data.builtin import kv
+from PyPWA.builtin_plugins.data import exceptions
+from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.builtin_plugins.data.builtin import kv
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

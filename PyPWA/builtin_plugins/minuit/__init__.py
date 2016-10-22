@@ -16,7 +16,7 @@
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import option_templates
-from PyPWA.libs.minuit import minimization
+from PyPWA.builtin_plugins.minuit import minimization
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

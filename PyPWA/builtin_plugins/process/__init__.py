@@ -31,7 +31,7 @@ import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import option_templates
-from PyPWA.libs.process import foreman
+from PyPWA.builtin_plugins.process import foreman
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -1,4 +1,4 @@
-from PyPWA.libs import data, process, minuit
+from PyPWA.builtin_plugins import data, process, minuit
 
 
 def check_for_data(data_object):

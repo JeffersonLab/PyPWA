@@ -29,8 +29,8 @@ import numpy
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core_libs.templates import interface_templates
 from PyPWA.core_libs.templates import plugin_templates
-from PyPWA.libs.process import _communication
-from PyPWA.libs.process import _processing
+from PyPWA.builtin_plugins.process import _communication
+from PyPWA.builtin_plugins.process import _processing
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

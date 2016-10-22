@@ -23,7 +23,7 @@ import os
 
 import pytest
 
-from PyPWA.libs.data import _cache
+from PyPWA.builtin_plugins.data import _cache
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "builtin/test_docs/temporary_write_data"
