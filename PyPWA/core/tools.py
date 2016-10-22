@@ -144,7 +144,7 @@ class FileHashString(object):
     def _set_hash_type(self, hash_type):
         self._hash = hash_type
 
-    def _get_stream_hash(self):
+    def _get_stream_hash(self) -> str:
         self._record_stream_cursor_location()
         self._set_location_to_file_start()
         self._update_hash()
@@ -164,5 +164,5 @@ class FileHashString(object):
     def _set_stream_to_recorded_cursor_position(self):
         self._stream.seek(self._current)
 
-    def _get_string_from_hash(self):
-        return self._hash.digest()
+    def _get_string_from_hash(self) -> str:
+        return self._hash.hexdigest()
