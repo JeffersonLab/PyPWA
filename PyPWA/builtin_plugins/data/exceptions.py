@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Stores the exceptions used by the parsing plugins for the data module.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
@@ -31,13 +31,13 @@ __version__ = VERSION
 
 class IncompatibleData(Exception):
     """
-
+    Raised when read test fails for a plugin.
     """
     pass
 
 
 class UnknownData(Exception):
     """
-
+    Raised when no suitable plugin is found.
     """
     pass
