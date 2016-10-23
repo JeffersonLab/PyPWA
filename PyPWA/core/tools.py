@@ -36,36 +36,30 @@ __version__ = VERSION
 
 
 class DataLocation(object):
+    """
+    Locates a place to store cache, logs, configuration, and data.
+    """
+    _cwd = os.getcwd()
+    _found_uri = ""
 
-    def __init__(self):
-        """
-        Locates a place to store cache, logs, configuration, and data.
-        """
-        self._cwd = os.getcwd()
-        self._found_uri = None
-
-    def get_cache_uri(self, filename):
+    def get_cache_uri(self):
         possible_uri = appdirs.user_cache_dir("PyPWA", "JLab", __version__)
         self._find_usable_uri(possible_uri)
-        self._add_filename_to_uri(filename)
         return self._found_uri
 
-    def get_data_uri(self, filename):
+    def get_data_uri(self):
         possible_uri = appdirs.user_data_dir("PyPWA", "JLab", __version__)
         self._find_usable_uri(possible_uri)
-        self._add_filename_to_uri(filename)
         return self._found_uri
 
-    def get_log_uri(self, filename):
+    def get_log_uri(self):
         possible_uri = appdirs.user_log_dir("PyPWA", "JLab", __version__)
         self._find_usable_uri(possible_uri)
-        self._add_filename_to_uri(filename)
         return self._found_uri
 
-    def get_config_uri(self, filename):
+    def get_config_uri(self):
         possible_uri = appdirs.user_config_dir("PyPWA", "JLab", __version__)
         self._find_usable_uri(possible_uri)
-        self._add_filename_to_uri(filename)
         return self._found_uri
 
     def _find_usable_uri(self, potential_uri):
@@ -94,22 +88,19 @@ class DataLocation(object):
             stream.write("test")
         os.remove(test_file)
 
-    def _add_filename_to_uri(self, filename):
-        self._found_uri += "/" + filename
-
 
 class FileHashString(object):
 
+    _logger = logging.getLogger(__name__)
+    _stream = io.FileIO
+    _hash = hashlib.md5()
+    _current = 0
+
     def __init__(self):
         """
-        A simple utility that takes an io stream and returns its hash
+        A simple utility that takes an io.open stream and returns its hash
         """
-        self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
-
-        self._stream = None
-        self._hash = None
-        self._current = 0
 
     def get_sha512_hash(self, stream):
         self._set_stream(stream)

@@ -27,22 +27,22 @@ def DataLocation_TestHelper(location):
 
 
 def test_DataLocation_FindCache_DirectoryReturned():
-    location = data_loc.get_cache_uri("here.cache")
+    location = data_loc.get_cache_uri()
     DataLocation_TestHelper(location)
 
 
 def test_DataLocation_FindData_DirectoryReturned():
-    location = data_loc.get_data_uri("here.data")
+    location = data_loc.get_data_uri()
     DataLocation_TestHelper(location)
 
 
 def test_DataLocation_FindLog_DirectoryReturned():
-    location = data_loc.get_log_uri("here.log")
+    location = data_loc.get_log_uri()
     DataLocation_TestHelper(location)
 
 
 def test_DataLocation_FindConfig_DirectoryReturned():
-    location = data_loc.get_config_uri("here")
+    location = data_loc.get_config_uri()
     DataLocation_TestHelper(location)
 
 

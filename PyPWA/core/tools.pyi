@@ -21,17 +21,18 @@ import os
 
 class DataLocation(object):
 
-    def __init__(self):
-        self._cwd = os.getcwd()
-        self._found_uri = None  # type: str
+    _cwd = os.getcwd()
+    _found_uri = ""
 
-    def get_cache_uri(self, filename: str) -> str: ...
+    def __init__(self): ...
 
-    def get_data_uri(self, filename: str) -> str: ...
+    def get_cache_uri(self) -> str: ...
 
-    def get_log_uri(self, filename: str) -> str: ...
+    def get_data_uri(self) -> str: ...
 
-    def get_config_uri(self, filename: str) -> str: ...
+    def get_log_uri(self) -> str: ...
+
+    def get_config_uri(self) -> str: ...
 
     def _find_usable_uri(self, potential_uri: str) -> str: ...
 
@@ -48,17 +49,12 @@ class DataLocation(object):
 
 class FileHashString(object):
 
-    def __init__(self):
-        """
-        A simple utility that loads a full stream, hashes it, then returns
-        the string of that stream.
-        """
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
+    _logger = logging.getLogger(__name__)
+    _stream = io.FileIO
+    _hash = hashlib.md5()
+    _current = 0
 
-        self._stream = None  # type: io.FileIO
-        self._hash = None  # type: hashlib.md5
-        self._current = 0
+    def __init__(self): ...
 
     def get_sha512_hash(self, stream: io.FileIO) -> str: ...
 
