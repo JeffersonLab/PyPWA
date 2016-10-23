@@ -61,6 +61,11 @@ class MemoryCache(object):
         reader = _ReadCache(basic_data)
         return reader.read_cache()
 
+    @staticmethod
+    def delete_cache(file_location):
+        basic_data = _FindBasicInfo(file_location)
+        os.remove(basic_data.fetch_cache_location)
+
 
 class _FindBasicInfo(object):
     

@@ -29,6 +29,9 @@ class MemoryCache(object):
     @staticmethod
     def read_cache(file_location: str) -> numpy.ndarray: ...
 
+    @staticmethod
+    def delete_cache(file_location: str): ...
+
 
 class _FindBasicInfo(object):
 
