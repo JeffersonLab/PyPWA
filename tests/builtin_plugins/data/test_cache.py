@@ -23,18 +23,19 @@ import os
 
 import pytest
 
+from PyPWA.core import tools
 from PyPWA.builtin_plugins.data import _cache
+
+data_loc = tools.DataLocation()
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "builtin/test_docs/temporary_write_data"
 )
 
-CACHE_DIR = os.path.join(
-    os.path.dirname(__file__), "builtin/test_docs/"
-)
+CACHE_DIR = data_loc.get_cache_uri()
 
 
-def test_MemoryCache_ReadNoCache_RaisesCacheNotFound():
+def test_MemoryCache_ReadNoCache_RaisesCacheError():
     """
     Checks that the cache fails correctly if its called to read a cache
     that doesn't exist.
@@ -45,7 +46,7 @@ def test_MemoryCache_ReadNoCache_RaisesCacheNotFound():
     cache = _cache.MemoryCache()
 
     with pytest.raises(_cache.CacheError):
-        cache.read_cache(TEMP_WRITE_LOCATION, CACHE_DIR)
+        cache.read_cache(TEMP_WRITE_LOCATION)
 
     os.remove(TEMP_WRITE_LOCATION)
 
@@ -59,14 +60,14 @@ def test_MemoryCache_WriteAndRead_ContentsMatch():
         stream.write("Something\n")
 
     cache = _cache.MemoryCache()
-    cache.make_cache("Something", TEMP_WRITE_LOCATION, CACHE_DIR)
+    cache.write_cache("Something", TEMP_WRITE_LOCATION)
 
-    cached_data = cache.read_cache(TEMP_WRITE_LOCATION, CACHE_DIR)
+    cached_data = cache.read_cache(TEMP_WRITE_LOCATION)
 
     assert cached_data == "Something"
 
     os.remove(TEMP_WRITE_LOCATION)
-    os.remove(CACHE_DIR + "/.temporary_write_data.pickle")
+    os.remove(CACHE_DIR + "/temporary_write_data.pickle")
 
 
 def test_MemoryCache_ChangeCacheContents_RaiseCacheChanged():
@@ -78,13 +79,13 @@ def test_MemoryCache_ChangeCacheContents_RaiseCacheChanged():
         stream.write("Something\n")
 
     cache = _cache.MemoryCache()
-    cache.make_cache("Something", TEMP_WRITE_LOCATION, CACHE_DIR)
+    cache.write_cache("Something", TEMP_WRITE_LOCATION)
 
     with open(TEMP_WRITE_LOCATION, "w") as stream:
         stream.write("else\n")
 
     with pytest.raises(_cache.CacheError):
-        cache.read_cache(TEMP_WRITE_LOCATION, CACHE_DIR)
+        cache.read_cache(TEMP_WRITE_LOCATION)
 
     os.remove(TEMP_WRITE_LOCATION)
-    os.remove(CACHE_DIR + "/.temporary_write_data.pickle")
+    os.remove(CACHE_DIR + "/temporary_write_data.pickle")

@@ -40,167 +40,189 @@ __version__ = VERSION
 
 
 class MemoryCache(object):
+    """
+    A simple interface object to _WriteCache and _ReadCache
+    """
 
-    def __init__(self):
-        """
-        Just like the old one, but new!
+    @staticmethod
+    def write_cache(data, file_location):
+        basic_data = _FindBasicInfo(file_location)
+        writer = _WriteCache(basic_data)
+        writer.write_cache(data)
 
-        This object caches data stored in the memory on disk in a format
-        that can be quickly loaded too and from disk to RAM quickly. Also
-        contains logic that will help determine if the the contents of the
-        file has changed from the last cache.
-        """
+    @staticmethod
+    def read_cache(file_location):
+        basic_data = _FindBasicInfo(file_location)
+        reader = _ReadCache(basic_data)
+        return reader.read_cache()
 
-        self._logger = logging.getLogger(__name__)
+
+class _FindBasicInfo(object):
+    
+    _logger = logging.getLogger(__name__)
+    _hash_utility = tools.FileHashString()
+    _data_locator = tools.DataLocation()
+    _cache_location = ""
+    _found_hash = ""
+    
+    def __init__(self, original_file):
+        self._setup_basic_cache_data(original_file)
         self._logger.addHandler(logging.NullHandler())
-        self._hash_utility = tools.FileHash()
 
-    def make_cache(self, data, file_location, cache_path):
-        """
-        Makes and hashes the cache with data that was loaded from
-        disk.
+    @property
+    def fetch_hash(self):
+        return self._found_hash
 
-        Args:
-            data (data_templates.GenericEvent): Contains the dict of the
-                arrays.
-            file_location (str): The location of the original file.
-            cache_path (str): The path to the cache directory.
-        """
-        pickle_location = self._determine_cache_location(
-            file_location, cache_path
+    @property
+    def fetch_cache_location(self):
+        return self._cache_location
+
+    def _setup_basic_cache_data(self, original_file):
+        self._set_cache_name(original_file)
+        self._set_file_hash(original_file)
+
+    def _set_cache_name(self, original_file):
+        cache_location = self._get_cache_uri()
+        self._set_filename_with_uri(original_file, cache_location)
+
+    def _get_cache_uri(self):
+        potential_cache_location = self._data_locator.get_cache_uri()
+        self._logger.debug("Found location is %s" % potential_cache_location)
+        return potential_cache_location
+
+    def _set_filename_with_uri(self, original_file, found_location):
+        beginning_of_uri = "/"
+        filename_extension = ".pickle"
+
+        filename_base = os.path.basename(original_file)
+        filename_without_extension = filename_base.split(".")[0]
+
+        final_location = (
+            found_location + beginning_of_uri +
+            filename_without_extension + filename_extension
         )
 
-        self._logger.debug(
-            "Cache location is set to {0}".format(pickle_location)
-        )
+        self._logger.info("Cache Location set to %s" % final_location)
+        self._cache_location = final_location
 
-        file_hash = self._file_hash(file_location)
+    def _set_file_hash(self, original_file):
+        self._found_hash = self._file_hash(original_file)
 
-        self._logger.info(
-            "Found SHA512 hash for {0}".format(file_location)
-        )
+        self._logger.info("Found SHA512 hash for %s" % self._cache_location)
+        self._logger.debug("File Hash is set to %s" % self._found_hash)
 
-        self._logger.debug(
-            "File Hash is set to {0}".format(file_hash)
-        )
-
-        new_data = {"hash": file_hash, "data": data}
-
-        self._logger.info(
-            "Making cache for {0}".format(file_location)
-        )
-
-        self._write_pickle(pickle_location, new_data)
-
-    def read_cache(self, file_location, cache_path):
-        """
-        Parses the cache from the file and checks the cache's hash with
-        the hash recovered from the data file.
-
-        Args:
-            file_location (str): The location of the original file.
-            cache_path (str): The path to the cache directory.
-
-        Returns:
-            bool: False if unsuccessful
-            dict: Dictionary of Arrays if successful.
-
-        Raises:
-            CacheError: If the cache is incorrect, doesn't exist, or
-                damaged.
-        """
-        pickle_location = self._determine_cache_location(
-            file_location, cache_path
-        )
-
-        self._logger.debug(
-            "Cache location set to {0}".format(pickle_location)
-        )
-
-        file_hash = self._file_hash(file_location)
-
-        self._logger.debug(
-            "File hash is set to {0}".format(file_hash)
-        )
-
-        self._logger.info(
-            "Attempting to load {0}".format(pickle_location)
-        )
-
-        try:
-            returned_data = self._load_pickle(pickle_location)
-        except IOError:
-            self._logger.info("No cache exists.")
-            raise CacheError()
-
-        if returned_data["hash"] == file_hash:
-            self._logger.info("Cache Hashes match!")
-            return returned_data["data"]
-        else:
-            self._logger.warning("File hash has changed.")
-
-            self._logger.debug("{0} != {1}".format(
-                returned_data["hash"], file_hash)
-            )
-
-            raise CacheError()
-
-    @staticmethod
-    def _load_pickle(pickle_location):
-        """
-        Loads the cache from file.
-
-        Args:
-            pickle_location (str): The location of the cache on disk.
-
-        Returns:
-            The contents of the cache, hopefully a dictionary of arrays.
-        """
-        return pickle.load(io.open(pickle_location, "rb"))
-
-    @staticmethod
-    def _write_pickle(pickle_location, data):
-        """
-        Writes the data into a cache.
-
-        Args:
-            pickle_location (str): The location of the cache.
-            data (dict): A dictionary of arrays to be written to disk.
-        """
-        pickle.dump(
-            data, io.open(pickle_location, "wb"),
-            protocol=pickle.HIGHEST_PROTOCOL
-        )
-
-    @staticmethod
-    def _determine_cache_location(file_location, cache_path):
-        """
-        Takes the path to the file, extracts the file name, and appends
-        it to the cache_path with all needed path extras.
-
-        Args:
-            file_location (str): The path to the file that is being
-                cached.
-            cache_path (str): The path to the cache directory.
-
-        Returns:
-            str: The path to the cache file.
-        """
-        file_name = "." + os.path.basename(file_location).split(".")[0] \
-                    + ".pickle"
-
-        path = os.path.abspath(os.path.split(cache_path)[0]) + \
-            os.path.sep + file_name
-
-        return path
-
-    def _file_hash(self, file_location):
-        with io.open(file_location, "rb") as stream:
+    def _file_hash(self, original_file):
+        with io.open(original_file, "rb") as stream:
             return self._hash_utility.get_sha512_hash(stream)
 
 
-class CacheError(Exception):
-    """
-    The Exception for when the Cache Writing or Reading has Failed.
-    """
+class _ReadCache(object):
+
+    _info_object = _FindBasicInfo
+    _packaged_data = {"hash": "", "data": object}
+    _logger = logging.getLogger(__name__)
+
+    def __init__(self, basic_info):
+        self._logger.addHandler(logging.NullHandler())
+        self._info_object = basic_info
+
+    def read_cache(self):
+        self._attempt_cache_load()
+        return self._packaged_data["data"]
+
+    def _attempt_cache_load(self):
+        found_data = self._graciously_load_cache()
+        self._if_valid_set_data(found_data)
+
+    def _graciously_load_cache(self):
+        self._logger.info(
+            "Attempting to load %s" % self._info_object.fetch_cache_location
+        )
+
+        try:
+            returned_data = self._load_data()
+            self._logger.info("Successfully loaded pickle cache!")
+        except (OSError, IOError):
+            returned_data = self._empty_raw_data
+            self._logger.info("No cache exists.")
+        except pickle.PickleError as Error:
+            returned_data = self._empty_raw_data
+            self._logger.info(
+                "Pickle is from a different Python version or is damaged."
+            )
+            self._logger.exception(Error)
+        return returned_data
+
+    @property
+    def _empty_raw_data(self):
+        return {"hash": False, "data": object}
+
+    def _load_data(self):
+        with io.open(self._info_object.fetch_cache_location, "rb") as stream:
+            return pickle.load(stream)
+
+    def _if_valid_set_data(self, loaded_data):
+        if self._check_cache_is_valid(loaded_data):
+            self._packaged_data = loaded_data
+        else:
+            raise CacheError("Cache is invalid.")
+
+    def _check_cache_is_valid(self, loaded_data):
+        if loaded_data["hash"] == self._info_object.fetch_hash:
+            return self._caches_match()
+        elif not loaded_data["hash"]:
+            return self._cache_hash_is_false()
+        else:
+            return self._cache_hash_changed(loaded_data)
+
+    def _caches_match(self):
+        self._logger.info("Cache Hashes match!")
+        return True
+
+    def _cache_hash_is_false(self):
+        self._logger.debug("Cache load failed, hash is false.")
+        return False
+
+    def _cache_hash_changed(self, loaded_data):
+        self._logger.warning("File hash has changed.")
+
+        self._logger.debug(
+            "{0} != {1}".format(
+                loaded_data["hash"], self._info_object.fetch_hash
+            )
+        )
+
+        return False
+
+
+class _WriteCache(object):
+
+    _packaged_data = {"hash": "", "data": object}
+    _logger = logging.getLogger(__name__)
+    _info_object = _FindBasicInfo
+
+    def __init__(self, basic_info):
+        self._logger.addHandler(logging.NullHandler())
+        self._info_object = basic_info
+
+    def write_cache(self, data):
+        self._set_packaged_data(data)
+        self._write_cache_data()
+
+    def _set_packaged_data(self, data):
+        self._packaged_data["hash"] = self._info_object.fetch_hash
+        self._packaged_data["data"] = data
+
+    def _write_cache_data(self):
+        location = self._info_object.fetch_cache_location
+
+        self._logger.info("Making cache for %s" % location)
+
+        with io.open(location, "wb") as stream:
+            pickle.dump(
+                self._packaged_data, stream, protocol=pickle.HIGHEST_PROTOCOL
+            )
+
+
+class CacheError(OSError):
     pass
