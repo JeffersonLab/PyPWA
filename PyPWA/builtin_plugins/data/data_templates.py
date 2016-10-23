@@ -34,110 +34,57 @@ __version__ = VERSION
 
 class TemplateDataPlugin(object):
 
-    def __init__(self, thorough=False):
-        """
-        Simple Data Template, needs to be extended for data plugins.
-
-        Args:
-            thorough (bool): Determines if the entire file should be
-                validated.
-        """
-        self._thorough = thorough
-
-    def read_test(self, file_location):
-        """
-        Command that is called to test if the plugin supports the file.
-
-        Args:
-            file_location (str): The location of the file.
-
-        Raises:
-            exceptions.IncompatibleData: If data isn't compatible than
-                this error would be raised.
-        """
-        raise NotImplementedError
-
+    @property
     def plugin_name(self):
-        """
+        raise NotImplementedError()
 
-        Returns:
+    def get_plugin_memory_parser(self):
+        raise NotImplementedError()
 
-        """
-        raise NotImplementedError
+    def get_plugin_reader(self):
+        raise NotImplementedError()
 
+    def get_plugin_writer(self):
+        raise NotImplementedError()
+
+    def get_plugin_read_test(self):
+        raise NotImplementedError()
+
+    @property
     def plugin_supported_extensions(self):
-        """
+        raise NotImplementedError()
 
-        Returns:
+    @property
+    def plugin_supports_flat_data(self):
+        raise NotImplementedError()
 
-        """
-        raise NotImplementedError
-
-    def plugin_memory_parser(self):
-        """
-
-        Returns:
-
-        """
-        raise NotImplementedError
-
-    def plugin_reader(self):
-        """
-
-        Returns:
-
-        """
-        raise NotImplementedError
-
-    def plugin_writer(self):
-        """
-
-        Returns:
-
-        """
-        raise NotImplementedError
-
-    def plugin_supported_length(self):
-        """
-
-        Returns:
-
-        """
-        return 1
+    @property
+    def plugin_supports_gamp_data(self):
+        raise NotImplementedError()
 
 
 class TemplateMemory(object):
-    """
-
-    """
-
     def parse(self, file_location):
-        """
-
-        Args:
-            file_location:
-
-        Returns:
-
-        """
-        raise NotImplementedError(
-            "%s does not overwrite method parse. This is the method that "
-            "you should overwrite to have the object read data into "
-            "memory from disk." % self.__class__.__name__
-        )
+        raise NotImplementedError()
 
     def write(self, file_location, data):
+        raise NotImplementedError()
+
+
+class ReadTest(object):
+
+    def quick_test(self):
         """
-
-        Args:
-            file_location:
-            data:
-
-        Returns:
-
+        Raises:
+            PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised
+                when data  failed to test properly for the file.
         """
-        raise NotImplementedError(
-            "%s does not overwrite method write. This is the method that "
-            "you should overwrite to have the object write your data to "
-            "disk from memory" % self.__class__.__name__
-        )
+        raise NotImplementedError()
+
+    def full_test(self):
+        """
+        Raises:
+            PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised
+                when data  failed to test properly for the file.
+        """
+        raise NotImplementedError()
