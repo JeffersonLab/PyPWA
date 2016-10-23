@@ -41,7 +41,7 @@ __version__ = VERSION
 
 class MemoryCache(object):
     """
-    A simple interface object to _WriteCache and _ReadCache
+    A simple interface object to _WriteCache and _ReadCache.
     """
 
     @staticmethod
@@ -52,6 +52,11 @@ class MemoryCache(object):
 
     @staticmethod
     def read_cache(file_location):
+        """
+        Raises:
+            _cache.CacheError: If the hash has changed, is corrupt, or
+                doesn't exist, this error will be raised.
+        """
         basic_data = _FindBasicInfo(file_location)
         reader = _ReadCache(basic_data)
         return reader.read_cache()
@@ -66,6 +71,9 @@ class _FindBasicInfo(object):
     _found_hash = ""
     
     def __init__(self, original_file):
+        """
+        Finds the hash and cache location for the Cache Module.
+        """
         self._setup_basic_cache_data(original_file)
         self._logger.addHandler(logging.NullHandler())
 
@@ -123,6 +131,10 @@ class _ReadCache(object):
     _logger = logging.getLogger(__name__)
 
     def __init__(self, basic_info):
+        """
+        Loads the cache from disk if it exists, will raise CacheError if
+        something is wrong with the cache.
+        """
         self._logger.addHandler(logging.NullHandler())
         self._info_object = basic_info
 
@@ -202,6 +214,9 @@ class _WriteCache(object):
     _info_object = _FindBasicInfo
 
     def __init__(self, basic_info):
+        """
+        Writes the cache to disk.
+        """
         self._logger.addHandler(logging.NullHandler())
         self._info_object = basic_info
 
@@ -225,4 +240,8 @@ class _WriteCache(object):
 
 
 class CacheError(OSError):
+    """
+    A simple error that is raised whenever something has gone wrong with the
+    Cache that is known.
+    """
     pass
