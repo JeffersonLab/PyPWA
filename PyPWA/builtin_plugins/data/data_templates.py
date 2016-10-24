@@ -39,10 +39,10 @@ class TemplateDataPlugin(object):
     def get_plugin_memory_parser(self):
         raise NotImplementedError()
 
-    def get_plugin_reader(self):
+    def get_plugin_reader(self, file_location):
         raise NotImplementedError()
 
-    def get_plugin_writer(self):
+    def get_plugin_writer(self, file_location):
         raise NotImplementedError()
 
     def get_plugin_read_test(self):
@@ -71,7 +71,7 @@ class TemplateMemory(object):
 
 class ReadTest(object):
 
-    def quick_test(self):
+    def quick_test(self, file_location):
         """
         Raises:
             PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised
@@ -79,7 +79,7 @@ class ReadTest(object):
         """
         raise NotImplementedError()
 
-    def full_test(self):
+    def full_test(self, file_location):
         """
         Raises:
             PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised
