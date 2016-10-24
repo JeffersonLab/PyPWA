@@ -256,26 +256,13 @@ class SvWriter(interface_templates.WriterInterfaceTemplate):
         self._file.close()
 
 
-class SvDataPlugin(data_templates.TemplateDataPlugin):
+class SvDataTest(data_templates.ReadTest):
 
-    def __init__(self, thorough=False):
-        """
+    def quick_test(self, file_location):
+        self._check_header(file_location)
 
-        Args:
-            thorough:
-        """
-        super(SvDataPlugin, self).__init__(thorough)
-
-    def read_test(self, text_file):
-        """
-
-        Args:
-            text_file:
-
-        Returns:
-
-        """
-        self._check_header(text_file)
+    def full_test(self, file_location):
+        self._check_header(file_location)
 
     @staticmethod
     def _check_header(text_file):
@@ -293,17 +280,33 @@ class SvDataPlugin(data_templates.TemplateDataPlugin):
                 str(HEADER_SEARCH_BITS) + " characters!"
             )
 
+
+class SvDataPlugin(data_templates.TemplateDataPlugin):
+
+    @property
     def plugin_name(self):
         return "Delimiter Separated Variable sheets"
 
+    def get_plugin_memory_parser(self):
+        return SvMemory
+
+    def get_plugin_reader(self):
+        return SvReader
+
+    def get_plugin_writer(self):
+        return SvWriter
+
+    def get_plugin_read_test(self):
+        return SvDataTest()
+
+    @property
     def plugin_supported_extensions(self):
         return [".tsv", ".csv"]
 
-    def plugin_memory_parser(self):
-        return SvMemory
+    @property
+    def plugin_supports_flat_data(self):
+        return True
 
-    def plugin_reader(self):
-        return SvReader
-
-    def plugin_writer(self):
-        return SvWriter
+    @property
+    def plugin_supports_gamp_data(self):
+        return False
