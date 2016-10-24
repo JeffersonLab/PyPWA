@@ -23,7 +23,7 @@ def test_empty_file_has_no_lines(io_open):
     assert io_open.read() == ""
 
 
-@pytest.mark.xfail(reason="Empty files should have no lines.")
+@pytest.mark.xfail(reason="Empty files should have no lines.", strict=True)
 def test_empty_file_has_lines(io_open):
     """
     Args:

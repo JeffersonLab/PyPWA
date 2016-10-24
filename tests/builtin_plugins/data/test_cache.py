@@ -60,7 +60,7 @@ def add_extra_lines_to_file():
         stream.write(" Random extra data.")
 
 
-@pytest.mark.xfail(raises=exceptions.CacheError)
+@pytest.mark.xfail(raises=exceptions.CacheError, strict=True)
 def test_read_cache_with_no_cache_present(
         setup_teardown_test_data, init_cache
 ):
@@ -82,7 +82,7 @@ def test_written_cache_matches_read(setup_teardown_test_data, init_cache):
     assert cached_data == DATA_WRITTEN
 
 
-@pytest.mark.xfail(raises=exceptions.CacheError)
+@pytest.mark.xfail(raises=exceptions.CacheError, strict=True)
 def test_MemoryCache_ChangeCacheContents_RaiseCacheChanged(
         setup_teardown_test_data, init_cache
 ):
