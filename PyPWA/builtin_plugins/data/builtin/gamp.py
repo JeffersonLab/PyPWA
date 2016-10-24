@@ -264,21 +264,7 @@ class GampMemory(data_templates.TemplateMemory):
         writer.close()
 
 
-class GampDataPlugin(data_templates.TemplateDataPlugin):
-
-    def __init__(self, full=False):
-        """
-        Validates the GAMP file to ensure that the file can be read by
-        gamp before actually trying to read it. Also is used for the data
-        plugin to determine which of its plugins to use when its handed a
-        file of an unknown nature.
-
-        Args:
-            full (Optional[bool]): Whether to do a full test of the file
-                or not, useful for debugging unknown issues or
-                complications with reading in GAMP files.
-        """
-        super(GampDataPlugin, self).__init__(full)
+class GampDataTest(data_templates.ReadTest):
 
     def _check_events(self, file_location):
         """
@@ -293,7 +279,7 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
         count = 0
         while True:
             # Limit how much of the file is tested
-            if count == 3 and not self._thorough:
+            if count == 3:
                 break
             number = the_file.readline().strip("\n").strip()
 
@@ -357,24 +343,36 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
                     " where it wasn't expected."
                 )
 
-    def read_test(self, text_file):
+    def quick_test(self, text_file):
         self._test_length(text_file)
         self._check_events(text_file)
+
+    def full_test(self, text_file):
+        self.quick_test(text_file)
+
+
+class GampDataPlugin(data_templates.TemplateDataPlugin):
 
     def plugin_name(self):
         return "gamp"
 
+    def get_plugin_memory_parser(self):
+        return GampMemory()
+
+    def get_plugin_writer(self, file_location):
+        return GampWriter(file_location)
+
+    def get_plugin_reader(self, file_location):
+        return GampReader(file_location)
+
+    def get_plugin_read_test(self):
+        return GampDataTest()
+
     def plugin_supported_extensions(self):
         return [".gamp"]
 
-    def plugin_memory_parser(self):
-        return GampMemory
+    def plugin_supports_gamp_data(self):
+        return True
 
-    def plugin_reader(self):
-        return GampReader
-
-    def plugin_writer(self):
-        return GampWriter
-
-    def plugin_supported_length(self):
-        return 3
+    def plugin_supports_flat_data(self):
+        return False

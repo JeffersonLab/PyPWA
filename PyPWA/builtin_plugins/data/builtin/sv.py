@@ -288,13 +288,13 @@ class SvDataPlugin(data_templates.TemplateDataPlugin):
         return "Delimiter Separated Variable sheets"
 
     def get_plugin_memory_parser(self):
-        return SvMemory
+        return SvMemory()
 
-    def get_plugin_reader(self):
-        return SvReader
+    def get_plugin_reader(self, file_location):
+        return SvReader(file_location)
 
-    def get_plugin_writer(self):
-        return SvWriter
+    def get_plugin_writer(self, file_location):
+        return SvWriter(file_location)
 
     def get_plugin_read_test(self):
         return SvDataTest()

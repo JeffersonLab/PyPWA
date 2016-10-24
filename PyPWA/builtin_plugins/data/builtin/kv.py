@@ -534,19 +534,8 @@ class EVILWriter(interface_templates.WriterInterfaceTemplate):
         self._file.close()
 
 
-class EVILDataPlugin(data_templates.TemplateDataPlugin):
-
-    def __init__(self, thorough=False):
-        """
-        This attempts to validate the files to see if it can be read in by
-        this plugin.
-
-        Args:
-            thorough (Optional[bool]): Whether or not to do a full test
-                of the file.
-        """
-        super(EVILDataPlugin, self).__init__(thorough)
-        self._evil_type = False  # type: str
+class EVILDataTest(data_templates.ReadTest):
+    _evil_type = str
 
     def _check_data_type(self, file_location):
         """
@@ -586,17 +575,36 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         except AttributeError:
             return False
 
+
+class EVILDataPlugin(data_templates.TemplateDataPlugin):
+
+    def __init__(self):
+        super(EVILDataPlugin, self).__init__()
+
+    @property
     def plugin_name(self):
         return "EVIL"
 
+    def get_plugin_memory_parser(self):
+        return SomewhatIntelligentSelector()
+
+    def get_plugin_reader(self, file_location):
+        return EVILReader(file_location)
+
+    def get_plugin_writer(self, file_location):
+        return EVILWriter(file_location)
+
+    def get_plugin_read_test(self):
+        return EVILDataTest()
+
+    @property
     def plugin_supported_extensions(self):
         return [".txt"]
 
-    def plugin_memory_parser(self):
-        return SomewhatIntelligentSelector
+    @property
+    def plugin_supports_flat_data(self):
+        return True
 
-    def plugin_reader(self):
-        return EVILReader
-
-    def plugin_writer(self):
-        return EVILWriter
+    @property
+    def plugin_supports_gamp_data(self):
+        return False
