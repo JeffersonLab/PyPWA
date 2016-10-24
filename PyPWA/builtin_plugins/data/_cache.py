@@ -27,6 +27,7 @@ import logging
 import os
 import pickle
 
+from PyPWA.builtin_plugins.data import exceptions
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core import tools
 
@@ -189,7 +190,7 @@ class _ReadCache(object):
         if self._check_cache_is_valid(loaded_data):
             self._packaged_data = loaded_data
         else:
-            raise CacheError("Cache is invalid.")
+            raise exceptions.CacheError("Cache is invalid.")
 
     def _check_cache_is_valid(self, loaded_data):
         if loaded_data["hash"] == self._info_object.file_hash:
@@ -249,11 +250,3 @@ class _WriteCache(object):
             pickle.dump(
                 self._packaged_data, stream, protocol=pickle.HIGHEST_PROTOCOL
             )
-
-
-class CacheError(OSError):
-    """
-    A simple error that is raised whenever something has gone wrong with the
-    Cache that is known.
-    """
-    pass

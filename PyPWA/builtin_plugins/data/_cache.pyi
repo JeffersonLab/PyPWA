@@ -105,7 +105,3 @@ class _WriteCache(object):
     def _set_packaged_data(self, data): ...
 
     def _write_cache_data(self): ...
-
-
-class CacheError(OSError):
-    pass

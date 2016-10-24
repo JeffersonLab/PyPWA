@@ -41,3 +41,11 @@ class UnknownData(Exception):
     Raised when no suitable plugin is found.
     """
     pass
+
+
+class CacheError(OSError):
+    """
+    A simple error that is raised whenever something has gone wrong with the
+    Cache that is known.
+    """
+    pass
