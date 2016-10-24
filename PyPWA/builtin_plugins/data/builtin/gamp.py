@@ -353,6 +353,7 @@ class GampDataTest(data_templates.ReadTest):
 
 class GampDataPlugin(data_templates.TemplateDataPlugin):
 
+    @property
     def plugin_name(self):
         return "gamp"
 
@@ -368,11 +369,14 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
     def get_plugin_read_test(self):
         return GampDataTest()
 
+    @property
     def plugin_supported_extensions(self):
         return [".gamp"]
 
+    @property
     def plugin_supports_gamp_data(self):
         return True
 
+    @property
     def plugin_supports_flat_data(self):
         return False
