@@ -61,10 +61,16 @@ class MemoryCache(object):
         reader = _ReadCache(basic_data)
         return reader.read_cache()
 
-    @staticmethod
-    def delete_cache(file_location):
+    def delete_cache(self, file_location):
         basic_data = _FindBasicInfo(file_location)
-        os.remove(basic_data.fetch_cache_location)
+        self._attempt_to_delete_cache(basic_data)
+
+    @staticmethod
+    def _attempt_to_delete_cache(basic_data):
+        try:
+            os.remove(basic_data.cache_location)
+        except OSError:
+            pass
 
 
 class _FindBasicInfo(object):
@@ -79,31 +85,32 @@ class _FindBasicInfo(object):
         """
         Finds the hash and cache location for the Cache Module.
         """
-        self._setup_basic_cache_data(original_file)
+        self._setup_basic_info(original_file)
         self._logger.addHandler(logging.NullHandler())
 
     @property
-    def fetch_hash(self):
+    def file_hash(self):
         return self._found_hash
 
     @property
-    def fetch_cache_location(self):
+    def cache_location(self):
         return self._cache_location
 
-    def _setup_basic_cache_data(self, original_file):
-        self._set_cache_name(original_file)
+    def _setup_basic_info(self, original_file):
+        self._set_cache_location(original_file)
         self._set_file_hash(original_file)
 
-    def _set_cache_name(self, original_file):
+    def _set_cache_location(self, original_file):
         cache_location = self._get_cache_uri()
-        self._set_filename_with_uri(original_file, cache_location)
+        location = self._pair_filename_with_uri(original_file, cache_location)
+        self._cache_location = location
 
     def _get_cache_uri(self):
         potential_cache_location = self._data_locator.get_cache_uri()
         self._logger.debug("Found location is %s" % potential_cache_location)
         return potential_cache_location
 
-    def _set_filename_with_uri(self, original_file, found_location):
+    def _pair_filename_with_uri(self, original_file, found_location):
         beginning_of_uri = "/"
         filename_extension = ".pickle"
 
@@ -116,7 +123,7 @@ class _FindBasicInfo(object):
         )
 
         self._logger.info("Cache Location set to %s" % final_location)
-        self._cache_location = final_location
+        return final_location
 
     def _set_file_hash(self, original_file):
         self._found_hash = self._file_hash(original_file)
@@ -153,7 +160,7 @@ class _ReadCache(object):
 
     def _graciously_load_cache(self):
         self._logger.info(
-            "Attempting to load %s" % self._info_object.fetch_cache_location
+            "Attempting to load %s" % self._info_object.cache_location
         )
 
         try:
@@ -175,7 +182,7 @@ class _ReadCache(object):
         return {"hash": False, "data": object}
 
     def _load_data(self):
-        with io.open(self._info_object.fetch_cache_location, "rb") as stream:
+        with io.open(self._info_object.cache_location, "rb") as stream:
             return pickle.load(stream)
 
     def _if_valid_set_data(self, loaded_data):
@@ -185,7 +192,7 @@ class _ReadCache(object):
             raise CacheError("Cache is invalid.")
 
     def _check_cache_is_valid(self, loaded_data):
-        if loaded_data["hash"] == self._info_object.fetch_hash:
+        if loaded_data["hash"] == self._info_object.file_hash:
             return self._caches_match()
         elif not loaded_data["hash"]:
             return self._cache_hash_is_false()
@@ -205,7 +212,7 @@ class _ReadCache(object):
 
         self._logger.debug(
             "{0} != {1}".format(
-                loaded_data["hash"], self._info_object.fetch_hash
+                loaded_data["hash"], self._info_object.file_hash
             )
         )
 
@@ -230,11 +237,11 @@ class _WriteCache(object):
         self._write_cache_data()
 
     def _set_packaged_data(self, data):
-        self._packaged_data["hash"] = self._info_object.fetch_hash
+        self._packaged_data["hash"] = self._info_object.file_hash
         self._packaged_data["data"] = data
 
     def _write_cache_data(self):
-        location = self._info_object.fetch_cache_location
+        location = self._info_object.cache_location
 
         self._logger.info("Making cache for %s" % location)
 
