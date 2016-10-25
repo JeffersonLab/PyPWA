@@ -42,6 +42,9 @@ __version__ = VERSION
 
 class PluginLoading(object):
 
+    _logger = logging.getLogger(__name__)
+    _root_object = object
+
     def __init__(self, root_object):
         """
         Loads plugins from either a directory or an already loaded module.
@@ -51,21 +54,12 @@ class PluginLoading(object):
         Args:
             root_object (type): The Template Object to use for searching.
         """
-        self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
         self._root_object = root_object
 
     @staticmethod
-    def _list_modules(module):
+    def _make_list_of_modules(module):
         """
-        Simple little function that
-
-        Args:
-            module (module): The unknown module that was loaded.
-
-        Returns:
-            list[str]: A list of all the modules found in the package.
-
         See Also:
             http://stackoverflow.com/a/1310912
             http://stackoverflow.com/a/1708706
@@ -81,15 +75,7 @@ class PluginLoading(object):
         return names
 
     @staticmethod
-    def _import_lib(module_name):
-        """
-
-        Args:
-            module_name:
-
-        Returns:
-
-        """
+    def _import_module(module_name):
         return importlib.import_module(module_name)
 
     def _find_libs(self, module):
@@ -104,7 +90,7 @@ class PluginLoading(object):
             list[module]: The list of submodules.
         """
         libs = []
-        for module_name in self._list_modules(module):
+        for module_name in self._make_list_of_modules(module):
             libs.append(
                 importlib.import_module(
                     module.__name__ + "." + module_name
@@ -154,13 +140,15 @@ class PluginLoading(object):
         """
         potential_plugins = []
         for the_file in file_list:
-            if isinstance(the_file, str):
+            if the_file == "":
+                pass
+            elif isinstance(the_file, str):
                 # Appends the directory containing the
                 sys.path.append(
                     os.path.dirname(os.path.abspath(the_file))
                 )
 
-                module = self._import_lib(
+                module = self._import_module(
                     # Extracts the filename from the path provided
                     os.path.splitext(os.path.basename(the_file))[0]
                 )
