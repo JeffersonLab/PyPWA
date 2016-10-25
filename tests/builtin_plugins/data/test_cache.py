@@ -60,7 +60,6 @@ def add_extra_lines_to_file():
         stream.write(" Random extra data.")
 
 
-@pytest.mark.xfail(raises=exceptions.CacheError, strict=True)
 def test_read_cache_with_no_cache_present(
         setup_teardown_test_data, init_cache
 ):
@@ -68,7 +67,8 @@ def test_read_cache_with_no_cache_present(
     Args:
         init_cache (_cache.MemoryCache)
     """
-    init_cache.read_cache(TEMP_WRITE_LOCATION)
+    with pytest.raises(exceptions.CacheError):
+        init_cache.read_cache(TEMP_WRITE_LOCATION)
 
 
 def test_written_cache_matches_read(setup_teardown_test_data, init_cache):
@@ -82,8 +82,7 @@ def test_written_cache_matches_read(setup_teardown_test_data, init_cache):
     assert cached_data == DATA_WRITTEN
 
 
-@pytest.mark.xfail(raises=exceptions.CacheError, strict=True)
-def test_MemoryCache_ChangeCacheContents_RaiseCacheChanged(
+def test_changed_file_results_in_error(
         setup_teardown_test_data, init_cache
 ):
     """
@@ -92,4 +91,6 @@ def test_MemoryCache_ChangeCacheContents_RaiseCacheChanged(
     """
     init_cache.write_cache(DATA_WRITTEN, TEMP_WRITE_LOCATION)
     add_extra_lines_to_file()
-    init_cache.read_cache(TEMP_WRITE_LOCATION)
+
+    with pytest.raises(exceptions.CacheError):
+        init_cache.read_cache(TEMP_WRITE_LOCATION)
