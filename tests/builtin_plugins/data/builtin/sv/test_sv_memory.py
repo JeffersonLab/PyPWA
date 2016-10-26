@@ -18,8 +18,6 @@ import os
 
 import numpy
 import pytest
-from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.builtin_plugins.data.builtin.sv import memory
 
 TEMP_WRITE_LOCATION = os.path.join(
