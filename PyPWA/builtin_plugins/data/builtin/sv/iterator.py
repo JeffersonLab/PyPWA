@@ -19,8 +19,8 @@ import io
 
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.builtin_plugins.data.builtin.sv import HEADER_SEARCH_BITS
 from PyPWA.core.templates import interface_templates
+
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -29,6 +29,8 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+HEADER_SEARCH_BITS = 1024
 
 
 class SvReader(interface_templates.ReaderInterfaceTemplate):

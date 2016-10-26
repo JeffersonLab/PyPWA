@@ -22,7 +22,6 @@ import os
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin.sv import HEADER_SEARCH_BITS
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -31,6 +30,8 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+HEADER_SEARCH_BITS = 1024
 
 
 class SvMemory(data_templates.TemplateMemory):
