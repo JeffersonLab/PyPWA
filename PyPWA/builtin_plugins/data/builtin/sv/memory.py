@@ -49,10 +49,10 @@ class _SvParser(object):
 
     _logger = logging.getLogger(__name__)
     _line_count = 0
-    _dialect = None  # type: str
-    _stream = None  # type: io.FileIO
-    _reader = None  # type: csv.reader
-    _header = None  # type: list(str)
+    _dialect = None
+    _stream = None
+    _reader = None
+    _header = None
 
     def __init__(self):
         self._logger.addHandler(logging.NullHandler())
@@ -129,9 +129,9 @@ class _SvParser(object):
 class _SvMemoryWriter(object):
 
     _dialect = ""
-    _column_names = None  # type: list[str]
-    _stream = None  # type: io.FileIO
-    _writer = None  # type: csv.DictWriter
+    _column_names = None
+    _stream = None
+    _writer = None
 
     def write_memory_to_disk(self, file_location, data):
         self._setup_basic_data(file_location, data)
