@@ -58,16 +58,12 @@ class _SvParser(object):
         self._logger.addHandler(logging.NullHandler())
 
     def return_read_data(self, file_location):
+        self._start_parsing(file_location)
+        return self._end_parsing()
+
+    def _start_parsing(self, file_location):
         self._open_stream(file_location)
         self._set_required_data()
-        data = self._parse_data()
-        self._close_stream()
-        return data
-
-    def _set_line_number(self):
-        for self._line_count, throw_away in enumerate(self._stream):
-            pass
-        self._reset_stream()
 
     def _open_stream(self, file_location):
         self._stream = io.open(file_location, "r")
@@ -84,6 +80,11 @@ class _SvParser(object):
         self._set_reader()
         self._set_header()
 
+    def _set_line_number(self):
+        for self._line_count, throw_away in enumerate(self._stream):
+            pass
+        self._reset_stream()
+
     def _set_dialect(self):
         self._dialect = csv.Sniffer().sniff(
             self._stream.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
@@ -95,6 +96,11 @@ class _SvParser(object):
 
     def _set_header(self):
         self._header = next(self._reader)
+
+    def _end_parsing(self):
+        data = self._parse_data()
+        self._close_stream()
+        return data
 
     def _parse_data(self):
         empty_array = self._setup_numpy_array()
@@ -134,11 +140,11 @@ class _SvMemoryWriter(object):
     _writer = None
 
     def write_memory_to_disk(self, file_location, data):
-        self._setup_basic_data(file_location, data)
+        self._setup_initial_information(file_location, data)
         self._setup_writer(file_location)
         self._write_data(data)
 
-    def _setup_basic_data(self, file_location, data):
+    def _setup_initial_information(self, file_location, data):
         self._process_dialect(file_location)
         self._set_column_names(data)
 
