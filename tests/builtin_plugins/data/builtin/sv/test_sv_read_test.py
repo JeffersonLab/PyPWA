@@ -40,14 +40,22 @@ def tests_passes(request):
     return request.param
 
 
-def test_quick_test_fails_with_bad_files(setup_test, tests_fails):
+def test_quick_test_fails_with_bad_files(setup_test):
     """
     Args:
         setup_test (data_templates.ReadTest)
-        tests_fails (str)
     """
     with pytest.raises(exceptions.IncompatibleData):
-        setup_test.quick_test(tests_fails)
+        setup_test.quick_test(NOISE_TEST_DATA)
+
+
+def test_quick_test_fails_with_really_bad_files(setup_test):
+    """
+    Args:
+        setup_test (data_templates.ReadTest)
+    """
+    with pytest.raises(exceptions.IncompatibleData):
+        setup_test.quick_test(BAD_CSV_TEST_DATA)
 
 
 def test_full_test_fails_with_bad_files(setup_test, tests_fails):
