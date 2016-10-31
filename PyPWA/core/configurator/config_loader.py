@@ -86,7 +86,7 @@ class ConfigParser(object):
             SyntaxError: If there is a typo or other similar error in the
                 configuration file.
         """
-        with io.open(configuration, "r") as stream:
+        with open(configuration, "r") as stream:
             try:
                 return ruamel.yaml.load(
                     stream, ruamel.yaml.RoundTripLoader
@@ -275,7 +275,7 @@ class SimpleConfigBuilder(object):
         Returns:
 
         """
-        with io.open(self._save_location, "w") as stream:
+        with open(self._save_location, "w") as stream:
             stream.write(ruamel.yaml.dump(
                 self._settings, Dumper=ruamel.yaml.RoundTripDumper
             ))
