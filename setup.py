@@ -21,12 +21,12 @@ __license__ = "GPLv3"
 __version__ = "2.0.0-rc2"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "beta"
+__status__ = "development"
 
 
 setup(
     name="PyPWA",
-    version=__version__+"-"+__status__,
+    version=__version__,
     author="PyPWA Team",
     author_email="maj@jlab.org",
     packages=find_packages(),
