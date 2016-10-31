@@ -18,7 +18,7 @@ import os
 
 import pytest
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.builtin_plugins.data.builtin.sv import read_tests
+from PyPWA.builtin_plugins.data.builtin.sv import s_read_tests
 
 CSV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "../test_docs/sv_test_data.csv"
@@ -43,7 +43,7 @@ def setup_test():
     Returns:
         data_templates.ReadTest
     """
-    return read_tests.SvDataTest()
+    return s_read_tests.SvDataTest()
 
 
 @pytest.fixture(scope="module", params=[NOISE_TEST_DATA, BAD_CSV_TEST_DATA])

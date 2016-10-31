@@ -18,7 +18,7 @@ import os
 
 import numpy
 import pytest
-from PyPWA.builtin_plugins.data.builtin.sv import memory
+from PyPWA.builtin_plugins.data.builtin.sv import s_memory
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "../test_docs/temporary_write_data"
@@ -45,7 +45,7 @@ def numpy_flat():
 
 @pytest.fixture(scope="module", params=[CSV_TEST_DATA, TSV_TEST_DATA])
 def return_parsed_data(request):
-    parser = memory.SvMemory()
+    parser = s_memory.SvMemory()
     return parser.parse(request.param)
 
 
@@ -58,7 +58,7 @@ def return_parsed_data(request):
     ]
 )
 def looping_parser_test_data(numpy_flat, request):
-    parser = memory.SvMemory()
+    parser = s_memory.SvMemory()
     parser.write(request.param, numpy_flat)
     new_data = parser.parse(request.param)
 

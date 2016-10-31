@@ -15,9 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin.sv import iterator
-from PyPWA.builtin_plugins.data.builtin.sv import memory
-from PyPWA.builtin_plugins.data.builtin.sv import read_tests
+from PyPWA.builtin_plugins.data.builtin.sv import s_iterator
+from PyPWA.builtin_plugins.data.builtin.sv import s_memory
+from PyPWA.builtin_plugins.data.builtin.sv import s_read_tests
 
 
 class SvDataPlugin(data_templates.TemplateDataPlugin):
@@ -27,16 +27,16 @@ class SvDataPlugin(data_templates.TemplateDataPlugin):
         return "Delimiter Separated Variable sheets"
 
     def get_plugin_memory_parser(self):
-        return memory.SvMemory()
+        return s_memory.SvMemory()
 
     def get_plugin_reader(self, file_location):
-        return iterator.SvReader(file_location)
+        return s_iterator.SvReader(file_location)
 
     def get_plugin_writer(self, file_location):
-        return iterator.SvWriter(file_location)
+        return s_iterator.SvWriter(file_location)
 
     def get_plugin_read_test(self):
-        return read_tests.SvDataTest()
+        return s_read_tests.SvDataTest()
 
     @property
     def plugin_supported_extensions(self):

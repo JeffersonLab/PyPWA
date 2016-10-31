@@ -29,7 +29,7 @@ import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin.gamp import iterator
+from PyPWA.builtin_plugins.data.builtin.gamp import g_iterator
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -85,7 +85,7 @@ class GampMemory(data_templates.TemplateMemory):
                 data file.
         """
         indexes = self.__index_gamp(file_location)
-        reader = iterator.GampReader(file_location)
+        reader = g_iterator.GampReader(file_location)
         events = numpy.zeros((indexes[0], indexes[1], 6), numpy.float64)
 
         for index, event in enumerate(reader):
@@ -131,7 +131,7 @@ class GampMemory(data_templates.TemplateMemory):
             data (numpy.ndarray): The list containing all the GampEvents
                 that are to be written to disk.
         """
-        writer = iterator.GampWriter(file_location)
+        writer = g_iterator.GampWriter(file_location)
         for event in data:
             new_event = self.__filter_events(event)
             writer.write(new_event)
