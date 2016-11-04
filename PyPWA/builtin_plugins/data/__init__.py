@@ -32,8 +32,9 @@ Examples:
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.builtin_plugins.data import iterator
+from PyPWA.builtin_plugins.data import memory
 from PyPWA.core.templates import option_templates
-from PyPWA.builtin_plugins.data import traffic_cop
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -44,13 +45,16 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
+MODULE_NAME = "Builtin Parser"  # Name for the module externally.
+
+
 class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _plugin_name(self):
         return "Builtin Parser"
 
     def _plugin_interface(self):
-        return traffic_cop.Memory
+        return memory.Memory
 
     def _plugin_type(self):
         return self._data_parser
@@ -60,7 +64,7 @@ class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _default_options(self):
         return {
-            "cache": True,
+            "enable cache": True,
             "clear cache": False,
             "fail": False,
             "user plugin": "cwd=/path/to/file;"
@@ -68,7 +72,7 @@ class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _option_levels(self):
         return {
-            "cache": self._optional,
+            "enable cache": self._optional,
             "clear cache": self._advanced,
             "fail": self._advanced,
             "user plugin": self._advanced
@@ -76,7 +80,7 @@ class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _option_types(self):
         return {
-            "cache": bool,
+            "enable cache": bool,
             "clear cache": bool,
             "fail": bool,
             "user plugin": str
@@ -88,7 +92,7 @@ class DataParser(option_templates.PluginsOptionsTemplate):
 
     def _option_comments(self):
         return {
-            "cache":
+            "enable cache":
                 "Should Cache be enabled? The cache will automatically "
                 "clear if it detects a change in any of your data and "
                 "should be safe to leave enabled.",
@@ -104,8 +108,8 @@ class DataParser(option_templates.PluginsOptionsTemplate):
                 "that are optional will cause the program to stop.",
             "user plugin":
                 "A plugin that can be loaded into the the " +
-                traffic_cop.MODULE_NAME + " for parsing, see the "
-                "documentation on the " + traffic_cop.MODULE_NAME +
+                MODULE_NAME + " for parsing, see the "
+                "documentation on the " + MODULE_NAME +
                 " plugin for more information."
         }
 
@@ -116,7 +120,7 @@ class DataIterator(option_templates.PluginsOptionsTemplate):
         return "Builtin Reader"
 
     def _plugin_interface(self):
-        return traffic_cop.Iterator
+        return iterator.Iterator
 
     def _plugin_type(self):
         return self._data_reader
