@@ -37,7 +37,6 @@ EVIL_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/kv_test_data.txt"
 )
 
-
 @pytest.fixture(
     scope="module",
     params=[
