@@ -88,7 +88,14 @@ class CacheBuilder(object):
         return self._make_interface()
 
     def _set_info_object(self, file_location):
-        self._info_object = _basic_info.FindBasicInfo(file_location)
+        try:
+            self._info_object = _basic_info.FindBasicInfo(file_location)
+        except (OSError, IOError):
+            self._logger.warning("No original file found!")
+            self._enable_cache_fallback()
+
+    def _enable_cache_fallback(self):
+        self._use_cache = False
 
     def _find_reader(self):
         if not self._use_cache:

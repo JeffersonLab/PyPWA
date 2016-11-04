@@ -105,6 +105,20 @@ class MockBasicInfo(object):
         return "A location"
 
 
+class MockBasicInfoNoFile(object):
+
+    def __init__(self, original_file):
+        raise OSError
+
+    @property
+    def file_hash(self):
+        raise OSError
+
+    @property
+    def cache_location(self):
+        raise OSError
+
+
 @pytest.fixture
 def mock_no_cache(monkeypatch):
     monkeypatch.setattr(
@@ -138,12 +152,22 @@ def mock_clear_cache(monkeypatch):
         ReadClearTest
     )
 
+
 @pytest.fixture
 def mock_basic_info(monkeypatch):
     monkeypatch.setattr(
         "PyPWA.builtin_plugins.data.cache._basic_info.FindBasicInfo",
         MockBasicInfo
     )
+
+
+@pytest.fixture
+def mock_basic_info_no_file(monkeypatch):
+    monkeypatch.setattr(
+        "PyPWA.builtin_plugins.data.cache._basic_info.FindBasicInfo",
+        MockBasicInfoNoFile
+    )
+
 
 @pytest.fixture
 def interface_with_cache_and_noclear(
@@ -207,3 +231,17 @@ def test_read_cache(param_wrapper):
 def test_cache_is_valid(param_wrapper):
     with pytest.raises(param_wrapper[1]["valid"]):
         param_wrapper[0].is_valid
+
+
+@pytest.fixture
+def cache_with_no_file(
+        mock_no_cache, mock_standard_cache, mock_clear_cache,
+        mock_basic_info_no_file
+):
+    builder = _builder.CacheBuilder()
+    return builder.get_cache_interface("A File")
+
+
+def test_cache_is_not_valid_when_no_file(cache_with_no_file):
+    with pytest.raises(DidNotRead):
+        cache_with_no_file.is_valid
