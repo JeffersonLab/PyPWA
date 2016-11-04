@@ -253,7 +253,7 @@ class Fitting(plugin_templates.ShellMain):
             self._corrected_data, kernel, interface_kernel
         )
 
-        interface = self._kernel_processing.fetch_interface
+        interface = self._kernel_processing.fetch_interface()
 
         self._the_end(interface, "likelihood")
 
