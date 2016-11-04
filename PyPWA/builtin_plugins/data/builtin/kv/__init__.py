@@ -35,6 +35,9 @@ attention to CSV/TSV in the SV object and forget that this ever existed.
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.builtin_plugins.data.builtin.kv import k_iterator
+from PyPWA.builtin_plugins.data.builtin.kv import k_memory
+from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -55,16 +58,16 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         return "EVIL"
 
     def get_plugin_memory_parser(self):
-        return SomewhatIntelligentSelector()
+        return k_memory.SomewhatIntelligentSelector()
 
     def get_plugin_reader(self, file_location):
-        return EVILReader(file_location)
+        return k_iterator.EVILReader(file_location)
 
     def get_plugin_writer(self, file_location):
-        return EVILWriter(file_location)
+        return k_iterator.EVILWriter(file_location)
 
     def get_plugin_read_test(self):
-        return EVILDataTest()
+        return k_read_tests.EVILDataTest()
 
     @property
     def plugin_supported_extensions(self):

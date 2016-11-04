@@ -33,14 +33,9 @@ import numpy
 import pytest
 
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin import kv
-
-__author__ = ["Mark Jones"]
-__credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-
+from PyPWA.builtin_plugins.data.builtin.kv import k_iterator
+from PyPWA.builtin_plugins.data.builtin.kv import k_memory
+from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 
 # Define global variables for the entire test file. These files contain
 # the information needed to test the data loader and writer.
@@ -75,7 +70,7 @@ def test_KvInterface_CallAbstractMethods_RaiseNotImplementedError():
     Simple function to ensure that the abstract methods are calling back
     what we are expecting.
     """
-    abstract_object = kv.KvInterface()
+    abstract_object = k_memory.KvInterface()
 
     with pytest.raises(NotImplementedError):
         abstract_object.parse(KV_TEST_DATA)
@@ -90,7 +85,7 @@ def test_KvInterface_FileLengthMethod_ReturnLengthOfFile():
     """
     Checks that the file_length method returns the proper number of lines.
     """
-    abstract_object = kv.KvInterface()
+    abstract_object = k_memory.KvInterface()
     assert abstract_object.file_length(KV_FLOAT_DATA) == 12
 
 
@@ -103,8 +98,8 @@ def EVILValidator_CheckType_ReturnType(data, expected_value):
         expected_value (str):  The expected data type to be returned from
             the validator
     """
-    evil_validator_test = kv.EVILDataPlugin()
-    evil_validator_test.read_test(data)
+    evil_validator_test = k_read_tests.EVILDataTest()
+    evil_validator_test.quick_test(data)
     value = evil_validator_test.evil_type
     assert value == expected_value
 
@@ -150,7 +145,7 @@ def EVILWriteMemory_CheckWriteRead_RandomGenEqualDisk(data):
         list[received data, read data]: A list of all the data written
             into the disk and read from the disk.
     """
-    writer = kv.SomewhatIntelligentSelector()
+    writer = k_memory.SomewhatIntelligentSelector()
     writer.write(TEMP_WRITE_LOCATION, data)
     new_data = writer.parse(TEMP_WRITE_LOCATION)
     os.remove(TEMP_WRITE_LOCATION)
@@ -214,7 +209,7 @@ def test_SomewhatIntelligentSelector_StringInvalid_RaiseRuntimeError():
     """
     # Setup tests
     x = "A random string that EVIL shouldn't know how to handle"
-    selector = kv.SomewhatIntelligentSelector()
+    selector = k_memory.SomewhatIntelligentSelector()
 
     # Run test
     with pytest.raises(RuntimeError):
@@ -233,7 +228,7 @@ def test_EVILIteration_ReadWriteEvents_EventsEqual():
         particle["y"] = numpy.random.rand()
         data.append(particle)
 
-    writer = kv.EVILWriter(TEMP_WRITE_LOCATION)
+    writer = k_iterator.EVILWriter(TEMP_WRITE_LOCATION)
     for event in data:
         writer.write(event)
 
@@ -241,7 +236,7 @@ def test_EVILIteration_ReadWriteEvents_EventsEqual():
 
     new_data = collections.deque()
 
-    reader = kv.EVILReader(TEMP_WRITE_LOCATION)
+    reader = k_iterator.EVILReader(TEMP_WRITE_LOCATION)
 
     for x in reader:
         logging.debug(x)

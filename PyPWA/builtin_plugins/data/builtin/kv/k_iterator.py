@@ -40,6 +40,7 @@ import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core.templates import interface_templates
+from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -110,8 +111,8 @@ class EVILReader(interface_templates.ReaderInterfaceTemplate):
         Sets self._file_data_type using the validator object. Mostly
         Accurate.
         """
-        validator = EVILDataPlugin()
-        validator.read_test(self._the_file)
+        validator = k_read_tests.EVILDataTest()
+        validator.quick_test(self._the_file)
         self._file_data_type = validator.evil_type
 
     def reset(self):

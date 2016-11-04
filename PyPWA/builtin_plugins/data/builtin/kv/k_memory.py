@@ -40,6 +40,7 @@ import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -284,8 +285,8 @@ class SomewhatIntelligentSelector(KvInterface):
         Returns:
             numpy.ndarray:  The data that was parsed from the disk.
         """
-        validator = EVILDataPlugin()
-        validator.read_test(file_location)
+        validator = k_read_tests.EVILDataTest()
+        validator.quick_test(file_location)
         if validator.evil_type == "DictOfArrays":
             parser = DictOfArrays()
         elif validator.evil_type == "ListOfFloats":

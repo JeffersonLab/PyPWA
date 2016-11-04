@@ -70,11 +70,14 @@ class EVILDataTest(data_templates.ReadTest):
         else:
             raise exceptions.IncompatibleData("Failed to find a data")
 
-    def read_test(self, file_location):
+    def quick_test(self, file_location):
         """
         Runs the various tests included tests.
         """
         self._check_data_type(file_location)
+
+    def full_test(self, file_location):
+        self.quick_test(file_location)
 
     @property
     def evil_type(self):
