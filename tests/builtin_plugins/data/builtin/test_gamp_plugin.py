@@ -1,9 +1,12 @@
-import numpy
 import os
+
+import numpy
 import pytest
 
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.builtin_plugins.data.builtin import gamp
+from PyPWA.builtin_plugins.data.builtin.gamp import g_iterator
+from PyPWA.builtin_plugins.data.builtin.gamp import g_memory
+from PyPWA.builtin_plugins.data.builtin.gamp import g_read_tests
 
 CSV_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "test_docs/sv_test_data.csv"
@@ -22,8 +25,8 @@ def test_Validator_CheckGAMPValid_TestPass():
     """
     Checks that the validator correctly identifies a GAMP file.
     """
-    validator = gamp.GampDataPlugin()
-    validator.read_test(GAMP_TEST_DATA)
+    validator = g_read_tests.GampDataTest()
+    validator.quick_test(GAMP_TEST_DATA)
 
 
 def test_Validator_CheckCSVValid_TestFail():
@@ -31,17 +34,17 @@ def test_Validator_CheckCSVValid_TestFail():
     Checks that the validator correctly fails if the file is not a GAMP
     file.
     """
-    validator = gamp.GampDataPlugin()
+    validator = g_read_tests.GampDataTest()
 
     with pytest.raises(exceptions.IncompatibleData):
-        validator.read_test(CSV_TEST_DATA)
+        validator.quick_test(CSV_TEST_DATA)
 
 
 def test_GAMPMemory_ParseKnownData_DataMatches():
     """
     Checks that data read in from the file matches what is known.
     """
-    parser = gamp.GampMemory()
+    parser = g_memory.GampMemory()
     data = parser.parse(GAMP_TEST_DATA)
     assert len(data) == 6
     assert data[0][0][4] == 3.90355
@@ -53,7 +56,7 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
     Checks that data written out and read back in matches what we
     expected.
     """
-    rendered = gamp.GampMemory()
+    rendered = g_memory.GampMemory()
     data = rendered.parse(GAMP_TEST_DATA)
     rendered.write(TEMP_WRITE_LOCATION, data)
 
@@ -65,12 +68,12 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
 
 
 def test_GAMPReader_ResetReader_NoFail():
-    reader = gamp.GampReader(GAMP_TEST_DATA)
+    reader = g_iterator.GampReader(GAMP_TEST_DATA)
     reader.reset()
 
 
 def test_GAMPReader_PreviousEvent_MatchesNext():
-    reader = gamp.GampReader(GAMP_TEST_DATA)
+    reader = g_iterator.GampReader(GAMP_TEST_DATA)
     old = reader.next_event
 
     numpy.testing.assert_array_equal(old, reader.previous_event)

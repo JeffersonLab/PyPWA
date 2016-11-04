@@ -15,6 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.builtin_plugins.data.builtin.gamp import g_read_tests
+from PyPWA.builtin_plugins.data.builtin.gamp import g_iterator
+from PyPWA.builtin_plugins.data.builtin.gamp import g_memory
 
 
 class GampDataPlugin(data_templates.TemplateDataPlugin):
@@ -24,16 +27,16 @@ class GampDataPlugin(data_templates.TemplateDataPlugin):
         return "gamp"
 
     def get_plugin_memory_parser(self):
-        return GampMemory()
+        return g_memory.GampMemory()
 
     def get_plugin_writer(self, file_location):
-        return GampWriter(file_location)
+        return g_iterator.GampWriter(file_location)
 
     def get_plugin_reader(self, file_location):
-        return GampReader(file_location)
+        return g_iterator.GampReader(file_location)
 
     def get_plugin_read_test(self):
-        return GampDataTest()
+        return g_read_tests.GampDataTest()
 
     @property
     def plugin_supported_extensions(self):
