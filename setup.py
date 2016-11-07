@@ -17,21 +17,21 @@
 from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
-__license__ = "MIT"
-__version__ = "2.0.0-rc1"
+__license__ = "GPLv3"
+__version__ = "2.0.0-rc2"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
-__status__ = "beta"
+__status__ = "development"
 
 
 setup(
     name="PyPWA",
-    version=__version__+"-"+__status__,
+    version=__version__,
     author="PyPWA Team",
     author_email="maj@jlab.org",
     packages=find_packages(),
     url="http//pypwa.jlab.org",
-    license="MIT License",
+    license=__license__,
     description="General Partial Wave Analysis",
     test_suite="tests",
     entry_points={
@@ -46,12 +46,13 @@ setup(
     },
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
     install_requires=[
-        "iminuit<2.0",
-        "numpy<2.0",
-        "ruamel.yaml",
-        "tabulate",
-        "appdirs",
-        "fuzzywuzzy",
+        "typing",       # Support for function typing
+        "iminuit<2.0",  # Default minimizer
+        "numpy<2.0",    # Arrays and optimizations
+        "ruamel.yaml",  # Advanced YAML Parser
+        "tabulate",     # Great aesthetic tables
+        "appdirs",      # Attempts to find data locations
+        "fuzzywuzzy",   # Fuzzes the user input
         "python-Levenshtein"
     ],
     extras_require={
@@ -63,7 +64,7 @@ setup(
         "Development Status :: 4 - Beta",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Natural Language :: English",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
@@ -73,4 +74,3 @@ setup(
         "Topic :: Scientific/Engineering :: Physics"
     ]
 )
-

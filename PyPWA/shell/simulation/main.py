@@ -1,12 +1,41 @@
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+This line is green in PyCharm, however in Github its blue.
+"""
+
 import io
 import logging
 import random
 import time
 
 import numpy
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import interface_templates
-from PyPWA.core_libs.templates import plugin_templates
+from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core import plugin_loader
+from PyPWA.core.templates import interface_templates
+from PyPWA.core.templates import plugin_templates
+
+__author__ = ["Mark Jones"]
+__credits__ = ["Mark Jones"]
+__maintainer__ = ["Mark Jones"]
+__email__ = "maj@jlab.org"
+__status__ = STATUS
+__license__ = LICENSE
+__version__ = VERSION
 
 
 class Simulator(plugin_templates.ShellMain):
@@ -54,6 +83,11 @@ class Simulator(plugin_templates.ShellMain):
         self._intensities = None  # type: numpy.ndarray
 
     def start(self):
+        """
+
+        Returns:
+
+        """
         if self._the_type == "full":
             self._calc_intensities()
             self._rejection_method()
@@ -82,6 +116,11 @@ class Simulator(plugin_templates.ShellMain):
             )
 
     def _calc_intensities(self):
+        """
+
+        Returns:
+
+        """
         loader = plugin_loader.SingleFunctionLoader(
             self._functions_location
         )
@@ -100,10 +139,15 @@ class Simulator(plugin_templates.ShellMain):
             self._raw_data, the_kernel, the_interface
         )
 
-        operational_interface = self._kernel_processing.fetch_interface
+        operational_interface = self._kernel_processing.fetch_interface()
         self._intensities, self._max_intensity = operational_interface.run()
 
     def _rejection_method(self):
+        """
+
+        Returns:
+
+        """
         if not isinstance(self._intensities, numpy.ndarray):
             self._intensities = self._data_parser.parse(self._data_location)
 
@@ -123,6 +167,9 @@ class IntensityInterface(interface_templates.AbstractInterface):
     is_duplex = False
 
     def __init__(self):
+        """
+
+        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
@@ -165,9 +212,22 @@ class IntensityKernel(interface_templates.AbstractKernel):
         self.data = None  # type: numpy.ndarray
 
     def setup(self):
+        """
+
+        Returns:
+
+        """
         self._setup_function()
 
     def process(self, data=False):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         return [
             self.processor_id,
             self._processing_function(self.data, self._parameters)

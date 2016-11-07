@@ -1,4 +1,4 @@
-# PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=release-v2.0.0b1)](https://travis-ci.org/JeffersonLab/PyPWA)
+# PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=master)](https://travis-ci.org/JeffersonLab/PyPWA)
 A python based software framework designed to perform Partial Wave and Amplitude Analysis with the goal of extracting resonance information from multiparticle final states. Supports the Un/Extended Un/Binned likelihood maximum estimation, Acceptance Rejection Method, and ISOBAR Model.
 
 ## General Shell

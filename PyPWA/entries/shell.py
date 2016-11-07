@@ -15,12 +15,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Entry point for console GeneralShell
+Entry point for console PyShell
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.configurator import configurator
-from PyPWA.core_libs.wrappers import StartProgram
+from PyPWA.core.configurator import configurator
+from PyPWA.core.wrappers import StartProgram
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -33,19 +33,25 @@ __version__ = VERSION
 initializer = StartProgram(configurator.Configurator)
 
 
-def general_fitting(*args):
+def general_fitting():
+    """
+
+    """
     description = u"A fitting shell that allows the User " \
                   u"to select their own likelihood and function."
     configuration = {
         "description": description,
         "main": "shell fitting method",
         "main name": "General Fitting",
-        "extras": args
+        "extras": None
     }
     initializer.start(configuration)
 
 
-def likelihood_fitting(*args):
+def likelihood_fitting():
+    """
+
+    """
     description = u"Amplitude Fitting using the Likelihood Estimation " \
                   u"Method."
     configuration = {
@@ -53,12 +59,15 @@ def likelihood_fitting(*args):
         "main": "shell fitting method",
         "main name": "Likelihood Fitting",
         "main options": {"likelihood type": "likelihood"},
-        "extras": args
+        "extras": None
     }
     initializer.start(configuration)
 
 
-def chi_squared(*args):
+def chi_squared():
+    """
+
+    """
     description = u"Amplitude Fitting using the ChiSquared Method."
     configuration = {
         "description": description,
@@ -69,12 +78,15 @@ def chi_squared(*args):
             "generated length": None,
             "accepted monte carlo location": None
         },
-        "extras": args
+        "extras": None
     }
     initializer.start(configuration)
 
 
-def simulator(*args):
+def simulator():
+    """
+
+    """
     description = u"Simulation using the the Acceptance Reject Method."
     configuration = {
         "description": description,
@@ -84,12 +96,15 @@ def simulator(*args):
             "the type": "full",
             "max intensity": None
         },
-        "extras": args
+        "extras": None
     }
     initializer.start(configuration)
 
 
-def intensities(*args):
+def intensities():
+    """
+
+    """
     description = u"Generates the Intensities for Rejection Method."
     configuration = {
         "description": description,
@@ -99,12 +114,15 @@ def intensities(*args):
             "the type": "intensities",
             "max intensity": None
         },
-        "extras": args
+        "extras": None
     }
     initializer.start(configuration)
 
 
-def rejection_method(*args):
+def rejection_method():
+    """
+
+    """
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method."
     configuration = {
@@ -118,6 +136,6 @@ def rejection_method(*args):
             "processing name": None,
             "function's location": None
         },
-        "extras": args
+        "extras": None
     }
     initializer.start(configuration)
