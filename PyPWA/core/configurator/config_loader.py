@@ -276,9 +276,11 @@ class SimpleConfigBuilder(object):
 
         """
         with open(self._save_location, "w") as stream:
-            stream.write(ruamel.yaml.dump(
-                self._settings, Dumper=ruamel.yaml.RoundTripDumper
-            ))
+            stream.write(
+                ruamel.yaml.dump(
+                    self._settings, Dumper=ruamel.yaml.RoundTripDumper
+                )
+            )
 
 
 class PluginList(object):
