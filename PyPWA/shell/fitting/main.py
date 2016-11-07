@@ -17,16 +17,15 @@
 """
 Holds the various likelihood calculations.
 """
-import os
 
 import logging
+import os
 
 import numpy
-
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core import plugin_loader
+from PyPWA.core.templates import plugin_templates
 from PyPWA.shell.fitting import calculations
-from PyPWA.core_libs import plugin_loader
-from PyPWA.core_libs.templates import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -88,6 +87,11 @@ class Fitting(plugin_templates.ShellMain):
         self._setup_function = None  # type: object
 
     def _check_params(self):
+        """
+
+        Returns:
+
+        """
         if isinstance(self._functions_location, type(None)):
             raise ValueError(
                 "Received nothing for the function's location! \n"
@@ -99,6 +103,11 @@ class Fitting(plugin_templates.ShellMain):
             )
 
     def _load_data(self):
+        """
+
+        Returns:
+
+        """
         self._logger.info("Found data.")
         self._data_raw_data = self._data_parser.parse(self._data_location)
 
@@ -109,6 +118,11 @@ class Fitting(plugin_templates.ShellMain):
             )
 
     def _setup_data(self):
+        """
+
+        Returns:
+
+        """
         corrected = {}
 
         self._logger.info("Corrected data.")
@@ -148,6 +162,11 @@ class Fitting(plugin_templates.ShellMain):
         self._corrected_data = corrected
 
     def _load_functions(self):
+        """
+
+        Returns:
+
+        """
         loader = plugin_loader.SingleFunctionLoader(
             self._functions_location
         )
@@ -161,6 +180,11 @@ class Fitting(plugin_templates.ShellMain):
         )
 
     def start(self):
+        """
+
+        Returns:
+
+        """
         self._check_params()
         self._load_data()
         self._setup_data()
@@ -178,6 +202,14 @@ class Fitting(plugin_templates.ShellMain):
             self._start_likelihood(interface_kernel)
 
     def _start_chi(self, interface_kernel):
+        """
+
+        Args:
+            interface_kernel:
+
+        Returns:
+
+        """
         self._logger.info("Using likelihood: chi-squared")
 
         chi_kernel = calculations.Chi(
@@ -193,6 +225,14 @@ class Fitting(plugin_templates.ShellMain):
         self._the_end(interface, "chi-squared")
 
     def _start_likelihood(self, interface_kernel):
+        """
+
+        Args:
+            interface_kernel:
+
+        Returns:
+
+        """
         if "monte_carlo" in list(self._corrected_data.keys()):
             self._logger.info("Using likelihood: Extended Likelihood")
 
@@ -213,7 +253,7 @@ class Fitting(plugin_templates.ShellMain):
             self._corrected_data, kernel, interface_kernel
         )
 
-        interface = self._kernel_processing.fetch_interface
+        interface = self._kernel_processing.fetch_interface()
 
         self._the_end(interface, "likelihood")
 

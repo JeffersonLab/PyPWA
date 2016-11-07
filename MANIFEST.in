@@ -1,3 +1,4 @@
 include README.md
-include LICENSE.txt
-include CHANGES.txt
+include LICENSE
+include CHANGES
+include COPYING

@@ -17,10 +17,11 @@
 """
 Holds the various likelihood calculations.
 """
+
 from __future__ import print_function
 
-import threading
 import logging
+import threading
 import time
 
 try:
@@ -28,10 +29,9 @@ try:
 except ImportError:
     from Queue import Queue
 
-
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core_libs.templates import interface_templates
+from PyPWA.core.templates import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -45,14 +45,33 @@ __version__ = VERSION
 class _CoreProcessingKernel(interface_templates.AbstractKernel):
 
     def __init__(self, setup_function, processing_function):
+        """
+
+        Args:
+            setup_function:
+            processing_function:
+        """
         self._setup_function = setup_function
         self._processing_function = processing_function
 
     def setup(self):
+        """
+
+        Returns:
+
+        """
         if self._setup_function:
             self._setup_function()
 
     def process(self, data=False):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         raise NotImplementedError
 
 
@@ -61,6 +80,13 @@ class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
     def __init__(
             self, setup_function, processing_function, generated_length
     ):
+        """
+
+        Args:
+            setup_function:
+            processing_function:
+            generated_length:
+        """
         super(ExtendedLikelihoodAmplitude, self).__init__(
            setup_function, processing_function
         )
@@ -71,6 +97,14 @@ class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
         self.qfactor = 1  # type: numpy.ndarray
 
     def process(self, data=False):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         processed_data = self._processing_function(self.data, data)
         processed_monte_carlo = self._processing_function(
             self.monte_carlo, data
@@ -98,6 +132,12 @@ class ExtendedLikelihoodAmplitude(_CoreProcessingKernel):
 class UnextendedLikelihoodAmplitude(_CoreProcessingKernel):
 
     def __init__(self, setup_function, processing_function):
+        """
+
+        Args:
+            setup_function:
+            processing_function:
+        """
         super(UnextendedLikelihoodAmplitude, self).__init__(
             setup_function, processing_function
         )
@@ -107,6 +147,14 @@ class UnextendedLikelihoodAmplitude(_CoreProcessingKernel):
         self.binned = 1   # type: numpy.ndarray
 
     def process(self, data=False):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         processed_data = self._processing_function(self.data, data)
         return self._likelihood(processed_data)
 
@@ -126,12 +174,26 @@ class UnextendedLikelihoodAmplitude(_CoreProcessingKernel):
 class Chi(_CoreProcessingKernel):
 
     def __init__(self, setup_function, processing_function):
+        """
+
+        Args:
+            setup_function:
+            processing_function:
+        """
         super(Chi, self).__init__(setup_function, processing_function)
 
         self.data = None  # type: numpy.ndarray
         self.binned = None  # type: numpy.ndarray
 
     def process(self, data=False):
+        """
+
+        Args:
+            data:
+
+        Returns:
+
+        """
         processed_data = self._processing_function(self.data, data)
         return self._likelihood(processed_data)
 
@@ -195,22 +257,45 @@ class FittingInterfaceKernel(interface_templates.AbstractInterface):
         return final_value
 
     def _output_handler(self, end=False):
+        """
+
+        Args:
+            end:
+
+        Returns:
+
+        """
         if end:
             self._kill_thread()
         else:
             self._create_thread()
 
     def _kill_thread(self):
+        """
+
+        Returns:
+
+        """
         self._send_queue.put("die")
         self._times.append(float(self._receive_queue.get()))
 
     def _average_time(self):
+        """
+
+        Returns:
+
+        """
         if len(self._times) > 0:
             return sum(self._times) / len(self._times)
         else:
             return 0
 
     def _create_thread(self):
+        """
+
+        Returns:
+
+        """
         if len(self._times) == 0:
             last_time = 0
         else:
@@ -229,6 +314,15 @@ class OutputThread(threading.Thread):
             self, send_queue, receive_queue, last_value,
             last_time, average_time
     ):
+        """
+
+        Args:
+            send_queue:
+            receive_queue:
+            last_value:
+            last_time:
+            average_time:
+        """
         self._output_pulse = "-"
         self._send_queue = send_queue
         self._receive_queue = receive_queue
@@ -239,6 +333,11 @@ class OutputThread(threading.Thread):
         super(OutputThread, self).__init__()
 
     def _pulse(self):
+        """
+
+        Returns:
+
+        """
         if self._output_pulse is "-":
             self._output_pulse = "/"
         elif self._output_pulse is "/":
@@ -247,6 +346,11 @@ class OutputThread(threading.Thread):
             self._output_pulse = "-"
 
     def _create_output(self):
+        """
+
+        Returns:
+
+        """
         self._pulse()
 
         current_time = time.time() - self._initial_time
@@ -265,11 +369,21 @@ class OutputThread(threading.Thread):
         return string
 
     def _return_time(self):
+        """
+
+        Returns:
+
+        """
         self._receive_queue.get()
         current_time = time.time() - self._initial_time
         self._send_queue.put(current_time)
 
     def run(self):
+        """
+
+        Returns:
+
+        """
         while True:
             if not self._receive_queue.empty():
                 self._return_time()
