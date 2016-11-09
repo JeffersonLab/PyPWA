@@ -63,21 +63,23 @@ class Memory(plugin_templates.DataParserTemplate):
         )
 
     def _set_cache_plugin(self):
-        builder = _builder.CacheBuilder(self._enable_cache, self._clear_cache)
-        self._cache_builder = builder
+        self._cache_builder = _builder.CacheBuilder(
+            self._enable_cache, self._clear_cache
+        )
 
     def parse(self, file_location):
         self._set_cache_interface(file_location)
         if self._cache_interface.is_valid:
+            self._logger.info("Found Cache, loading!")
             return self._cache_interface.read_cache()
         else:
+            self._logger.info("No cache found, loading file directly.")
             return self._parse_with_cache(file_location)
 
     def _set_cache_interface(self, file_location):
-        cache_interface = self._cache_builder.get_cache_interface(
+        self._cache_interface = self._cache_builder.get_cache_interface(
             file_location
         )
-        self._cache_interface = cache_interface
 
     def _parse_with_cache(self, file_location):
         data = self._read_data(file_location)
