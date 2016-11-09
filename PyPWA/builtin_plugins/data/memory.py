@@ -20,7 +20,7 @@ from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.core.templates import plugin_templates
-from PyPWA.builtin_plugins.data.cache import _builder
+from PyPWA.builtin_plugins.data.cache import builder
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -38,8 +38,8 @@ class Memory(plugin_templates.DataParserTemplate):
     _user_plugin_dir = ""
     _logger = logging.getLogger(__name__)
     _plugin_search = _plugin_finder.PluginSearch
-    _cache_builder = _builder.CacheBuilder
-    _cache_interface = _builder._CacheInterface
+    _cache_builder = builder.CacheBuilder
+    _cache_interface = builder._CacheInterface
 
     def __init__(
             self, enable_cache=True, clear_cache=False,
@@ -63,7 +63,7 @@ class Memory(plugin_templates.DataParserTemplate):
         )
 
     def _set_cache_plugin(self):
-        self._cache_builder = _builder.CacheBuilder(
+        self._cache_builder = builder.CacheBuilder(
             self._enable_cache, self._clear_cache
         )
 

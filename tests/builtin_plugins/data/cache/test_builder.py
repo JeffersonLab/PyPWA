@@ -17,7 +17,7 @@
 
 import pytest
 from PyPWA.builtin_plugins.data.cache import _template
-from PyPWA.builtin_plugins.data.cache import _builder
+from PyPWA.builtin_plugins.data.cache import builder
 
 
 class DidNotWrite(Exception):
@@ -173,7 +173,7 @@ def mock_basic_info_no_file(monkeypatch):
 def interface_with_cache_and_noclear(
         mock_no_cache, mock_standard_cache, mock_clear_cache, mock_basic_info
 ):
-    builder = _builder.CacheBuilder(True, False)
+    builder = builder.CacheBuilder(True, False)
     return builder.get_cache_interface("a file location")
 
 
@@ -181,7 +181,7 @@ def interface_with_cache_and_noclear(
 def interface_with_cache_and_clear(
         mock_no_cache, mock_standard_cache, mock_clear_cache, mock_basic_info
 ):
-    builder = _builder.CacheBuilder(True, True)
+    builder = builder.CacheBuilder(True, True)
     return builder.get_cache_interface("a file location")
 
 
@@ -189,7 +189,7 @@ def interface_with_cache_and_clear(
 def interface_with_nocache(
         mock_no_cache, mock_standard_cache, mock_clear_cache, mock_basic_info
 ):
-    builder = _builder.CacheBuilder(False, False)
+    builder = builder.CacheBuilder(False, False)
     return builder.get_cache_interface("a file location")
 
 
@@ -238,7 +238,7 @@ def cache_with_no_file(
         mock_no_cache, mock_standard_cache, mock_clear_cache,
         mock_basic_info_no_file
 ):
-    builder = _builder.CacheBuilder()
+    builder = builder.CacheBuilder()
     return builder.get_cache_interface("A File")
 
 
