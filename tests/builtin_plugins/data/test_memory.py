@@ -16,7 +16,13 @@ TEMP_WRITE_LOCATION = os.path.join(
 
 @pytest.fixture
 def parser_with_cache():
-    return memory.Memory(options={"cache": True})
+    def raise_error(file_location):
+        raise RuntimeError("Cache was not loaded!")
+
+    mem = memory.Memory(options={"cache": True})
+    mem._read_data = raise_error
+
+    return mem
 
 
 @pytest.fixture
@@ -35,7 +41,10 @@ def array_data():
 @pytest.fixture
 def clear_temp():
     yield
-    os.remove(TEMP_WRITE_LOCATION)
+    try:
+        os.remove(TEMP_WRITE_LOCATION)
+    except (OSError, IOError):
+        pass
 
 
 def test_read_data_matches_expected(parser_no_cache):
