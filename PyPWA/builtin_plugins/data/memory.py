@@ -55,19 +55,14 @@ class Memory(plugin_templates.DataParserTemplate):
             super(Memory, self).__init__(options=options)
 
         self._set_plugin_search()
-        self._set_cache_plugin()
 
     def _set_plugin_search(self):
         self._plugin_search = _plugin_finder.PluginSearch(
             self._user_plugin_dir
         )
 
-    def _set_cache_plugin(self):
-        self._cache_builder = builder.CacheBuilder(
-            self._enable_cache, self._clear_cache
-        )
-
     def parse(self, file_location):
+        self._set_cache_plugin()
         self._set_cache_interface(file_location)
         if self._cache_interface.is_valid:
             self._logger.info("Found Cache, loading!")
@@ -75,6 +70,11 @@ class Memory(plugin_templates.DataParserTemplate):
         else:
             self._logger.info("No cache found, loading file directly.")
             return self._parse_with_cache(file_location)
+
+    def _set_cache_plugin(self):
+        self._cache_builder = builder.CacheBuilder(
+            self._enable_cache, self._clear_cache
+        )
 
     def _set_cache_interface(self, file_location):
         self._cache_interface = self._cache_builder.get_cache_interface(
@@ -98,8 +98,9 @@ class Memory(plugin_templates.DataParserTemplate):
             raise OSError
 
     def write(self, file_location, data):
-        self._set_cache_interface(file_location)
         self._write_data(file_location, data)
+        self._set_cache_plugin()
+        self._set_cache_interface(file_location)
         self._cache_interface.write_cache(data)
 
     def _write_data(self, file_location, data):
