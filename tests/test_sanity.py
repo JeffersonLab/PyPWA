@@ -45,7 +45,6 @@ def test_empty_file_has_lines(io_open):
     Args:
         io_open (io.FileIO)
     """
-    print("\nPytest runs xfail functions!\n")
     assert len(io_open.readlines()) > 1
 
 
