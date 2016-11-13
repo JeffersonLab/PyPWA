@@ -2,6 +2,7 @@ import collections
 import os
 
 import numpy
+import pytest
 
 from PyPWA.builtin_plugins.data import iterator
 
@@ -25,6 +26,7 @@ def test_Iterator_ReadData_DataMatches():
     assert first_line["ctAD"] == -0.265433
 
 
+@pytest.mark.xfail(reason="Tests for unsupported data type.")
 def test_Iterator_LoopingData_DataMatches():
     handler = iterator.Iterator()
 
