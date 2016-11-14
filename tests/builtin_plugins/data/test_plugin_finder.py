@@ -35,6 +35,10 @@ TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "builtin/test_docs/temporary_write_data"
 )
 
+NOISE_LOCATION = os.path.join(
+    os.path.dirname(__file__), "builtin/test_docs/noise_test_data"
+)
+
 
 @pytest.fixture(scope="module")
 def plugin_search():
@@ -96,7 +100,7 @@ def test_plugin_read_search_finds_noise(plugin_search, make_noise):
         plugin_search (_plugin_finder.PluginSearch)
     """
     with pytest.raises(exceptions.UnknownData):
-        plugin_search.get_read_plugin(TEMP_WRITE_LOCATION)
+        plugin_search.get_read_plugin(NOISE_LOCATION)
 
 
 def test_plugin_write_search_finds_csv(plugin_search, random_numpy_flat_data):

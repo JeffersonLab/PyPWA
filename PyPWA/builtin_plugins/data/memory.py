@@ -20,7 +20,7 @@ from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.core.templates import plugin_templates
-from PyPWA.builtin_plugins.data.cache import _builder
+from PyPWA.builtin_plugins.data.cache import builder
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -38,8 +38,8 @@ class Memory(plugin_templates.DataParserTemplate):
     _user_plugin_dir = ""
     _logger = logging.getLogger(__name__)
     _plugin_search = _plugin_finder.PluginSearch
-    _cache_builder = _builder.CacheBuilder
-    _cache_interface = _builder._CacheInterface
+    _cache_builder = builder.CacheBuilder
+    _cache_interface = builder._CacheInterface
 
     def __init__(
             self, enable_cache=True, clear_cache=False,
@@ -55,29 +55,31 @@ class Memory(plugin_templates.DataParserTemplate):
             super(Memory, self).__init__(options=options)
 
         self._set_plugin_search()
-        self._set_cache_plugin()
 
     def _set_plugin_search(self):
         self._plugin_search = _plugin_finder.PluginSearch(
             self._user_plugin_dir
         )
 
-    def _set_cache_plugin(self):
-        builder = _builder.CacheBuilder(self._enable_cache, self._clear_cache)
-        self._cache_builder = builder
-
     def parse(self, file_location):
+        self._set_cache_plugin()
         self._set_cache_interface(file_location)
         if self._cache_interface.is_valid:
+            self._logger.info("Found Cache, loading!")
             return self._cache_interface.read_cache()
         else:
+            self._logger.info("No cache found, loading file directly.")
             return self._parse_with_cache(file_location)
 
+    def _set_cache_plugin(self):
+        self._cache_builder = builder.CacheBuilder(
+            self._enable_cache, self._clear_cache
+        )
+
     def _set_cache_interface(self, file_location):
-        cache_interface = self._cache_builder.get_cache_interface(
+        self._cache_interface = self._cache_builder.get_cache_interface(
             file_location
         )
-        self._cache_interface = cache_interface
 
     def _parse_with_cache(self, file_location):
         data = self._read_data(file_location)
@@ -96,8 +98,9 @@ class Memory(plugin_templates.DataParserTemplate):
             raise OSError
 
     def write(self, file_location, data):
-        self._set_cache_interface(file_location)
         self._write_data(file_location, data)
+        self._set_cache_plugin()
+        self._set_cache_interface(file_location)
         self._cache_interface.write_cache(data)
 
     def _write_data(self, file_location, data):

@@ -38,12 +38,33 @@ __version__ = VERSION
 
 class Fitting(plugin_templates.ShellMain):
 
+    _logger = logging.getLogger(__name__)
+    _data_parser = None
+    _minimization = None
+    _kernel_processing = None
+    _likelihood_type = None
+    _generated_length = None
+    _functions_location = None
+    _processing_name = None
+    _setup_name = None
+    _data_location = None
+    _accepted_monte_carlo_location = None
+    _qfactor_location = None
+    _save_name = None
+    _monte_carlo_raw_data = None  # type: numpy.ndarray
+    _qfactor_data = None  # type: numpy.ndarray
+    _data_raw_data = None  # type: numpy.ndarray
+    _corrected_data = None  # type: dict
+    _processing_function = None  # type: object
+    _setup_function = None  # type: object
+
     def __init__(
             self, data_parser=None, minimization=None,
             kernel_processing=None, likelihood_type=None,
             generated_length=None, functions_location=None,
             processing_name=None, setup_name=None, data_location=None,
-            accepted_monte_carlo_location=None, save_name=None, **options
+            qfactor_location=None, accepted_monte_carlo_location=None,
+            save_name=None, **options
     ):
         """
 
@@ -76,15 +97,10 @@ class Fitting(plugin_templates.ShellMain):
         self._data_location = data_location
         self._accepted_monte_carlo_location \
             = accepted_monte_carlo_location
+        self._qfactor_location = qfactor_location
         self._save_name = save_name
         if options:
             super(Fitting, self).__init__(options)
-
-        self._monte_carlo_raw_data = None  # type: numpy.ndarray
-        self._data_raw_data = None  # type: numpy.ndarray
-        self._corrected_data = None  # type: dict
-        self._processing_function = None  # type: object
-        self._setup_function = None  # type: object
 
     def _check_params(self):
         """
@@ -117,6 +133,12 @@ class Fitting(plugin_templates.ShellMain):
                 self._accepted_monte_carlo_location
             )
 
+        if self._qfactor_location:
+            self._logger.info("Found QFactor.")
+            self._qfactor_data = self._data_parser.parse(
+                self._qfactor_location
+            )
+
     def _setup_data(self):
         """
 
@@ -143,7 +165,10 @@ class Fitting(plugin_templates.ShellMain):
             corrected["monte_carlo"] \
                 = corrected_monte_carlo["monte_carlo"]
 
-        if "qfactor" in corrected_data.keys():
+        if self._qfactor_data:
+            self._logger.info("Merging QFactors")
+            corrected["qfactor"] = self._qfactor_data
+        elif "qfactor" in corrected_data.keys():
             self._logger.info("Extracted QFactors")
             corrected["qfactor"] = corrected_data["qfactor"]
         else:

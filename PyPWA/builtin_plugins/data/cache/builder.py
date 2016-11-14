@@ -95,22 +95,28 @@ class CacheBuilder(object):
             self._enable_cache_fallback()
 
     def _enable_cache_fallback(self):
+        self._logger.debug("Cache set to fallback!")
         self._use_cache = False
 
     def _find_reader(self):
         if not self._use_cache:
+            self._logger.debug("No Read Cache selected.")
             self._selected_reader = _no_cache.NoRead()
         elif self._clear_cache:
+            self._logger.debug("Clear Cache selected.")
             self._selected_reader = _clear_cache.ClearCache(self._info_object)
         else:
+            self._logger.debug("Read Cache selected.")
             self._selected_reader = _standard_cache.ReadCache(
                 self._info_object
             )
 
     def _find_writer(self):
         if not self._use_cache:
+            self._logger.debug("No Write Cache selected.")
             self._selected_writer = _no_cache.NoWrite()
         else:
+            self._logger.debug("Write Cache selected.")
             self._selected_writer = _standard_cache.WriteCache(
                 self._info_object
             )

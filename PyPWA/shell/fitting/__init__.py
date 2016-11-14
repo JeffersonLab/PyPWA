@@ -54,6 +54,7 @@ def setup_function():
             "function's location": "/path/to/the/function.py",
             "processing name": "processing_function",
             "setup name": "setup_function",
+            "qfactor location": "/path/to/the/data.csv",
             "data location": "/path/to/the/data.csv",
             "accepted monte carlo location": "/path/to/monte/carlo.csv",
             "save name": "output"
@@ -66,6 +67,7 @@ def setup_function():
             "function's location": self._required,
             "processing name": self._required,
             "setup name": self._required,
+            "qfactor location": self._optional,
             "data location": self._required,
             "accepted monte carlo location": self._optional,
             "save name": self._required
@@ -78,6 +80,7 @@ def setup_function():
             "function's location": str,
             "processing name": str,
             "setup name": str,
+            "qfactor location": str,
             "data location": str,
             "accepted monte carlo location": str,
             "save name": str
@@ -98,6 +101,7 @@ def setup_function():
                 "functions.",
             "processing name": "The name of your main function.",
             "setup name": "The name of your setup function",
+            "qfactor location": "The location of the qfactors.",
             "data location": "The location of your data.",
             "accepted monte carlo location":
                 "The location to your accepted monte carlo",
