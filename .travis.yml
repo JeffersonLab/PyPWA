@@ -23,7 +23,8 @@ after_success:
   - coveralls
   - head .coverage
 notifications:
-  email:
+  slack:
+    rooms:
+      - pypwa:qPFpdrleMXOkj6mE18RctZQR
     on_success: change
     on_failure: change
-  slack: pypwa:qPFpdrleMXOkj6mE18RctZQR
