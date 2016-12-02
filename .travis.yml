@@ -15,9 +15,10 @@ before_install:
   - "pip install pytest --upgrade"
   - "pip install pytest-runner --upgrade"
   - "pip install pytest-cov --upgrade"
+  - "pip install pytest-logging --upgrade"
 install:
   - "pip install -e ."
-script: "py.test --cov=PyPWA tests/"
+script: "py.test --cov=PyPWA tests/ -vvvv"
 after_success:
   - ls -a
   - coveralls
