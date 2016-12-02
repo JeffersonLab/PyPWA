@@ -10,11 +10,11 @@ before_install:
   - python --version
   - uname -a
   - ls -a
-  - "pip install coveralls"
-  - "pip install coverage"
-  - "pip install pytest"
-  - "pip install pytest-runner"
-  - "pip install pytest-cov"
+  - "pip install coveralls --upgrade"
+  - "pip install coverage --upgrade"
+  - "pip install pytest --upgrade"
+  - "pip install pytest-runner --upgrade"
+  - "pip install pytest-cov --upgrade"
 install:
   - "pip install -e ."
 script: "py.test --cov=PyPWA tests/"
