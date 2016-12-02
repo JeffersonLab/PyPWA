@@ -73,10 +73,12 @@ class ReadCache(_template.ReadInterface):
         try:
             returned_data = self._load_data()
             self._logger.info("Successfully loaded pickle cache!")
-        except (OSError, IOError, KeyError):
+        except (OSError, IOError):
             returned_data = self._empty_raw_data
             self._logger.info("No cache exists.")
-        except (pickle.PickleError, ValueError) as Error:
+        except (
+                pickle.PickleError, ValueError, IndexError, KeyError
+        ) as Error:
             returned_data = self._empty_raw_data
             self._logger.info(
                 "Pickle is from a different Python version or is damaged."
