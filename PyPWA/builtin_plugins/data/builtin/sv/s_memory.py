@@ -176,7 +176,7 @@ class _SvMemoryWriter(object):
         if sys.version_info.major == 2:
             self._stream = open(file_location, "w")
         else:
-            io.open(file_location, "w")
+            self._stream = io.open(file_location, "w")
 
     def _set_writer(self):
         self._writer = csv.DictWriter(
