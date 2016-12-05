@@ -18,7 +18,7 @@ from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
 __license__ = "GPLv3"
-__version__ = "2.0.0-rc2"
+__version__ = "2.0.0-rc4"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "development"
