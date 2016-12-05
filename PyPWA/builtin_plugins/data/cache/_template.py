@@ -18,8 +18,6 @@
 
 """
 
-import abc
-
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -32,22 +30,17 @@ __version__ = VERSION
 
 
 class WriteInterface(object):
-    __metaclass__ = abc.ABCMeta
 
-    @abc.abstractmethod
     def write_cache(self, data):
         raise NotImplementedError
 
 
 class ReadInterface(object):
-    __metaclass__ = abc.ABCMeta
 
     @property
-    @abc.abstractmethod
     def is_valid(self):
         raise NotImplementedError
 
-    @abc.abstractmethod
     def get_cache(self):
         raise NotImplementedError
 

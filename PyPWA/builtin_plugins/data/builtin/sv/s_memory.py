@@ -14,12 +14,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import csv
 import io
 import logging
 import os
 
 import numpy
+
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import data_templates
 
@@ -171,7 +173,10 @@ class _SvMemoryWriter(object):
         self._write_header()
 
     def _open_stream(self, file_location):
-        self._stream = io.open(file_location, "w")
+        if sys.version_info.major == 2:
+            self._stream = open(file_location, "w")
+        else:
+            self._stream = io.open(file_location, "w")
 
     def _set_writer(self):
         self._writer = csv.DictWriter(

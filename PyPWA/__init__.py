@@ -31,7 +31,7 @@ __license__ = "GPLv3"
 __email__ = "maj@jlab.org"
 __status__ = "development"
 __maintainer__ = ["Mark Jones"]
-__version__ = "2.0.0-rc3"
+__version__ = "2.0.0-rc4"
 
 VERSION = __version__
 STATUS = __status__

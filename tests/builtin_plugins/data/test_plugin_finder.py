@@ -50,7 +50,7 @@ def plugin_search():
 @pytest.fixture(scope="function")
 def make_noise():
     with io.open(TEMP_WRITE_LOCATION, "w") as stream:
-        stream.write("Random nonsense that isn't data.")
+        stream.write(u"Random nonsense that isn't data.")
 
     yield True
 
