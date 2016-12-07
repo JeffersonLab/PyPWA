@@ -4,7 +4,10 @@ import time
 import numpy
 import pytest
 
-from PyPWA.builtin_plugins.process import foreman, _communication
+from PyPWA.builtin_plugins.process.communication import exception, _simplex, \
+    _interface
+
+from PyPWA.builtin_plugins.process import foreman
 from PyPWA.core.shared.interfaces import internals
 
 
@@ -136,14 +139,14 @@ def test_Communication_UnimplementedMethods_RaiseNotImplemented():
     # The values don't need to be pipes since they should actually
     # never be called. Also these object should never be access
     # directly by the user.
-    receive = _communication._SimplexReceive("send")
-    send = _communication._SimplexSend("receive")
-    interface = _communication._CommunicationInterface()
+    receive = _simplex._SimplexReceive("send")
+    send = _simplex._SimplexSend("receive")
+    interface = _interface._CommunicationInterface()
 
-    with pytest.raises(_communication.SimplexError):
+    with pytest.raises(exception.SimplexError):
         receive.send("something")
 
-    with pytest.raises(_communication.SimplexError):
+    with pytest.raises(exception.SimplexError):
         send.receive()
 
     with pytest.raises(NotImplementedError):
