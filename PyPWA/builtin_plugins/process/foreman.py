@@ -30,7 +30,6 @@ import multiprocessing
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process import _communication
 from PyPWA.builtin_plugins.process import _processing
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins

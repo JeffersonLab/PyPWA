@@ -25,7 +25,7 @@ import logging
 import multiprocessing
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process._communication import CommunicationFactory
+from PyPWA.builtin_plugins.process.communication import factory
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -156,7 +156,7 @@ class CalculationFactory(object):
         count = len(process_kernels)
         processes = []
 
-        sends, receives = CommunicationFactory.simplex_build(count)
+        sends, receives = factory.CommunicationFactory.simplex_build(count)
 
         for index, internals in enumerate(zip(process_kernels, sends)):
             processes.append(
@@ -180,7 +180,7 @@ class CalculationFactory(object):
         """
         count = len(process_kernels)
         processes = []
-        main_com, process_com = CommunicationFactory.duplex_build(count)
+        main_com, process_com = factory.CommunicationFactory.duplex_build(count)
 
         for index, internals in enumerate(zip(process_kernels, process_com)):
             processes.append(
