@@ -15,13 +15,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Simplex communication objects for the communication factory.
 """
 
-from PyPWA.builtin_plugins.process.communication import _interface
-from PyPWA.builtin_plugins.process.communication import exception
+import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.builtin_plugins.process.communication import _interface
+from PyPWA.builtin_plugins.process.communication import exception
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -34,11 +35,13 @@ __version__ = VERSION
 
 class _SimplexSend(_interface._CommunicationInterface):
 
+    _send = None  # type: multiprocessing.Pipe
+
     def __init__(self, send_pipe):
-        self.send_pipe = send_pipe
+        self._send_pipe = send_pipe
 
     def send(self, data):
-        self.send_pipe.send(data)
+        self._send_pipe.send(data)
 
     def receive(self):
         raise exception.SimplexError(
@@ -49,8 +52,10 @@ class _SimplexSend(_interface._CommunicationInterface):
 
 class _SimplexReceive(_interface._CommunicationInterface):
 
+    _receive_pipe = None  # type: multiprocessing.Pipe
+
     def __init__(self, receive_pipe):
-        self.receive_pipe = receive_pipe
+        self._receive_pipe = receive_pipe
 
     def send(self, data):
         raise exception.SimplexError(
@@ -59,6 +64,4 @@ class _SimplexReceive(_interface._CommunicationInterface):
         )
 
     def receive(self):
-        return self.receive_pipe.recv()
-
-
+        return self._receive_pipe.recv()

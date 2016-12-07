@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+The interface object for simplex and duplex communication objects.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
