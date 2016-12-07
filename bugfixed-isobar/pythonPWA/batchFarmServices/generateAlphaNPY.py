@@ -129,11 +129,15 @@ class generateAlphas(object):
             pmeson = pip + pim
             pMeson = pmeson.p
             beam3 = bm.p
-            polarization = ThreeVector(0.,1.,0.)
+            polarization = ThreeVector(1.,0.,0.)
             Normal = beam3 * pMeson
             
             cosAlpha = Normal.dot(polarization) / Normal.r()
             alpha = math.acos(cosAlpha)
+            if polarization.y == 1 and Normal.x > 0:
+                alpha= -alpha
+            if polarization.x == 1 and Normal.y < 0:
+                alpha= -alpha
             self.alphalist.append(alpha)
             
     
