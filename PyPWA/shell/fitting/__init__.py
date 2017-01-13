@@ -86,7 +86,7 @@ def setup_function():
             "save name": str
         }
 
-    def _main_comment(self):
+    def _module_comment(self):
         return "The General Shell, a simple multiprocessing enabled " \
                "data analysis tool."
 

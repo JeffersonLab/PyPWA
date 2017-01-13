@@ -18,12 +18,15 @@
 
 """
 
+import copy
 import hashlib
 import io
 import logging
 import os
 
 import appdirs
+import ruamel.yaml.comments
+
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -33,6 +36,92 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+
+class ProcessOptions(object):
+
+    _module_name = None
+    _module_comment = None
+    _option_comments = None
+    _option_types = None
+    _option_defaults = None
+    _option_difficulties = None
+
+    _built_options = None
+    _required = None
+    _optional = None
+    _advanced = None
+
+    def __init__(
+            self, module, module_comment, options_comment,
+            option_types, option_defaults, option_difficulty
+    ):
+        self._module_name = module
+        self._module_comment = module_comment
+        self._option_comments = options_comment
+        self._option_types = option_types
+        self._option_defaults = option_defaults
+        self._option_difficulties = option_difficulty
+
+        self._set_header_into_built_options()
+        self._set_content_into_built_options()
+        self._set_difficulties()
+
+    def _set_header_into_built_options(self):
+        header = ruamel.yaml.comments.CommentedMap()
+        header.yaml_add_eol_comment(
+            self._module_comment, self._module_name
+        )
+        self._built_options = header
+
+    def _set_content_into_built_options(self):
+        content = ruamel.yaml.comments.CommentedMap()
+        populated_content = self._add_options_defaults(content)
+        commented_content = self._add_option_comments(populated_content)
+        self._built_options[self._module_name] = commented_content
+
+    def _add_options_defaults(self, content):
+        for option, value in self._option_defaults.items():
+            content[option] = value
+        return content
+
+    def _add_option_comments(self, content):
+        for option, comment in self._option_comments.items():
+            content.yaml_add_eol_comment(comment, option)
+        return content
+
+    def _set_difficulties(self):
+        self._make_separate_difficulties()
+        self._process_separate_difficulties()
+
+    def _make_separate_difficulties(self):
+        required = copy.deepcopy(self._built_options)
+        optional = copy.deepcopy(self._built_options)
+        advanced = copy.deepcopy(self._built_options)
+
+        self._required = required
+        self._optional = optional
+        self._advanced = advanced
+
+    def _process_separate_difficulties(self):
+        for option, difficulty in self._option_difficulties.items():
+            if difficulty == "optional":
+                self._required[self._module_name].pop(option)
+            elif difficulty == "advanced":
+                self._required[self._module_name].pop(option)
+                self._optional[self._module_name].pop(option)
+
+    @property
+    def required(self):
+        return self._required
+
+    @property
+    def optional(self):
+        return self._optional
+
+    @property
+    def advanced(self):
+        return self._advanced
 
 
 class DataLocation(object):

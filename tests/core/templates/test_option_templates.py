@@ -64,7 +64,7 @@ def function(this, that)
                 "other": int
             }
 
-        def _main_comment(self):
+        def _module_comment(self):
             return "test comment"
 
         def _option_comments(self):
@@ -144,7 +144,7 @@ def test_MainOptionsTemplate_CreateMetaObject_HoldData():
                 "other": int
             }
 
-        def _main_comment(self):
+        def _module_comment(self):
             return "test comment"
 
         def _option_comments(self):

@@ -275,6 +275,6 @@ class ConfiguratorOptions(option_templates.PluginsOptionsTemplate):
                 "prompt if the user specifies -v"
         }
 
-    def _main_comment(self):
+    def _module_comment(self):
         return "This is the global loaders settings. These settings " \
                "are the options that will be set for the entire program."
