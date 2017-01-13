@@ -71,7 +71,7 @@ class Processing(option_templates.PluginsOptionsTemplate):
             "number of processes": int
         }
 
-    def _main_comment(self):
+    def _module_comment(self):
         return "This is the builtin processing plugin, you can replace " \
                "this with your own, or use one of the other options " \
                "that we have."

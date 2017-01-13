@@ -64,7 +64,7 @@ class MinuitOptions(option_templates.PluginsOptionsTemplate):
             "number of calls": int
         }
 
-    def _main_comment(self):
+    def _module_comment(self):
         return "Minuit is the tried and tested minimizer, developed " \
                "by ROOT"
 
