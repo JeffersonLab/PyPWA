@@ -35,13 +35,16 @@ __version__ = VERSION
 class DuplexProcess(multiprocessing.Process):
 
     daemon = True  # When true, processes will die with main
+
     _kernel = None
     _communicator = None
 
-    def __init__(self, index, kernel, communicator):
+    _should_calculate = True
+    _received_value = None
+
+    def __init__(self, kernel, communicator):
         super(DuplexProcess, self).__init__()
         self._kernel = kernel
-        self._kernel.processor_id = index
         self._communicator = communicator
 
     def run(self):
@@ -50,12 +53,20 @@ class DuplexProcess(multiprocessing.Process):
         return 0
 
     def _loop(self):
-        while True:
-            value = self._communicator.receive()
-            if value == "DIE":
-                break
+        while self._should_calculate:
+            self._get_value()
+            if self._received_value == "DIE":
+                self._should_calculate = False
             else:
-                self._communicator.send(self._kernel.process(value))
+                self._process()
+
+    def _get_value(self):
+        value = self._communicator.receive()
+        self._received_value = value
+
+    def _process(self):
+        processed_data = self._kernel.process(self._received_value)
+        self._communicator.send(processed_data)
 
 
 class SimplexProcess(multiprocessing.Process):
@@ -64,13 +75,16 @@ class SimplexProcess(multiprocessing.Process):
     _kernel = None
     _communicator = None
 
-    def __init__(self, index, single_kernel, communicator):
+    def __init__(self, single_kernel, communicator):
         super(SimplexProcess, self).__init__()
         self._kernel = single_kernel
-        self._kernel.processor_id = index
         self._communicator = communicator
 
     def run(self):
         self._kernel.setup()
         self._communicator.send(self._kernel.process())
         return 0
+
+    def _process(self):
+        processed_data = self._kernel.process()
+        self._communicator.send(processed_data)
