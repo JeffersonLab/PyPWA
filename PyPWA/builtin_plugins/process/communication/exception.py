@@ -32,8 +32,6 @@ __version__ = VERSION
 class SimplexError(Exception):
     """
     The SimplexError is a simple exception that is thrown when someone
-    calls a simplex as a duplex object. Helps the interface determine
-    whether the directions of the communication object. This may go away
-    in the future.
+    calls a simplex as a duplex object.
     """
     pass
