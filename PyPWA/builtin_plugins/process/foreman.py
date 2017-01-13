@@ -42,20 +42,6 @@ __version__ = VERSION
 class _ProcessInterface(internals.ProcessInterface):
 
     def __init__(self, interface_kernel, process_com, processes, duplex):
-        """
-        This object provides all the functions necessary to determine the
-        state of the processes and to pass information to the processes.
-        This is the main object that the program and users will use to
-        access the processes.
-
-        Args:
-            interface_kernel: Object with a run method to be used to
-                handle returned data.
-            process_com (list[_communication._CommunicationInterface]):
-                Objects needed to exchange data with the processes.
-            processes (list[multiprocessing.Process]): List of the
-                processing processes.
-        """
         self._logger = logging.getLogger(__name__)
 
         self._com = process_com
@@ -65,33 +51,14 @@ class _ProcessInterface(internals.ProcessInterface):
         self._duplex = duplex
 
     def run(self, *args):
-        """
-        Passes received arguments to the interface kernel and returns the
-        result.
-
-        Args:
-            *args: The arguments received through the run interface.
-        Returns:
-            The returned value from the process kernel.
-        """
         self._held_value = self._interface_kernel.run(self._com, args)
         return self._held_value
 
     @property
     def previous_value(self):
-        """
-        Returns previous found value.
-        """
         return self._held_value
 
     def stop(self, force=False):
-        """
-        Stops processes.
-
-        Args:
-            force (Optional[bool]): Set to true if you want to force the
-                processes to stop.
-        """
         if self._duplex and not force:
             self._ask_processes_to_stop()
         else:
@@ -122,13 +89,6 @@ class _ProcessInterface(internals.ProcessInterface):
 
     @property
     def is_alive(self):
-        """
-        Method to check the status of the process.
-
-        Returns:
-            bool: True if the processes are still spawned, False if they
-                have terminated.
-        """
         return self._processes[0].is_alive()
 
 
@@ -138,17 +98,6 @@ class CalculationForeman(plugins.KernelProcessing):
             self, number_of_processes=multiprocessing.cpu_count() * 2,
             **options
     ):
-        """
-        This is the main object for the Process Plugin. All this object
-        needs is an appropriately set up interface kernel and process
-        kernel in order to function.
-
-        Args:
-            number_of_processes (Optional[int]): Number of processes to
-                use, defaults to twice the available cpus.
-            options (Optional[dict]): The options dictionary rendered by
-                the configurator. Optional.
-        """
         self._process_kernels = False
         self._duplex = False
         self._interface = False
@@ -162,20 +111,6 @@ class CalculationForeman(plugins.KernelProcessing):
             super(CalculationForeman, self).__init__(options)
 
     def main_options(self, data, process_template, interface_template):
-        """
-        The options that need to be passed to it from the main object. The
-        data that is needed for processing to occur.
-
-        Args:
-            data (dict):  The dictionary containing the data that needs to
-                be nested into the process.
-            process_template (kernels.AbstractKernel): The kernel that
-                has been extended with the needed information for the
-                process.
-            interface_template (kernels.AbstractInterface): The interface
-                that has been extended to process the information to be
-                passed and from the processes.
-        """
         process_data = self.__split_data(
             data, self._number_of_processes
         )
@@ -190,12 +125,6 @@ class CalculationForeman(plugins.KernelProcessing):
         self._interface = self._build()
 
     def _make_process(self):
-        """
-        Calls the factory objects to generate the processes
-
-        Returns:
-            list[list[_communication._CommunicationInterface],list[process_calculation.Process]]
-        """
         if self._duplex:
             self._logger.debug("Building Duplex Processes.")
             return _processing.CalculationFactory.duplex_build(
@@ -209,9 +138,6 @@ class CalculationForeman(plugins.KernelProcessing):
             )
 
     def _build(self):
-        """
-        Simple method that sets up and builds all the processes needed.
-        """
         processes, com = self._make_process()
         for process in processes:
             process.start()
@@ -223,28 +149,10 @@ class CalculationForeman(plugins.KernelProcessing):
         )
 
     def fetch_interface(self):
-        """
-        Returns the built Process Interface
-
-        Returns:
-             _ProcessInterface: The interface to the processes.
-        """
         return self._interface
 
     @staticmethod
     def __create_objects(kernel_template, data_chunks):
-        """
-        Creates the objects to be nested into the processes.
-
-        Args:
-            kernel_template: The template to use that has all the
-                processing logic.
-            data_chunks list[dict]: A list of the data chunks to be nested
-                into the processes.
-
-        Returns:
-            list
-        """
         processes = []
         for chunk in data_chunks:
             temp_kernel = copy.deepcopy(kernel_template)
@@ -256,17 +164,6 @@ class CalculationForeman(plugins.KernelProcessing):
 
     @staticmethod
     def __split_data(events_dict, number_of_process):
-        """
-        Takes a dictionary of numpy arrays and splits them into chunks.
-
-        Args:
-            events_dict (dict): The data that needs to be divided into
-                chunks.
-            number_of_process (int): The number of processes.
-
-        Returns:
-            list[dict]: The chunks of data.
-        """
         event_keys = events_dict.keys()
         data_chunks = []
 
