@@ -46,62 +46,31 @@ __version__ = VERSION
 class ConfigParser(object):
 
     def __init__(self):
-        """
-
-        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
     def read_config(self, configuration):
-        """
-        Parses the configuration that the user specified.
-
-        Args:
-            configuration (str): The name of the configuration file.
-
-        Returns:
-            dict: The configuration of the program.
-        """
-        # Using the word 'unclean' is hip, right?
-        return self._parse_config(configuration)
-
-    def _parse_config(self, configuration):
-        """
-        Reads in the configuration file into memory then returns the
-        unfiltered dictionary.
-            If there is a syntax error it will catch the error then raise
-        a cleaned version of the error to not flood the user with
-        unneeded information.
-            The full exception will be passed to the logger if the user
-        wants to see the full error, should only show if they have
-        verboseness enabled.
-
-        Args:
-            configuration (str): The name of the configuration file.
-
-        Returns:
-            dict: The unfiltered dictionary of the configuration.
-
-        Raises:
-            SyntaxError: If there is a typo or other similar error in the
-                configuration file.
-        """
         with open(configuration, "r") as stream:
-            try:
-                return ruamel.yaml.load(
-                    stream, ruamel.yaml.RoundTripLoader
-                )
-            except ruamel.yaml.parser.ParserError as UserError:
-                self._logger.exception(UserError)
-                raise SyntaxError(str(UserError))
+            return self._process_stream(stream)
+
+    def _process_stream(self, stream):
+        try:
+            return self._load_configuration(stream)
+        except ruamel.yaml.parser.ParserError as UserError:
+            self._process_error(UserError)
+
+    @staticmethod
+    def _load_configuration(stream):
+        return ruamel.yaml.load(stream, ruamel.yaml.RoundTripLoader)
+
+    def _process_error(self, user_error):
+        self._logger.exception(user_error)
+        raise SyntaxError(str(user_error))
 
 
 class SimpleConfigBuilder(object):
 
     def __init__(self):
-        """
-
-        """
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
@@ -122,17 +91,6 @@ class SimpleConfigBuilder(object):
             self, plugin_name, main_plugin,
             provided_options=None, save_location=False
     ):
-        """
-
-        Args:
-            plugin_name:
-            main_plugin:
-            provided_options:
-            save_location:
-
-        Returns:
-
-        """
         self._determine_plugin_level()
         self._determine_plugin_directory()
         self._build_storage()
@@ -144,11 +102,6 @@ class SimpleConfigBuilder(object):
         self._write_final_config()
 
     def _determine_plugin_level(self):
-        """
-
-        Returns:
-
-        """
         possible_levels = ["required", "optional", "advanced"]
 
         question = "\nHow much control would you like to have over the " \
@@ -160,11 +113,6 @@ class SimpleConfigBuilder(object):
         )
 
     def _determine_plugin_directory(self):
-        """
-
-        Returns:
-
-        """
         question = "\nWould you like to use your own plugins? If YES " \
                    "then please enter the location, if NO then just " \
                    "press ENTER.\n[None]: "
@@ -177,11 +125,6 @@ class SimpleConfigBuilder(object):
             self._plugin_directory = None
 
     def _build_storage(self):
-        """
-
-        Returns:
-
-        """
         plugins = self._plugin_handler.fetch_plugin(
             [PyPWA.builtin_plugins, self._plugin_directory]
         )
@@ -190,54 +133,23 @@ class SimpleConfigBuilder(object):
         self._storage.add_plugins(plugins)
 
     def _make_plugin_list(self, main_plugin):
-        """
-
-        Args:
-            main_plugin:
-
-        Returns:
-
-        """
         list_maker = PluginList()
         self._plugins = list_maker.parse_plugins(
             main_plugin, self._storage
         )
 
     def _build_configuration(self):
-        """
-
-        Returns:
-
-        """
         configuration = ruamel.yaml.comments.CommentedMap()
         for plugin in self._plugins:
             configuration.update(plugin.request_options(self._level))
         self._settings = configuration
 
     def _add_main_to_configuration(self, main_plugin):
-        """
-
-        Args:
-            main_plugin:
-
-        Returns:
-
-        """
         self._settings.update(main_plugin.request_options(self._level))
 
     def _correct_options(
             self, main_plugin, main_name, provided_options
     ):
-        """
-
-        Args:
-            main_plugin:
-            main_name:
-            provided_options:
-
-        Returns:
-
-        """
         shell_id = main_plugin.request_metadata("id")
 
         if provided_options:
@@ -253,14 +165,6 @@ class SimpleConfigBuilder(object):
         self._settings.pop(shell_id)
 
     def _set_save_location(self, save_location=False):
-        """
-
-        Args:
-            save_location:
-
-        Returns:
-
-        """
         question = "\nWhat would you like to name the configuration " \
                    "file?\nFile Name?: "
 
@@ -270,11 +174,7 @@ class SimpleConfigBuilder(object):
             self._save_location = self._input_manager.input(question)
 
     def _write_final_config(self):
-        """
 
-        Returns:
-
-        """
         with open(self._save_location, "w") as stream:
             stream.write(
                 ruamel.yaml.dump(
@@ -380,100 +280,3 @@ class PluginList(object):
         string += "\nPlugin?: "
 
         return self._input_manager.input(string, possible_answers=names)
-
-
-class SimpleInputObject(object):
-
-    def __init__(self, auto_correct_percentage=75):
-        """
-
-        Args:
-            auto_correct_percentage:
-        """
-        self._auto_correction_percentage = auto_correct_percentage
-
-    def input(
-            self, string, possible_answers=False,
-            default_answer=False, is_dir=False
-    ):
-        """
-
-        Args:
-            string (str):
-            possible_answers (list):
-            default_answer (str):
-            is_dir (bool):
-
-        Returns:
-
-        """
-        final_answer = False
-
-        while not final_answer:
-            answer = self.__input(string)
-
-            if answer is "" and default_answer:
-                final_answer = default_answer
-                continue
-
-            else:
-                if possible_answers:
-                    corrected_answer = fuzzywuzzy.process.extractOne(
-                        answer, possible_answers
-                    )
-
-                    if corrected_answer[1] > \
-                            self._auto_correction_percentage:
-                        answer = corrected_answer[0]
-                if is_dir:
-                    if not os.path.isdir(answer):
-                        continue
-                if self._is_correct(answer):
-                    final_answer = answer
-
-        if final_answer == "None":
-            final_answer = None
-        return final_answer
-
-    def _is_correct(self, answer):
-        final_answer = False
-        string = """\
-It looks like you selected '{0}', is this correct?
-[Y]es/No: """
-
-        while not final_answer:
-            is_correct = self.__input(string.format(answer))
-
-            value = fuzzywuzzy.process.extractOne(
-                is_correct.lower(), ["yes", "no"]
-            )
-
-            if is_correct == "":
-                final_answer = "yes"
-                break
-
-            if value[1] > self._auto_correction_percentage:
-                if value[0] == "yes":
-                    final_answer = "yes"
-                else:
-                    final_answer = "no"
-
-        if final_answer == "yes":
-            return True
-        elif final_answer == "no":
-            return False
-
-    @staticmethod
-    def __input(string):
-        """
-
-        Args:
-            string:
-
-        Returns:
-
-        """
-        if sys.version_info.major == 2:
-            return raw_input(string)
-        else:
-            return input(string)
