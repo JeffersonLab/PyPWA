@@ -50,7 +50,9 @@ class _IsCorrect(object):
     _input_data = ...  # type: str
     _processed_answer = ...  # type: typing.Tuple[str, float]
 
-    def __init__(self, auto_correct_percentage: typing.Optional[float]): ...
+    def __init__(
+            self, auto_correct_percentage: typing.Optional[float] = 75
+    ): ...
 
     def ask(self, value: str) -> bool: ...
 
@@ -78,7 +80,9 @@ class SimpleInputObject(object):
     _users_input = ...  # type: str
     _processed_value = ...  # type: typing.Tuple[str, float]
 
-    def __init__(self, auto_correct_percentage: typing.Optional[float]): ...
+    def __init__(
+            self, auto_correct_percentage: typing.Optional[float] = 90
+    ): ...
 
     def input(self, string: str, possible_answers: typing.Any,
               default_answer: typing.Any, is_dir: typing.Any
