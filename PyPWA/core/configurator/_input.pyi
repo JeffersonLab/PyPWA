@@ -84,8 +84,11 @@ class SimpleInputObject(object):
             self, auto_correct_percentage: typing.Optional[float] = 90
     ): ...
 
-    def input(self, string: str, possible_answers: typing.Any,
-              default_answer: typing.Any, is_dir: typing.Any
+    def input(
+            self, string: str,
+            possible_answers: typing.Optional[typing.Any] = False,
+            default_answer: typing.Optional[typing.Any] = False,
+            is_dir: typing.Optional[typing.Any] = False
     ) -> str: ...
 
     def _question_loop(
