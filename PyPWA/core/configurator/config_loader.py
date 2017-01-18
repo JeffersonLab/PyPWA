@@ -14,23 +14,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-
-"""
-
-import io
 import logging
-import os
-import sys
 
-import PyPWA.builtin_plugins
-import PyPWA.shell
-import fuzzywuzzy.process
 import ruamel.yaml
 import ruamel.yaml.comments
 import ruamel.yaml.parser
+
+import PyPWA.builtin_plugins
+import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core import plugin_loader
+from PyPWA.core.configurator import _input
+from PyPWA.core.configurator import _plugin_types
 from PyPWA.core.configurator import _storage
 from PyPWA.core.templates import option_templates
 
@@ -69,23 +64,24 @@ class ConfigParser(object):
 
 
 class SimpleConfigBuilder(object):
+    _logger = logging.getLogger(__name__)
+    _input_manager = _input.SimpleInputObject()
+    _settings = ruamel.yaml.comments.CommentedMap()
+
+    _plugin_handler = None  # type:
+
+    _storage = None  # type: _storage.MetadataStorage
+    _plugin_directory = None  # type: str
+    _save_location = None  # type: str
+    _level = None  # type: str
+    _plugins = None  # type: list
 
     def __init__(self):
-        self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
         self._plugin_handler = plugin_loader.PluginLoading(
             option_templates.PluginsOptionsTemplate
         )
-
-        self._input_manager = SimpleInputObject()
-        self._settings = ruamel.yaml.comments.CommentedMap()
-
-        self._storage = None  # type: _storage.MetadataStorage
-        self._plugin_directory = None  # type: str
-        self._save_location = None  # type: str
-        self._level = None  # type: str
-        self._plugins = None  # type: list
 
     def build_configuration(
             self, plugin_name, main_plugin,
@@ -133,10 +129,8 @@ class SimpleConfigBuilder(object):
         self._storage.add_plugins(plugins)
 
     def _make_plugin_list(self, main_plugin):
-        list_maker = PluginList()
-        self._plugins = list_maker.parse_plugins(
-            main_plugin, self._storage
-        )
+        list_maker = PluginList(self._storage)
+        self._plugins = list_maker.parse_plugins(main_plugin)
 
     def _build_configuration(self):
         configuration = ruamel.yaml.comments.CommentedMap()
@@ -185,98 +179,101 @@ class SimpleConfigBuilder(object):
 
 class PluginList(object):
 
-    def __init__(self):
-        """
+    _logger = logging.getLogger(__name__)
+    _input_manager = _input.SimpleInputObject()
+    _ask_for_plugin = _AskForSpecificPlugin()
 
-        """
-        self._logger = logging.getLogger(__name__)
+    _storage = None  # type: _storage.MetadataStorage()
+    _plugin_types = None  # type: [str]
+
+    def __init__(self, storage):
         self._logger.addHandler(logging.NullHandler())
+        self._storage = storage
+        self._set_plugin_types()
 
-        self._input_manager = SimpleInputObject()
+    def _set_plugin_types(self):
+        plugin_type_handler = _plugin_types.PluginTypes()
+        self._plugin_types = plugin_type_handler.internal_types()
 
-    def parse_plugins(self, main_plugin, storage):
-        """
-
-        Args:
-            main_plugin:
-            storage:
-
-        Returns:
-
-        """
+    def parse_plugins(self, main_plugin):
         plugins = []
-        if main_plugin.requires("data parser"):
-            plugins.append(self._process_plugins(
-                "data parser", "Data Parsing", storage,
-                storage.data_parser
-            ))
 
-        if main_plugin.requires("data reader"):
-            plugins.append(self._process_plugins(
-                "data reader", "Data Iterator", storage,
-                storage.data_reader
-            ))
-
-        if main_plugin.requires("kernel processing"):
-            plugins.append(self._process_plugins(
-                "kernel processing", "Kernel Processor", storage,
-                storage.kernel_processing
-            ))
-
-        if main_plugin.requires("minimization"):
-            plugins.append(self._process_plugins(
-                "minimization", "Minimizer", storage,
-                storage.minimization
-            ))
+        for plugin_type in self._plugin_types:
+            if main_plugin.requires(plugin_type):
+                plugins.append(self._process_plugins(plugin_type))
 
         return plugins
 
-    def _process_plugins(
-            self, plugin_type, plugin_type_name, storage, plugin_list
-    ):
-        """
-
-        Args:
-            plugin_type:
-            plugin_type_name:
-            storage:
-            plugin_list:
-
-        Returns:
-
-        """
-        if len(plugin_list) == 1:
-            empty_plugin = plugin_list[0]
+    def _process_plugins(self, plugin_type):
+        plugin_list = self._storage.request_plugin_by_type(plugin_type)
+        if self._only_one_plugin(plugin_list):
+            return plugin_list[0]()
         else:
-            name = self._ask_plugin(
-                plugin_list, plugin_type_name
+            name = self._ask_for_plugin.get_specific_plugin(
+                plugin_list, plugin_type
             )
 
-            empty_plugin = storage.search_plugin(name, plugin_type)
+            empty_plugin = self._storage.search_plugin(name, plugin_type)
+            return empty_plugin()
 
-        return empty_plugin()
+    @staticmethod
+    def _only_one_plugin(plugin_list):
+        if len(plugin_list) == 1:
+            return True
+        else:
+            return False
 
-    def _ask_plugin(self, plugin_list, plugin_type):
-        """
 
-        Args:
-            plugin_list:
-            plugin_type:
+class _AskForSpecificPlugin(object):
 
-        Returns:
+    _names = None  # type: []
+    _prettied_type = None  # type: str
+    _question_string = None  # type: str
+    _input_handler = None  # type: _input.SimpleInputObject()
+    _plugin_prettier = None  # type: _plugin_types.PluginTypes()
 
-        """
+    def __init__(self):
+        self._input_handler = _input.SimpleInputObject()
+
+    def get_specific_plugin(self, plugin_list, plugin_type):
+        self._set_pretty_type(plugin_type)
+        self._set_names(plugin_list)
+        self._set_question_string()
+        return self._ask_the_question()
+
+    def _set_pretty_type(self, plugin_type):
+        prettier = _plugin_types.PluginTypes()
+        self._prettied_type = prettier.internal_to_external(plugin_type)
+
+    def _set_names(self, plugin_list):
         names = []
         for plugin in plugin_list:
-            the_plugin = plugin()
-            names.append(the_plugin.request_metadata("name"))
+            names.append(self._get_plugin_name(plugin))
+        self._names = names
 
-        string = "Which would plugin would you " \
-                 "like to use for {0}?".format(plugin_type)
+    @staticmethod
+    def _get_plugin_name(plugin):
+        the_plugin = plugin()
+        return the_plugin.request_metadata("name")
 
-        for name in names:
-            string += "\n{0}".format(name)
+    def _set_question_string(self):
+        base_string = self._format_base_string()
+        name_string = self._build_name_list()
+        self._question_string = base_string + name_string + "\nPlugin?: "
 
-        string += "\nPlugin?: "
+    def _format_base_string(self):
+        base_string = "Which plugin would you like to use for {0}?"
+        base_string.format(self._prettied_type)
+        return base_string
 
-        return self._input_manager.input(string, possible_answers=names)
+    def _build_name_list(self):
+        name_string = ""
+        for name in self._names:
+            name_string += "\n{0}".format(name)
+        return name_string
+
+    def _ask_the_question(self):
+        the_answer = self._input_handler.input(
+            self._question_string, possible_answers=self._names
+        )
+        return the_answer
