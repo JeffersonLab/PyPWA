@@ -14,10 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-
-"""
-
 import logging
 
 import PyPWA.builtin_plugins
@@ -38,11 +34,6 @@ __version__ = VERSION
 class PluginStorage(object):
 
     def __init__(self, extra_locations=None):
-        """
-
-        Args:
-            extra_locations:
-        """
         plugins = [PyPWA.builtin_plugins, PyPWA.shell]
 
         if isinstance(extra_locations, str):
@@ -76,14 +67,6 @@ class PluginStorage(object):
         self._templates = templates
 
     def request_main_by_id(self, the_id):
-        """
-
-        Args:
-            the_id (str):
-
-        Returns:
-
-        """
         for main in self._shell:
             the_main = main()
             if the_main.request_metadata("id") == the_id:
@@ -104,135 +87,75 @@ class PluginStorage(object):
 
 class MetadataStorage(object):
 
-    def __init__(self):
-        """
+    _logger = logging.getLogger(__name__)
+    _actual_storage = None  # type: {}
 
-        """
-        self._logger = logging.getLogger(__name__)
+    def __init__(self):
         self._logger.addHandler(logging.NullHandler())
-        self._minimization = []
-        self._kernel_processing = []
-        self._data_reader = []
-        self._data_parser = []
+        self._actual_storage = {}
 
     def add_plugins(self, plugins):
-        """
-
-        Args:
-            plugins:
-
-        Returns:
-
-        """
         for plugin in plugins:
-            self._plugin_filter(plugin)
+            loaded_plugin = self._get_initialized_plugin(plugin)
 
-    def _plugin_filter(self, plugin):
-        """
+            if self._should_skip(loaded_plugin):
+                continue
 
-        Args:
-            plugin:
+            self._add_type(plugin)
+            self._plugin_filter(plugin, loaded_plugin)
 
-        Returns:
-
-        """
+    def _get_initialized_plugin(self, plugin):
         try:
             temp_object = plugin()
-            plugin_type = temp_object.request_metadata("provides")
-
-            if plugin_type == "data reader":
-                self._data_reader.append(plugin)
-            elif plugin_type == "data parser":
-                self._data_parser.append(plugin)
-            elif plugin_type == "minimization":
-                self._minimization.append(plugin)
-            elif plugin_type == "kernel processing":
-                self._kernel_processing.append(plugin)
-
+            return temp_object
         except Exception as Error:
             self._logger.error(Error)
 
-    def search_plugin(self, plugin_name, plugin_type):
-        """
+    @staticmethod
+    def _should_skip(plugin):
+        if isinstance(plugin, type(None)):
+            return True
+        else:
+            return False
 
-        Args:
-            plugin_name:
-            plugin_type:
-
-        Returns:
-
-        """
-        if plugin_type is "data reader":
-            return self._plugin_name_search(
-                plugin_name, self._data_reader
-            )
-
-        elif plugin_type is "data parser":
-            return self._plugin_name_search(
-                plugin_name, self._data_parser
-            )
-
-        elif plugin_type is "minimization":
-            return self._plugin_name_search(
-                plugin_name, self._minimization
-            )
-
-        elif plugin_type is "kernel processing":
-            return self._plugin_name_search(
-                plugin_name, self._kernel_processing
-            )
+    def _add_type(self, plugin):
+        plugin_type = self._get_plugin_type(plugin)
+        if not self._plugin_type_included(plugin_type):
+            self._actual_storage[plugin_type] = []
 
     @staticmethod
-    def _plugin_name_search(plugin_name, plugins):
-        """
+    def _get_plugin_type(plugin):
+        return plugin.request_metadata("provides")
 
-        Args:
-            plugin_name:
-            plugins:
+    def _plugin_type_included(self, plugin_type):
+        if plugin_type in self._actual_storage.keys():
+            return True
+        else:
+            return False
 
-        Returns:
+    def _plugin_filter(self, plugin, loaded_plugin):
+        plugin_type = self._get_plugin_type(loaded_plugin)
+        self._actual_storage[plugin_type].append(plugin)
 
-        """
-        for plugin in plugins:
+    def search_plugin(self, plugin_name, plugin_type):
+        if self._plugin_type_included(plugin_type):
+            return self._plugin_name_search(plugin_name, plugin_type)
+        else:
+            self._cant_find_plugin(plugin_name)
+
+    def _plugin_name_search(self, plugin_name, plugin_type):
+        for plugin in self._actual_storage[plugin_type]:
             if plugin["name"] == plugin_name:
                 return plugin
         else:
-            raise ImportError(
-                "Failed to find plugin {0}".format(plugin_name)
-            )
+            self._cant_find_plugin(plugin_name)
 
-    @property
-    def minimization(self):
-        """
+    def _cant_find_plugin(self, plugin_name):
+        error = "Failed to find plugin {0}".format(plugin_name)
+        self._logger.error(error)
+        raise ImportError(error)
 
-        Returns:
+    def request_plugin_by_type(self, plugin_type):
+        if self._plugin_type_included(plugin_type):
+            return self._actual_storage[plugin_type]
 
-        """
-        return self._minimization
-
-    @property
-    def kernel_processing(self):
-        """
-
-        Returns:
-
-        """
-        return self._kernel_processing
-
-    @property
-    def data_reader(self):
-        """
-
-        Returns:
-
-        """
-        return self._data_reader
-
-    @property
-    def data_parser(self):
-        """
-
-        Returns:
-
-        """
-        return self._data_parser
