@@ -165,7 +165,7 @@ class Fitting(plugin_templates.ShellMain):
             corrected["monte_carlo"] \
                 = corrected_monte_carlo["monte_carlo"]
 
-        if self._qfactor_data:
+        if isinstance(self._qfactor_data, numpy.ndarray):
             self._logger.info("Merging QFactors")
             corrected["qfactor"] = self._qfactor_data
         elif "qfactor" in corrected_data.keys():
