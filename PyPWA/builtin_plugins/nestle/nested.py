@@ -17,6 +17,7 @@
 import logging
 
 import nestle
+
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core import plugin_loader
 from PyPWA.core.templates import interface_templates

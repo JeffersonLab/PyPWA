@@ -15,8 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import option_templates
 from PyPWA.builtin_plugins.nestle import nested
+from PyPWA.core.templates import option_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
