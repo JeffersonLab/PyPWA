@@ -194,7 +194,9 @@ class MetadataStorage(object):
 
         """
         for plugin in plugins:
-            if plugin["name"] == plugin_name:
+            loaded_plugin = plugin()
+            name = loaded_plugin.request_metadata("name")
+            if name == plugin_name:
                 return plugin
         else:
             raise ImportError(

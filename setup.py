@@ -48,6 +48,7 @@ setup(
     install_requires=[
         "typing",       # Support for function typing
         "iminuit<2.0",  # Default minimizer
+        "nestle",       # New more advanced minimizer
         "numpy<2.0",    # Arrays and optimizations
         "ruamel.yaml",  # Advanced YAML Parser
         "tabulate",     # Great aesthetic tables
