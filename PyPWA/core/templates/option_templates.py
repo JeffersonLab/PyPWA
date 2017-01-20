@@ -18,9 +18,7 @@
 
 """
 
-import copy
-
-import ruamel.yaml.comments
+from PyPWA.core import tools
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -41,260 +39,81 @@ class _CoreOptionsParsing(object):
     _minimization = "minimization"
     _data_reader = "data reader"
     _data_parser = "data parser"
+    __processed_options = tools.ProcessOptions
 
-    def __init__(self):
-        """
-
-        """
-        if self._default_options():
-            self.__processed = self.__build_options_dictionary()
-            self.__req_func, self.__opt_func, \
-                self.__adv_func = self.__build_leveled_dictionaries()
-        else:
-            self.__req_func = {}
-            self.__opt_func = {}
-            self.__adv_func = {}
-
-    def _id(self):
-        """
-
-        Returns:
-
-        """
-        raise NotImplementedError
+    def __init__(self, processed_options):
+        self.__processed_options = processed_options
 
     def _default_options(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _option_levels(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _option_types(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
-    def _main_comment(self):
-        """
-
-        Returns:
-
-        """
+    def _module_comment(self):
         raise NotImplementedError
 
     def _option_comments(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
-
-    def __build_options_dictionary(self):
-        """
-        Builds the dictionary with the default options and the comments
-        connected to to each key.
-
-        Returns:
-            dict: The dictionary with all
-                the comments and the default options.
-        """
-        defaults = self._default_options()
-
-        header = ruamel.yaml.comments.CommentedMap()
-        header.yaml_add_eol_comment(
-            self._main_comment(), self._id()
-        )
-
-        content = ruamel.yaml.comments.CommentedMap()
-        header[self._id()] = content
-
-        for key in list(self._option_comments().keys()):
-            header.yaml_add_eol_comment(
-                self._option_comments()[key], key
-            )
-
-            header[self._id()][key] = defaults[key]
-
-        return header
-
-    def __build_leveled_dictionaries(self):
-        """
-        Parses the dictionary out to 3 different dictionaries. Each being
-        a level of potential user requests.
-
-        Returns:
-            list[dict]: The 3 dictionaries
-                that hold the data that
-        """
-        levels = self._option_levels()
-
-        required = copy.deepcopy(self.__processed)
-        optional = copy.deepcopy(self.__processed)
-        advanced = copy.deepcopy(self.__processed)
-
-        for key in list(levels.keys()):
-            if levels[key] == self._required:
-                pass
-            elif levels[key] == self._optional:
-                required[self._id()].pop(key)
-            elif levels[key] == self._advanced:
-                required[self._id()].pop(key)
-                optional[self._id()].pop(key)
-
-        return [required, optional, advanced]
 
     @staticmethod
     def _build_function(imports, function):
-        """
-
-        Args:
-            imports:
-            function:
-
-        Returns:
-
-        """
         return {"function": function, "imports": set(imports)}
 
     def request_options(self, level):
-        """
-
-        Args:
-            level:
-
-        Returns:
-
-        """
         return {
-            "required": self.__req_func,
-            "optional": self.__opt_func,
-            "advanced": self.__adv_func,
+            "required": self.__processed_options.required,
+            "optional": self.__processed_options.optional,
+            "advanced": self.__processed_options.advanced,
             "template": self._option_types()
         }[level]
 
     def request_metadata(self, data):
-        """
-
-        Args:
-            data:
-
-        Returns:
-
-        """
         raise NotImplementedError
 
 
 class PluginsOptionsTemplate(_CoreOptionsParsing):
 
     def __init__(self):
-        """
+        processed_options = tools.ProcessOptions(
+            self._plugin_name(), self._module_comment(),
+            self._option_comments(), self._option_types(),
+            self._default_options(), self._option_levels()
+        )
 
-        """
-        super(PluginsOptionsTemplate, self).__init__()
-
-    def _id(self):
-        """
-
-        Returns:
-
-        """
-        return self._plugin_name()
+        super(PluginsOptionsTemplate, self).__init__(processed_options)
 
     def _plugin_name(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _default_options(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _option_levels(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _option_types(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
-    def _main_comment(self):
-        """
-
-        Returns:
-
-        """
+    def _module_comment(self):
         raise NotImplementedError
 
     def _option_comments(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _plugin_interface(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _plugin_type(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _user_defined_function(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def request_metadata(self, data):
-        """
-
-        Args:
-            data (str):
-
-        Returns:
-
-        """
         return {
             "name": self._plugin_name(),
             "interface": self._plugin_interface(),
@@ -309,132 +128,54 @@ class MainOptionsTemplate(_CoreOptionsParsing):
     _gui_main = "main gui"
 
     def __init__(self):
-        """
+        processed_options = tools.ProcessOptions(
+            self._shell_id(), self._module_comment(),
+            self._option_comments(), self._option_types(),
+            self._default_options(), self._option_levels()
+        )
 
-        """
-        super(MainOptionsTemplate, self).__init__()
-
-    def _id(self):
-        """
-
-        Returns:
-
-        """
-        return self._shell_id()
+        super(MainOptionsTemplate, self).__init__(processed_options)
 
     def _shell_id(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _default_options(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _option_levels(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _option_types(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
-    def _main_comment(self):
-        """
-
-        Returns:
-
-        """
+    def _module_comment(self):
         raise NotImplementedError
 
     def _option_comments(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _main_type(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _user_defined_function(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _interface_object(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _requires_data_parser(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _requires_kernel_processing(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _requires_minimization(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def _requires_data_reader(self):
-        """
-
-        Returns:
-
-        """
         raise NotImplementedError
 
     def request_metadata(self, data):
-        """
-
-        Args:
-            data (str):
-
-        Returns:
-
-        """
         return {
             "id": self._shell_id(),
             "ui": self._main_type(),
@@ -443,14 +184,6 @@ class MainOptionsTemplate(_CoreOptionsParsing):
         }[data]
 
     def requires(self, the_type):
-        """
-
-        Args:
-            the_type:
-
-        Returns:
-
-        """
         return {
             self._data_parser: self._requires_data_parser(),
             self._data_reader: self._requires_data_reader(),

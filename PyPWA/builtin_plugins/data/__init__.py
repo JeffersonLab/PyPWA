@@ -86,7 +86,7 @@ class DataParser(option_templates.PluginsOptionsTemplate):
             "user plugin": str
         }
 
-    def _main_comment(self):
+    def _module_comment(self):
         return "This is the builtin data parser, you can replace " \
                "this with your own data parser if you wish."
 
@@ -146,7 +146,7 @@ class DataIterator(option_templates.PluginsOptionsTemplate):
             "user plugin": str
         }
 
-    def _main_comment(self):
+    def _module_comment(self):
         return "This is the builtin data parser, you can replace " \
                "this with your own data parser if you wish."
 

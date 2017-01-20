@@ -18,6 +18,56 @@ import hashlib
 import io
 import logging
 import os
+import ruamel.yaml.comments
+import typing
+
+
+class ProcessOptions(object):
+
+    _module_name = ... # type: str
+    _module_comment = ...  # type: str
+    _option_comments = ...  # type: typing.Dict
+    _option_types = ...     # type: typing.Dict
+    _option_defaults = ...  # type: typing.Dict
+    _option_difficulties = ... # type: typing.Dict
+
+    _built_options = ... # type: ruamel.yaml.comments.CommentedMap
+    _required = ... # type: ruamel.yaml.comments.CommentedMap
+    _optional = ... # type: ruamel.yaml.comments.CommentedMap
+    _advanced = ... # type: ruamel.yaml.comments.CommentedMap
+
+    def __init__(
+            self, module: str, module_comment: str,
+            options_comment: typing.Dict, option_types: typing.Dict,
+            option_defaults: typing.Dict, option_difficulty: typing.Dict
+    ): ...
+
+    def _set_header_into_built_options(self): ...
+
+    def _set_content_into_built_options(self): ...
+
+    def _add_options_defaults(
+            self, content: ruamel.yaml.comments.CommentedMap
+    ): ...
+
+    def _add_option_comments(
+            self, content: ruamel.yaml.comments.CommentedMap
+    ) -> ruamel.yaml.comments.CommentedMap: ...
+
+    def _set_difficulties(self): ...
+
+    def _make_separate_difficulties(self): ...
+
+    def _process_separate_difficulties(self): ...
+
+    @property
+    def required(self): ...
+
+    @property
+    def optional(self): ...
+
+    @property
+    def advanced(self): ...
 
 class DataLocation(object):
 
