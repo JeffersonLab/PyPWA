@@ -145,10 +145,15 @@ class MetadataStorage(object):
 
     def _plugin_name_search(self, plugin_name, plugin_type):
         for plugin in self._actual_storage[plugin_type]:
-            if plugin["name"] == plugin_name:
+            name = self._get_plugin_name(plugin)
+            if name == plugin_name:
                 return plugin
         else:
             self._cant_find_plugin(plugin_name)
+
+    def _get_plugin_name(self, plugin):
+        loaded_plugin = self._get_initialized_plugin(plugin)
+        return loaded_plugin.request_metadata("name")
 
     def _cant_find_plugin(self, plugin_name):
         error = "Failed to find plugin {0}".format(plugin_name)
