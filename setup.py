@@ -18,7 +18,7 @@ from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
 __license__ = "GPLv3"
-__version__ = "2.0.0-rc2"
+__version__ = "2.0.0-rc5"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "development"
@@ -48,6 +48,7 @@ setup(
     install_requires=[
         "typing",       # Support for function typing
         "iminuit<2.0",  # Default minimizer
+        "nestle",       # New more advanced minimizer
         "numpy<2.0",    # Arrays and optimizations
         "ruamel.yaml",  # Advanced YAML Parser
         "tabulate",     # Great aesthetic tables
