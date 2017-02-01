@@ -98,11 +98,9 @@ class MetadataStorage(object):
         for plugin in plugins:
             loaded_plugin = self._get_initialized_plugin(plugin)
 
-            if self._should_skip(loaded_plugin):
-                continue
-
-            self._add_type(plugin)
-            self._plugin_filter(plugin, loaded_plugin)
+            if not self._should_skip(loaded_plugin):
+                self._add_type(loaded_plugin)
+                self._plugin_filter(plugin, loaded_plugin)
 
     def _get_initialized_plugin(self, plugin):
         try:
@@ -164,3 +162,5 @@ class MetadataStorage(object):
         if self._plugin_type_included(plugin_type):
             return self._actual_storage[plugin_type]
 
+    def return_plugin_types(self):
+        return self._actual_storage.keys()
