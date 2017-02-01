@@ -3,11 +3,8 @@ import PyPWA.builtin_plugins
 from PyPWA.core import plugin_loader
 from PyPWA.core.configurator import _storage
 from PyPWA.core.templates import option_templates
-
-
-def test_PluginStorage_RenderTemplate_IsDict():
-    storage = _storage.PluginStorage()
-    assert isinstance(storage.templates_config, dict)
+from PyPWA.builtin_plugins import data
+from PyPWA.shell import fitting
 
 
 @pytest.fixture
@@ -21,6 +18,7 @@ def setup_metadata_storage():
     metadata_storage = _storage.MetadataStorage()
     metadata_storage.add_plugins(plugin_list)
     return metadata_storage
+
 
 @pytest.fixture()
 def return_count(setup_metadata_storage):
@@ -60,3 +58,31 @@ def test_metadata_return_plugin_names(setup_metadata_storage):
 
     for plugin_type in plugin_types:
         assert plugin_type in setup_metadata_storage.return_plugin_types()
+
+
+@pytest.fixture
+def setup_module_templates():
+    return _storage.ModuleTemplates()
+
+
+def test_templates_is_dict(setup_module_templates):
+    assert isinstance(setup_module_templates.templates, dict)
+
+
+def test_builtin_parser_in_templates(setup_module_templates):
+    assert "Builtin Parser" in setup_module_templates.templates.keys()
+
+
+@pytest.fixture()
+def setup_module_picking():
+    return _storage.ModulePicking()
+
+
+def test_can_extract_builtin_parser(setup_module_picking):
+    plugin = setup_module_picking.request_plugin_by_name("Builtin Parser")
+    assert isinstance(plugin, data.DataParser)
+
+
+def test_can_extract_pyfit(setup_module_picking):
+    main = setup_module_picking.request_main_by_id("shell fitting method")
+    assert isinstance(main, fitting.ShellFitting)

@@ -31,57 +31,129 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class PluginStorage(object):
+class ModuleStorage(object):
 
-    def __init__(self, extra_locations=None):
-        plugins = [PyPWA.builtin_plugins, PyPWA.shell]
+    _plugin_locations = [PyPWA.builtin_plugins, PyPWA.shell]
+    _plugins = None  # type: list
+    _shell = None  # type: list
 
-        if isinstance(extra_locations, str):
-            plugins.append(extra_locations)
-        elif isinstance(extra_locations, list):
-            for plugin in extra_locations:
-                plugins.append(plugin)
+    def __init__(self, extra_locations=False):
+        if extra_locations:
+            self._process_extra_functions(extra_locations)
+        self._set_plugins()
+        self._set_shell()
 
-        options_loader = plugin_loader.PluginLoading(
+    def _process_extra_functions(self, locations):
+        if isinstance(locations, str):
+            self._plugin_locations.append(locations)
+        elif isinstance(locations, type(PyPWA)):
+            self._plugin_locations.append(locations)
+        elif isinstance(locations, list):
+            for location in locations:
+                self._process_extra_functions(location)
+
+    def _set_plugins(self):
+        option_loader = plugin_loader.PluginLoading(
             option_templates.PluginsOptionsTemplate
         )
 
+        self._plugins = option_loader.fetch_plugin(self._plugin_locations)
+
+    def _set_shell(self):
         shell_loader = plugin_loader.PluginLoading(
             option_templates.MainOptionsTemplate
         )
 
-        self._plugins = options_loader.fetch_plugin(plugins)
-        self._shell = shell_loader.fetch_plugin(plugins)
-
-        templates = {}
-        for plugin in self._plugins:
-            the_plugin = plugin()
-            templates[the_plugin.request_metadata("name")] = \
-                the_plugin.request_options("template")
-
-        for main in self._shell:
-            the_main = main()
-            templates[the_main.request_metadata("id")] = \
-                the_main.request_options("template")
-
-        self._templates = templates
-
-    def request_main_by_id(self, the_id):
-        for main in self._shell:
-            the_main = main()
-            if the_main.request_metadata("id") == the_id:
-                return the_main
-        return False
-
-    def request_plugin_by_name(self, name):
-        for plugin in self._plugins:
-            the_plugin = plugin()
-            if the_plugin.request_metadata("name") == name:
-                return the_plugin
-        return False
+        self._shell = shell_loader.fetch_plugin(self._plugin_locations)
 
     @property
-    def templates_config(self):
+    def shell_modules(self):
+        return self._shell
+
+    @property
+    def option_modules(self):
+        return self._plugins
+
+
+class ModulePicking(object):
+
+    _logger = logging.getLogger(__name__)
+    _plugin_storage = None  # type: ModuleStorage
+
+    def __init__(self, extra_locations=None):
+        self._logger.addHandler(logging.NullHandler())
+        self._plugin_storage = ModuleStorage(extra_locations)
+
+    def request_main_by_id(self, the_id):
+        for main in self._plugin_storage.shell_modules:
+            the_main = self._safely_load_module(main)
+            if not isinstance(the_main, type(None)):
+                if the_main.request_metadata("id") == the_id:
+                    return the_main
+
+    def request_plugin_by_name(self, name):
+        for plugin in self._plugin_storage.option_modules:
+            the_plugin = self._safely_load_module(plugin)
+            if not isinstance(the_plugin, type(None)):
+                if the_plugin.request_metadata("name") == name:
+                    return the_plugin
+
+    def _safely_load_module(self, module):
+        try:
+            return module()
+        except Exception as Error:
+            self._log_error(Error)
+
+    def _log_error(self, error):
+        self._logger.error("Failed to load module!")
+        self._logger.exception(error)
+
+
+class ModuleTemplates(object):
+
+    _logger = logging.getLogger(__name__)
+    _plugin_storage = None  # type: ModuleStorage
+    _templates = None  # type: dict
+
+    def __init__(self, extra_locations=False):
+        self._plugin_storage = ModuleStorage(extra_locations)
+        self._logger.addHandler(logging.NullHandler())
+        self._templates = {}
+        self._process_options()
+        self._process_main()
+
+    def _process_options(self):
+        for plugin in self._plugin_storage.option_modules:
+            loaded = self._safely_load_module(plugin)
+            if not isinstance(loaded, type(None)):
+                self._add_option_module(loaded)
+
+    def _process_main(self):
+        for main in self._plugin_storage.shell_modules:
+            loaded = self._safely_load_module(main)
+            if not isinstance(loaded, type(None)):
+                self._add_main_module(loaded)
+
+    def _safely_load_module(self, module):
+        try:
+            return module()
+        except Exception as Error:
+            self._log_error(Error)
+
+    def _log_error(self, error):
+        self._logger.warning("Failed to load plugin!")
+        self._logger.exception(error)
+
+    def _add_option_module(self, module):
+        self._templates[module.request_metadata("name")] = \
+            module.request_options("template")
+
+    def _add_main_module(self, module):
+        self._templates[module.request_metadata("id")] = \
+            module.request_options("template")
+
+    @property
+    def templates(self):
         return self._templates
 
 
