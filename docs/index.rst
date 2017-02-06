@@ -8,12 +8,9 @@ It supports the Un/Extended Un/Binned likelihood maximum estimation, Acceptance 
 The main documentation for `PyPWA`_ is organized into the sections:
 
 * :ref:`getting-started`
-* :ref:`pyfit`
-* :ref:`isobar`
 
 Developer documentation is stored under:
-
-* :ref:`dev-doc`
+not-here
 
 
 .. _getting-started:
@@ -21,7 +18,5 @@ Developer documentation is stored under:
     :maxdepth: 2
     :caption: Getting Started
     
-    installation
-    features
-    yaml-config
+    general-fitting
     
