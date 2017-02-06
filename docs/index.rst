@@ -19,4 +19,6 @@ not-here
     :caption: Getting Started
     
     general-fitting
+    isobar-fitting-tutorial
+    isobar-simulation-tutorial
     
