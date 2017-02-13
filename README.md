@@ -66,12 +66,12 @@ Support
 
 If you have any issues, or would like to see any features added to the project, let us know!
 
--- Mail List: 
--- IRC:
--- Pager:
--- Phone:
--- IM:
--- Pidgeon Carrier:
+- Mail List: 
+- IRC:
+- Pager:
+- Phone:
+- IM:
+- Pidgeon Carrier:
 
 License
 -------
