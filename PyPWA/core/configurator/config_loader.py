@@ -37,8 +37,10 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
+# There is way too much going on here at best.
 
-class ConfigParser(object):
+
+class ConfigurationLoader(object):
 
     def __init__(self):
         self._logger = logging.getLogger(__name__)
@@ -63,14 +65,14 @@ class ConfigParser(object):
         raise SyntaxError(str(user_error))
 
 
-class SimpleConfigBuilder(object):
+class ConfigurationBuilder(object):  # help, I am not simple
     _logger = logging.getLogger(__name__)
     _input_manager = _input.SimpleInputObject()
     _settings = ruamel.yaml.comments.CommentedMap()
 
     _plugin_handler = None  # type:
 
-    _storage = None  # type: _storage.MetadataStorage
+    _storage = None  # type: _storage.MetadataStorage()
     _plugin_directory = None  # type: str
     _save_location = None  # type: str
     _level = None  # type: str
@@ -177,53 +179,6 @@ class SimpleConfigBuilder(object):
             )
 
 
-class PluginList(object):
-
-    _logger = logging.getLogger(__name__)
-    _input_manager = _input.SimpleInputObject()
-    _ask_for_plugin = _AskForSpecificPlugin()
-
-    _storage = None  # type: _storage.MetadataStorage()
-    _plugin_types = None  # type: [str]
-
-    def __init__(self, storage):
-        self._logger.addHandler(logging.NullHandler())
-        self._storage = storage
-        self._set_plugin_types()
-
-    def _set_plugin_types(self):
-        plugin_type_handler = _plugin_types.PluginTypes()
-        self._plugin_types = plugin_type_handler.internal_types()
-
-    def parse_plugins(self, main_plugin):
-        plugins = []
-
-        for plugin_type in self._plugin_types:
-            if main_plugin.requires(plugin_type):
-                plugins.append(self._process_plugins(plugin_type))
-
-        return plugins
-
-    def _process_plugins(self, plugin_type):
-        plugin_list = self._storage.request_plugin_by_type(plugin_type)
-        if self._only_one_plugin(plugin_list):
-            return plugin_list[0]()
-        else:
-            name = self._ask_for_plugin.get_specific_plugin(
-                plugin_list, plugin_type
-            )
-
-            empty_plugin = self._storage.search_plugin(name, plugin_type)
-            return empty_plugin()
-
-    @staticmethod
-    def _only_one_plugin(plugin_list):
-        if len(plugin_list) == 1:
-            return True
-        else:
-            return False
-
-
 class _AskForSpecificPlugin(object):
 
     _names = None  # type: []
@@ -277,3 +232,49 @@ class _AskForSpecificPlugin(object):
             self._question_string, possible_answers=self._names
         )
         return the_answer
+
+
+class PluginList(object):
+
+    _logger = logging.getLogger(__name__)
+    _ask_for_plugin = _AskForSpecificPlugin()
+
+    _storage = None  # type: _storage.MetadataStorage()
+    _plugin_types = None  # type: [str]
+
+    def __init__(self, storage):
+        self._logger.addHandler(logging.NullHandler())
+        self._storage = storage
+        self._set_plugin_types()
+
+    def _set_plugin_types(self):
+        plugin_type_handler = _plugin_types.PluginTypes()
+        self._plugin_types = plugin_type_handler.internal_types()
+
+    def parse_plugins(self, main_plugin):
+        plugins = []
+
+        for plugin_type in self._plugin_types:
+            if main_plugin.requires(plugin_type):
+                plugins.append(self._process_plugins(plugin_type))
+
+        return plugins
+
+    def _process_plugins(self, plugin_type):
+        plugin_list = self._storage.request_plugin_by_type(plugin_type)
+        if self._only_one_plugin(plugin_list):
+            return plugin_list[0]()
+        else:
+            name = self._ask_for_plugin.get_specific_plugin(
+                plugin_list, plugin_type
+            )
+
+            empty_plugin = self._storage.search_plugin(name, plugin_type)
+            return empty_plugin()
+
+    @staticmethod
+    def _only_one_plugin(plugin_list):
+        if len(plugin_list) == 1:
+            return True
+        else:
+            return False

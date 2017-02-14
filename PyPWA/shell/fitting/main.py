@@ -192,7 +192,7 @@ class Fitting(plugin_templates.ShellMain):
         Returns:
 
         """
-        loader = plugin_loader.SingleFunctionLoader(
+        loader = plugin_loader.PythonSheetLoader(
             self._functions_location
         )
 

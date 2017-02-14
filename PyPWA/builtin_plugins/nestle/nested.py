@@ -89,7 +89,7 @@ class NestledSampling(plugin_templates.MinimizerTemplate):
         self._start_sampling()
 
     def _load_prior(self):
-        loader = plugin_loader.SingleFunctionLoader(
+        loader = plugin_loader.PythonSheetLoader(
             self._prior_location
         )
         self._loaded_function = loader.fetch_function(

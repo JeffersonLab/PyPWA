@@ -51,7 +51,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
-        self._config_parser = config_loader.ConfigParser()
+        self._config_parser = config_loader.ConfigurationLoader()
         self._settings_aid = _tools.SettingsAid()
 
     def make_config(self, function_settings, application_settings):
@@ -96,7 +96,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
                 )
             )
 
-        config_maker = config_loader.SimpleConfigBuilder()
+        config_maker = config_loader.ConfigurationBuilder()
 
         config_maker.build_configuration(
             plugin_name, main_plugin, settings,
@@ -137,7 +137,7 @@ class Configurator(configurator_templates.ShellCoreTemplate):
         except KeyError:
             pass
 
-        storage = _storage.PluginStorage(extra_plugins)
+        storage = _storage.ModulePicking(extra_plugins)
         plugins_template = storage.templates_config
 
         complete_templates = \
