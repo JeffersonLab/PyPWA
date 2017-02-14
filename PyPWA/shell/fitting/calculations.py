@@ -31,7 +31,7 @@ except ImportError:
 
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
+from tools.interfaces import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

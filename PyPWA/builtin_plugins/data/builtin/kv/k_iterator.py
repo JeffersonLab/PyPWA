@@ -39,8 +39,8 @@ import logging
 import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
 from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
+from tools.interfaces import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

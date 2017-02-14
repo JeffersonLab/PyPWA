@@ -16,7 +16,8 @@
 
 import numpy
 import typing
-from PyPWA.core.templates import interface_templates
+
+from tools.interfaces import interface_templates
 
 
 class TemplateDataPlugin(object):

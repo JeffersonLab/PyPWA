@@ -30,8 +30,8 @@ from PyPWA.core import plugin_loader
 from PyPWA.core.configurator import _storage
 from PyPWA.core.configurator import _tools
 from PyPWA.core.configurator import config_loader
-from PyPWA.core.templates import configurator_templates
 from PyPWA.core.templates import option_templates
+from tools.interfaces import configurator_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

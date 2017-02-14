@@ -19,7 +19,7 @@ import logging
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.core.templates import plugin_templates
+from tools.interfaces import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

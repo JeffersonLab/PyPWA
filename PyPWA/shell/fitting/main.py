@@ -22,10 +22,11 @@ import logging
 import os
 
 import numpy
+
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core import plugin_loader
-from PyPWA.core.templates import plugin_templates
 from PyPWA.shell.fitting import calculations
+from tools.interfaces import plugin_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

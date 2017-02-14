@@ -26,11 +26,12 @@ import logging
 import multiprocessing
 
 import numpy
+
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
-from PyPWA.core.templates import plugin_templates
 from PyPWA.builtin_plugins.process import _communication
 from PyPWA.builtin_plugins.process import _processing
+from PyPWA.core.templates import plugin_templates
+from tools.interfaces import interface_templates
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
