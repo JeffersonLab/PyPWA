@@ -1,5 +1,6 @@
 import os
 
+import example_python_sheet
 import pytest
 
 from PyPWA import builtin_plugins
@@ -14,6 +15,7 @@ EXAMPLE_SHEET = os.path.join(
 DOES_NOT_EXIST = os.path.join(
     os.path.dirname(__file__), "awfulness.py"
 )
+
 
 @pytest.fixture(scope="module")
 def plugin_loader_with_plugins():
@@ -41,6 +43,13 @@ def test_minuit_is_found(plugin_loader_with_plugins):
 
 def test_nestle_is_found(plugin_loader_with_plugins):
     assert nestle.NestleOptions in plugin_loader_with_plugins
+
+
+@pytest.mark.xfail(
+    reason="File isn't included in search path, no support for non modules",
+)
+def test_options_test_is_found(plugin_loader_with_plugins):
+    assert example_python_sheet.OptionsTest in plugin_loader_with_plugins
 
 
 @pytest.fixture(scope="module")
