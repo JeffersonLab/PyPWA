@@ -30,8 +30,6 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-# Behold, the only single function inside PyPWA, bask in its unusual glory
-
 
 def define_logger(level):
     logger = logging.getLogger()
