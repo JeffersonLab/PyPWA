@@ -14,10 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-
-"""
-
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -27,33 +23,3 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
-
-
-class ShellCoreTemplate(object):
-    """
-
-    """
-
-    def make_config(self, function_settings, application_data):
-        """
-
-        Args:
-            function_settings:
-            application_data:
-
-        Returns:
-
-        """
-        raise NotImplementedError
-
-    def run(self, function_settings, configuration_location):
-        """
-
-        Args:
-            function_settings:
-            configuration_location:
-
-        Returns:
-
-        """
-        raise NotImplementedError
