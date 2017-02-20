@@ -24,9 +24,9 @@ import os
 import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import plugin_loader
 from PyPWA.shell.fitting import calculations
-from tools.interfaces import plugin_templates
+from core.shared import plugin_loader
+from core.shared.interfaces import plugins
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -37,7 +37,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Fitting(plugin_templates.ShellMain):
+class Fitting(plugins.ShellMain):
 
     _logger = logging.getLogger(__name__)
     _data_parser = None

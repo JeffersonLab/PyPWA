@@ -24,11 +24,11 @@ import random
 import time
 
 import numpy
+from PyPWA.core.templates import plugin_templates
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import plugin_loader
-from PyPWA.core.templates import plugin_templates
-from tools.interfaces import interface_templates
+from core.shared import plugin_loader
+from core.shared.interfaces import internals
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -163,7 +163,7 @@ class Simulator(plugin_templates.ShellMain):
         self._rejection_list = rejection
 
 
-class IntensityInterface(interface_templates.AbstractInterface):
+class IntensityInterface(internals.AbstractInterface):
 
     is_duplex = False
 
@@ -197,7 +197,7 @@ class IntensityInterface(interface_templates.AbstractInterface):
         return [final_array, final_array.max()]
 
 
-class IntensityKernel(interface_templates.AbstractKernel):
+class IntensityKernel(internals.AbstractKernel):
 
     def __init__(self, setup_function, processing_function, parameters):
         """
