@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import enum
 import ruamel.yaml.comments
 import copy
@@ -27,6 +28,29 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+
+class CommandOptions(object):
+
+    __logger = logging.getLogger("CommandOptions" + __name__)
+
+    def __init__(self, options):
+        self.__logger.addHandler(logging.NullHandler())
+
+    def __set_variables(self, options):
+        for key in list(options.keys()):
+            name = self.__find_variable_name(key)
+            setattr(self, name, options[key])
+
+    def __find_variable_name(self, key):
+        underscored_name = key.replace(" ", "_")
+        lowercase_name = underscored_name.lower()
+        filtered_name = re.sub(r'[^a-z0-9]', '', lowercase_name)
+        self.__logger.debug("Converted {0} to {1}".format(key, filtered_name))
+        return filtered_name
+
+    def __setattr__(self, *args):
+        raise ValueError("Object attributes are read only!")
 
 
 class PluginTypes(enum.Enum):
