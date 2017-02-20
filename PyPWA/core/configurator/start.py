@@ -26,7 +26,7 @@ import logging
 import sys
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import initial_logging
+from core.shared import initial_logging
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

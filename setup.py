@@ -14,6 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from setuptools import setup, find_packages
 
 __author__ = "Mark Jones"
@@ -22,6 +23,22 @@ __version__ = "2.0.0-rc5"
 __maintainer__ = "Mark Jones"
 __email__ = "maj@jlab.org"
 __status__ = "development"
+
+
+requires = [
+        "iminuit<2.0",  # Default minimizer
+        "nestle",       # New more advanced minimizer
+        "numpy<2.0",    # Arrays and optimizations
+        "ruamel.yaml",  # Advanced YAML Parser
+        "tabulate",     # Great aesthetic tables
+        "appdirs",      # Attempts to find data locations
+        "fuzzywuzzy",   # Fuzzes the user input
+        "python-Levenshtein"
+    ]
+
+if sys.version_info.major == 3:
+    requires.append("enum34")
+    requires.append("typing")
 
 
 setup(
@@ -36,26 +53,16 @@ setup(
     test_suite="tests",
     entry_points={
         "console_scripts": [
-            "PyFit = PyPWA.entries.shell:general_fitting",
-            "LikelihoodFit = PyPWA.entries.shell:likelihood_fitting",
-            "ChiSquaredFit = PyPWA.entries.shell:chi_squared",
-            "PySimulate = PyPWA.entries.shell:simulator",
-            "GenerateIntensities = PyPWA.entries.shell:intensities",
-            "GenerateWeights = PyPWA.entries.shell:rejection_method"
+            "PyFit = PyPWA.entries.shell:py_fit",
+            "LikelihoodFit = PyPWA.entries.shell:likelihood_fit",
+            "ChiSquaredFit = PyPWA.entries.shell:chi_squared_fit",
+            "PySimulate = PyPWA.entries.shell:py_simulate",
+            "GenerateIntensities = PyPWA.entries.shell:generate_intensities",
+            "GenerateWeights = PyPWA.entries.shell:generate_weights"
         ]
     },
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
-    install_requires=[
-        "typing",       # Support for function typing
-        "iminuit<2.0",  # Default minimizer
-        "nestle",       # New more advanced minimizer
-        "numpy<2.0",    # Arrays and optimizations
-        "ruamel.yaml",  # Advanced YAML Parser
-        "tabulate",     # Great aesthetic tables
-        "appdirs",      # Attempts to find data locations
-        "fuzzywuzzy",   # Fuzzes the user input
-        "python-Levenshtein"
-    ],
+    install_requires=requires,
     extras_require={
         'multinest': ["pymultinest"]
     },

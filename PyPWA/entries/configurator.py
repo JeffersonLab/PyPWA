@@ -19,8 +19,7 @@ Entry point for console PyShell
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.configurator import configurator
-from PyPWA.core.wrappers import StartProgram
+from PyPWA.core.configurator.start import StartProgram
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -30,13 +29,10 @@ __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
 
-initializer = StartProgram(configurator.Configurator)
+initializer = StartProgram()
 
 
-def general_fitting():
-    """
-
-    """
+def py_fit():
     description = u"A fitting shell that allows the User " \
                   u"to select their own likelihood and function."
     configuration = {
@@ -48,7 +44,7 @@ def general_fitting():
     initializer.start(configuration)
 
 
-def likelihood_fitting():
+def likelihood_fit():
     """
 
     """
@@ -64,10 +60,7 @@ def likelihood_fitting():
     initializer.start(configuration)
 
 
-def chi_squared():
-    """
-
-    """
+def chi_squared_fit():
     description = u"Amplitude Fitting using the ChiSquared Method."
     configuration = {
         "description": description,
@@ -83,10 +76,7 @@ def chi_squared():
     initializer.start(configuration)
 
 
-def simulator():
-    """
-
-    """
+def py_simulate():
     description = u"Simulation using the the Acceptance Reject Method."
     configuration = {
         "description": description,
@@ -101,10 +91,7 @@ def simulator():
     initializer.start(configuration)
 
 
-def intensities():
-    """
-
-    """
+def generate_intensities():
     description = u"Generates the Intensities for Rejection Method."
     configuration = {
         "description": description,
@@ -119,10 +106,7 @@ def intensities():
     initializer.start(configuration)
 
 
-def rejection_method():
-    """
-
-    """
+def generate_weights():
     description = u"Takes generated intensities to run through the " \
                   u"Rejection Method."
     configuration = {
