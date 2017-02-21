@@ -26,7 +26,8 @@ import logging
 import sys
 
 from PyPWA import VERSION, LICENSE, STATUS
-from core.shared import initial_logging
+from PyPWA.core.shared import initial_logging
+from PyPWA.core.configurator import configurator
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -37,91 +38,46 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class StartProgram(object):
-    def __init__(self, builder, *args):
-        """
-        This is the wrapping object for the entry points, it takes the
-        object as a input, parses it, and sends the result to the builder
-        along with any arguments received for the builder.
+class _Arguments(object):
 
-        Args:
-            builder (PyPWA.configurator.Configurator): The object that
-                will build the main from the plugins and execute it to
-                begin the actual processing.
-            *args: The arguments received from the wrapper.
-        """
-        self.builder = builder(*args)
+    __parser = None  # type: argparse.ArgumentParser()
+    __arguments = None  # type: argparse.Namespace()
 
-    def start(self, configuration):
-        """
-        The method that will be passed the function when the function is
-        called.
+    def parse_arguments(self, description):
+        self.__set_arguments(description)
+        self.__parse_arguments()
+        self.__quit_if_no_args()
 
-        Args:
-            configuration (dict): The configuration that should be passed
-                to the builder.
+    def __set_arguments(self, description):
+        self.__set_parser(description)
+        self.__add_configurator_argument()
+        self.__add_verbose_argument()
+        self.__add_version_argument()
+        self.__add_write_config_argument()
 
-        Returns:
-            The final value of the wrapped function.
-        """
+    def __set_parser(self, description):
+        self.__parser = argparse.ArgumentParser(description=description)
 
-        if configuration["extras"]:
-            print(
-                "[INFO] Caught something unaccounted for, "
-                "this should be reported, caught: "
-                "{}".format(configuration["extras"][0])
-            )
-
-        arguments = self.parse_arguments(
-            configuration["description"]
-        )
-
-        if arguments.verbose:
-            self._return_logging_level(arguments.verbose)
-        else:
-            self._return_logging_level()
-
-        if arguments.WriteConfig:
-            self.write_config(configuration, arguments)
-            sys.exit()
-
-        sys.stdout.write("\x1b[2J\x1b[H")
-        sys.stdout.write(self._opening_art())
-
-        self.builder.run(
-            configuration, arguments.configuration
-        )
-
-    @staticmethod
-    def parse_arguments(description):
-        """
-        Parses the standard arguments for the PyPWA program.
-
-        Args:
-            description (str): Description for the .
-
-        Returns:
-            The parsed arguments.
-        """
-        parser = argparse.ArgumentParser(
-            description=description
-        )
-
-        parser.add_argument(
+    def __add_configurator_argument(self):
+        self.__parser.add_argument(
             "configuration", type=str, default="", nargs="?"
         )
-        parser.add_argument(
+
+    def __add_write_config_argument(self):
+        self.__parser.add_argument(
             "--WriteConfig", "-wc", action="store_true",
             help="Write an example configuration to the current working "
                  "directory"
         )
 
-        parser.add_argument(
+    def __add_version_argument(self):
+        self.__parser.add_argument(
             "--Version", "-V", action="version",
             version="%(prog)s (version " + __version__ + ")"
         )
 
-        parser.add_argument(
+    def __add_verbose_argument(self):
+        self.__parser.add_argument(
             "--verbose", "-v", action="count",
             help="Adds logging, defaults to errors, then setups up on "
                  "from there. -v will include warning, -vv will show "
@@ -129,44 +85,62 @@ class StartProgram(object):
                  "debugging."
         )
 
-        arguments = parser.parse_args()
+    def __parse_arguments(self):
+        self.__arguments = self.__parser.parse_args()
 
-        if not arguments.WriteConfig and arguments.configuration == "":
-            parser.print_help()
+    def __quit_if_no_args(self):
+        if not self.write_config and self.configuration_location == "":
+            self.__parser.print_help()
             sys.exit()
 
-        return arguments
+    @property
+    def write_config(self):
+        return self.__arguments.WriteConfig
+
+    @property
+    def configuration_location(self):
+        return self.__arguments.configuration_location
+
+    @property
+    def verbose(self):
+        return self.__arguments.verbose
+
+
+class StartProgram(object):
+
+    __configuration = None  # type: dict
+
+    __builder = configurator.Configurator()
+    __arguments = _Arguments()
+
+    def start(self, configuration):
+        self.__set_configuration(configuration)
+        self.__process_extras()
+        self.__load_arguments()
+        self.__begin_output()
+        self.__set_logging_level()
+        self.__process_arguments()
+
+    def __set_configuration(self, configuration):
+        self.__configuration = configuration
+
+    def __process_extras(self):
+        if self.__configuration["extras"]:
+            print(
+                "[INFO] Caught something unaccounted for, "
+                "this should be reported, caught: "
+                "{}".format(self.__configuration["extras"][0])
+            )
+
+    def __load_arguments(self):
+        self.__arguments.parse_arguments(self.__configuration["description"])
+
+    def __begin_output(self):
+        sys.stdout.write("\x1b[2J\x1b[H")  # Clears the screen
+        sys.stdout.write(self.__opening_art())
 
     @staticmethod
-    def _return_logging_level(count=1):
-        """
-        Sets the logging level for the program.
-
-        Args:
-            count (int): The count of the logging counter.
-        """
-        if count == 1:
-            initial_logging.define_logger(logging.WARNING)
-        elif count == 2:
-            initial_logging.define_logger(logging.INFO)
-        elif count >= 3:
-            initial_logging.define_logger(logging.DEBUG)
-        else:
-            initial_logging.define_logger(logging.ERROR)
-
-    def write_config(self, function_settings, arguments):
-        """
-        Writes the configuration files for the program.
-
-        Args:
-            function_settings (dict):
-            arguments: The settings received from the
-                start function.
-        """
-        self.builder.make_config(function_settings, arguments)
-
-    @staticmethod
-    def _opening_art():
+    def __opening_art():
         return """\
 #########          ######### ##                ##  ###
 ##      ##         ##      ## ##              ##  ## ##
@@ -190,4 +164,32 @@ Credit:
     Will Phelps: wphelps@jlab.org
     Joshua Pond
 """
+
+    def __set_logging_level(self):
+        if self.__arguments.verbose == 1:
+            initial_logging.define_logger(logging.WARNING)
+        elif self.__arguments.verbose == 2:
+            initial_logging.define_logger(logging.INFO)
+        elif self.__arguments.verbose >= 3:
+            initial_logging.define_logger(logging.DEBUG)
+        else:
+            initial_logging.define_logger(logging.ERROR)
+
+    def __process_arguments(self):
+        if self.__arguments.configuration_location == "":
+            self.__run_builder()
+        else:
+            self.__write_config()
+
+    def __run_builder(self):
+        self.__builder.run(
+            self.__configuration,
+            self.__arguments.configuration_location
+        )
+
+    def __write_config(self):
+        self.__builder.make_config(
+            self.__configuration,
+            self.__arguments.configuration_location
+        )
 
