@@ -174,7 +174,7 @@ class PluginStorage(object):
         for the_module in modules:
             self.__plugins.append(the_module)
 
-    def get_by_name(self, name, fail=False):
+    def get_by_name(self, name, fail=True):
         for plugin in self.__plugins:
             if hasattr(plugin, name):
                 return getattr(plugin, name)
