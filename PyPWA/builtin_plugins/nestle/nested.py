@@ -125,7 +125,7 @@ class NestledSampling(plugins.Minimizer):
         pass  # We are still learning how nestle works..
 
 
-class NestleSetup(options.ObjectPasser):
+class NestleSetup(options.Setup):
 
     __logger = logging.getLogger("NestleSetup." + __name__)
     __loader = _LoadPrior()
