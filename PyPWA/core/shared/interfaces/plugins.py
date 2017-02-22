@@ -73,8 +73,5 @@ class DataReaderTemplate(object):
 
 class ShellMain(object):
 
-    def __init__(self, options):
-        super(ShellMain, self).__init__(options)
-
     def start(self):
         raise NotImplementedError
