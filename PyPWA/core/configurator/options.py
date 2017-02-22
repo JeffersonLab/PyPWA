@@ -14,10 +14,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-import enum
-import ruamel.yaml.comments
 import copy
+import enum
+import logging
+import re
+
+import ruamel.yaml.comments
 
 from PyPWA import VERSION, LICENSE, STATUS
 
@@ -28,29 +30,6 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
-
-
-class CommandOptions(object):
-
-    __logger = logging.getLogger("CommandOptions" + __name__)
-
-    def __init__(self, options):
-        self.__logger.addHandler(logging.NullHandler())
-
-    def __set_variables(self, options):
-        for key in list(options.keys()):
-            name = self.__find_variable_name(key)
-            setattr(self, name, options[key])
-
-    def __find_variable_name(self, key):
-        underscored_name = key.replace(" ", "_")
-        lowercase_name = underscored_name.lower()
-        filtered_name = re.sub(r'[^a-z0-9]', '', lowercase_name)
-        self.__logger.debug("Converted {0} to {1}".format(key, filtered_name))
-        return filtered_name
-
-    def __setattr__(self, *args):
-        raise ValueError("Object attributes are read only!")
 
 
 class PluginTypes(enum.Enum):
@@ -66,115 +45,118 @@ class OptionLevels(enum.Enum):
     ADVANCED = 3
 
 
-class PluginsOptions(object):
-    plugin_name = NotImplemented
-    default_options = NotImplemented
-    option_levels = NotImplemented
-    option_types = NotImplemented
-    module_comment = NotImplemented
-    option_comments = NotImplemented
-    interface = NotImplemented
-    defined_function = NotImplemented
-    provides = NotImplemented
-
-
-class MainOptions(object):
-
-    name = ""
+class Options(object):
+    plugin_name = ""
     default_options = {}
-    option_levels = {}
+    option_difficulties = {}
     option_types = {}
     module_comment = ""
     option_comments = {}
-    user_defined_function = False
-    interface_object = None
-    requires_data_parser = False
-    requires_kernel_processing = False
-    requires_minimization = False
-    requires_data_reader = False
+    defined_function = None
+
+
+class PluginsOptions(Options):
+    setup = None  # type: PyPWA.core.shared.interface.plugins
+    provides = None  # type: PluginTypes
+
+
+class MainOptions(Options):
+    required_plugins = []  # type: [PluginTypes]
+
+
+class Setup(object):
+
+    def return_interface(self):
+        raise NotImplementedError
+
+
+class CommandOptions(object):
+
+    __logger = logging.getLogger("CommandOptions." + __name__)
+
+    def __init__(self, options):
+        self.__logger.addHandler(logging.NullHandler())
+        self.__set_variables(options)
+
+    def __set_variables(self, options):
+        for key in list(options.keys()):
+            name = self.__find_variable_name(key)
+            setattr(self, name, options[key])
+
+    def __find_variable_name(self, key):
+        underscored_name = key.replace(" ", "_")
+        lowercase_name = underscored_name.lower()
+        filtered_name = re.sub(r'[^a-z0-9_]', '', lowercase_name)
+        self.__logger.debug("Converted {0} to {1}".format(key, filtered_name))
+        return filtered_name
 
 
 class ProcessOptions(object):
 
-    _module_name = None
-    _module_comment = None
-    _option_comments = None
-    _option_types = None
-    _option_defaults = None
-    _option_difficulties = None
+    __options = None  # type: Options()
+    __built_options = None  # type: ruamel.yaml.comments.CommentedMap
+    __required = None  # type: dict
+    __optional = None  # type: dict
+    __advanced = None  # type: dict
 
-    _built_options = None
-    _required = None
-    _optional = None
-    _advanced = None
+    def __init__(self, option_object):
+        self.__options = option_object
+        self.__set_header_into_built_options()
+        self.__set_content_into_built_options()
+        self.__set_difficulties()
 
-    def __init__(
-            self, module, module_comment, options_comment,
-            option_types, option_defaults, option_difficulty
-    ):
-        self._module_name = module
-        self._module_comment = module_comment
-        self._option_comments = options_comment
-        self._option_types = option_types
-        self._option_defaults = option_defaults
-        self._option_difficulties = option_difficulty
-
-        self._set_header_into_built_options()
-        self._set_content_into_built_options()
-        self._set_difficulties()
-
-    def _set_header_into_built_options(self):
+    def __set_header_into_built_options(self):
         header = ruamel.yaml.comments.CommentedMap()
         header.yaml_add_eol_comment(
-            self._module_comment, self._module_name
+            self.__options.module_comment, self.__options.plugin_name
         )
-        self._built_options = header
+        self.__built_options = header
 
-    def _set_content_into_built_options(self):
+    def __set_content_into_built_options(self):
         content = ruamel.yaml.comments.CommentedMap()
-        populated_content = self._add_options_defaults(content)
-        commented_content = self._add_option_comments(populated_content)
-        self._built_options[self._module_name] = commented_content
+        populated_content = self.__add_options_defaults(content)
+        commented_content = self.__add_option_comments(populated_content)
+        self.__built_options[self.__options.plugin_name] = commented_content
 
-    def _add_options_defaults(self, content):
-        for option, value in self._option_defaults.items():
+    def __add_options_defaults(self, content):
+        for option, value in self.__options.options_defaults.items():
             content[option] = value
         return content
 
-    def _add_option_comments(self, content):
-        for option, comment in self._option_comments.items():
+    def __add_option_comments(self, content):
+        for option, comment in self.__options.option_comments.items():
             content.yaml_add_eol_comment(comment, option)
         return content
 
-    def _set_difficulties(self):
-        self._make_separate_difficulties()
-        self._process_separate_difficulties()
+    def __set_difficulties(self):
+        self.__make_separate_difficulties()
+        self.__process_separate_difficulties()
 
-    def _make_separate_difficulties(self):
-        required = copy.deepcopy(self._built_options)
-        optional = copy.deepcopy(self._built_options)
-        advanced = copy.deepcopy(self._built_options)
+    def __make_separate_difficulties(self):
+        required = copy.deepcopy(self.__built_options)
+        optional = copy.deepcopy(self.__built_options)
+        advanced = copy.deepcopy(self.__built_options)
 
-        self._required = required
-        self._optional = optional
-        self._advanced = advanced
+        self.__required = required
+        self.__optional = optional
+        self.__advanced = advanced
 
-    def _process_separate_difficulties(self):
-        for option, difficulty in self._option_difficulties.items():
+    def __process_separate_difficulties(self):
+        for option, difficulty in self.__options.options_difficulties.items():
             if difficulty == "optional":
-                self._required[self._module_name].pop(option)
+                self.__required[self.__options.plugin_name].pop(option)
             elif difficulty == "advanced":
-                self._required[self._module_name].pop(option)
-                self._optional[self._module_name].pop(option)
+                self.__required[self.__options.plugin_name].pop(option)
+                self.__optional[self.__options.plugin_name].pop(option)
 
     @property
     def required(self):
-        return self._required
+        return self.__required
 
     @property
     def optional(self):
-        return self._optional
+        return self.__optional
 
     @property
     def advanced(self):
-        return self._advanced
+        return self.__advanced
