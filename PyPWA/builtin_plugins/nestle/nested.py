@@ -17,11 +17,13 @@
 import logging
 
 import nestle
+import typing
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import plugin_loader
-from PyPWA.core.templates import plugin_templates
-from tools.interfaces import interface_templates
+from PyPWA.core.configurator import options
+from PyPWA.core.shared import plugin_loader
+from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared.interfaces import plugins
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -32,83 +34,88 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _NestleParserObject(interface_templates.MinimizerParserTemplate):
+class _LoadPrior(object):
+
+    __logger = logging.getLogger("_LoadPrior." + __name__)
+    __plugin_storage = plugin_loader.PluginStorage()
+    __found_prior = None  # type: typing.Any
+
+    def __init__(self):
+        self.__logger.addHandler(logging.NullHandler())
+
+    def load_prior(self, prior_location, prior_name):
+        self.__add_prior_location(prior_location)
+        self.__set_prior(prior_name)
+
+    def __add_prior_location(self, location):
+        self.__plugin_storage.add_plugin_location(location)
+
+    def __set_prior(self, name):
+        self.__found_prior = self.__plugin_storage.get_by_name(name)
+
+    @property
+    def prior(self):
+        return self.__found_prior
+
+
+class _NestleParserObject(internals.MinimizerOptionParser):
 
     def convert(self, *args):
         return args[0][0]
 
 
-class NestledSampling(plugin_templates.MinimizerTemplate):
+class NestledSampling(plugins.Minimizer):
 
-    _logger = logging.getLogger(__name__)
+    __logger = logging.getLogger(__name__)
 
-    _loaded_function = None  # type: typing.Any
-
-    _calc_function = None  # type: typing.Any
-    _prior_location = None  # type: str
-    _prior_name = None  # type: str
-    _ndim = None  # type: int
-    _npoints = None  # type: int
-    _method = None  # type: str
-    _update_interval = None  # type: int
-    _npdim = None  # type: int
-    _maxiter = None  # type: int
-    _maxcall = None  # type: int
-    _dlogz = None  # type: float
-    _decline_factor = None  # type: float
+    __calc_function = None  # type: typing.Any
+    __prior = None  # type: typing.Any
+    __npdim = None  # type: int
+    __ndim = None  # type: int
+    __npoints = None  # type: int
+    __method = None  # type: str
+    __update_interval = None  # type: int
+    __maxiter = None  # type: int
+    __maxcall = None  # type: int
+    __dlogz = None  # type: float
+    __decline_factor = None  # type: float
 
     def __init__(
-            self, calc_function=False, prior_location=None,
-            prior_name=None, ndim=None, npoints=None, method=None,
+            self, prior, ndim, npoints=100, method="single",
             update_interval=None, npdim=None, maxiter=None, maxcall=None,
-            dlogz=None, decline_factor=None, **options
+            dlogz=None, decline_factor=None
     ):
-        self._logger.addHandler(logging.NullHandler())
-
-        self._calc_function = calc_function
-        self._prior_location = prior_location
-        self._prior_name = prior_name
-        self._ndim = ndim
-        self._npoints = npoints
-        self._method = method
-        self._update_interval = update_interval
-        self._npdim = npdim
-        self._maxiter = maxiter
-        self._maxcall = maxcall
-        self._dlogz = dlogz
-        self._decline_factor = decline_factor
-
-        if options:
-            super(NestledSampling, self).__init__(options)
+        self.__logger.addHandler(logging.NullHandler())
+        self.__prior = prior
+        self.__ndim = ndim
+        self.__npoints = npoints
+        self.__method = method
+        self.__update_interval = update_interval
+        self.__npdim = npdim
+        self.__maxiter = maxiter
+        self.__maxcall = maxcall
+        self.__dlogz = dlogz
+        self.__decline_factor = decline_factor
 
     def main_options(self, calc_function, fitting_type=False):
-        self._calc_function = calc_function
+        self.__calc_function = calc_function
 
     def start(self):
-        self._load_prior()
         self._start_sampling()
-
-    def _load_prior(self):
-        loader = plugin_loader.PythonSheetLoader(
-            self._prior_location
-        )
-        self._loaded_function = loader.fetch_function(
-            self._prior_name, True
-        )
 
     def _start_sampling(self):
         nestle.sample(
-            loglikelihood=self._calc_function,
-            prior_transform=self._loaded_function,
-            ndim=self._ndim,
-            npoints=self._npoints,
-            method=self._method,
-            update_interval=self._update_interval,
-            npdim=self._npdim,
-            maxiter=self._maxiter,
-            maxcall=self._maxcall,
-            dlogz=self._dlogz,
-            decline_factor=self._decline_factor
+            loglikelihood=self.__calc_function,
+            prior_transform=self.__prior,
+            ndim=self.__ndim,
+            npoints=self.__npoints,
+            method=self.__method,
+            update_interval=self.__update_interval,
+            npdim=self.__npdim,
+            maxiter=self.__maxiter,
+            maxcall=self.__maxcall,
+            dlogz=self.__dlogz,
+            decline_factor=self.__decline_factor
         )
 
     def return_parser(self):
@@ -116,4 +123,36 @@ class NestledSampling(plugin_templates.MinimizerTemplate):
 
     def save_extra(self, save_name):
         pass  # We are still learning how nestle works..
+
+
+class NestleSetup(options.ObjectPasser):
+
+    __logger = logging.getLogger("NestleSetup." + __name__)
+    __loader = _LoadPrior()
+
+    __interface = None  # type: NestledSampling()
+    __options = None  # type: PyPWA.core.configurator.options.CommandObject
+    __prior = None  # type: typing.Any
+
+    def __init__(self, options_object):
+        self.__options = options_object
+        self.__load_prior()
+        self.__set_minimizer()
+
+    def __load_prior(self):
+        self.__loader.load_prior(
+            self.__options.prior_location, self.__options.prior_name
+        )
+
+    def __set_minimizer(self):
+        self.__interface = NestledSampling(
+            self.__prior, self.__options.ndim, self.__options.npoints,
+            self.__options.method, self.__options.update_interval,
+            self.__options.npdim, self.__options.maxiter,
+            self.__options.maxcall, self.__options.dlogz,
+            self.__options.decline_factor
+        )
+
+    def return_interface(self):
+        return self.__interface
 
