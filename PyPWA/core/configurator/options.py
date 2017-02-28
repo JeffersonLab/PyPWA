@@ -19,8 +19,9 @@ import enum
 import logging
 import re
 
-import ruamel.yaml.comments
+from ruamel.yaml import comments
 
+import typing
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -56,7 +57,7 @@ class Options(object):
 
 
 class PluginsOptions(Options):
-    setup = None  # type: PyPWA.core.shared.interface.plugins
+    setup = None  # type: typing.Any
     provides = None  # type: PluginTypes
 
 
@@ -94,7 +95,7 @@ class CommandOptions(object):
 class ProcessOptions(object):
 
     __options = None  # type: Options()
-    __built_options = None  # type: ruamel.yaml.comments.CommentedMap
+    __built_options = None  # type: comments.CommentedMap
     __required = None  # type: dict
     __optional = None  # type: dict
     __advanced = None  # type: dict
@@ -106,14 +107,14 @@ class ProcessOptions(object):
         self.__set_difficulties()
 
     def __set_header_into_built_options(self):
-        header = ruamel.yaml.comments.CommentedMap()
+        header = comments.CommentedMap()
         header.yaml_add_eol_comment(
             self.__options.module_comment, self.__options.plugin_name
         )
         self.__built_options = header
 
     def __set_content_into_built_options(self):
-        content = ruamel.yaml.comments.CommentedMap()
+        content = comments.CommentedMap()
         populated_content = self.__add_options_defaults(content)
         commented_content = self.__add_option_comments(populated_content)
         self.__built_options[self.__options.plugin_name] = commented_content
