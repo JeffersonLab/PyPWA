@@ -15,6 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core.configurator import options
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -25,13 +26,13 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class PluginTypes(object):
+class PluginTypeName(object):
     __NAMES = [
         # Internal name, External Name
-        ["data parser", "Data Parsing"],
-        ["data reader", "Data Iterator"],
-        ["kernel processing", "Kernel Processor"],
-        ["minimization", "Minimizer"]
+        [options.PluginTypes.DATA_PARSER, "Data Parsing"],
+        [options.PluginTypes.DATA_READER, "Data Iterator"],
+        [options.PluginTypes.KERNEL_PROCESSING, "Kernel Processor"],
+        [options.PluginTypes.MINIMIZATION, "Minimizer"]
     ]
 
     def internal_to_external(self, plugin_type):
@@ -44,14 +45,3 @@ class PluginTypes(object):
             if external_name == plugin_type:
                 return internal_name
 
-    def internal_types(self):
-        names = []
-        for internal_name, external_name in self.__NAMES:
-            names.append(internal_name)
-        return names
-
-    def external_types(self):
-        names = []
-        for internal_names, external_names in self.__NAMES:
-            names.append(external_names)
-        return names
