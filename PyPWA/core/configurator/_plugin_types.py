@@ -26,7 +26,7 @@ __version__ = VERSION
 
 
 class PluginTypes(object):
-    _NAMES = [
+    __NAMES = [
         # Internal name, External Name
         ["data parser", "Data Parsing"],
         ["data reader", "Data Iterator"],
@@ -35,23 +35,23 @@ class PluginTypes(object):
     ]
 
     def internal_to_external(self, plugin_type):
-        for internal_name, external_name in self._NAMES:
+        for internal_name, external_name in self.__NAMES:
             if internal_name == plugin_type:
                 return external_name
 
     def external_to_internal(self, plugin_type):
-        for internal_name, external_name in self._NAMES:
+        for internal_name, external_name in self.__NAMES:
             if external_name == plugin_type:
                 return internal_name
 
     def internal_types(self):
         names = []
-        for internal_name, external_name in self._NAMES:
+        for internal_name, external_name in self.__NAMES:
             names.append(internal_name)
         return names
 
     def external_types(self):
         names = []
-        for internal_names, external_names in self._NAMES:
+        for internal_names, external_names in self.__NAMES:
             names.append(external_names)
         return names
