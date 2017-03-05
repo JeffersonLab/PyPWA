@@ -31,7 +31,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class UNKNOWN(object):
+class Config(object):
 
     __config_maker = _builder.ConfigurationBuilder()
     __logger = logging.getLogger("UNKNOWN." + __name__)
