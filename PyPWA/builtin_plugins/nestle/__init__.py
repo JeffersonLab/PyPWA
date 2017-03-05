@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.builtin_plugins.nestle import nested
+from PyPWA.builtin_plugins.nestle import _setup
 from PyPWA.core.configurator import options
 
 __author__ = ["Mark Jones"]
@@ -28,7 +28,7 @@ __version__ = VERSION
 
 class NestleOptions(options.PluginsOptions):
     plugin_name = "Nestle"
-    setup = nested.NestleSetup
+    setup = _setup.NestleSetup
     provides = options.PluginTypes.MINIMIZATION
     defined_function = None
     module_comment = "Nestle, a python based multinest implementation."
@@ -36,6 +36,7 @@ class NestleOptions(options.PluginsOptions):
     default_options = {
         "prior location": "/location/to/prior.py",
         "prior name": "prior_function",
+        "folder location": None,
         "ndim": 1,
         "npoints": 100,
         "method": "single",
@@ -49,6 +50,7 @@ class NestleOptions(options.PluginsOptions):
     option_difficulties = {
         "prior location": options.OptionLevels.REQUIRED,
         "prior name": options.OptionLevels.REQUIRED,
+        "folder location": options.OptionLevels.OPTIONAL,
         "ndim": options.OptionLevels.REQUIRED,
         "npoints": options.OptionLevels.OPTIONAL,
         "method": options.OptionLevels.OPTIONAL,
@@ -63,6 +65,7 @@ class NestleOptions(options.PluginsOptions):
     option_types = {
         "prior location": str,
         "prior name": str,
+        "folder location": str,
         "ndim": int,
         "npoints": int,
         "method": ["classic", "single", "multi"],
@@ -79,6 +82,8 @@ class NestleOptions(options.PluginsOptions):
             "The path of the file containing the prior.",
         "prior name":
             "The name of the prior function.",
+        "folder location":
+            "The name of the folder where you want to save graph data into.",
         "ndim":
             "Number of parameters returned by prior.",
         "npoints":
