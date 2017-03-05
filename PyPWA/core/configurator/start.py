@@ -111,8 +111,8 @@ class StartProgram(object):
 
     __configuration = None  # type: dict
 
-    __execute = start.Setup()
-    __create_config = create.UNKNOWN()
+    __execute = start.SetupSettings()
+    __create_config = create.Config()
     __arguments = _Arguments()
 
     def start(self, configuration):
@@ -184,13 +184,13 @@ Credit:
             self.__write_config()
 
     def __run_builder(self):
-        self.__builder.run(
+        self.__execute.run(
             self.__configuration,
             self.__arguments.configuration_location
         )
 
     def __write_config(self):
-        self.__builder.make_config(
+        self.__create_config.make_config(
             self.__configuration,
             self.__arguments.configuration_location
         )
