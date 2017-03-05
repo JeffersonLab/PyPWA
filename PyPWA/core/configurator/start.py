@@ -27,7 +27,8 @@ import sys
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core.shared import initial_logging
-from PyPWA.core.configurator import configurator
+from PyPWA.core.configurator.create_config import create
+from PyPWA.core.configurator.execute import start
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -110,7 +111,8 @@ class StartProgram(object):
 
     __configuration = None  # type: dict
 
-    __builder = configurator.Configurator()
+    __execute = start.Setup()
+    __create_config = create.UNKNOWN()
     __arguments = _Arguments()
 
     def start(self, configuration):

@@ -16,18 +16,14 @@
 
 import logging
 
-import ruamel.yaml
 import ruamel.yaml.comments
-import ruamel.yaml.parser
 
 import PyPWA.builtin_plugins
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import plugin_loader
-from PyPWA.core.configurator import _input
-from PyPWA.core.configurator import _plugin_types
-from PyPWA.core.configurator import _storage
-from PyPWA.core.templates import option_templates
+from PyPWA.core.configurator import options
+from PyPWA.core.configurator.create_config import _input
+from PyPWA.core.shared import plugin_loader
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -36,33 +32,6 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
-
-# There is way too much going on here at best.
-
-
-class ConfigurationLoader(object):
-
-    def __init__(self):
-        self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-
-    def read_config(self, configuration):
-        with open(configuration, "r") as stream:
-            return self._process_stream(stream)
-
-    def _process_stream(self, stream):
-        try:
-            return self._load_configuration(stream)
-        except ruamel.yaml.parser.ParserError as UserError:
-            self._process_error(UserError)
-
-    @staticmethod
-    def _load_configuration(stream):
-        return ruamel.yaml.load(stream, ruamel.yaml.RoundTripLoader)
-
-    def _process_error(self, user_error):
-        self._logger.exception(user_error)
-        raise SyntaxError(str(user_error))
 
 
 class ConfigurationBuilder(object):  # help, I am not simple
@@ -82,7 +51,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
         self._logger.addHandler(logging.NullHandler())
 
         self._plugin_handler = plugin_loader.PluginLoading(
-            option_templates.PluginsOptionsTemplate
+            options.PluginsOptions
         )
 
     def build_configuration(
@@ -127,7 +96,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
             [PyPWA.builtin_plugins, self._plugin_directory]
         )
 
-        self._storage = _storage.MetadataStorage()
+        self._storage = storage.MetadataStorage()
         self._storage.add_plugins(plugins)
 
     def _make_plugin_list(self, main_plugin):
@@ -185,7 +154,7 @@ class _AskForSpecificPlugin(object):
     _prettied_type = None  # type: str
     _question_string = None  # type: str
     _input_handler = None  # type: _input.SimpleInputObject()
-    _plugin_prettier = None  # type: _plugin_types.PluginTypes()
+    _plugin_prettier = None  # type: _plugin_names.PluginTypes()
 
     def __init__(self):
         self._input_handler = _input.SimpleInputObject()
@@ -197,7 +166,7 @@ class _AskForSpecificPlugin(object):
         return self._ask_the_question()
 
     def _set_pretty_type(self, plugin_type):
-        prettier = _plugin_types.PluginTypes()
+        prettier = _plugin_names.PluginTypes()
         self._prettied_type = prettier.internal_to_external(plugin_type)
 
     def _set_names(self, plugin_list):
@@ -248,7 +217,7 @@ class PluginList(object):
         self._set_plugin_types()
 
     def _set_plugin_types(self):
-        plugin_type_handler = _plugin_types.PluginTypes()
+        plugin_type_handler = _plugin_names.PluginTypes()
         self._plugin_types = plugin_type_handler.internal_types()
 
     def parse_plugins(self, main_plugin):

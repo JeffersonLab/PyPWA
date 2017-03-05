@@ -17,6 +17,7 @@
 import logging
 
 import PyPWA.builtin_plugins
+import PyPWA.core
 import PyPWA.shell
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core.configurator import options
@@ -33,7 +34,7 @@ __version__ = VERSION
 
 class ModuleStorage(object):
 
-    __plugin_locations = {PyPWA.builtin_plugins, PyPWA.shell}
+    __plugin_locations = {PyPWA.builtin_plugins, PyPWA.shell, PyPWA.core}
     __plugin_storage = None  # type: plugin_loader.PluginStorage()
     __plugins = None  # type: list
     __shell = None  # type: list

@@ -57,11 +57,12 @@ class Options(object):
 
 
 class PluginsOptions(Options):
-    setup = None  # type: typing.Any
+    setup = None  # type: Setup
     provides = None  # type: PluginTypes
 
 
 class MainOptions(Options):
+    setup = None  # type: Setup
     required_plugins = []  # type: [PluginTypes]
 
 
@@ -161,3 +162,24 @@ class ProcessOptions(object):
     @property
     def advanced(self):
         return self.__advanced
+
+
+class PluginNameConversion(object):
+    __NAMES = [
+        # Internal name, External Name
+        [PluginTypes.DATA_PARSER, "Data Parsing"],
+        [PluginTypes.DATA_READER, "Data Iterator"],
+        [PluginTypes.KERNEL_PROCESSING, "Kernel Processor"],
+        [PluginTypes.MINIMIZATION, "Minimizer"]
+    ]
+
+    def internal_to_external(self, plugin_type):
+        for internal_name, external_name in self.__NAMES:
+            if internal_name == plugin_type:
+                return external_name
+
+    def external_to_internal(self, plugin_type):
+        for internal_name, external_name in self.__NAMES:
+            if external_name == plugin_type:
+                return internal_name
+

@@ -14,8 +14,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
+
+import ruamel.yaml
+import ruamel.yaml.comments
+import ruamel.yaml.parser
+
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.configurator import options
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -26,22 +31,26 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class PluginTypeName(object):
-    __NAMES = [
-        # Internal name, External Name
-        [options.PluginTypes.DATA_PARSER, "Data Parsing"],
-        [options.PluginTypes.DATA_READER, "Data Iterator"],
-        [options.PluginTypes.KERNEL_PROCESSING, "Kernel Processor"],
-        [options.PluginTypes.MINIMIZATION, "Minimizer"]
-    ]
+class ConfigurationLoader(object):
 
-    def internal_to_external(self, plugin_type):
-        for internal_name, external_name in self.__NAMES:
-            if internal_name == plugin_type:
-                return external_name
+    def __init__(self):
+        self._logger = logging.getLogger(__name__)
+        self._logger.addHandler(logging.NullHandler())
 
-    def external_to_internal(self, plugin_type):
-        for internal_name, external_name in self.__NAMES:
-            if external_name == plugin_type:
-                return internal_name
+    def read_config(self, configuration):
+        with open(configuration, "r") as stream:
+            return self._process_stream(stream)
 
+    def _process_stream(self, stream):
+        try:
+            return self._load_configuration(stream)
+        except ruamel.yaml.parser.ParserError as UserError:
+            self._process_error(UserError)
+
+    @staticmethod
+    def _load_configuration(stream):
+        return ruamel.yaml.load(stream, ruamel.yaml.RoundTripLoader)
+
+    def _process_error(self, user_error):
+        self._logger.exception(user_error)
+        raise SyntaxError(str(user_error))
