@@ -51,7 +51,7 @@ def get_config_uri():
 
 def __find_usable_uri(potential_uri):
     __recursively_make_uri_directories(potential_uri)
-    __determine_potential_or_cwd(potential_uri)
+    return __determine_potential_or_cwd(potential_uri)
 
 
 def __recursively_make_uri_directories(potential_uri):
