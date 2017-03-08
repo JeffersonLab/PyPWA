@@ -62,7 +62,7 @@ class DataParser(object):
         raise NotImplementedError
 
 
-class DataReaderTemplate(object):
+class DataIterator(object):
 
     def return_reader(self, text_file):
         raise NotImplementedError
@@ -71,7 +71,7 @@ class DataReaderTemplate(object):
         raise NotImplementedError
 
 
-class ShellMain(object):
+class Main(object):
 
     def start(self):
         raise NotImplementedError
