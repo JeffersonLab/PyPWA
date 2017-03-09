@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import io
+
 import hashlib
 
 from PyPWA import VERSION, LICENSE, STATUS
@@ -59,7 +61,7 @@ def __get_stream_hash(file_location, file_hash):
 
 
 def __open_stream(file_location):
-    return open(file_location)
+    return open(file_location, "br")
 
 
 def __update_hash(stream, file_hash):
