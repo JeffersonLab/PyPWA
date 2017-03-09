@@ -37,6 +37,7 @@ class PluginSearch(object):
     def __init__(self, user_plugin_dir=""):
         self.__logger.addHandler(logging.NullHandler())
         self.__setup_plugin_storage(user_plugin_dir)
+        self.__log_found_plugins()
 
     def __setup_plugin_storage(self, user_plugin_dir):
         plugin_storage = plugin_loader.PluginStorage()
@@ -46,7 +47,10 @@ class PluginSearch(object):
             data_templates.TemplateDataPlugin
         )
 
-        self._found_plugins = found_plugins
+        self.__found_plugins = found_plugins
+
+    def __log_found_plugins(self):
+        self.__logger.debug("Loaded Data Plugins: %s" % self.__found_plugins)
 
     def get_read_plugin(self, file_location):
         plugin_finder = _FindReadPlugins(self.__found_plugins)
