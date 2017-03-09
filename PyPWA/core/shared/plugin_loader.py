@@ -75,7 +75,7 @@ class _Importer(object):
             return package
         else:
             return self.__import_module(package)
-        
+
     def __import_module(self, package):
         self.__path_handler.append_path(package)
         name = self.__get_module_name(package)
@@ -99,7 +99,7 @@ class _Importer(object):
     def __process_module(self, module):
         if hasattr(module, "__path__"):
             return self.__load_multiple_modules(module)
-        elif hasattr(module, types.ModuleType):
+        elif isinstance(module, types.ModuleType):
             return [module]
         else:
             self.__raise_module_error()
@@ -128,6 +128,9 @@ class _FilterBySubclass(object):
     __classes = None
     __template = None
 
+    def __init__(self):
+        self.__classes = []
+
     def filter(self, plugins, template):
         self.__plugins = plugins
         self.__template = template
@@ -140,7 +143,7 @@ class _FilterBySubclass(object):
 
     def __process_plugin(self, plugin):
         for attribute_name in dir(plugin):
-            attribute = getattr(attribute_name, plugin)
+            attribute = getattr(plugin, attribute_name)
             self.__try_to_process_object(attribute)
 
     def __try_to_process_object(self, attribute):
@@ -167,6 +170,16 @@ class PluginStorage(object):
         self.__plugins = []
 
     def add_plugin_location(self, location):
+        if isinstance(location, list):
+            self.__process_multiple_modules(location)
+        else:
+            self.__process_single_module(location)
+
+    def __process_multiple_modules(self, locations):
+        for location in locations:
+            self.__process_single_module(location)
+
+    def __process_single_module(self, location):
         modules = self.__importer.fetch_modules(location)
         self.__append_modules(modules)
         
