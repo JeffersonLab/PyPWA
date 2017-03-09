@@ -4,7 +4,7 @@ import numpy
 import pytest
 
 from PyPWA.builtin_plugins.process import foreman, _communication
-from PyPWA.core.templates import interface_templates
+from PyPWA.core.shared.interfaces import internals
 
 
 def test_DuplexProcess_SumOfIntegers_Return50():
@@ -16,7 +16,7 @@ def test_DuplexProcess_SumOfIntegers_Return50():
     test_data = {"the_data": numpy.ones(50)}
 
     # Create a test process kernel
-    class TestKernel(interface_templates.AbstractKernel):
+    class TestKernel(internals.Kernel):
 
         the_data = False  # type: numpy.ndarray
 
@@ -33,7 +33,7 @@ def test_DuplexProcess_SumOfIntegers_Return50():
                 return "NO GO"
 
     # Create a test interface
-    class TestInterface(interface_templates.AbstractInterface):
+    class TestInterface(internals.KernelInterface):
         is_duplex = True
 
         def run(self, communicator, arguments):
@@ -73,7 +73,7 @@ def test_SimplexProcess_SumIntegers_Return50():
     test_data = {"the_data": numpy.ones(50)}
 
     # Create Kernel
-    class TestKernel(interface_templates.AbstractKernel):
+    class TestKernel(internals.Kernel):
         the_data = False  # type: numpy.ndarray
 
         def setup(self):
@@ -83,7 +83,7 @@ def test_SimplexProcess_SumIntegers_Return50():
             return numpy.sum(self.the_data)
 
     # Create Interface
-    class TestInterface(interface_templates.AbstractInterface):
+    class TestInterface(internals.KernelInterface):
         is_duplex = False
 
         def run(self, communicator, args):
@@ -112,8 +112,8 @@ def test_Kernels_WillFail_RaiseNotImplemented():
     Check that Kernels will raise NotImplementedError if they are not
     overridden.
     """
-    kernel = interface_templates.AbstractKernel()
-    interface = interface_templates.AbstractInterface()
+    kernel = internals.Kernel()
+    interface = internals.KernelInterface()
 
     with pytest.raises(NotImplementedError):
         kernel.process()

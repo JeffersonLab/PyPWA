@@ -30,7 +30,7 @@ Example:
 import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import option_templates
+from PyPWA.core.configurator import options
 from PyPWA.builtin_plugins.process import foreman
 
 __author__ = ["Mark Jones"]
@@ -42,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Processing(option_templates.PluginsOptionsTemplate):
+class Processing(options.PluginsOptions):
 
     def _plugin_name(self):
         return "Builtin Multiprocessing"

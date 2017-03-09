@@ -30,8 +30,8 @@ import numpy
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.process import _communication
 from PyPWA.builtin_plugins.process import _processing
-from PyPWA.core.templates import plugin_templates
-from tools.interfaces import interface_templates
+from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared.interfaces import plugins
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -42,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _ProcessInterface(interface_templates.InterfaceTemplate):
+class _ProcessInterface(internals.ProcessInterface):
 
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
@@ -136,7 +136,7 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
         return self._processes[0].is_alive()
 
 
-class CalculationForeman(plugin_templates.KernelProcessingTemplate):
+class CalculationForeman(plugins.KernelProcessing):
 
     def __init__(
             self, number_of_processes=multiprocessing.cpu_count() * 2,
