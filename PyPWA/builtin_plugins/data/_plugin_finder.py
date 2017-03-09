@@ -31,7 +31,7 @@ from PyPWA.core.shared import plugin_loader
 
 class PluginSearch(object):
 
-    __logger = logging.getLogger(__name__)
+    __logger = logging.getLogger(__name__ + ".PluginSearch")
     __found_plugins = None
 
     def __init__(self, user_plugin_dir=""):
@@ -59,7 +59,7 @@ class PluginSearch(object):
 
 class _FindReadPlugins(object):
 
-    __logger = logging.getLogger(__name__)
+    __logger = logging.getLogger(__name__ + "._FindReadPlugins")
     __potential_plugins = None
 
     def __init__(self, potential_plugins):
@@ -107,7 +107,7 @@ class _FindWritePlugins(object):
     __data_is_gamp = False
     __data_is_flat = False
     __file_extension = ""
-    __logger = logging.getLogger(__name__)
+    __logger = logging.getLogger(__name__ + "._FindWritePlugins")
     __potential_plugins = None
 
     def __init__(self, potential_plugins):
