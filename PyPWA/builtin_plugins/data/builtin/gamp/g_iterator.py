@@ -28,7 +28,7 @@ import io
 import numpy
 
 from PyPWA import VERSION, LICENSE, STATUS
-from tools.interfaces import interface_templates
+from PyPWA.core.shared.interfaces import internals
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -39,7 +39,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class GampReader(interface_templates.ReaderInterfaceTemplate):
+class GampReader(internals.Reader):
 
     def __init__(self, file_location):
         """
@@ -50,9 +50,8 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         Args:
             file_location (str): Name of the GAMP file, can be any size.
         """
-        super(GampReader, self).__init__(file_location)
         self._previous_event = None  # type: numpy.ndarray
-
+        self._the_file = file_location
         self._start_input()
 
     def _start_input(self):
@@ -74,8 +73,7 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         """
         self._start_input()
 
-    @property
-    def next_event(self):
+    def next(self):
         """
         Structures the read in event from the GAMP file into a deque then
         passes it to the calling function.
@@ -94,10 +92,6 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         for index in range(count):
             event[index] = self._make_particle(self._file.readline())
         self._previous_event = event
-        return self._previous_event
-
-    @property
-    def previous_event(self):
         return self._previous_event
 
     @staticmethod
@@ -130,7 +124,7 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         self._file.close()
 
 
-class GampWriter(interface_templates.WriterInterfaceTemplate):
+class GampWriter(internals.Writer):
 
     def __init__(self, file_location):
         """
@@ -141,7 +135,6 @@ class GampWriter(interface_templates.WriterInterfaceTemplate):
         Args:
             file_location (str): Where to write the GAMP data.
         """
-        super(GampWriter, self).__init__(file_location)
         self._file = open(file_location, "w")
 
     def write(self, data):

@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Holds the different implementation templates that are needed to interface
+Holds the different implementation interfaces that are needed to interface
 data module.
 """
 

@@ -70,10 +70,3 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
 def test_GAMPReader_ResetReader_NoFail():
     reader = g_iterator.GampReader(GAMP_TEST_DATA)
     reader.reset()
-
-
-def test_GAMPReader_PreviousEvent_MatchesNext():
-    reader = g_iterator.GampReader(GAMP_TEST_DATA)
-    old = reader.next_event
-
-    numpy.testing.assert_array_equal(old, reader.previous_event)

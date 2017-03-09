@@ -19,7 +19,7 @@ def parser_with_cache():
     def raise_error(file_location):
         raise RuntimeError("Cache was not loaded!")
 
-    mem = memory.Memory(options={"enable cache": True})
+    mem = memory.Memory(enable_cache=True)
     mem._read_data = raise_error
 
     return mem

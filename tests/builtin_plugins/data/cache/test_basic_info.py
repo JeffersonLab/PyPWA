@@ -30,22 +30,22 @@ FAKE_LOCATION = "narnia"
 
 @pytest.fixture
 def mock_hash(monkeypatch):
-    def returns_string(throw, stream):
+    def returns_string(file_name):
         return SIMPLE_STRING
 
     monkeypatch.setattr(
-        "PyPWA.core.tools.FileHashString.get_sha512_hash",
+        "PyPWA.core.shared.generate_hash.get_sha512_hash",
         returns_string
     )
 
 
 @pytest.fixture
 def mock_cache_uri(monkeypatch):
-    def returns_string(throw):
+    def returns_string():
         return FAKE_LOCATION
 
     monkeypatch.setattr(
-        "PyPWA.core.tools.DataLocation.get_cache_uri",
+        "PyPWA.core.shared.data_locator.get_cache_uri",
         returns_string
     )
 
