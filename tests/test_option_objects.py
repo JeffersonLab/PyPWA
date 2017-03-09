@@ -1,45 +1,52 @@
-from PyPWA.builtin_plugins import process, data, minuit
-from PyPWA.core.configurator import configurator
+import pytest
+from PyPWA.core.configurator import options
+from PyPWA.core.shared import plugin_loader
+from PyPWA import builtin_plugins
+from PyPWA.core import configurator
 
 
-def options_test(options):
-    required = options.request_options("required")
-    optional = options.request_options("optional")
-    advanced = options.request_options("advanced")
-    template = options.request_options("template")
-
-    assert isinstance(required, bool) or isinstance(required, dict)
-    assert isinstance(optional, bool) or isinstance(optional, dict)
-    assert isinstance(advanced, bool) or isinstance(advanced, dict)
-
-    name = options.request_metadata("name")
-    interface = options.request_metadata("interface")
-    provides = options.request_metadata("provides")
-    requires_function = options.request_metadata("user functions")
-
-    assert isinstance(name, str)
+def load_plugins():
+    loader = plugin_loader.PluginStorage()
+    loader.add_plugin_location([builtin_plugins, configurator])
+    return loader.get_by_class(options.PluginsOptions)
 
 
-def test_ConfiguratorOptions_AllOptionsValid():
-    configurator_options = configurator.ConfiguratorOptions()
-    options_test(configurator_options)
+@pytest.fixture(params=load_plugins())
+def iterate_over_plugins(request):
+    return request.param()
+
+def check_dict(the_dict):
+    assert isinstance(the_dict, dict)
 
 
-def test_MinuitOptions_AllOptionsValid():
-    minuit_options = minuit.MinuitOptions()
-    options_test(minuit_options)
+def check_str(string):
+    assert isinstance(string, str)
+    assert string is not ""
 
 
-def test_Processing_AllOptionsValid():
-    processing_options = process.Processing()
-    options_test(processing_options)
+def test_plugin_name(iterate_over_plugins):
+    check_str(iterate_over_plugins.plugin_name)
 
 
-def test_DataParser_AllOptionsValid():
-    memory_options = data.DataParser()
-    options_test(memory_options)
+def test_default_options(iterate_over_plugins):
+    check_dict(iterate_over_plugins.option_difficulties)
 
 
-def test_DataIterator_AllOptionsValid():
-    iterator_options = data.DataIterator()
-    options_test(iterator_options)
+def test_option_types(iterate_over_plugins):
+    check_dict(iterate_over_plugins.option_types)
+
+
+def test_module_comment(iterate_over_plugins):
+    check_str(iterate_over_plugins.module_comment)
+
+
+def test_option_comments(iterate_over_plugins):
+    check_dict(iterate_over_plugins.option_comments)
+
+
+def test_setup(iterate_over_plugins):
+    assert issubclass(iterate_over_plugins.setup, options.Setup)
+
+
+def test_provides(iterate_over_plugins):
+    assert iterate_over_plugins.provides in options.PluginTypes
