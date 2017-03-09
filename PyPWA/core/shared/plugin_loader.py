@@ -38,7 +38,7 @@ __version__ = VERSION
 
 class _AppendPath(object):
 
-    __logger = logging.getLogger("_AppendPath." + __name__)
+    __logger = logging.getLogger(__name__ + "._AppendPath")
 
     def __init__(self):
         self.__logger.addHandler(logging.NullHandler())
@@ -60,7 +60,7 @@ class _AppendPath(object):
         
 class _Importer(object):
 
-    __logger = logging.getLogger("_Importer." + __name__)
+    __logger = logging.getLogger(__name__ + "._Importer")
     __path_handler = _AppendPath()
 
     def __init__(self):
@@ -180,8 +180,9 @@ class PluginStorage(object):
             self.__process_single_module(location)
 
     def __process_single_module(self, location):
-        modules = self.__importer.fetch_modules(location)
-        self.__append_modules(modules)
+        if location is not None and location is not "":
+            modules = self.__importer.fetch_modules(location)
+            self.__append_modules(modules)
         
     def __append_modules(self, modules):
         for the_module in modules:
