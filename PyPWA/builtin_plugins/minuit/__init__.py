@@ -17,6 +17,7 @@
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core.configurator import options
 from PyPWA.builtin_plugins.minuit import minimization
+from PyPWA.builtin_plugins.minuit import _setup
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -29,7 +30,7 @@ __version__ = VERSION
 
 class MinuitOptions(options.Plugin):
     plugin_name = "Minuit"
-    setup = options.Setup
+    setup = _setup.MinuitSetup
     provides = options.Types.MINIMIZATION
     defined_function = None
     module_comment = "Minuit is the tried and tested minimizer."
