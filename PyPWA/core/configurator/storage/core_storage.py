@@ -60,14 +60,10 @@ class ModuleStorage(object):
         self.__plugin_storage.add_plugin_location(self.__plugin_locations)
 
     def __set_plugins(self):
-        self.__plugins = self.__plugin_storage.get_by_class(
-            options.PluginsOptions
-        )
+        self.__plugins = self.__plugin_storage.get_by_class(options.Plugin)
 
     def __set_shell(self):
-        self.__shell = self.__plugin_storage.get_by_class(
-            options.MainOptions
-        )
+        self.__shell = self.__plugin_storage.get_by_class(options.Main)
 
     @property
     def shell_modules(self):
