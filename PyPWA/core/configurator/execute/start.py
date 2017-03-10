@@ -18,7 +18,7 @@ import logging
 import typing
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.configurator import options
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator.execute import _correct_settings_values
 from PyPWA.core.configurator.execute import config_loader
 from PyPWA.core.configurator.storage import module_fetcher
@@ -82,7 +82,7 @@ class SetupSettings(object):
         self.__storage = module_fetcher.ModulePicking(self.__extra_plugins)
 
     def __correct_settings(self):
-        template_loader = template_parser.ModuleTemplates(
+        template_loader = template_parser.TemplateLoader(
             self.__extra_plugins
         )
         settings_aid = _correct_settings_values.SettingsAid(
@@ -155,7 +155,7 @@ class SetupPlugins(object):
 
     def __get_command_object(self, name):
         plugin_setting = self.__settings[name]
-        command = options.CommandOptions(plugin_setting)
+        command = option_tools.CommandOptions(plugin_setting)
         return command
 
     @staticmethod
@@ -167,7 +167,7 @@ class SetupPlugins(object):
     def __setup_shell(self):
         main_settings = self.__settings[self.__main_plugin.plugin_name]
         self.__logger.debug("Found settings: " + repr(main_settings))
-        main_command = options.CommandOptions(main_settings)
+        main_command = option_tools.CommandOptions(main_settings)
         shell = self.__main_plugin.setup(main_command)
         self.__initialized_shell = shell()
 
