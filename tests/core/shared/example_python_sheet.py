@@ -30,7 +30,7 @@ def the_meaning_of_life():
     return 42
 
 
-class OptionsTest(options.PluginsOptions):
+class OptionsTest(options.Plugin):
 
     plugin_name = "Does not exist"
     default_options = {}
@@ -40,4 +40,4 @@ class OptionsTest(options.PluginsOptions):
     option_comments = {}
     defined_function = None
     setup = None
-    provides = options.PluginTypes.KERNEL_PROCESSING
+    provides = options.Types.KERNEL_PROCESSING

@@ -21,7 +21,7 @@ DOES_NOT_EXIST = os.path.join(
 def plugin_loader_with_plugins():
     loader = plugin_loader.PluginStorage()
     loader.add_plugin_location([builtin_plugins])
-    return loader.get_by_class(options.PluginsOptions)
+    return loader.get_by_class(options.Plugin)
 
 
 def test_data_iterator_is_found(plugin_loader_with_plugins):
