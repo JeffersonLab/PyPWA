@@ -51,7 +51,7 @@ class Processing(options.Plugin):
     module_comment = "Builtin SMP Plugin, should be 'good enough'"
 
     default_options = {
-        "number of processes": multiprocessing.cpu_count()
+        "number of processes": multiprocessing.cpu_count() * 2
     }
 
     option_levels = {
