@@ -34,6 +34,7 @@ class MinuitSetup(options.Setup):
 
     def __init__(self, command):
         self.__command = command
+        self.__setup_interface()
 
     def __setup_interface(self):
         self.__interface = minimization.Minuit(
