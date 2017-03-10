@@ -27,12 +27,12 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class ModuleTemplates(object):
+class TemplateLoader(object):
     """
     Parses the templates for all plugins and modules.
     """
 
-    __logger = logging.getLogger(__name__)
+    __logger = logging.getLogger(__name__ + ".ModuleTemplates")
     __plugin_storage = None  # type: core_storage.ModuleStorage
     __templates = None  # type: dict
 
@@ -45,15 +45,16 @@ class ModuleTemplates(object):
 
     def __process_options(self):
         for plugin in self._plugin_storage.option_modules:
-            loaded = self.__safely_load_module(plugin)
-            if not isinstance(loaded, type(None)):
-                self.__add_option_module(loaded)
+            self.__load_templates(plugin)
 
     def __process_main(self):
         for main in self._plugin_storage.shell_modules:
-            loaded = self.__safely_load_module(main)
-            if not isinstance(loaded, type(None)):
-                self.__add_main_module(loaded)
+            self.__load_templates(main)
+
+    def __load_templates(self, plugin):
+        loaded = self.__safely_load_module(plugin)
+        if not isinstance(loaded, type(None)):
+            self.__add_module(loaded)
 
     def __safely_load_module(self, module):
         try:
@@ -65,13 +66,8 @@ class ModuleTemplates(object):
         self.__logger.warning("Failed to load plugin!")
         self.__logger.exception(error)
 
-    def __add_option_module(self, module):
-        self.__templates[module.request_metadata("name")] = \
-            module.request_options("template")
-
-    def __add_main_module(self, module):
-        self.__templates[module.request_metadata("id")] = \
-            module.request_options("template")
+    def __add_module(self, module):
+        self.__templates[module.plugin_name] = module.option_types
 
     @property
     def templates(self):
