@@ -14,14 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import copy
 import enum
-import logging
-import re
 
-from ruamel.yaml import comments
-
-import typing
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -33,20 +27,20 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class PluginTypes(enum.Enum):
+class Types(enum.Enum):
     KERNEL_PROCESSING = 1
     MINIMIZATION = 2
     DATA_READER = 3
     DATA_PARSER = 4
 
 
-class OptionLevels(enum.Enum):
+class Levels(enum.Enum):
     REQUIRED = 1
     OPTIONAL = 2
     ADVANCED = 3
 
 
-class Options(object):
+class Base(object):
     plugin_name = ""
     default_options = {}
     option_difficulties = {}
@@ -56,130 +50,17 @@ class Options(object):
     defined_function = None
 
 
-class PluginsOptions(Options):
+class Plugin(Base):
     setup = None  # type: Setup
-    provides = None  # type: PluginTypes
+    provides = None  # type: Types
 
 
-class MainOptions(Options):
+class Main(Base):
     setup = None  # type: Setup
-    required_plugins = []  # type: [PluginTypes]
+    required_plugins = []  # type: [Types]
 
 
 class Setup(object):
 
     def return_interface(self):
         raise NotImplementedError
-
-
-class CommandOptions(object):
-
-    __logger = logging.getLogger("CommandOptions." + __name__)
-
-    def __init__(self, options):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__set_variables(options)
-
-    def __set_variables(self, options):
-        for key in list(options.keys()):
-            name = self.__find_variable_name(key)
-            setattr(self, name, options[key])
-
-    def __find_variable_name(self, key):
-        underscored_name = key.replace(" ", "_")
-        lowercase_name = underscored_name.lower()
-        filtered_name = re.sub(r'[^a-z0-9_]', '', lowercase_name)
-        self.__logger.debug("Converted {0} to {1}".format(key, filtered_name))
-        return filtered_name
-
-
-class ProcessOptions(object):
-
-    __options = None  # type: Options()
-    __built_options = None  # type: comments.CommentedMap
-    __required = None  # type: dict
-    __optional = None  # type: dict
-    __advanced = None  # type: dict
-
-    def __init__(self, option_object):
-        self.__options = option_object
-        self.__set_header_into_built_options()
-        self.__set_content_into_built_options()
-        self.__set_difficulties()
-
-    def __set_header_into_built_options(self):
-        header = comments.CommentedMap()
-        header.yaml_add_eol_comment(
-            self.__options.module_comment, self.__options.plugin_name
-        )
-        self.__built_options = header
-
-    def __set_content_into_built_options(self):
-        content = comments.CommentedMap()
-        populated_content = self.__add_options_defaults(content)
-        commented_content = self.__add_option_comments(populated_content)
-        self.__built_options[self.__options.plugin_name] = commented_content
-
-    def __add_options_defaults(self, content):
-        for option, value in self.__options.options_defaults.items():
-            content[option] = value
-        return content
-
-    def __add_option_comments(self, content):
-        for option, comment in self.__options.option_comments.items():
-            content.yaml_add_eol_comment(comment, option)
-        return content
-
-    def __set_difficulties(self):
-        self.__make_separate_difficulties()
-        self.__process_separate_difficulties()
-
-    def __make_separate_difficulties(self):
-        required = copy.deepcopy(self.__built_options)
-        optional = copy.deepcopy(self.__built_options)
-        advanced = copy.deepcopy(self.__built_options)
-
-        self.__required = required
-        self.__optional = optional
-        self.__advanced = advanced
-
-    def __process_separate_difficulties(self):
-        for option, difficulty in self.__options.options_difficulties.items():
-            if difficulty == "optional":
-                self.__required[self.__options.plugin_name].pop(option)
-            elif difficulty == "advanced":
-                self.__required[self.__options.plugin_name].pop(option)
-                self.__optional[self.__options.plugin_name].pop(option)
-
-    @property
-    def required(self):
-        return self.__required
-
-    @property
-    def optional(self):
-        return self.__optional
-
-    @property
-    def advanced(self):
-        return self.__advanced
-
-
-class PluginNameConversion(object):
-    __NAMES = [
-        # Internal name, External Name
-        [PluginTypes.DATA_PARSER, "Data Parsing"],
-        [PluginTypes.DATA_READER, "Data Iterator"],
-        [PluginTypes.KERNEL_PROCESSING, "Kernel Processor"],
-        [PluginTypes.MINIMIZATION, "Minimizer"]
-    ]
-
-    def internal_to_external(self, plugin_type):
-        for internal_name, external_name in self.__NAMES:
-            if internal_name == plugin_type:
-                return external_name
-
-    def external_to_internal(self, plugin_type):
-        for internal_name, external_name in self.__NAMES:
-            if external_name == plugin_type:
-                return internal_name
-
