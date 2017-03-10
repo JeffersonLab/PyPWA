@@ -1,0 +1,1 @@
+# Here will be beautiful tests for the core_storage, eventually.
