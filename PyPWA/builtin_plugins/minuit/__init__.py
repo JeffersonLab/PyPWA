@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import option_templates
+from PyPWA.core.configurator import options
 from PyPWA.builtin_plugins.minuit import minimization
 
 __author__ = ["Mark Jones"]
@@ -27,58 +27,41 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class MinuitOptions(option_templates.PluginsOptionsTemplate):
-    def _plugin_name(self):
-        return "Minuit"
+class MinuitOptions(options.Plugin):
+    plugin_name = "Minuit"
+    setup = options.Setup
+    provides = options.Types.MINIMIZATION
+    defined_function = None
+    module_comment = "Minuit is the tried and tested minimizer."
 
-    def _plugin_interface(self):
-        return minimization.Minuit
+    default_options = {
+        "parameters": ["A1", "A2", "A3"],
+        "settings": {"A1": 1, "fix_A1": True},
+        "strategy": 1,
+        "number of calls": 10000
+    }
 
-    def _plugin_type(self):
-        return self._minimization
+    option_difficulties = {
+        "parameters": options.Levels.REQUIRED,
+        "settings": options.Levels.REQUIRED,
+        "strategy": options.Levels.OPTIONAL,
+        "number of calls": options.Levels.ADVANCED
+    }
 
-    def _user_defined_function(self):
-        return None
+    option_types = {
+        "parameters": list,
+        "settings": dict,
+        "strategy": int,
+        "number of calls": int
+    }
 
-    def _default_options(self):
-        return {
-            "parameters": ["A1", "A2", "A3"],
-            "settings": {"A1": 1, "fix_A1": True},
-            "strategy": 1,
-            "number of calls": 10000
-        }
-
-    def _option_levels(self):
-        return {
-            "parameters": self._required,
-            "settings": self._required,
-            "strategy": self._optional,
-            "number of calls": self._advanced
-        }
-
-    def _option_types(self):
-        return {
-            "parameters": list,
-            "settings": dict,
-            "strategy": int,
-            "number of calls": int
-        }
-
-    def _module_comment(self):
-        return "Minuit is the tried and tested minimizer, developed " \
-               "by ROOT"
-
-    def _option_comments(self):
-        return {
-            "parameters":
-                "The parameters used inside your settings and your "
-                "function",
-            "settings":
-                "The settings for iMinuit's fitting. See iMinuit "
-                "documentation",
-            "strategy":
-                "The strategy of Minuit. 0 for fast, 1 default, "
-                "2 for accurate",
-            "number of calls":
-                "The suggested max number of calls for "
-        }
+    option_comments = {
+        "parameters":
+            "The parameters used inside your settings and your function",
+        "settings":
+            "The settings for iMinuit's fitting. See iMinuit documentation",
+        "strategy":
+            "The strategy of Minuit. 0 for fast, 1 default, 2 for accurate",
+        "number of calls":
+            "The suggested max number of calls for the fit."
+    }

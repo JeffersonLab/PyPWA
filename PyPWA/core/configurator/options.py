@@ -32,6 +32,7 @@ class Types(enum.Enum):
     MINIMIZATION = 2
     DATA_READER = 3
     DATA_PARSER = 4
+    SKIP = 5
 
 
 class Levels(enum.Enum):
@@ -40,27 +41,27 @@ class Levels(enum.Enum):
     ADVANCED = 3
 
 
+class Setup(object):
+
+    def return_interface(self):
+        raise NotImplementedError
+
+
 class Base(object):
-    plugin_name = ""
+    plugin_name = "BASE"
     default_options = {}
     option_difficulties = {}
     option_types = {}
-    module_comment = ""
+    module_comment = "BASE"
     option_comments = {}
     defined_function = None
 
 
 class Plugin(Base):
-    setup = None  # type: Setup
-    provides = None  # type: Types
+    setup = Setup  # type: Setup
+    provides = Types.SKIP  # type: Types
 
 
 class Main(Base):
     setup = None  # type: Setup
     required_plugins = []  # type: [Types]
-
-
-class Setup(object):
-
-    def return_interface(self):
-        raise NotImplementedError

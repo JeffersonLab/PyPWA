@@ -26,10 +26,10 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class NestleOptions(options.PluginsOptions):
+class NestleOptions(options.Plugin):
     plugin_name = "Nestle"
     setup = _setup.NestleSetup
-    provides = options.PluginTypes.MINIMIZATION
+    provides = options.Types.MINIMIZATION
     defined_function = None
     module_comment = "Nestle, a python based multinest implementation."
 
@@ -48,18 +48,18 @@ class NestleOptions(options.PluginsOptions):
         "decline_factor": None
     }
     option_difficulties = {
-        "prior location": options.OptionLevels.REQUIRED,
-        "prior name": options.OptionLevels.REQUIRED,
-        "folder location": options.OptionLevels.OPTIONAL,
-        "ndim": options.OptionLevels.REQUIRED,
-        "npoints": options.OptionLevels.OPTIONAL,
-        "method": options.OptionLevels.OPTIONAL,
-        "update interval": options.OptionLevels.ADVANCED,
-        "npdim": options.OptionLevels.ADVANCED,
-        "maxiter": options.OptionLevels.ADVANCED,
-        "maxcall": options.OptionLevels.ADVANCED,
-        "dlogz": options.OptionLevels.ADVANCED,
-        "decline_factor": options.OptionLevels.ADVANCED
+        "prior location": options.Levels.REQUIRED,
+        "prior name": options.Levels.REQUIRED,
+        "folder location": options.Levels.OPTIONAL,
+        "ndim": options.Levels.REQUIRED,
+        "npoints": options.Levels.OPTIONAL,
+        "method": options.Levels.OPTIONAL,
+        "update interval": options.Levels.ADVANCED,
+        "npdim": options.Levels.ADVANCED,
+        "maxiter": options.Levels.ADVANCED,
+        "maxcall": options.Levels.ADVANCED,
+        "dlogz": options.Levels.ADVANCED,
+        "decline_factor": options.Levels.ADVANCED
     }
 
     option_types = {

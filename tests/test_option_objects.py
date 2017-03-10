@@ -8,12 +8,13 @@ from PyPWA.core import configurator
 def load_plugins():
     loader = plugin_loader.PluginStorage()
     loader.add_plugin_location([builtin_plugins, configurator])
-    return loader.get_by_class(options.PluginsOptions)
+    return loader.get_by_class(options.Plugin)
 
 
 @pytest.fixture(params=load_plugins())
 def iterate_over_plugins(request):
     return request.param()
+
 
 def check_dict(the_dict):
     assert isinstance(the_dict, dict)
@@ -49,4 +50,4 @@ def test_setup(iterate_over_plugins):
 
 
 def test_provides(iterate_over_plugins):
-    assert iterate_over_plugins.provides in options.PluginTypes
+    assert iterate_over_plugins.provides in options.Types

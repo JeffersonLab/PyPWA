@@ -32,7 +32,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class ConfiguratorOptions(options.PluginsOptions):
+class ConfiguratorOptions(options.Plugin):
 
     plugin_name = "Global Options"
     default_options = {
@@ -41,8 +41,8 @@ class ConfiguratorOptions(options.PluginsOptions):
         }
 
     option_difficulties = {
-            "plugin directory": options.OptionLevels.ADVANCED,
-            "logging": options.OptionLevels.OPTIONAL
+            "plugin directory": options.Levels.ADVANCED,
+            "logging": options.Levels.OPTIONAL
         }
 
     option_types = {

@@ -42,46 +42,26 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Processing(options.PluginsOptions):
+class Processing(options.Plugin):
 
-    def _plugin_name(self):
-        return "Builtin Multiprocessing"
+    plugin_name = "Builtin Multiprocessing"
+    setup = options.Setup
+    provides = options.Types.KERNEL_PROCESSING
+    defined_function = None
+    module_comment = "Builtin SMP Plugin, should be 'good enough'"
 
-    def _plugin_interface(self):
-        return foreman.CalculationForeman
+    default_options = {
+        "number of processes": multiprocessing.cpu_count()
+    }
 
-    def _plugin_type(self):
-        return self._kernel_processing
+    option_levels = {
+        "number of processes": options.Levels.OPTIONAL
+    }
 
-    def _user_defined_function(self):
-        return None
+    option_types = {
+        "number of processes": int
+    }
 
-    def _default_options(self):
-        return {
-            "number of processes": multiprocessing.cpu_count()
-        }
-
-    def _option_levels(self):
-        return {
-            "number of processes": self._optional
-        }
-
-    def _option_types(self):
-        return {
-            "number of processes": int
-        }
-
-    def _module_comment(self):
-        return "This is the builtin processing plugin, you can replace " \
-               "this with your own, or use one of the other options " \
-               "that we have."
-
-    def _option_comments(self):
-        return {
-            "number of processes":
-                "This is the max number of processes to have running at "
-                "any time in the program, the hard max will always be 2 "
-                "* the number of CPUs in your computer so that we don't "
-                "resource lock your computer. Will work on any Intel  or "
-                "AMD processor, PowerPCs might have difficulty here."
-        }
+    option_comments = {
+        "number of processes": "Number of processes to use for calculation."
+    }

@@ -33,8 +33,6 @@ Examples:
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import _setups
-from PyPWA.builtin_plugins.data import iterator
-from PyPWA.builtin_plugins.data import memory
 from PyPWA.core.configurator import options
 
 __author__ = ["Mark Jones"]
@@ -46,11 +44,11 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class DataParser(options.PluginsOptions):
+class DataParser(options.Plugin):
 
     plugin_name = "Builtin Parser"
     setup = _setups.SetupParser
-    provides = options.PluginTypes.DATA_PARSER
+    provides = options.Types.DATA_PARSER
     defined_function = None
     module_comment = "Parses TSV, CSV, Kvs, and GAMP data."
 
@@ -61,9 +59,9 @@ class DataParser(options.PluginsOptions):
     }
 
     option_difficulties = {
-        "enable cache": options.OptionLevels.OPTIONAL,
-        "clear cache": options.OptionLevels.ADVANCED,
-        "user plugin": options.OptionLevels.ADVANCED
+        "enable cache": options.Levels.OPTIONAL,
+        "clear cache": options.Levels.ADVANCED,
+        "user plugin": options.Levels.ADVANCED
     }
 
     option_types = {
@@ -82,11 +80,11 @@ class DataParser(options.PluginsOptions):
     }
 
 
-class DataIterator(options.PluginsOptions):
+class DataIterator(options.Plugin):
 
     plugin_name = "Builtin Reader"
     setup = _setups.SetupIterator
-    provides = options.PluginTypes.DATA_READER
+    provides = options.Types.DATA_READER
     defined_function = None
     module_comment = "Iterates over TSV, CSV, Kvs, and GAMP data."
 
@@ -96,8 +94,8 @@ class DataIterator(options.PluginsOptions):
     }
 
     option_difficulties = {
-        "fail": options.OptionLevels.ADVANCED,
-        "user plugin": options.OptionLevels.ADVANCED
+        "fail": options.Levels.ADVANCED,
+        "user plugin": options.Levels.ADVANCED
     }
 
     option_types = {
