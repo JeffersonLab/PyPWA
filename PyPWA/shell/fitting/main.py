@@ -37,7 +37,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Fitting(plugins.ShellMain):
+class Fitting(plugins.Main):
 
     _logger = logging.getLogger(__name__)
     _data_parser = None

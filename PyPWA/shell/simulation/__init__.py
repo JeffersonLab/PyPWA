@@ -19,7 +19,7 @@ This line is green in PyCharm, however in Github its blue.
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import option_templates
+from PyPWA.core.configurator import options
 from PyPWA.shell.simulation import main
 
 __author__ = ["Mark Jones"]
@@ -31,7 +31,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class ShellSimulation(option_templates.MainOptionsTemplate):
+class ShellSimulation(options.Main):
 
     def _user_defined_function(self):
         return self._build_function("numpy", """\

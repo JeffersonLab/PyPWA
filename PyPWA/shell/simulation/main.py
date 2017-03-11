@@ -24,7 +24,8 @@ import random
 import time
 
 import numpy
-from PyPWA.core.templates import plugin_templates
+from PyPWA.core.shared.interfaces import plugins
+from PyPWA.core.shared.interfaces import internals
 
 from PyPWA import VERSION, LICENSE, STATUS
 from core.shared import plugin_loader
@@ -39,7 +40,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Simulator(plugin_templates.ShellMain):
+class Simulator(plugins.Main):
 
     def __init__(
             self, data_parser=None, kernel_processing=None,
@@ -76,9 +77,6 @@ class Simulator(plugin_templates.ShellMain):
         self._parameters = parameters
         self._max_intensity = max_intensity
         self._save_name = save_name
-
-        if options:
-            super(Simulator, self).__init__(options)
 
         self._raw_data = {}
         self._intensities = None  # type: numpy.ndarray
@@ -122,12 +120,11 @@ class Simulator(plugin_templates.ShellMain):
         Returns:
 
         """
-        loader = plugin_loader.PythonSheetLoader(
-            self._functions_location
-        )
+        loader = plugin_loader.PluginStorage()
+        loader.add_plugin_location(self._functions_location)
 
-        processing = loader.fetch_function(self._processing_name)
-        setup = loader.fetch_function(self._setup_name)
+        processing = loader.get_by_name(self._processing_name)
+        setup = loader.get_by_name(self._setup_name)
 
         self._raw_data["data"] = self._data_parser.parse(
             self._data_location
@@ -163,7 +160,7 @@ class Simulator(plugin_templates.ShellMain):
         self._rejection_list = rejection
 
 
-class IntensityInterface(internals.AbstractInterface):
+class IntensityInterface(internals.KernelInterface):
 
     is_duplex = False
 
@@ -197,7 +194,7 @@ class IntensityInterface(internals.AbstractInterface):
         return [final_array, final_array.max()]
 
 
-class IntensityKernel(internals.AbstractKernel):
+class IntensityKernel(internals.Kernel):
 
     def __init__(self, setup_function, processing_function, parameters):
         """

@@ -42,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _CoreProcessingKernel(internals.AbstractKernel):
+class _CoreProcessingKernel(internals.Kernel):
 
     def __init__(self, setup_function, processing_function):
         """
@@ -207,7 +207,7 @@ class Chi(_CoreProcessingKernel):
         return ((data - self.binned)**2) / self.binned
 
 
-class FittingInterfaceKernel(internals.AbstractInterface):
+class FittingInterfaceKernel(internals.KernelInterface):
 
     is_duplex = True
 
