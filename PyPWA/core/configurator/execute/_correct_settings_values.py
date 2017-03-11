@@ -33,10 +33,8 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-FUZZY_STRING_CONFIDENCE_LEVEL = 75  # percent from 0 to 100
+FUZZY_STRING_CONFIDENCE_LEVEL = 75
 
-
-# This will not correct the keys of the nested dictionaries.
 
 class _CorrectKeys(object):
 
@@ -74,6 +72,7 @@ class _CorrectKeys(object):
                 self.__set_corrected_key(found, key)
             else:
                 self.__log_key_error(key)
+            self.__check_for_dictionary(found)
 
     def __get_potential_key(self, key):
         found_key = self.__fuzz_key(key)
@@ -86,6 +85,15 @@ class _CorrectKeys(object):
 
     def __set_corrected_key(self, found, key):
         self.__corrected_keys[found] = self.__initial_settings[key]
+
+    def __check_for_dictionary(self, found):
+        if isinstance(self.__corrected_keys[found], dict):
+            self.__correct_nested_dictionary(found)
+
+    def __correct_nested_dictionary(self, found):
+        correction = _CorrectKeys(self.__TEMPLATE[found])
+        corrected = correction.correct_keys(self.__corrected_keys[found])
+        self.__corrected_keys[found] = corrected
 
     def __log_key_error(self, key):
         self.__logger.warning(
