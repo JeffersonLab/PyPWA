@@ -50,9 +50,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
     def __init__(self):
         self._logger.addHandler(logging.NullHandler())
 
-        self._plugin_handler = plugin_loader.PluginLoading(
-            options.PluginsOptions
-        )
+        self._plugin_handler = plugin_loader.PluginStorage()
 
     def build_configuration(
             self, plugin_name, main_plugin,
@@ -92,9 +90,11 @@ class ConfigurationBuilder(object):  # help, I am not simple
             self._plugin_directory = None
 
     def _build_storage(self):
-        plugins = self._plugin_handler.fetch_plugin(
+        self._plugin_handler.add_plugin_location(
             [PyPWA.builtin_plugins, self._plugin_directory]
         )
+
+        plugins = self._plugin_handler.get_by_class(options.Plugin)
 
         self._storage = storage.MetadataStorage()
         self._storage.add_plugins(plugins)
