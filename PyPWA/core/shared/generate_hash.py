@@ -61,7 +61,7 @@ def __get_stream_hash(file_location, file_hash):
 
 
 def __open_stream(file_location):
-    return open(file_location, "br")
+    return open(file_location, "rb")
 
 
 def __update_hash(stream, file_hash):
