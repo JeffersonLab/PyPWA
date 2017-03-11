@@ -19,7 +19,7 @@ import logging
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.core.templates import plugin_templates
+from PyPWA.core.shared.interfaces import plugins
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -30,20 +30,17 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Iterator(plugin_templates.DataReaderTemplate):
+class Iterator(plugins.DataIterator):
 
     _logger = logging.getLogger(__name__)
     _fail = True
     _plugin_fetcher = _plugin_finder.PluginSearch
 
-    def __init__(self, fail=True, user_plugin="", **options):
+    def __init__(self, fail=True, user_plugin=""):
         self._logger.addHandler(logging.NullHandler())
 
         self._fail = fail
         self._plugin_fetcher = _plugin_finder.PluginSearch(user_plugin)
-
-        if options:
-            super(Iterator, self).__init__(options)
 
     def return_reader(self, file_location):
         try:

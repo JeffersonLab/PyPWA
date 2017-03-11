@@ -32,9 +32,8 @@ Examples:
 """
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.builtin_plugins.data import iterator
-from PyPWA.builtin_plugins.data import memory
-from PyPWA.core.templates import option_templates
+from PyPWA.builtin_plugins.data import _setups
+from PyPWA.core.configurator import options
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -45,121 +44,70 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-MODULE_NAME = "Builtin Parser"  # Name for the module externally.
+class DataParser(options.Plugin):
+
+    plugin_name = "Builtin Parser"
+    setup = _setups.SetupParser
+    provides = options.Types.DATA_PARSER
+    defined_function = None
+    module_comment = "Parses TSV, CSV, Kvs, and GAMP data."
+
+    default_options = {
+        "enable cache": True,
+        "clear cache": False,
+        "user plugin": "cwd=/path/to/file;"
+    }
+
+    option_difficulties = {
+        "enable cache": options.Levels.OPTIONAL,
+        "clear cache": options.Levels.ADVANCED,
+        "user plugin": options.Levels.ADVANCED
+    }
+
+    option_types = {
+        "enable cache": bool,
+        "clear cache": bool,
+        "user plugin": str
+    }
+
+    option_comments = {
+        "enable cache": "Enable caching of all read data.",
+        "clear cache":
+            "Force cache to be cleared even if the data file hasn't changed.",
+        "user plugin":
+            "Directory that has potential plugins for the data parser in "
+            "it. Read the docs for more information."
+    }
 
 
-class DataParser(option_templates.PluginsOptionsTemplate):
+class DataIterator(options.Plugin):
 
-    def _plugin_name(self):
-        return "Builtin Parser"
+    plugin_name = "Builtin Reader"
+    setup = _setups.SetupIterator
+    provides = options.Types.DATA_READER
+    defined_function = None
+    module_comment = "Iterates over TSV, CSV, Kvs, and GAMP data."
 
-    def _plugin_interface(self):
-        return memory.Memory
+    default_options = {
+        "fail": False,
+        "user plugin": "cwd=/path/to/file;"
+    }
 
-    def _plugin_type(self):
-        return self._data_parser
+    option_difficulties = {
+        "fail": options.Levels.ADVANCED,
+        "user plugin": options.Levels.ADVANCED
+    }
 
-    def _user_defined_function(self):
-        return None
+    option_types = {
+        "fail": bool,
+        "user plugin": str
+    }
 
-    def _default_options(self):
-        return {
-            "enable cache": True,
-            "clear cache": False,
-            "fail": False,
-            "user plugin": "cwd=/path/to/file;"
-        }
-
-    def _option_levels(self):
-        return {
-            "enable cache": self._optional,
-            "clear cache": self._advanced,
-            "fail": self._advanced,
-            "user plugin": self._advanced
-        }
-
-    def _option_types(self):
-        return {
-            "enable cache": bool,
-            "clear cache": bool,
-            "fail": bool,
-            "user plugin": str
-        }
-
-    def _module_comment(self):
-        return "This is the builtin data parser, you can replace " \
-               "this with your own data parser if you wish."
-
-    def _option_comments(self):
-        return {
-            "enable cache":
-                "Should Cache be enabled? The cache will automatically "
-                "clear if it detects a change in any of your data and "
-                "should be safe to leave enabled.",
-            "clear cache":
-                "Should we force the cache to clear? This will destroy "
-                "all of your caches, this means loading your data will "
-                "take much longer, its recommended to leave this off "
-                "unless you are certain its a cache issue.",
-            "fail":
-                "Should the program stop if it fails to load the file? "
-                "The program will already fail if the data is needed for "
-                "parsing to happen, if this is set to true even files "
-                "that are optional will cause the program to stop.",
-            "user plugin":
-                "A plugin that can be loaded into the the " +
-                MODULE_NAME + " for parsing, see the "
-                "documentation on the " + MODULE_NAME +
-                " plugin for more information."
-        }
-
-
-class DataIterator(option_templates.PluginsOptionsTemplate):
-
-    def _plugin_name(self):
-        return "Builtin Reader"
-
-    def _plugin_interface(self):
-        return iterator.Iterator
-
-    def _plugin_type(self):
-        return self._data_reader
-
-    def _user_defined_function(self):
-        return None
-
-    def _default_options(self):
-        return {
-            "fail": False,
-            "user plugin": "cwd=/path/to/file;"
-        }
-
-    def _option_levels(self):
-        return {
-            "fail": self._advanced,
-            "user plugin": self._advanced
-        }
-
-    def _option_types(self):
-        return {
-            "fail": bool,
-            "user plugin": str
-        }
-
-    def _module_comment(self):
-        return "This is the builtin data parser, you can replace " \
-               "this with your own data parser if you wish."
-
-    def _option_comments(self):
-        return {
-            "fail":
-                "Should the program stop if it fails to load the file? "
-                "The program will already fail if the data is needed for "
-                "parsing to happen, if this is set to true even files "
-                "that are optional will cause the program to stop.",
-            "user plugin":
-                "A plugin that can be loaded into the the " +
-                "Builtin Reader for parsing, see the "
-                "documentation on the Builtin Reader " +
-                " plugin for more information."
-        }
+    option_comments = {
+        "fail":
+            "Force Parser to crash when it fails to read a file even if "
+            "a fallback exists.",
+        "user plugin":
+            "Directory that has potential plugins for the data parser in "
+            "it. Read the docs for more information."
+    }

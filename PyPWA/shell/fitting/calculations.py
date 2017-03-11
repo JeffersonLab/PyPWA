@@ -31,7 +31,7 @@ except ImportError:
 
 import numpy
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
+from core.shared.interfaces import internals
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -42,7 +42,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _CoreProcessingKernel(interface_templates.AbstractKernel):
+class _CoreProcessingKernel(internals.AbstractKernel):
 
     def __init__(self, setup_function, processing_function):
         """
@@ -207,7 +207,7 @@ class Chi(_CoreProcessingKernel):
         return ((data - self.binned)**2) / self.binned
 
 
-class FittingInterfaceKernel(interface_templates.AbstractInterface):
+class FittingInterfaceKernel(internals.AbstractInterface):
 
     is_duplex = True
 

@@ -19,12 +19,12 @@
 """
 
 import abc
-import io
 import logging
 import os
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import tools
+from PyPWA.core.shared import data_locator
+from PyPWA.core.shared import generate_hash
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -51,8 +51,6 @@ class BasicInfoInterface(object):
 
 class FindBasicInfo(BasicInfoInterface):
     _logger = logging.getLogger(__name__)
-    _hash_utility = tools.FileHashString()
-    _data_locator = tools.DataLocation()
     _cache_location = ""
     _found_hash = ""
 
@@ -81,7 +79,7 @@ class FindBasicInfo(BasicInfoInterface):
         self._cache_location = location
 
     def _get_cache_uri(self):
-        potential_cache_location = self._data_locator.get_cache_uri()
+        potential_cache_location = data_locator.get_cache_uri()
         self._logger.debug("Found location is %s" % potential_cache_location)
         return potential_cache_location
 
@@ -107,5 +105,4 @@ class FindBasicInfo(BasicInfoInterface):
         self._logger.debug("File Hash is set to %s" % self._found_hash)
 
     def _file_hash(self, original_file):
-        with io.open(original_file, "rb") as stream:
-            return self._hash_utility.get_sha512_hash(stream)
+        return generate_hash.get_sha512_hash(original_file)

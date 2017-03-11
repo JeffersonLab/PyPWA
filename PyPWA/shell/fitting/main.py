@@ -22,10 +22,11 @@ import logging
 import os
 
 import numpy
+
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core import plugin_loader
-from PyPWA.core.templates import plugin_templates
 from PyPWA.shell.fitting import calculations
+from core.shared import plugin_loader
+from core.shared.interfaces import plugins
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -36,7 +37,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Fitting(plugin_templates.ShellMain):
+class Fitting(plugins.ShellMain):
 
     _logger = logging.getLogger(__name__)
     _data_parser = None
@@ -165,7 +166,7 @@ class Fitting(plugin_templates.ShellMain):
             corrected["monte_carlo"] \
                 = corrected_monte_carlo["monte_carlo"]
 
-        if self._qfactor_data:
+        if isinstance(self._qfactor_data, numpy.ndarray):
             self._logger.info("Merging QFactors")
             corrected["qfactor"] = self._qfactor_data
         elif "qfactor" in corrected_data.keys():
@@ -192,7 +193,7 @@ class Fitting(plugin_templates.ShellMain):
         Returns:
 
         """
-        loader = plugin_loader.SingleFunctionLoader(
+        loader = plugin_loader.PythonSheetLoader(
             self._functions_location
         )
 

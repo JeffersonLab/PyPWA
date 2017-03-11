@@ -18,9 +18,9 @@ import csv
 import io
 
 import numpy
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
 
+from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core.shared.interfaces import internals
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -33,7 +33,7 @@ __version__ = VERSION
 HEADER_SEARCH_BITS = 1024
 
 
-class SvReader(interface_templates.ReaderInterfaceTemplate):
+class SvReader(internals.Reader):
 
     _previous_event = None  # type: collections.namedtuple
     _reader = False  # type: csv.DictReader
@@ -42,7 +42,7 @@ class SvReader(interface_templates.ReaderInterfaceTemplate):
     _elements = False  # type: list[str]
 
     def __init__(self, file_location):
-        super(SvReader, self).__init__(file_location)
+        self._the_file = file_location
         self._set_file_location(file_location)
         self._start_input()
 
@@ -77,15 +77,10 @@ class SvReader(interface_templates.ReaderInterfaceTemplate):
         for element in self._elements:
             self._types.append((element, "f8"))
 
-    def reset(self):
-        self.close()
-        self._start_input()
-
     def close(self):
         self._file.close()
 
-    @property
-    def next_event(self):
+    def next(self):
         non_parsed = list(next(self._reader))
         parsed = numpy.zeros(1, self._types)
 
@@ -94,21 +89,17 @@ class SvReader(interface_templates.ReaderInterfaceTemplate):
 
         self._previous_event = parsed
 
-        return self.previous_event
-
-    @property
-    def previous_event(self):
         return self._previous_event
 
 
-class SvWriter(interface_templates.WriterInterfaceTemplate):
+class SvWriter(internals.Writer):
 
     _dialect = csv.Dialect
     _writer = csv.DictWriter
     _field_names = [str]
 
     def __init__(self, file_location):
-        super(SvWriter, self).__init__(file_location)
+        self._the_file = file_location
         self._file = open(file_location, "w")
         self._set_dialect(file_location)
 

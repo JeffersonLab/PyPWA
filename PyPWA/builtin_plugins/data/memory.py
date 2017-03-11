@@ -19,8 +19,8 @@ import logging
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.core.templates import plugin_templates
 from PyPWA.builtin_plugins.data.cache import builder
+from PyPWA.core.shared.interfaces import plugins
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -31,7 +31,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Memory(plugin_templates.DataParserTemplate):
+class Memory(plugins.DataParser):
 
     _enable_cache = True
     _clear_cache = False
@@ -43,16 +43,13 @@ class Memory(plugin_templates.DataParserTemplate):
 
     def __init__(
             self, enable_cache=True, clear_cache=False,
-            user_plugin_dir="", **options
+            user_plugin_dir=""
     ):
         self._logger.addHandler(logging.NullHandler())
 
         self._enable_cache = enable_cache
         self._clear_cache = clear_cache
         self._user_plugin_dir = user_plugin_dir
-
-        if options:
-            super(Memory, self).__init__(options=options)
 
         self._set_plugin_search()
 
