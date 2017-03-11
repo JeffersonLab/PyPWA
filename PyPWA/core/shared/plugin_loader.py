@@ -124,17 +124,22 @@ class _Importer(object):
 
 class _FilterBySubclass(object):
 
+    __logger = logging.getLogger(__name__ + "._FilterBySubclass")
+
     __plugins = None
     __classes = None
     __template = None
 
     def __init__(self):
-        self.__classes = []
+        self.__logger.addHandler(logging.NullHandler())
 
     def filter(self, plugins, template):
+        self.__classes = []
         self.__plugins = plugins
         self.__template = template
-        return self.__filter_plugins()
+        plugins = self.__filter_plugins()
+        self.__log_plugin_search(plugins)
+        return plugins
         
     def __filter_plugins(self):
         for plugin in self.__plugins:
@@ -155,12 +160,16 @@ class _FilterBySubclass(object):
     def __process_attribute(self, attribute):
         if issubclass(attribute, self.__template):
             self.__classes.append(attribute)
-            
+
+    def __log_plugin_search(self, plugins):
+        self.__logger.debug("Using template: %s" % self.__template)
+        self.__logger.debug("Found: %s" % plugins)
+
 
 class PluginStorage(object):
 
     __importer = _Importer()
-    __logger = logging.getLogger("PluginStorage." + __name__)
+    __logger = logging.getLogger(__name__ + ".PluginStorage")
     __filter_subclass = _FilterBySubclass()
 
     __plugins = None  # type: [types.ModuleType]
