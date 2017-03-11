@@ -1,66 +1,39 @@
-=====
 PyPWA Manual - Fitting 
-=====
-------------------
+======================
+
 Step-by-step guide to PWA (mass-independent data fitting) using PyPWA 
 (using the scientific JLab batch farm)
-(February 2015)
-------------------
-:Authors:
-	C. Salgado,  
-	M. Jones,
-	W. Phelps
 	
-:Version: 1.0 07/01/2016
+All software used by PyPWA can be downloaded from https://pypwa.jlab.org/. 
 	
-	All software used by PyPWA can be downloaded from https://pypwa.jlab.org/. 
+Installing PyPWA software needs full internet access i.e go to jlabs1 as ifarm1102 doesn't have internet access.
+
+Create a PyPWA directory in your home directory.
+
+Untar your software.
+
+The general procedure of using PyPWA in the standard format (helicity formalism and isobar model) to perform partial wave analysis is the following:
+
+.. note::
+    It is advised that you read the general documentation in PyPWA/docs/, in the wiki PyPWA, or the website before proceedings. For the general formalism consult: 
+    C. W. Salgado and D. P. Weygand, Physics Report 537 (2014) 1-58 and references within.
+    These are detailed step-by-step instructions for PWA (fitting): 
 	
-	Installing PyPWA software needs full internet access i.e go to jlabs1 as ifarm1102 
-	doesn't have internet access.
+Requirements (You'll need your own software for these steps):
 
-	Create a PyPWA directory in your home directory.
-
-	Untar your software.
-
-	The general procedure of using PyPWA in the standard format (helicity formalism 
-	and isobar model) to perform partial wave analysis is the following::
-
-		NOTE:
-		
-		It is advised that you read the general documentation in PyPWA/docs/, in the 
-		wiki PyPWA, or the website before proceedings. For the general formalism consult: 
-		C. W. Salgado and D. P. Weygand, Physics Report 537 (2014) 1-58 and references 
-		within.
-		
-		These are detailed step-by-step instructions for PWA (fitting): 
+1. Analyze your data to select the signal and crate a gamp format file with all your events and name it data_events.gamp. We also allow for the use of a Q factor (i.e. the probability for each event to be a signal, ie. Q=signal/(signal+background), to be included in the PWA fit. Just create a file named QFactor.txt with the Q values of all events, one per line, written in the same order that the events are entered in data_events.gamp.
 	
-	Requirements (You'll need your own software for these steps):
+2. Run a full monte carlo simulation (generate+geant(detector + reconstruction + analysis) using a flat phase-space generator (you can or can't include your t distribution there). Create two gamp formatted files: raw_events.gamp with all the generated events, and acc_events.gamp with all the events obtained after the full simulation.
 
-	1) Analyze your data to select the signal and crate a gamp format file with all 
-	your events and name it data_events.gamp.
+You are ready to start using the PyPWA software.
 
-	We also allow for the use of a Q factor (i.e. the probability for each event to be 
-	a signal, ie. Q=signal/(signal+background), to be included in the PWA fit.
-	Just create a file named QFactor.txt with the Q values of all events, one per line, written in the same order that the events are entered in 		data_events.gamp.
-	
-	2) Run a full monte carlo simulation (generate+geant(detector + reconstruction + 
-	analysis) using a flat phase-space generator (you can or can't include your t distribution there). Create two gamp formatted files: raw_events.gamp
-	with all the generated events, and acc_events.gamp with all the events obtained after the full simulation.
-
-	You are ready to start using the PyPWA software.
-
-	[1] Log in to an interactive farm machine (e.g. ifarm1102). (Note: You may need to contact your hall's scientific computing liason to get access to 		the Jlab scientific computing farm!)
-
-	[2] Create a directory named as you like (for example after your reaction: e.g. Pippimpi0 – called here “MAIN”)
-	
-	[3] Move your files: data_events.gamp, raw_events.gamp, acc_events.gamp and QFactor.txt(if you have one) into that directory.
-	Copy PyPWA/pythonPWA/ from your home directory into that directory.
-	
-	[4] Go to the pythonPWA/batchFarmServices directory and run: fitting_Install
-
-	A GUI called pwa_controls will pop-up (Note: There is a "help" button in the GUI itself). 
-
-	[5] Fill in the information and save.
+1. Log in to an interactive farm machine (e.g. ifarm1102). (Note: You may need to contact your hall's scientific computing liason to get access to the Jlab scientific computing farm!)
+2. Create a directory named as you like (for example after your reaction: e.g. Pippimpi0 – called here “MAIN”)
+3. Move your files: data_events.gamp, raw_events.gamp, acc_events.gamp and QFactor.txt(if you have one) into that directory.
+4. Copy PyPWA/pythonPWA/ from your home directory into that directory.
+5. Go to the pythonPWA/batchFarmServices directory and run: fitting_Install
+6. A GUI called pwa_controls will pop-up (Note: There is a "help" button in the GUI itself). 
+7. Fill in the information and save.
 				{GUI HERE}
 
 
