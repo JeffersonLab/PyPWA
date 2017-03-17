@@ -31,35 +31,43 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class CalculationFactory(object):
+def simplex_build(process_kernels):
 
-    @staticmethod
-    def simplex_build(process_kernels):
+    count = len(process_kernels)
+    processes = []
 
-        count = len(process_kernels)
-        processes = []
+    sends, receives = factory.simplex_build(count)
 
-        sends, receives = factory.CommunicationFactory.simplex_build(count)
+    for index, internals in enumerate(zip(process_kernels, sends)):
 
-        for index, internals in enumerate(zip(process_kernels, sends)):
-            processes.append(
-                _processes.SimplexProcess(index, internals[0], internals[1])
+        __set_process_id(internals[0], index)
+
+        processes.append(
+            _processes.Simplex(
+                internals[0], internals[1]
             )
+        )
 
-        return [processes, receives]
+    return [processes, receives]
 
-    @staticmethod
-    def duplex_build(process_kernels):
-        count = len(process_kernels)
-        processes = []
-        main_com, process_com = factory.CommunicationFactory.duplex_build(count)
 
-        for index, internals in enumerate(zip(process_kernels, process_com)):
-            processes.append(_processes.DuplexProcess(
-                index, internals[0], internals[1]
-            ))
-            processes.append(
-                _processes.DuplexProcess(index, internals[0], internals[1])
+def duplex_build(process_kernels):
+    count = len(process_kernels)
+    processes = []
+    main_com, process_com = factory.duplex_build(count)
+
+    for index, internals in enumerate(zip(process_kernels, process_com)):
+
+        __set_process_id(internals[0], index)
+
+        processes.append(
+            _processes.Duplex(
+            internals[0], internals[1]
             )
+        )
 
-        return [processes, main_com]
+    return [processes, main_com]
+
+
+def __set_process_id(process, the_id):
+    process.name = the_id
