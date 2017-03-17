@@ -29,7 +29,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _CommunicationInterface(object):
+class _Communication(object):
     def send(self, data):
         raise NotImplementedError(
             "Object fails to override the send method."

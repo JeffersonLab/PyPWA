@@ -33,7 +33,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _SimplexSend(_interface._CommunicationInterface):
+class _SimplexSend(_interface._Communication):
 
     _send = None  # type: multiprocessing.Pipe
 
@@ -50,7 +50,7 @@ class _SimplexSend(_interface._CommunicationInterface):
         )
 
 
-class _SimplexReceive(_interface._CommunicationInterface):
+class _SimplexReceive(_interface._Communication):
 
     _receive_pipe = None  # type: multiprocessing.Pipe
 

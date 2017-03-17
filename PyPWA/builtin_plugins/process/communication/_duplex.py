@@ -32,7 +32,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class _DuplexCommunication(_interface._CommunicationInterface):
+class _DuplexCommunication(_interface._Communication):
 
     _send_pipe = None  # type: multiprocessing.Pipe
     _receive_pipe = None  # type: multiprocessing.Pipe
