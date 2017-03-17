@@ -32,32 +32,29 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class CommunicationFactory(object):
+def simplex_build(count):
+    sends = [0] * count
+    receives = [0] * count
 
-    @staticmethod
-    def simplex_build(count):
-        sends = [0] * count
-        receives = [0] * count
+    for pipe in range(count):
+        receive, send = multiprocessing.Pipe(False)
+        sends[pipe] = _simplex._SimplexSend(send)
+        receives[pipe] = _simplex._SimplexReceive(receive)
 
-        for pipe in range(count):
-            receive, send = multiprocessing.Pipe(False)
-            sends[pipe] = _simplex._SimplexSend(send)
-            receives[pipe] = _simplex._SimplexReceive(receive)
+    return [sends, receives]
 
-        return [sends, receives]
 
-    @staticmethod
-    def duplex_build(count):
-        main = [0] * count
-        process = [0] * count
+def duplex_build(count):
+    main = [0] * count
+    process = [0] * count
 
-        for pipe in range(count):
-            receive_one, send_one = multiprocessing.Pipe(False)
-            receive_two, send_two = multiprocessing.Pipe(False)
+    for pipe in range(count):
+        receive_one, send_one = multiprocessing.Pipe(False)
+        receive_two, send_two = multiprocessing.Pipe(False)
 
-            main[pipe] = _duplex._DuplexCommunication(send_one, receive_two)
-            process[pipe] = _duplex._DuplexCommunication(
-                send_two, receive_one
-            )
+        main[pipe] = _duplex._DuplexCommunication(send_one, receive_two)
+        process[pipe] = _duplex._DuplexCommunication(
+            send_two, receive_one
+        )
 
-        return [main, process]
+    return [main, process]
