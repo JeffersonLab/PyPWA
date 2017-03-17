@@ -62,7 +62,7 @@ def duplex_build(process_kernels):
 
         processes.append(
             _processes.Duplex(
-            internals[0], internals[1]
+                internals[0], internals[1]
             )
         )
 
