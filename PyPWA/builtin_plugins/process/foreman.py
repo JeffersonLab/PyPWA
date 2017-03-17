@@ -95,9 +95,7 @@ class _ProcessInterface(internals.ProcessInterface):
 class CalculationForeman(plugins.KernelProcessing):
 
     def __init__(
-            self, number_of_processes=multiprocessing.cpu_count() * 2,
-            **options
-    ):
+            self, number_of_processes=multiprocessing.cpu_count() * 2,):
         self._process_kernels = False
         self._duplex = False
         self._interface = False
@@ -106,9 +104,6 @@ class CalculationForeman(plugins.KernelProcessing):
         self._logger = logging.getLogger(__name__)
 
         self._number_of_processes = number_of_processes
-
-        if options:
-            super(CalculationForeman, self).__init__(options)
 
     def main_options(self, data, process_template, interface_template):
         process_data = self.__split_data(
