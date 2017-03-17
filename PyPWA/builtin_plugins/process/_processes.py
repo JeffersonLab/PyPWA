@@ -18,7 +18,8 @@
 The processes and their factories are defined here. The current supported
 methods are Duplex for worker processes and Simplex for offload processes.
 """
-
+from PyPWA.core.shared.interfaces import internals
+from PyPWA.builtin_plugins.process.communication import _interface
 import multiprocessing
 
 from PyPWA import VERSION, LICENSE, STATUS
@@ -32,59 +33,59 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class DuplexProcess(multiprocessing.Process):
+class Duplex(multiprocessing.Process):
 
     daemon = True  # When true, processes will die with main
 
-    _kernel = None
-    _communicator = None
+    __kernel = None
+    __communicator = None
 
-    _should_calculate = True
-    _received_value = None
+    __should_calculate = True
+    __received_value = None
 
     def __init__(self, kernel, communicator):
-        super(DuplexProcess, self).__init__()
-        self._kernel = kernel
-        self._communicator = communicator
+        super(Duplex, self).__init__()
+        self.__kernel = kernel
+        self.__communicator = communicator
 
     def run(self):
-        self._kernel.setup()
-        self._loop()
+        self.__kernel.setup()
+        self.__loop()
         return 0
 
-    def _loop(self):
-        while self._should_calculate:
-            self._get_value()
-            if self._received_value == "DIE":
-                self._should_calculate = False
+    def __loop(self):
+        while self.__should_calculate:
+            self.__get_value()
+            if self.__received_value == "DIE":
+                self.__should_calculate = False
             else:
-                self._process()
+                self.__process()
 
-    def _get_value(self):
-        value = self._communicator.receive()
-        self._received_value = value
+    def __get_value(self):
+        value = self.__communicator.receive()
+        self.__received_value = value
 
-    def _process(self):
-        processed_data = self._kernel.process(self._received_value)
-        self._communicator.send(processed_data)
+    def __process(self):
+        processed_data = self.__kernel.process(self.__received_value)
+        self.__communicator.send(processed_data)
 
 
-class SimplexProcess(multiprocessing.Process):
+class Simplex(multiprocessing.Process):
 
     daemon = True  # When true, processes will die with main
-    _kernel = None
-    _communicator = None
+    __kernel = None  # type: internals.Kernel
+    __communicator = None  # type: _interface._Communication
 
     def __init__(self, single_kernel, communicator):
-        super(SimplexProcess, self).__init__()
-        self._kernel = single_kernel
-        self._communicator = communicator
+        super(Simplex, self).__init__()
+        self.__kernel = single_kernel
+        self.__communicator = communicator
 
     def run(self):
-        self._kernel.setup()
-        self._communicator.send(self._kernel.process())
+        self.__kernel.setup()
+        self.__communicator.send(self.__kernel.process())
         return 0
 
     def _process(self):
-        processed_data = self._kernel.process()
-        self._communicator.send(processed_data)
+        processed_data = self.__kernel.process()
+        self.__communicator.send(processed_data)
