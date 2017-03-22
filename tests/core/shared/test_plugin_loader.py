@@ -24,6 +24,11 @@ def plugin_loader_with_plugins():
     return loader.get_by_class(options.Plugin)
 
 
+def test_plugin_loader_with_sets():
+    loader = plugin_loader.PluginStorage()
+    loader.add_plugin_location({builtin_plugins})
+
+
 def test_data_iterator_is_found(plugin_loader_with_plugins):
     assert data.DataIterator in plugin_loader_with_plugins
 

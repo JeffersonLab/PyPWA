@@ -179,7 +179,7 @@ class PluginStorage(object):
         self.__plugins = []
 
     def add_plugin_location(self, location):
-        if isinstance(location, list):
+        if isinstance(location, list) or isinstance(location, set):
             self.__process_multiple_modules(location)
         else:
             self.__process_single_module(location)
