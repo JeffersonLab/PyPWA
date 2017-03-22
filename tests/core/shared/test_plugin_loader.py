@@ -20,7 +20,7 @@ DOES_NOT_EXIST = os.path.join(
 @pytest.fixture(scope="module")
 def plugin_loader_with_plugins():
     loader = plugin_loader.PluginStorage()
-    loader.add_plugin_location([builtin_plugins])
+    loader.add_plugin_location([builtin_plugins, None])
     return loader.get_by_class(options.Plugin)
 
 
