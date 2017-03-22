@@ -14,7 +14,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pytest
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.core.configurator.storage import template_parser
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -23,3 +25,21 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+
+@pytest.fixture()
+def templates():
+    loader = template_parser.TemplateLoader()
+    return loader.templates
+
+
+def test_template_is_dict(templates):
+    assert isinstance(templates, dict)
+
+
+def test_global_settings_in_templates(templates):
+    assert "Global Options" in templates
+
+
+def test_builtin_parser_in_templates(templates):
+    assert "Builtin Parser" in templates
