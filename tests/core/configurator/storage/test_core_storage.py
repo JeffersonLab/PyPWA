@@ -15,11 +15,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
+
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.configurator.storage import core_storage
-from PyPWA.core.shared import plugin_loader
 from PyPWA import builtin_plugins
 from PyPWA.core.configurator import options
+from PyPWA.core.configurator.storage import core_storage
+from PyPWA.core.shared import plugin_loader
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
