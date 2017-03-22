@@ -14,6 +14,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pytest
+from PyPWA.core.configurator.storage import module_fetcher
 from PyPWA import VERSION, LICENSE, STATUS
 
 __author__ = ["Mark Jones"]
@@ -23,3 +25,19 @@ __email__ = "maj@jlab.org"
 __status__ = STATUS
 __license__ = LICENSE
 __version__ = VERSION
+
+
+@pytest.fixture()
+def module_picking():
+    return module_fetcher.ModulePicking()
+
+
+def test_module_picking_can_find_builtin_parser(module_picking):
+    found_plugin = module_picking.request_plugin_by_name("Builtin Parser")
+    assert found_plugin is not None
+
+
+def test_module_picking_can_find_shell_fitting_method(module_picking):
+    found_plugin = module_picking.request_main_by_id("shell fitting method")
+    assert found_plugin is not None
+
