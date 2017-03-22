@@ -37,18 +37,18 @@ class TemplateLoader(object):
     __templates = None  # type: dict
 
     def __init__(self, extra_locations=False):
-        self._plugin_storage = core_storage.ModuleStorage(extra_locations)
+        self.__plugin_storage = core_storage.ModuleStorage(extra_locations)
         self.__logger.addHandler(logging.NullHandler())
         self.__templates = {}
         self.__process_options()
         self.__process_main()
 
     def __process_options(self):
-        for plugin in self._plugin_storage.option_modules:
+        for plugin in self.__plugin_storage.option_modules:
             self.__load_templates(plugin)
 
     def __process_main(self):
-        for main in self._plugin_storage.shell_modules:
+        for main in self.__plugin_storage.shell_modules:
             self.__load_templates(main)
 
     def __load_templates(self, plugin):
