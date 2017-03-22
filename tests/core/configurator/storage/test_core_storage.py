@@ -21,6 +21,7 @@ from PyPWA import builtin_plugins
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.storage import core_storage
 from PyPWA.core.shared import plugin_loader
+from PyPWA.shell import fitting
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -49,6 +50,10 @@ def metadata_storage():
 
 def test_module_finds_shells(module_storage):
     assert len(module_storage.shell_modules) != 0
+
+
+def test_module_finds_fitter(module_storage):
+    assert fitting.ShellFitting in module_storage.shell_modules
 
 
 def test_module_finds_options(module_storage):
