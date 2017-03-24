@@ -29,7 +29,7 @@ __version__ = VERSION
 
 class Types(enum.Enum):
     KERNEL_PROCESSING = 1
-    MINIMIZATION = 2
+    OPTIMIZER = 2
     DATA_READER = 3
     DATA_PARSER = 4
     SKIP = 5

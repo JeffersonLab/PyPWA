@@ -31,7 +31,7 @@ __version__ = VERSION
 class MinuitOptions(options.Plugin):
     plugin_name = "Minuit"
     setup = _setup.MinuitSetup
-    provides = options.Types.MINIMIZATION
+    provides = options.Types.OPTIMIZER
     defined_function = None
     module_comment = "Minuit is the tried and tested minimizer."
 

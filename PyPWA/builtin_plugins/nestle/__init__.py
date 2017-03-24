@@ -29,7 +29,7 @@ __version__ = VERSION
 class NestleOptions(options.Plugin):
     plugin_name = "Nestle"
     setup = _setup.NestleSetup
-    provides = options.Types.MINIMIZATION
+    provides = options.Types.OPTIMIZER
     defined_function = None
     module_comment = "Nestle, a python based multinest implementation."
 

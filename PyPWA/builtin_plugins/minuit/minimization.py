@@ -46,7 +46,7 @@ class _ParserObject(internals.MinimizerOptionParser):
         return parameters_with_values
 
 
-class Minuit(plugins.Minimizer):
+class Minuit(plugins.Optimizer):
 
     __logger = logging.getLogger(__name__ + ".Minuit")
 

@@ -40,7 +40,7 @@ class _NestleParserObject(internals.MinimizerOptionParser):
         return args[0][0]
 
 
-class NestledSampling(plugins.Minimizer):
+class NestledSampling(plugins.Optimizer):
 
     __logger = logging.getLogger(__name__)
     __callback_object = None  # type: _graph_data.SaveData

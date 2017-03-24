@@ -130,7 +130,7 @@ class PluginNameConversion(object):
         [options.Types.DATA_PARSER, "Data Parsing"],
         [options.Types.DATA_READER, "Data Iterator"],
         [options.Types.KERNEL_PROCESSING, "Kernel Processor"],
-        [options.Types.MINIMIZATION, "Minimizer"]
+        [options.Types.OPTIMIZER, "Optimizer"]
     ]
 
     def internal_to_external(self, plugin_type):

@@ -29,7 +29,7 @@ __license__ = LICENSE
 __version__ = VERSION
 
 
-class Minimizer(object):
+class Optimizer(object):
 
     def main_options(self, calc_function, fitting_type=False):
         raise NotImplementedError

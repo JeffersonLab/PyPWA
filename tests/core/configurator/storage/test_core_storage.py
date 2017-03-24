@@ -69,6 +69,6 @@ def test_metadata_storage_finds_builtin_parser(metadata_storage):
 
 def test_metadata_storage_finds_optimizers(metadata_storage):
     object = metadata_storage.request_plugin_by_type(
-        options.Types.MINIMIZATION
+        options.Types.OPTIMIZER
     )
     assert len(object) == 2

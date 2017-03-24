@@ -5,7 +5,7 @@ from PyPWA.core.shared.interfaces import plugins
 
 @pytest.fixture
 def minimizer():
-    return plugins.Minimizer()
+    return plugins.Optimizer()
 
 
 @pytest.fixture
