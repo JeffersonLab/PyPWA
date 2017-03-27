@@ -92,6 +92,9 @@ class DataLoading(object):
         else:
             return False
 
+    def write(self, file_location, data):
+        self.__parser.write(file_location, data)
+
     @property
     def data(self):
         return self.__data
