@@ -22,7 +22,7 @@ from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
-from PyPWA.shell.pyfit import _loaders
+from PyPWA.shell import loaders
 from PyPWA.shell.pyfit import _process_interface
 from PyPWA.shell.pyfit import interfaces
 from PyPWA.shell.pyfit import likelihoods
@@ -64,8 +64,8 @@ class _LikelihoodPackager(object):
 class OptionParser(plugins.Main):
     __optimizer = None  # type: plugins.Optimizer
     __processing = None  # type: plugins.KernelProcessing
-    __data_loader = None  # type: _loaders.DataLoading
-    __function_loader = None  # type: _loaders.FunctionLoader
+    __data_loader = None  # type: loaders.DataLoading
+    __function_loader = None  # type: loaders.FunctionLoader
     __likelihood_type = None  # type: str
     __generated_length = None  # type: int
     __save_name = None  # type: str

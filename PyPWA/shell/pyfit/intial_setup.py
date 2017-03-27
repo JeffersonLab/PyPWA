@@ -16,10 +16,9 @@
 
 from PyPWA import VERSION, LICENSE, STATUS
 from PyPWA.core.configurator import options
-from PyPWA.shell.pyfit import _loaders
+from PyPWA.shell import loaders
 from PyPWA.shell.pyfit import pyfit
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
 __maintainer__ = ["Mark Jones"]
 __email__ = "maj@jlab.org"
@@ -32,8 +31,8 @@ class FittingSetup(options.Setup):
 
     __interface = None
     __options = None
-    __data_loader = None  # type: _loaders.DataLoading
-    __functions = None  # type: _loaders.FunctionLoader
+    __data_loader = None  # type: loaders.DataLoading
+    __functions = None  # type: loaders.FunctionLoader
 
     def __init__(self, options_object):
         self.__options = options_object
@@ -42,14 +41,14 @@ class FittingSetup(options.Setup):
         self.__setup_interface()
 
     def __load_data(self):
-        self.__data_loader = _loaders.DataLoading(
+        self.__data_loader = loaders.DataLoading(
             self.__options.DATA_PARSER,
             self.__options.data_location, self.__options.qfactor_location,
             self.__options.accepted_monte_monte_carlo_location
         )
 
     def __load_functions(self):
-        self.__functions = _loaders.FunctionLoader(
+        self.__functions = loaders.FunctionLoader(
             self.__options.functions_location, self.__options.processing_name,
             self.__options.setup_name
         )
