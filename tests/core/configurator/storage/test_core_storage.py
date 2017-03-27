@@ -21,7 +21,7 @@ from PyPWA import builtin_plugins
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.storage import core_storage
 from PyPWA.core.shared import plugin_loader
-from PyPWA.shell import fitting
+from PyPWA.shell import pyfit
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -53,7 +53,7 @@ def test_module_finds_shells(module_storage):
 
 
 def test_module_finds_fitter(module_storage):
-    assert fitting.ShellFitting in module_storage.shell_modules
+    assert pyfit.ShellFitting in module_storage.shell_modules
 
 
 def test_module_finds_options(module_storage):
