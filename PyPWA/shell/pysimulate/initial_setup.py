@@ -50,12 +50,14 @@ class SimulationSetup(options.Setup):
                 self.__options.functions_location,
                 self.__options.processing_name, self.__options.setup_name
             )
+            self.__functions.load_functions()
 
     def __load_data(self):
         self.__data_loader = _libs.DataHandler(
             self.__options.DATA_PARSER, self.__options.data_location,
             self.__options.save_name
         )
+        self.__data_loader.load_data()
 
     def __set_interface(self):
         self.__interface = pysimulate.Simulator(
