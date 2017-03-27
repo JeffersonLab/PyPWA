@@ -33,20 +33,20 @@ __version__ = VERSION
 
 class DataLoading(object):
 
-    __parser = None  # type: plugins.DataParser
-    __data_file = None  # type: str
-    __qfactor_file = None  # type: str
-    __monte_carlo_file = None  # type: str
+    _parser = None  # type: plugins.DataParser
+    _data_file = None  # type: str
+    _qfactor_file = None  # type: str
+    _monte_carlo_file = None  # type: str
     __data = None  # type: numpy.ndarray
     __qfactor = None  # type: numpy.ndarray
     __monte_carlo = None  # type: numpy.ndarray
     __binned = None  # type: numpy.ndarray
 
     def __init__(self, parser, data, qfactor=None, monte_carlo=None):
-        self.__parser = parser
-        self.__data_file = data
-        self.__qfactor_file = qfactor
-        self.__monte_carlo_file = monte_carlo
+        self._parser = parser
+        self._data_file = data
+        self._qfactor_file = qfactor
+        self._monte_carlo_file = monte_carlo
 
     def load_data(self):
         self.__load_data()
@@ -55,8 +55,8 @@ class DataLoading(object):
         self.__load_monte_carlo()
 
     def __load_data(self):
-        if self.__is_file(self.__data_file):
-            self.__data = self.__parser.parse(self.__data_file)
+        if self.__is_file(self._data_file):
+            self.__data = self._parser.parse(self._data_file)
 
     def __process_data(self):
         self.__qfactor = self.__extract_data("qfactor")
@@ -74,14 +74,14 @@ class DataLoading(object):
         return data
 
     def __load_qfactor(self):
-        if self.__is_file(self.__qfactor_file):
-            self.__qfactor = self.__parser.parse(self.__qfactor_file)
+        if self.__is_file(self._qfactor_file):
+            self.__qfactor = self._parser.parse(self._qfactor_file)
         elif self.__qfactor is None:
             self.__qfactor = numpy.ones(len(self.__data))
 
     def __load_monte_carlo(self):
-        if self.__is_file(self.__monte_carlo_file):
-            self.__monte_carlo = self.__parser.parse(self.__monte_carlo_file)
+        if self.__is_file(self._monte_carlo_file):
+            self.__monte_carlo = self._parser.parse(self._monte_carlo_file)
         else:
             self.__monte_carlo = False
 
@@ -93,7 +93,7 @@ class DataLoading(object):
             return False
 
     def write(self, file_location, data):
-        self.__parser.write(file_location, data)
+        self._parser.write(file_location, data)
 
     @property
     def data(self):
