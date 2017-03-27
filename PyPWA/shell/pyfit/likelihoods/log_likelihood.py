@@ -15,9 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy
-from PyPWA.shell.pyfit import interfaces
-from PyPWA.shell.pyfit import _loaders
+
 from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA.shell import loaders
+from PyPWA.shell.pyfit import interfaces
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -31,8 +32,8 @@ __version__ = VERSION
 class LogLikelihood(interfaces.Setup):
 
     name = "Log Likelihood"
-    _data = None  # type: _loaders.DataLoading
-    _functions = None  # type: _loaders.FunctionLoader
+    _data = None  # type: loaders.DataLoading
+    _functions = None  # type: loaders.FunctionLoader
     __generated_length = None  # type: int
     _dictionary_data = None  # type: dict
     _likelihood = None  # type: interfaces.Likelihood
@@ -99,7 +100,7 @@ class ExtendedLikelihoodAmplitude(interfaces.Likelihood):
         self.__check_data_for_zeros(data)
 
         return self.__process_log_likelihood(data) + \
-               self.__process_monte_carlo(monte_carlo)
+            self.__process_monte_carlo(monte_carlo)
 
     @staticmethod
     def __check_data_for_zeros(data):
