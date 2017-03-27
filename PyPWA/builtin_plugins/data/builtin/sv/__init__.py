@@ -14,10 +14,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data.builtin.sv import s_iterator
 from PyPWA.builtin_plugins.data.builtin.sv import s_memory
 from PyPWA.builtin_plugins.data.builtin.sv import s_read_tests
+
+__credits__ = ["Mark Jones"]
+__author__ = AUTHOR
+__version__ = VERSION
 
 
 class SvDataPlugin(data_templates.TemplateDataPlugin):

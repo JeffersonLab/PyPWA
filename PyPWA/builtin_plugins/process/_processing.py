@@ -21,15 +21,11 @@ methods are Duplex for worker processes and Simplex for offload processes.
 
 import multiprocessing
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process._communication import CommunicationFactory
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

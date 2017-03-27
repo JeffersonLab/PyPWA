@@ -22,17 +22,14 @@ import sys
 
 import types
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 
-__author__ = ["Mark Jones"]
 __credits__ = [
+    "Mark Jones",
     "jp. @ Stack Overflow",
     "unutbu @ Stack Overflow"
 ]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -107,8 +104,8 @@ class _Importer(object):
     def __load_multiple_modules(self, package):
         """
         See Also:
-            http://stackoverflow.com/a/1310912
-            http://stackoverflow.com/a/1708706
+            - http://stackoverflow.com/a/1310912
+            - http://stackoverflow.com/a/1708706
         """
         modules = []
         for loader, module, ispkg in pkgutil.iter_modules(package.__path__):
@@ -212,4 +209,3 @@ class PluginStorage(object):
 
     def get_by_class(self, template):
         return self.__filter_subclass.filter(self.__plugins, template)
-

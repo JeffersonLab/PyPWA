@@ -25,17 +25,13 @@ import argparse
 import logging
 import sys
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.shared import initial_logging
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator.create_config import create
 from PyPWA.core.configurator.execute import start
+from PyPWA.core.shared import initial_logging
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -194,4 +190,3 @@ Credit:
             self.__configuration,
             self.__arguments.configuration_location
         )
-

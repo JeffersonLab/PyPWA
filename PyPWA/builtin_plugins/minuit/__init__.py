@@ -14,17 +14,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.configurator import options
-from PyPWA.builtin_plugins.minuit import minimization
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.minuit import _setup
+from PyPWA.builtin_plugins.minuit import minimization
+from PyPWA.core.configurator import options
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -60,7 +56,7 @@ class MinuitOptions(options.Plugin):
         "parameters":
             "The parameters used inside your settings and your function",
         "settings":
-            "The settings for iMinuit's fitting. See iMinuit documentation",
+            "The settings for iMinuit's pyfit. See iMinuit documentation",
         "strategy":
             "The strategy of Minuit. 0 for fast, 1 default, 2 for accurate",
         "number of calls":

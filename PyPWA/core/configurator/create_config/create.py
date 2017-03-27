@@ -17,24 +17,20 @@
 import logging
 
 import PyPWA.shell
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _builder
 from PyPWA.core.shared import plugin_loader
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
 class Config(object):
 
     __config_maker = _builder.ConfigurationBuilder()
-    __logger = logging.getLogger("UNKNOWN." + __name__)
+    __logger = logging.getLogger(__name__ + ".Config")
     __loader = plugin_loader.PluginStorage()
 
     __main_plugin = None
@@ -69,9 +65,7 @@ class Config(object):
         self.__logger.debug("Searching for name: %s" % self.__shell_name)
 
     def __load_potential_plugins(self):
-        self.__potential_plugins = self.__loader.get_by_class(
-            options.MainOptions
-        )
+        self.__potential_plugins = self.__loader.get_by_class(options.Main)
 
     def __search_for_main_plugin(self):
         for plugin in self.__potential_plugins:

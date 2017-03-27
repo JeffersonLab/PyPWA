@@ -18,14 +18,10 @@
 Stores the exceptions used by the parsing plugins for the data module.
 """
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

@@ -21,17 +21,13 @@
 import logging
 import os
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.builtin_plugins.data.cache import _basic_info
 from PyPWA.builtin_plugins.data.cache import _template
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

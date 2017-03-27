@@ -20,17 +20,13 @@ import time
 
 import numpy
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import plugins
 from PyPWA.shell import loaders
 from PyPWA.shell.pysimulate import _processing
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

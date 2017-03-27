@@ -18,17 +18,14 @@ import csv
 import io
 import logging
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
+
 
 HEADER_SEARCH_BITS = 1024
 

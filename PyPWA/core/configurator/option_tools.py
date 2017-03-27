@@ -20,15 +20,11 @@ import re
 
 from ruamel.yaml import comments
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -142,4 +138,3 @@ class PluginNameConversion(object):
         for internal_name, external_name in self.__NAMES:
             if external_name == plugin_type:
                 return internal_name
-

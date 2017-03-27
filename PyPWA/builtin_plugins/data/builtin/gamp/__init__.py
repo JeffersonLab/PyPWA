@@ -14,10 +14,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin.gamp import g_read_tests
 from PyPWA.builtin_plugins.data.builtin.gamp import g_iterator
 from PyPWA.builtin_plugins.data.builtin.gamp import g_memory
+from PyPWA.builtin_plugins.data.builtin.gamp import g_read_tests
+
+__credits__ = ["Mark Jones"]
+__author__ = AUTHOR
+__version__ = VERSION
 
 
 class GampDataPlugin(data_templates.TemplateDataPlugin):

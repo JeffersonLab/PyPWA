@@ -15,22 +15,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import typing
 
 import nestle
+import typing
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _graph_data
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

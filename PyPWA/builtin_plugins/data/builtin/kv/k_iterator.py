@@ -38,16 +38,12 @@ import logging
 
 import numpy
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 from PyPWA.core.shared.interfaces import internals
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -240,4 +236,3 @@ class EVILWriter(internals.Writer):
         Closes the file safely.
         """
         self._file.close()
-

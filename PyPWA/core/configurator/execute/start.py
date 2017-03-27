@@ -15,9 +15,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+
 import typing
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator.execute import _correct_settings_values
 from PyPWA.core.configurator.execute import config_loader
@@ -25,12 +26,8 @@ from PyPWA.core.configurator.storage import module_fetcher
 from PyPWA.core.configurator.storage import template_parser
 from PyPWA.core.shared.interfaces import plugins
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

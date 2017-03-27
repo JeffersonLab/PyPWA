@@ -23,10 +23,15 @@ whatever data needs to be read/written.
 import logging
 import os
 
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import builtin
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.core.shared import plugin_loader
+
+__credits__ = ["Mark Jones"]
+__author__ = AUTHOR
+__version__ = VERSION
 
 
 class PluginSearch(object):

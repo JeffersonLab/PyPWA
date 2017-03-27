@@ -38,16 +38,12 @@ import logging
 
 import numpy
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -329,4 +325,3 @@ class SomewhatIntelligentSelector(KvInterface):
             self._logger.error(string)
             raise RuntimeError(string)
         writer.write(file_location, data)
-

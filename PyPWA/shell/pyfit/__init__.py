@@ -18,16 +18,12 @@
 This line is green in PyCharm, however in Github its blue.
 """
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.shell.pyfit import intial_setup
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -91,5 +87,3 @@ class ShellFitting(options.Main):
             "The path to your accepted monte carlo file",
         "save name": "The name out the output files."
     }
-
-

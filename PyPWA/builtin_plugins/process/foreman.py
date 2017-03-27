@@ -27,18 +27,14 @@ import multiprocessing
 
 import numpy
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process import _communication
 from PyPWA.builtin_plugins.process import _processing
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

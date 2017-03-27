@@ -20,16 +20,12 @@ import iminuit
 import numpy
 import tabulate
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared.interfaces import plugins
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 

@@ -20,15 +20,12 @@ configuration file, processes it, then contacts the main module that is
 requested to determine what information is needed to be loaded and how it
 needs to be structured to be able to function in the desired way.
 """
-from PyPWA.core.configurator import options
-from PyPWA import VERSION, LICENSE, STATUS
 
-__author__ = ["Mark Jones"]
+from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import options
+
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
