@@ -14,6 +14,15 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+These are the interfaces needed to define a new likelihood.
+
+Likelihood is used for the actual algorithm to calculate the likelihood.
+
+Setup is used to define how to interact with the likelihood and the name of 
+the likelihood.
+"""
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
 

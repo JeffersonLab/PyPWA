@@ -14,6 +14,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This package contains all of PyFit's likelihoods that it supports out of the
+box. 
+
+None of these likelihoods are actually explicitly stated in the program, 
+instead the likelihoods are dynamically loaded from this package using 
+PyPWA's builtin plugin loader, meaning that a new likelihood can be defined
+here without it ever needing to adjust any of the already defined objects.
+"""
+
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]

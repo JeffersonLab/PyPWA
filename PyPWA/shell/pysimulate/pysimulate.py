@@ -15,7 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This line is green in PyCharm, however in Github its blue.
+The Simulation program, this object simply routes the data around depending
+on the type of program execution passed to it, the actual logic for the 
+program exists in _libs.py
 """
 
 from PyPWA import AUTHOR, VERSION

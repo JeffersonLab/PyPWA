@@ -14,6 +14,23 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+A collection of objects are defined here that influence how the PySimulate 
+works. All here is the true main logic of the program.
+
+DataHandler works by taking the data objects, data location, and save 
+location, the providing access to whatever data it can load, and exposing 
+methods that will handle to writing of all the different types of data the 
+simulation object would need written.
+
+Intensities is the object that calculates the intensities using the provided
+processing function and setup.
+
+RejectionList takes an array of calculated intensities along with a max 
+intensity, normalizes the intensities, then using the Rejection Method, 
+randomly throws out events.
+"""
+
 import io
 import random
 import time

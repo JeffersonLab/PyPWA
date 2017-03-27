@@ -15,7 +15,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This line is green in PyCharm, however in Github its blue.
+PyFit is a simple fitting tool that can use multiple processes depending on 
+the processing module tha is picked.
+
+likelihoods contains the various builtin likelihoods the PyFit supports.
+
+_processing_interface defines PyFits interface with the processing package.
+
+interfaces defines the interfaces that need to be extended to define a new 
+likelihood function.
+
+initial_setup defines how the configurator package interfaces the PyFit 
+Main object.
+
+pyfit is where the main object and the likelihood loading object are 
+contained.
 """
 
 from PyPWA import AUTHOR, VERSION

@@ -15,7 +15,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Holds the various likelihood calculations.
+PyFit, a flexible python fitting utility.
+
+_LikelihoodPackager is a simple object that searches the 'likehoods' 
+package for the user's selected likelihood.
+
+Fitting defines the actual main logic for the program.
 """
 
 from PyPWA import AUTHOR, VERSION
@@ -57,7 +62,7 @@ class _LikelihoodPackager(object):
         raise ValueError("Failed to find likelihood: %s" % name)
 
 
-class OptionParser(plugins.Main):
+class Fitting(plugins.Main):
     __optimizer = None  # type: plugins.Optimizer
     __processing = None  # type: plugins.KernelProcessing
     __data_loader = None  # type: loaders.DataLoading

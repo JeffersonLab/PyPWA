@@ -15,7 +15,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Main Objects
+============
 
+This is where the main logic of the programs is defined. Each folder here
+represents a core program and contains the main logic required for the 
+program to function.
+
+Each of the programs act as a plugin, and their metadata is stored in each 
+of their __init__.py files.
+
+pyfit is the package that dictates how PyFit, PyLikelihood, 
+and PyChiSquared operate, pysimulate defines how PySimulate, 
+PyIntensities, and PyWeighting operate.
+
+There is no actual core logic defined here, data loading, processing, and
+optimization is all defined elsewhere, however the algorithms used to 
+calculate the final values are found here.
 """
 
 from PyPWA import AUTHOR, VERSION

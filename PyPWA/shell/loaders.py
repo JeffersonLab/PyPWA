@@ -14,6 +14,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+loaders.py - Shared logic between PyFit and PySimulate
+------------------------------------------------------
+
+Here two objects are defined, DataLoading and FunctionLoader.
+
+DataLoading is setup to take a data parsing object and use it to load data
+for the two programs in a way that the data can be easily repacked into 
+processes.
+
+FunctionLoader is used to load the setup and processing functions in a 
+predictable way.
+"""
+
 import os
 
 import numpy

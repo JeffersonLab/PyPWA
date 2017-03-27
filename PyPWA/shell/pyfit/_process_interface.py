@@ -14,6 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This is where the processing interface is defined along with the automated 
+output from the the parallel thread.
+"""
+
 from __future__ import print_function
 
 try:

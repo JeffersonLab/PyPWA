@@ -14,6 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This is where the Processing Kernel and the Processing Interface are defined 
+for the processing module to calculate Intensities.
+"""
+
 import logging
 
 import numpy

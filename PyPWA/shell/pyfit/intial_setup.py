@@ -14,6 +14,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Defines how the configurator will interact with PyFit.
+"""
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.shell import loaders
@@ -51,7 +55,7 @@ class FittingSetup(options.Setup):
         )
 
     def __setup_interface(self):
-        self.__interface = pyfit.OptionParser(
+        self.__interface = pyfit.Fitting(
             self.__options.OPTIMIZER, self.__options.KERNEL_PROCESSING,
             self.__data_loader, self.__functions,
             self.__options.likelihood_type, self.__options.generated_lenght,

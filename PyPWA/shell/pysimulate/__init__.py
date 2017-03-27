@@ -15,7 +15,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This line is green in PyCharm, however in Github its blue.
+PySimulate is used to generate simulated data for a amplitude using a flat 
+plane of data provided by the user.
+
+_libs.py is where the actual logic of the program is defined.
+
+_processing.py contains the objects required to interface with a Kernel 
+Processing package.
+
+initial_setup.py is where the Setup object is defined for the Configurator 
+to interface with PySimulate properly.
+
+pysimulate.py is where the 'main' object is, though all it does it route 
+information between the various objects defined in _libs.py
 """
 
 from PyPWA import AUTHOR, VERSION

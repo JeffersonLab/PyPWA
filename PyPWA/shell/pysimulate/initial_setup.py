@@ -14,6 +14,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Translates the command object from the configurator into arguments that 
+can be used by the Simulation package and its various objects.
+"""
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.shell import loaders
