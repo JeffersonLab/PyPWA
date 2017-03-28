@@ -24,9 +24,6 @@ after_success:
   - coveralls
   - head .coverage
 notifications:
-  emails: false
-  slack:
-    rooms:
-      - pypwa:qPFpdrleMXOkj6mE18RctZQR
+  emails:
     on_success: change
     on_failure: change
