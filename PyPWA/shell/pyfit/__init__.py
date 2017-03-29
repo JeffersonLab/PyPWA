@@ -43,7 +43,7 @@ __version__ = VERSION
 
 class ShellFitting(options.Main):
 
-    plugin_name = "shell pyfit method"
+    plugin_name = "shell fitting method"
     setup = intial_setup.FittingSetup
     required_plugins = [
         options.Types.OPTIMIZER,
