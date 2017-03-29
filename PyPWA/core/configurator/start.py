@@ -75,7 +75,7 @@ class _Arguments(object):
 
     def __add_verbose_argument(self):
         self.__parser.add_argument(
-            "--verbose", "-v", action="count",
+            "--verbose", "-v", action="count", default=0,
             help="Adds logging, defaults to errors, then setups up on "
                  "from there. -v will include warning, -vv will show "
                  "warnings and info, and -vvv will show info, warnings, "
@@ -96,7 +96,7 @@ class _Arguments(object):
 
     @property
     def configuration_location(self):
-        return self.__arguments.configuration_location
+        return self.__arguments.configuration
 
     @property
     def verbose(self):
@@ -174,10 +174,10 @@ Credit:
             initial_logging.define_logger(logging.ERROR)
 
     def __process_arguments(self):
-        if self.__arguments.configuration_location == "":
-            self.__run_builder()
-        else:
+        if self.__arguments.write_config:
             self.__write_config()
+        else:
+            self.__run_builder()
 
     def __run_builder(self):
         self.__execute.run(
