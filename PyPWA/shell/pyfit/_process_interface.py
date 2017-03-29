@@ -40,42 +40,6 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class FittingInterface(internals.KernelInterface):
-
-    is_duplex = True
-    __logger = logging.getLogger(__name__ + ".FittingInterfaceKernel")
-    __parameter_parser = None  # type: internals.MinimizerOptionParser
-    __last_value = None  # type: numpy.float64
-    __thread_interface = _ThreadInterface()
-
-    def __init__(self, minimizer_function):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__parameter_parser = minimizer_function
-
-    def run(self, communication, *args):
-        self.__send_arguments(communication, args)
-        self.__thread_interface.start(self.__last_value)
-        self.__get_final_value(communication)
-        self.__thread_interface.stop()
-        self.__log_final_value()
-        return self.__last_value
-
-    def __send_arguments(self, communication, args):
-        parsed_arguments = self.__parameter_parser.convert(args)
-
-        for pipe in communication:
-            pipe.send(parsed_arguments)
-
-    def __get_final_value(self, communication):
-        values = numpy.zeros(shape=len(communication))
-        for index, pipe in enumerate(communication):
-            values[index] = pipe.receive()
-        self.__last_value = numpy.sum(values)
-
-    def __log_final_value(self):
-        self.__logger.info("Final Value is: %f15" % self.__last_value)
-
-
 class _ThreadInterface(object):
 
     __send_queue = Queue()
@@ -175,3 +139,39 @@ class _OutputThread(threading.Thread):
     def __send_runtime(self):
         self.__receive_queue.get()
         self.__send_queue.put(self.__get_current_runtime())
+
+
+class FittingInterface(internals.KernelInterface):
+
+    is_duplex = True
+    __logger = logging.getLogger(__name__ + ".FittingInterfaceKernel")
+    __parameter_parser = None  # type: internals.OptimizerOptionParser
+    __last_value = None  # type: numpy.float64
+    __thread_interface = _ThreadInterface()
+
+    def __init__(self, minimizer_function):
+        self.__logger.addHandler(logging.NullHandler())
+        self.__parameter_parser = minimizer_function
+
+    def run(self, communication, *args):
+        self.__send_arguments(communication, args)
+        self.__thread_interface.start(self.__last_value)
+        self.__get_final_value(communication)
+        self.__thread_interface.stop()
+        self.__log_final_value()
+        return self.__last_value
+
+    def __send_arguments(self, communication, args):
+        parsed_arguments = self.__parameter_parser.convert(args)
+
+        for pipe in communication:
+            pipe.send(parsed_arguments)
+
+    def __get_final_value(self, communication):
+        values = numpy.zeros(shape=len(communication))
+        for index, pipe in enumerate(communication):
+            values[index] = pipe.receive()
+        self.__last_value = numpy.sum(values)
+
+    def __log_final_value(self):
+        self.__logger.info("Final Value is: %f15" % self.__last_value)
