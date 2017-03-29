@@ -17,12 +17,11 @@
 import sys
 from setuptools import setup, find_packages
 
-__author__ = "Mark Jones"
+__author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "2.0.0-rc5"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "development"
+__version__ = "2.0.0"
+__email__ = "pypwa@jlab.org"
+__status__ = "production"
 
 
 requires = [
@@ -40,31 +39,32 @@ if sys.version_info.major != 3 or sys.version_info.minor < 4:
     requires.append("enum34")
     requires.append("typing")
 
+configurator_entry = "PyPWA.entries.configurator"
+
+entry_points = {
+    "console_scripts": [
+        "PyFit = %s:py_fit" % configurator_entry,
+        "LikelihoodFit = %s:likelihood_fit" % configurator_entry,
+        "ChiSquaredFit = %s:chi_squared_fit" % configurator_entry,
+        "PySimulate = %s:py_simulate" % configurator_entry,
+        "GenerateIntensities = %s:generate_intensities" % configurator_entry,
+        "GenerateWeights = %s:generate_weights" % configurator_entry
+    ]
+}
+
 setup(
     name="PyPWA",
     version=__version__,
-    author="PyPWA Team",
-    author_email="maj@jlab.org",
+    author=__author__,
+    author_email=__email__,
     packages=find_packages(),
     url="http//pypwa.jlab.org",
     license=__license__,
     description="General Partial Wave Analysis",
     test_suite="tests",
-    entry_points={
-        "console_scripts": [
-            "PyFit = PyPWA.entries.shell:py_fit",
-            "LikelihoodFit = PyPWA.entries.shell:likelihood_fit",
-            "ChiSquaredFit = PyPWA.entries.shell:chi_squared_fit",
-            "PySimulate = PyPWA.entries.shell:py_simulate",
-            "GenerateIntensities = PyPWA.entries.shell:generate_intensities",
-            "GenerateWeights = PyPWA.entries.shell:generate_weights"
-        ]
-    },
+    entry_points=entry_points,
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
     install_requires=requires,
-    extras_require={
-        'multinest': ["pymultinest"]
-    },
     setup_requires=['pytest-runner'],
     tests_require=['pytest', "pytest-cov", "pytest-logging"],
     classifiers=[
