@@ -30,7 +30,7 @@ def kernel_interface():
 
 @pytest.fixture
 def minimization_option_parser():
-    return internals.MinimizerOptionParser()
+    return internals.OptimizerOptionParser()
 
 
 @pytest.fixture
