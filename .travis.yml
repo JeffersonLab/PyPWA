@@ -17,6 +17,7 @@ matrix:
 addons:
   apt:
     packages:
+      - "build-essential"
       - "gfortran"
       - "libatlas-base-dev"
 before_install:
