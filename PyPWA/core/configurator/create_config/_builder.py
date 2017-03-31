@@ -38,11 +38,14 @@ import ruamel.yaml.comments
 import PyPWA.builtin_plugins
 import PyPWA.shell
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _input
+from PyPWA.core.configurator.storage import core_storage
 from PyPWA.core.shared import plugin_loader
 
-__credits__ = ["Mark Jones"]
+
+__credits__ = ["Mark Jones", "Ryan Wright"]
 __author__ = AUTHOR
 __version__ = VERSION
 
@@ -109,7 +112,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
 
         plugins = self._plugin_handler.get_by_class(options.Plugin)
 
-        self._storage = storage.MetadataStorage()
+        self._storage = core_storage.MetadataStorage()
         self._storage.add_plugins(plugins)
 
     def _make_plugin_list(self, main_plugin):
@@ -162,24 +165,27 @@ class ConfigurationBuilder(object):  # help, I am not simple
 
 
 class _AskForSpecificPlugin(object):
+    __logger = logging.getLogger(__name__ + "._AskForSpecificPlugin")
 
     _names = None  # type: []
     _prettied_type = None  # type: str
     _question_string = None  # type: str
     _input_handler = None  # type: _input.SimpleInputObject()
-    _plugin_prettier = None  # type: _plugin_names.PluginTypes()
+    _plugin_prettier = None  # type: option_tools.PluginNameConversion
 
     def __init__(self):
+        self.__logger.addHandler(logging.NullHandler())
         self._input_handler = _input.SimpleInputObject()
 
     def get_specific_plugin(self, plugin_list, plugin_type):
+        self.__logger.debug("Found plugin_type: %s" % repr(plugin_type))
         self._set_pretty_type(plugin_type)
         self._set_names(plugin_list)
         self._set_question_string()
         return self._ask_the_question()
 
     def _set_pretty_type(self, plugin_type):
-        prettier = _plugin_names.PluginTypes()
+        prettier = option_tools.PluginNameConversion()
         self._prettied_type = prettier.internal_to_external(plugin_type)
 
     def _set_names(self, plugin_list):
@@ -190,8 +196,7 @@ class _AskForSpecificPlugin(object):
 
     @staticmethod
     def _get_plugin_name(plugin):
-        the_plugin = plugin()
-        return the_plugin.request_metadata("name")
+        return plugin.plugin_name
 
     def _set_question_string(self):
         base_string = self._format_base_string()
@@ -230,14 +235,13 @@ class PluginList(object):
         self._set_plugin_types()
 
     def _set_plugin_types(self):
-        plugin_type_handler = _plugin_names.PluginTypes()
-        self._plugin_types = plugin_type_handler.internal_types()
+        self._plugin_types = options.Types
 
     def parse_plugins(self, main_plugin):
         plugins = []
 
         for plugin_type in self._plugin_types:
-            if main_plugin.requires(plugin_type):
+            if plugin_type in main_plugin.required_plugins:
                 plugins.append(self._process_plugins(plugin_type))
 
         return plugins
