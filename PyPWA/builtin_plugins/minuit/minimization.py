@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-A python a cython minimzer
+A python a cython minimizer
 --------------------------
 Attempts to find a minima, for information about how it works read Iminuit's
 documentation online.
