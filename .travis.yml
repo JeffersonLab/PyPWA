@@ -6,12 +6,17 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
+  - "pypy"
+  - "pypy3"
 before_install:
   - python --version
   - uname -a
   - ls -a
-  - pip install --upgrade pip setuptools wheel
-  - pip install --only-binary=numpy,scipy numpy scipy
+  - "pip install --upgrade pip setuptools wheel"
+  - "pip install --upgrade --only-binary=numpy,scipy numpy scipy"
+  - "pip install --upgrade iminuit nestle ruamel.yaml tabulate appdirs"
+  - "pip install --upgrade fuzzywuzzy python-Levenshtein"
   - "pip install coveralls --upgrade"
   - "pip install coverage --upgrade"
   - "pip install pytest --upgrade"
