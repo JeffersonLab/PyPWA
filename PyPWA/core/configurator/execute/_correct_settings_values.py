@@ -1,21 +1,33 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Attempts to correct the received settings if possible.
+------------------------------------------------------
 
+- _CorrectKeys - Iterates through all keys and sub-dictionaries of a 
+  dictionary and then tries to correct the key names if possible.
+  
+- _CorrectValues - Attempts to correct the value of each key inside the 
+  dictionary if possible.
+  
+- SettingsAid - Takes the template dictionary and the received dictionary 
+  and attempts to correct all of the values.
 """
 
 import logging

@@ -1,18 +1,32 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Where the program really starts.
+--------------------------------
+Here is where the plugins are loaded, passed their options, and then passed 
+to the main objects.
+
+- SetupSettings - Corrects the settings and setups the storage module.
+
+- SetupPlugins - Initializes the correct plugins, passes them along with 
+  needed options to the main, then starts the program.
+"""
 
 import logging
 

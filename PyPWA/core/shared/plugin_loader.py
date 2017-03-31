@@ -1,18 +1,43 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+The core plugin parser for functions and packages.
+--------------------------------------------------
+There are 4 objects here, _AppendPath, _Importer, _FilterBySubclass, and the
+main PluginStorage object. If you wish to use the plugin storage module, you
+will need to call and use PluginStorage.
+
+- _AppendPath - This object takes the path of modules that exist outside of
+  the defined Python Path and imports their root directory into the System
+  Path
+  
+- _Importer - This object actually imports the module, and all of its 
+  submodules, then returns those submodules.
+  
+- _FilterBySubclass - this object takes all the loaded objects from the 
+  PluginStorage then searches for all objects that are subclass-ed by the 
+  provided class.
+  
+- PluginStorage - This object actually stores everything that was imported 
+  from the provided locations, then returns objects and functions based on the
+  provided search conditions.
+"""
 
 import importlib
 import logging

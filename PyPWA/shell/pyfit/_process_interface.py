@@ -1,22 +1,34 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Processing and Output
+---------------------
 This is where the processing interface is defined along with the automated 
 output from the the parallel thread.
+
+- _ThreadInterface - The object between the main thread and the output thread.
+
+- _OutputThread - The actual output thread, its started with each call to the
+  likelihood. Has a 1hz output rate.
+  
+- FittingInterface - The interface between the Likelihood Kernels and the 
+  optimizer module.
 """
 
 from __future__ import print_function

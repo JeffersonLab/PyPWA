@@ -1,24 +1,35 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This file is the main file for all of PyPWA. This file takes a
-configuration file, processes it, then contacts the main module that is
-requested to determine what information is needed to be loaded and how it
-needs to be structured to be able to function in the users desired way.
+Where everything begins.
+------------------------
+This is the starting objects for the configurator. This handles initial 
+output, argument parsing, logging, and the finally depending on the 
+arguments will start building the configuration, or it will execute the 
+program.
+
+- _Arguments - A simple object that parses the arguments for the program, 
+  then exposes those inputs through the properties.
+  
+- StartProgram - This is the object that takes the information from the 
+  entry point along with the data from the _Arguments to determine where 
+  which half of the configuration utility should be started. 
 """
 
 import argparse

@@ -1,31 +1,31 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-loaders.py - Shared logic between PyFit and PySimulate
-------------------------------------------------------
+Shared logic between PyFit and PySimulate
+-----------------------------------------
 
-Here two objects are defined, DataLoading and FunctionLoader.
+- DataLoading - takes a data parsing object and use it to load data
+  for the two programs in a way that the data can be easily repacked into 
+  processes.
 
-DataLoading is setup to take a data parsing object and use it to load data
-for the two programs in a way that the data can be easily repacked into 
-processes.
-
-FunctionLoader is used to load the setup and processing functions in a 
-predictable way.
+- FunctionLoader - used to load the setup and processing functions in a 
+  predictable way.
 """
 
 import os

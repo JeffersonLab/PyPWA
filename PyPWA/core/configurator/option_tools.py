@@ -1,18 +1,38 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+A collection of tools needed to help with options metadata.
+-----------------------------------------------------------
+The tools here are all simple enough to exist on their own, but all serve 
+the purpose of helping with options metadata.
+
+- CommandOptions - The object that is loaded wih values from the 
+  configuration file that is then passed to the plugins setup.
+
+- ProcessOptions - Takes the metadata from a plugin, then parses the 
+  different difficulty levels into usable ruamel objects that can be loaded 
+  into a template configuration file.
+  
+- PluginsNamesConversion - Since the plugins are defined using an 
+  enumeration, this object takes an enumeration and returns its readable 
+  name, or takes a readable name and returns the enumeration.
+"""
 
 import copy
 import logging

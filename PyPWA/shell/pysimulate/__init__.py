@@ -1,33 +1,37 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Package for PySimulate, GenerateIntensities, and GenerateWeights
+----------------------------------------------------------------
 PySimulate is used to generate simulated data for a amplitude using a flat 
 plane of data provided by the user.
 
-_libs.py is where the actual logic of the program is defined.
+- _libs - where the actual logic of the program is defined.
 
-_processing.py contains the objects required to interface with a Kernel 
-Processing package.
+- _processing - contains the objects required to interface with a Kernel 
+  Processing package.
 
-initial_setup.py is where the Setup object is defined for the Configurator 
-to interface with PySimulate properly.
+- initial_setup - where the Setup object is defined for the Configurator to 
+  interface with PySimulate properly.
 
-pysimulate.py is where the 'main' object is, though all it does it route 
-information between the various objects defined in _libs.py
+- pysimulate - where the 'main' object is, though all it does it route 
+  information between the various objects defined in _libs.py
 """
 
 from PyPWA import AUTHOR, VERSION

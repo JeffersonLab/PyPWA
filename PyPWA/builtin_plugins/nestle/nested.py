@@ -1,18 +1,34 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Multinest maximization
+----------------------
+A very accurate but slow optimizer that will try to find the maximas inside 
+your parameter space for provided function.
+
+- _NestleParserObject - Removes any extra information from the prior before
+  its passed to the kernels.
+
+- NestedSampling - The actual optimizer object.
+
+- LoadPrior - Loads the prior for the optimizer.
+"""
 
 import logging
 
@@ -30,7 +46,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _NestleParserObject(internals.MinimizerOptionParser):
+class _NestleParserObject(internals.OptimizerOptionParser):
 
     def convert(self, *args):
         return args[0][0]
