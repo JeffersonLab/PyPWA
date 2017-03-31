@@ -24,7 +24,7 @@ program exists in _libs.py
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import plugins
-from shell.pysimulate import _libs
+from PyPWA.shell.pysimulate import _libs
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
