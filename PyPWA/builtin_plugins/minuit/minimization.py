@@ -1,18 +1,32 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+A python a cython minimizer
+--------------------------
+Attempts to find a minima, for information about how it works read Iminuit's
+documentation online.
+
+- _ParserObject - Translates the received value inside run to something the 
+  user can easily interact with. 
+  
+- Minuit - The main optimizer object.
+"""
 
 import logging
 
@@ -20,20 +34,16 @@ import iminuit
 import numpy
 import tabulate
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared.interfaces import plugins
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
-class _ParserObject(internals.MinimizerOptionParser):
+class _ParserObject(internals.OptimizerOptionParser):
 
     def __init__(self, parameters):
         self._parameters = parameters
@@ -46,7 +56,7 @@ class _ParserObject(internals.MinimizerOptionParser):
         return parameters_with_values
 
 
-class Minuit(plugins.Minimizer):
+class Minuit(plugins.Optimizer):
 
     __logger = logging.getLogger(__name__ + ".Minuit")
 

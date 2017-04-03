@@ -1,41 +1,48 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This file is the main file for all of PyPWA. This file takes a
-configuration file, processes it, then contacts the main module that is
-requested to determine what information is needed to be loaded and how it
-needs to be structured to be able to function in the users desired way.
+Where everything begins.
+------------------------
+This is the starting objects for the configurator. This handles initial 
+output, argument parsing, logging, and the finally depending on the 
+arguments will start building the configuration, or it will execute the 
+program.
+
+- _Arguments - A simple object that parses the arguments for the program, 
+  then exposes those inputs through the properties.
+  
+- StartProgram - This is the object that takes the information from the 
+  entry point along with the data from the _Arguments to determine where 
+  which half of the configuration utility should be started. 
 """
 
 import argparse
 import logging
 import sys
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.shared import initial_logging
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator.create_config import create
 from PyPWA.core.configurator.execute import start
+from PyPWA.core.shared import initial_logging
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -79,7 +86,7 @@ class _Arguments(object):
 
     def __add_verbose_argument(self):
         self.__parser.add_argument(
-            "--verbose", "-v", action="count",
+            "--verbose", "-v", action="count", default=0,
             help="Adds logging, defaults to errors, then setups up on "
                  "from there. -v will include warning, -vv will show "
                  "warnings and info, and -vvv will show info, warnings, "
@@ -100,7 +107,7 @@ class _Arguments(object):
 
     @property
     def configuration_location(self):
-        return self.__arguments.configuration_location
+        return self.__arguments.configuration
 
     @property
     def verbose(self):
@@ -178,10 +185,10 @@ Credit:
             initial_logging.define_logger(logging.ERROR)
 
     def __process_arguments(self):
-        if self.__arguments.configuration_location == "":
-            self.__run_builder()
-        else:
+        if self.__arguments.write_config:
             self.__write_config()
+        else:
+            self.__run_builder()
 
     def __run_builder(self):
         self.__execute.run(
@@ -194,4 +201,3 @@ Credit:
             self.__configuration,
             self.__arguments.configuration_location
         )
-

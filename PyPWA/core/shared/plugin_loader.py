@@ -1,18 +1,43 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+The core plugin parser for functions and packages.
+--------------------------------------------------
+There are 4 objects here, _AppendPath, _Importer, _FilterBySubclass, and the
+main PluginStorage object. If you wish to use the plugin storage module, you
+will need to call and use PluginStorage.
+
+- _AppendPath - This object takes the path of modules that exist outside of
+  the defined Python Path and imports their root directory into the System
+  Path
+  
+- _Importer - This object actually imports the module, and all of its 
+  submodules, then returns those submodules.
+  
+- _FilterBySubclass - this object takes all the loaded objects from the 
+  PluginStorage then searches for all objects that are subclass-ed by the 
+  provided class.
+  
+- PluginStorage - This object actually stores everything that was imported 
+  from the provided locations, then returns objects and functions based on the
+  provided search conditions.
+"""
 
 import importlib
 import logging
@@ -22,17 +47,14 @@ import sys
 
 import types
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 
-__author__ = ["Mark Jones"]
 __credits__ = [
+    "Mark Jones",
     "jp. @ Stack Overflow",
     "unutbu @ Stack Overflow"
 ]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -107,8 +129,8 @@ class _Importer(object):
     def __load_multiple_modules(self, package):
         """
         See Also:
-            http://stackoverflow.com/a/1310912
-            http://stackoverflow.com/a/1708706
+            - http://stackoverflow.com/a/1310912
+            - http://stackoverflow.com/a/1708706
         """
         modules = []
         for loader, module, ispkg in pkgutil.iter_modules(package.__path__):
@@ -124,17 +146,22 @@ class _Importer(object):
 
 class _FilterBySubclass(object):
 
+    __logger = logging.getLogger(__name__ + "._FilterBySubclass")
+
     __plugins = None
     __classes = None
     __template = None
 
     def __init__(self):
-        self.__classes = []
+        self.__logger.addHandler(logging.NullHandler())
 
     def filter(self, plugins, template):
+        self.__classes = []
         self.__plugins = plugins
         self.__template = template
-        return self.__filter_plugins()
+        plugins = self.__filter_plugins()
+        self.__log_plugin_search(plugins)
+        return plugins
         
     def __filter_plugins(self):
         for plugin in self.__plugins:
@@ -155,12 +182,16 @@ class _FilterBySubclass(object):
     def __process_attribute(self, attribute):
         if issubclass(attribute, self.__template):
             self.__classes.append(attribute)
-            
+
+    def __log_plugin_search(self, plugins):
+        self.__logger.debug("Using template: %s" % self.__template)
+        self.__logger.debug("Found: %s" % plugins)
+
 
 class PluginStorage(object):
 
     __importer = _Importer()
-    __logger = logging.getLogger("PluginStorage." + __name__)
+    __logger = logging.getLogger(__name__ + ".PluginStorage")
     __filter_subclass = _FilterBySubclass()
 
     __plugins = None  # type: [types.ModuleType]
@@ -170,7 +201,7 @@ class PluginStorage(object):
         self.__plugins = []
 
     def add_plugin_location(self, location):
-        if isinstance(location, list):
+        if isinstance(location, list) or isinstance(location, set):
             self.__process_multiple_modules(location)
         else:
             self.__process_single_module(location)
@@ -203,4 +234,3 @@ class PluginStorage(object):
 
     def get_by_class(self, template):
         return self.__filter_subclass.filter(self.__plugins, template)
-

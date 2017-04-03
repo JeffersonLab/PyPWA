@@ -10,67 +10,78 @@
 
 
 Installation
-=============
-PyPWA is tested against Python 2.7, Python 3.3+, `Intel's Python`_, and `Anaconda`_ to ensure compatibility.
-We have also tested PyPWA on Cent-OS 6 & 7, the latest version of Fedora, Arch Linux, and Debian.
+============
+PyPWA is tested against Python 2.7, Python 3.3+, `Intel's Python`_, and
+`Anaconda`_ to ensure compatibility.
+We have also tested PyPWA on Cent-OS 6 & 7, the latest version of Fedora,
+Arch Linux, and Debian.
 
 .. note::
-   Even if we don't test our pacakge on your distribution, our package will likely work on your system as our package is almost entirely pure-python, with only a few non-pure-python depedencies.
+  Even if we don't test our package on your distribution, our package will
+  likely work on your system as our package is almost entirely pure-python,
+  with only a few non-pure-python dependencies.
 
 
 Installing on your local machine using pip
-----------------------------------------
+------------------------------------------
 
 Installing Dependencies
-^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Debian based distributions.
 ::
-   $ sudo apt install python-dev gcc
+  $ sudo apt install python-dev gcc
 
 Fedora 22 and later.
 ::
-   $ sudo dnf install python-devel gcc
+  $ sudo dnf install python-devel gcc
 
 Arch Linux.
 ::
-   $ sudo pacman -Su python gcc
+  $ sudo pacman -Su python gcc
 
 Downloading and installing the Python Wheel
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Download the current package from `here`_.
 
 .. note::
-   You can find the latest version of PyPWA along with older versions and their release notes on our `releases`_ page. Just look for the version you want and download its associated PyPWA*.whl file.
+  You can find the latest version of PyPWA along with older versions and
+  their release notes on our `releases`_ page. Just look for the version you
+  want and download its associated PyPWA*.whl file.
 
 
-Navigate to where you downloaded the package file, then install the pacakge using pip.
-::
-   $ sudo pip install PyPWA*.whl
+Navigate to where you downloaded the package file, then install the
+package using pip.::
+  $ sudo pip install PyPWA*.whl
 
 .. note::
-   You can install the pacakge in your home directory without needing super user permissions, using ``$ pip install --user PyPWA*.whl`` instead.
+  You can install the package in your home directory without needing super
+  user permissions, using ``$ pip install --user PyPWA*.whl`` instead.
 
 
 Installing locally using Virtualenv
 -----------------------------------
-You will still need the listed dependencies listed above in `Installing Dependencies`_ in order to use a virtualenv.
+You will still need the listed dependencies listed above in
+`Installing Dependencies`_ in order to use a virtualenv.
 
-Before you begin, you will need to install `virtualenv`_ using the instructions on their documentation.
+Before you begin, you will need to install `virtualenv`_ using the
+instructions on their documentation.
 
   
 
 Installing on your local machine using SetupTools
 -------------------------------------------------
 
-Before you begin, start by referencing `Installing Dependencies`_ above to install the needed packages.
+Before you begin, start by referencing `Installing Dependencies`_ above to
+install the needed packages.
 
-Download the source from our `GitHub`_ using `Git`_ somewhere you have write permissions, then cd into the package.
+Download the source from our `GitHub`_ using `Git`_ somewhere you have write
+permissions, then cd into the package.
 
 Once inside the pacakge, run:
 ::
-   $ sudo python setup.py install
+  $ sudo python setup.py install
 
-Or alternitively to install just in your home folder:
+Or alternatively to install just in your home folder:
 ::
-   $ python setup.py install --local
+  $ python setup.py install --local

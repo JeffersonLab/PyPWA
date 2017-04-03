@@ -1,30 +1,37 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Takes the options from OptionsObject and parses those options into 
+NestedSampling.
+"""
+
 import logging
 
-from PyPWA import VERSION, LICENSE, STATUS
+import typing
+
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import nested
 from PyPWA.core.configurator import options
+from PyPWA.core.configurator import option_tools
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -33,8 +40,8 @@ class NestleSetup(options.Setup):
     __logger = logging.getLogger("NestleSetup." + __name__)
     __loader = nested.LoadPrior()
 
-    __interface = None  # type: NestledSampling()
-    __options = None  # type: PyPWA.core.configurator.options.CommandObject
+    __interface = None  # type: nested.NestledSampling()
+    __options = None  # type: option_tools.CommandOptions
     __prior = None  # type: typing.Any
 
     def __init__(self, options_object):

@@ -1,35 +1,52 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyPWA import VERSION, LICENSE, STATUS
+"""
+The nestle maximizer
+--------------------
+This is a complex maximizer that takes a random array of n dimensions and 
+passes it through the prior to generate point data, then moves the live 
+points depending on the results of the returned value. To know what each 
+option does, check the actual documentation for nestle on ReadTheDocs.io or 
+the documentation inside nestle.
+
+- _graph_data - Doesn't graph the data, but saves the data needed to 
+  generate a graph to file.
+  
+- _setup - Provides the interface between the plugin and the configurator.
+
+- nested - Where the actual optimization process takes place.
+"""
+
+
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _setup
 from PyPWA.core.configurator import options
 
-__author__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__credits__ = ["Mark Jones"]
+__author__ = AUTHOR
 __version__ = VERSION
 
 
 class NestleOptions(options.Plugin):
     plugin_name = "Nestle"
     setup = _setup.NestleSetup
-    provides = options.Types.MINIMIZATION
+    provides = options.Types.OPTIMIZER
     defined_function = None
     module_comment = "Nestle, a python based multinest implementation."
 

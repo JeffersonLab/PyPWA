@@ -1,32 +1,47 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Contains PluginSearch and helper private classes. This file is used to load
 the data plugins and user plugins then return one of them that can read/write
 whatever data needs to be read/written.
+
+- PluginSearch - Searches for data plugins that can read or write the provided
+  data.
+  
+- _FindReadPlugins - searches for a plugin that can read the provided data.
+
+- _FindWritePlugins - Searches for a plugin that can write the given data 
+  to the given file extension.
 """
 
 import logging
 import os
 
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import builtin
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.core.shared import plugin_loader
+
+__credits__ = ["Mark Jones"]
+__author__ = AUTHOR
+__version__ = VERSION
 
 
 class PluginSearch(object):

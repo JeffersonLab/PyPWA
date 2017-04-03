@@ -1,40 +1,42 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Creates the template configuration file when --WriteConfig is passed
+"""
 
 import logging
 
 import PyPWA.shell
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _builder
 from PyPWA.core.shared import plugin_loader
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
 class Config(object):
 
     __config_maker = _builder.ConfigurationBuilder()
-    __logger = logging.getLogger("UNKNOWN." + __name__)
+    __logger = logging.getLogger(__name__ + ".Config")
     __loader = plugin_loader.PluginStorage()
 
     __main_plugin = None
@@ -69,9 +71,7 @@ class Config(object):
         self.__logger.debug("Searching for name: %s" % self.__shell_name)
 
     def __load_potential_plugins(self):
-        self.__potential_plugins = self.__loader.get_by_class(
-            options.MainOptions
-        )
+        self.__potential_plugins = self.__loader.get_by_class(options.Main)
 
     def __search_for_main_plugin(self):
         for plugin in self.__potential_plugins:

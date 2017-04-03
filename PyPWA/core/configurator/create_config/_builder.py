@@ -1,18 +1,35 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""
+Creates the configuration
+-------------------------
+
+.. todo::
+   Refactor this entire file.
+
+- ConfigurationBuilder - Actually holds the questions being asked.
+
+- _AskForSpecificPlugin - Handles selecting the plugin needed when there is 
+  more than one plugin when it can.
+  
+- PluginList - Returns a list of all the plugins.
+"""
 
 import logging
 
@@ -20,17 +37,16 @@ import ruamel.yaml.comments
 
 import PyPWA.builtin_plugins
 import PyPWA.shell
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _input
+from PyPWA.core.configurator.storage import core_storage
 from PyPWA.core.shared import plugin_loader
 
-__author__ = ["Mark Jones"]
-__credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+
+__credits__ = ["Mark Jones", "Ryan Wright"]
+__author__ = AUTHOR
 __version__ = VERSION
 
 
@@ -50,9 +66,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
     def __init__(self):
         self._logger.addHandler(logging.NullHandler())
 
-        self._plugin_handler = plugin_loader.PluginLoading(
-            options.PluginsOptions
-        )
+        self._plugin_handler = plugin_loader.PluginStorage()
 
     def build_configuration(
             self, plugin_name, main_plugin,
@@ -92,11 +106,13 @@ class ConfigurationBuilder(object):  # help, I am not simple
             self._plugin_directory = None
 
     def _build_storage(self):
-        plugins = self._plugin_handler.fetch_plugin(
+        self._plugin_handler.add_plugin_location(
             [PyPWA.builtin_plugins, self._plugin_directory]
         )
 
-        self._storage = storage.MetadataStorage()
+        plugins = self._plugin_handler.get_by_class(options.Plugin)
+
+        self._storage = core_storage.MetadataStorage()
         self._storage.add_plugins(plugins)
 
     def _make_plugin_list(self, main_plugin):
@@ -149,24 +165,27 @@ class ConfigurationBuilder(object):  # help, I am not simple
 
 
 class _AskForSpecificPlugin(object):
+    __logger = logging.getLogger(__name__ + "._AskForSpecificPlugin")
 
     _names = None  # type: []
     _prettied_type = None  # type: str
     _question_string = None  # type: str
     _input_handler = None  # type: _input.SimpleInputObject()
-    _plugin_prettier = None  # type: _plugin_names.PluginTypes()
+    _plugin_prettier = None  # type: option_tools.PluginNameConversion
 
     def __init__(self):
+        self.__logger.addHandler(logging.NullHandler())
         self._input_handler = _input.SimpleInputObject()
 
     def get_specific_plugin(self, plugin_list, plugin_type):
+        self.__logger.debug("Found plugin_type: %s" % repr(plugin_type))
         self._set_pretty_type(plugin_type)
         self._set_names(plugin_list)
         self._set_question_string()
         return self._ask_the_question()
 
     def _set_pretty_type(self, plugin_type):
-        prettier = _plugin_names.PluginTypes()
+        prettier = option_tools.PluginNameConversion()
         self._prettied_type = prettier.internal_to_external(plugin_type)
 
     def _set_names(self, plugin_list):
@@ -177,8 +196,7 @@ class _AskForSpecificPlugin(object):
 
     @staticmethod
     def _get_plugin_name(plugin):
-        the_plugin = plugin()
-        return the_plugin.request_metadata("name")
+        return plugin.plugin_name
 
     def _set_question_string(self):
         base_string = self._format_base_string()
@@ -217,14 +235,13 @@ class PluginList(object):
         self._set_plugin_types()
 
     def _set_plugin_types(self):
-        plugin_type_handler = _plugin_names.PluginTypes()
-        self._plugin_types = plugin_type_handler.internal_types()
+        self._plugin_types = options.Types
 
     def parse_plugins(self, main_plugin):
         plugins = []
 
         for plugin_type in self._plugin_types:
-            if main_plugin.requires(plugin_type):
+            if plugin_type in main_plugin.required_plugins:
                 plugins.append(self._process_plugins(plugin_type))
 
         return plugins
