@@ -24,21 +24,14 @@ the purpose of helping with options metadata.
 
 - CommandOptions - The object that is loaded wih values from the 
   configuration file that is then passed to the plugins setup.
-
-- ProcessOptions - Takes the metadata from a plugin, then parses the 
-  different difficulty levels into usable ruamel objects that can be loaded 
-  into a template configuration file.
   
 - PluginsNamesConversion - Since the plugins are defined using an 
   enumeration, this object takes an enumeration and returns its readable 
   name, or takes a readable name and returns the enumeration.
 """
 
-import copy
 import logging
 import re
-
-from ruamel.yaml import comments
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
@@ -67,77 +60,6 @@ class CommandOptions(object):
         filtered_name = re.sub(r'[^a-z0-9_]', '', lowercase_name)
         self.__logger.debug("Converted {0} to {1}".format(key, filtered_name))
         return filtered_name
-
-
-class ProcessOptions(object):
-
-    __options = None  # type: options.Base()
-    __built_options = None  # type: comments.CommentedMap
-    __required = None  # type: dict
-    __optional = None  # type: dict
-    __advanced = None  # type: dict
-
-    def __init__(self, option_object):
-        self.__options = option_object
-        self.__set_header_into_built_options()
-        self.__set_content_into_built_options()
-        self.__set_difficulties()
-
-    def __set_header_into_built_options(self):
-        header = comments.CommentedMap()
-        header.yaml_add_eol_comment(
-            self.__options.module_comment, self.__options.plugin_name
-        )
-        self.__built_options = header
-
-    def __set_content_into_built_options(self):
-        content = comments.CommentedMap()
-        populated_content = self.__add_options_defaults(content)
-        commented_content = self.__add_option_comments(populated_content)
-        self.__built_options[self.__options.plugin_name] = commented_content
-
-    def __add_options_defaults(self, content):
-        for option, value in self.__options.options_defaults.items():
-            content[option] = value
-        return content
-
-    def __add_option_comments(self, content):
-        for option, comment in self.__options.option_comments.items():
-            content.yaml_add_eol_comment(comment, option)
-        return content
-
-    def __set_difficulties(self):
-        self.__make_separate_difficulties()
-        self.__process_separate_difficulties()
-
-    def __make_separate_difficulties(self):
-        required = copy.deepcopy(self.__built_options)
-        optional = copy.deepcopy(self.__built_options)
-        advanced = copy.deepcopy(self.__built_options)
-
-        self.__required = required
-        self.__optional = optional
-        self.__advanced = advanced
-
-    def __process_separate_difficulties(self):
-        for option, difficulty in self.__options.options_difficulties.items():
-            if difficulty == "optional":
-                self.__required[self.__options.plugin_name].pop(option)
-            elif difficulty == "advanced":
-                self.__required[self.__options.plugin_name].pop(option)
-                self.__optional[self.__options.plugin_name].pop(option)
-
-    @property
-    def required(self):
-        return self.__required
-
-    @property
-    def optional(self):
-        return self.__optional
-
-    @property
-    def advanced(self):
-        return self.__advanced
 
 
 class PluginNameConversion(object):
