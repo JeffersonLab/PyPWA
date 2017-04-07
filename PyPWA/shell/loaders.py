@@ -124,7 +124,7 @@ class DataLoading(object):
 
 class FunctionLoader(object):
 
-    __loader = plugin_loader.PluginStorage()
+    __loader = plugin_loader.PluginLoader()
     __process_name = None
     __setup_name = None
     __process = None

@@ -59,7 +59,7 @@ class _Input(object):
         return input(string)
 
 
-class _IsCorrect(object):
+class _IsCorrectLoop(object):
 
     __QUERY = "It looks like you selected '{0}', is this correct?\n" + \
              "[Y]es/No: "

@@ -42,7 +42,7 @@ __version__ = VERSION
 
 class _LikelihoodPackager(object):
 
-    __plugin_search = plugin_loader.PluginStorage()
+    __plugin_search = plugin_loader.PluginLoader()
 
     def __init__(self):
         self.__plugin_search.add_plugin_location(likelihoods)

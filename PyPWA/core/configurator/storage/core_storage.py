@@ -44,7 +44,7 @@ __version__ = VERSION
 class ModuleStorage(object):
 
     __plugin_locations = {PyPWA.builtin_plugins, PyPWA.shell, PyPWA.core}
-    __plugin_storage = None  # type: plugin_loader.PluginStorage()
+    __plugin_storage = None  # type: plugin_loader.PluginLoader()
     __plugins = None  # type: list
     __shell = None  # type: list
 
@@ -65,7 +65,7 @@ class ModuleStorage(object):
                 self.__process_extra_locations(location)
 
     def __set_plugin_storage(self):
-        self.__plugin_storage = plugin_loader.PluginStorage()
+        self.__plugin_storage = plugin_loader.PluginLoader()
         self.__plugin_storage.add_plugin_location(self.__plugin_locations)
 
     def __set_plugins(self):

@@ -39,7 +39,7 @@ def module_storage():
 
 @pytest.fixture()
 def metadata_storage():
-    loader = plugin_loader.PluginStorage()
+    loader = plugin_loader.PluginLoader()
     loader.add_plugin_location(builtin_plugins)
     plugins = loader.get_by_class(options.Plugin)
 

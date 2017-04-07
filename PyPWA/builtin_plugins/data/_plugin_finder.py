@@ -55,7 +55,7 @@ class PluginSearch(object):
         self.__log_found_plugins()
 
     def __setup_plugin_storage(self, user_plugin_dir):
-        plugin_storage = plugin_loader.PluginStorage()
+        plugin_storage = plugin_loader.PluginLoader()
         plugin_storage.add_plugin_location([builtin, user_plugin_dir])
 
         found_plugins = plugin_storage.get_by_class(

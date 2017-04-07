@@ -66,7 +66,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
 
     def __init__(self):
         self.__logger.addHandler(logging.NullHandler())
-        self.__plugin_handler = plugin_loader.PluginStorage()
+        self.__plugin_handler = plugin_loader.PluginLoader()
 
     def build_configuration(
             self, plugin_name, main_plugin,
