@@ -55,7 +55,7 @@ class SetupSettings(object):
 
     def run(self, function_settings, configuration_location):
         self.__load_config(configuration_location)
-        self.__process_extra_options(function_settings)
+        self.__process_main_options(function_settings)
         self.__convert_name(function_settings)
         self.__set_storage()
         self.__correct_settings()
@@ -64,7 +64,7 @@ class SetupSettings(object):
     def __load_config(self, config):
         self.__parsed_config = self.__config_parser.read_config(config)
 
-    def __process_extra_options(self, function_settings):
+    def __process_main_options(self, function_settings):
         try:
             self.__set_main_name(function_settings)
         except KeyError:
@@ -104,7 +104,7 @@ class SetupSettings(object):
         )
 
     def __execute(self):
-        main = SetupPlugins(self.__storage, self.__correct_settings)
+        main = SetupPlugins(self.__storage, self.__corrected_settings)
         main.start()
 
 
