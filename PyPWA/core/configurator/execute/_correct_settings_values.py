@@ -47,7 +47,7 @@ FUZZY_STRING_CONFIDENCE_LEVEL = 75
 
 class _CorrectKeys(object):
 
-    __logger = logging.getLogger("_CorrectKeys." + __name__)
+    __logger = logging.getLogger(__name__ + "._CorrectKeys")
 
     __TEMPLATE = None
     __KEYS = None
@@ -56,7 +56,8 @@ class _CorrectKeys(object):
 
     def __init__(self, template):
         self.__logger.addHandler(logging.NullHandler())
-        self.__TEMPLATE = template
+        self.__TEMPLATE = template  # type: dict
+        self.__logger.debug("Received template: %s" % template)
         self.__set_keys()
 
     def __set_keys(self):
@@ -96,7 +97,10 @@ class _CorrectKeys(object):
         self.__corrected_keys[found] = self.__initial_settings[key]
 
     def __check_for_dictionary(self, found):
-        if isinstance(self.__corrected_keys[found], dict):
+        if isinstance(self.__TEMPLATE[found], dict):
+            self.__logger.debug(
+                "Correcting internal dictionary: %s" % self.__TEMPLATE[found]
+            )
             self.__correct_nested_dictionary(found)
 
     def __correct_nested_dictionary(self, found):
@@ -112,7 +116,7 @@ class _CorrectKeys(object):
 
 class _CorrectValues(object):
 
-    __logger = logging.getLogger("_CorrectValues." + __name__)
+    __logger = logging.getLogger(__name__ + "._CorrectValues")
     __FAILED = "failed to find"
 
     def correct_all(self, dictionary, template_dictionary):
@@ -209,7 +213,7 @@ class _CorrectValues(object):
 
 class SettingsAid(object):
 
-    __logger = logging.getLogger("SettingsAid." + __name__)
+    __logger = logging.getLogger(__name__ + ".SettingsAid")
     __correct_values = _CorrectValues()
     __key_corrector = None  # type: _CorrectKeys
 

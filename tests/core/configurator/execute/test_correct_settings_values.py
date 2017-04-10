@@ -19,7 +19,8 @@ template_2 = {
         "settings": set,
         "data": str,
         "more nests": {
-            "correct": bool
+            "correct": bool,
+            "settings": dict
         }
     }
 }
@@ -41,7 +42,10 @@ found_2 = {
         "setings": ["limit_A1", "limit_A1"],
         "daTa": "/usr/local/this",
         "moR nests": {
-            "CoRRct": "tru"
+            "CoRRct": "tru",
+            "settngs": {
+                "somedata": "That we don't know about for whatever reason."
+            }
         }
     }
 }
