@@ -43,7 +43,7 @@ __version__ = VERSION
 
 class CommandOptions(object):
 
-    __logger = logging.getLogger("CommandOptions." + __name__)
+    __logger = logging.getLogger(__name__ + ".CommandOptions")
 
     def __init__(self, plugin_options):
         self.__logger.addHandler(logging.NullHandler())
