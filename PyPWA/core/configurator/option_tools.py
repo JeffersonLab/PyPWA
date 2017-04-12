@@ -45,9 +45,10 @@ class CommandOptions(object):
 
     __logger = logging.getLogger(__name__ + ".CommandOptions")
 
-    def __init__(self, plugin_options):
+    def __init__(self, default_options, loaded_options):
         self.__logger.addHandler(logging.NullHandler())
-        self.__set_variables(plugin_options)
+        self.__set_variables(default_options)
+        self.__set_variables(loaded_options)
 
     def __set_variables(self, plugin_options):
         for key in list(plugin_options.keys()):
