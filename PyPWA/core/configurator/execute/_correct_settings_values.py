@@ -125,7 +125,10 @@ class _CorrectValues(object):
             template_value = template_dictionary[key]
             current_value = dictionary[key]
 
-            if template_value == int:
+            if isinstance(current_value, type(None)):
+                corrected_dictionary[key] = None
+
+            elif template_value == int:
                 corrected_dictionary[key] = self.__correct_integers(
                     current_value
                 )

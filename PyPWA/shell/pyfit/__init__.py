@@ -61,9 +61,9 @@ class ShellFitting(options.Main):
         "function's location": "/path/to/the/function.py",
         "processing name": "processing_function",
         "setup name": "setup_function",
-        "qfactor location": "/path/to/the/data.csv",
+        "qfactor location": None,
         "data location": "/path/to/the/data.csv",
-        "accepted monte carlo location": "/path/to/monte/carlo.csv",
+        "accepted monte carlo location": None,
         "save name": "output"
     }
 

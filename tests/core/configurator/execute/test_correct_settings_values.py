@@ -20,7 +20,8 @@ template_2 = {
         "data": str,
         "more nests": {
             "correct": bool,
-            "settings": dict
+            "settings": dict,
+            "extra data": str
         }
     }
 }
@@ -42,6 +43,7 @@ found_2 = {
         "setings": ["limit_A1", "limit_A1"],
         "daTa": "/usr/local/this",
         "moR nests": {
+            "extr dat": None,
             "CoRRct": "tru",
             "settngs": {
                 "somedata": "That we don't know about for whatever reason."
@@ -101,3 +103,9 @@ def test_2_data(settings_aid_2):
 
 def test_2_more_nests(settings_aid_2):
     assert settings_aid_2["main"]["more nests"]["correct"] is True
+
+
+def test_2_extra_data(settings_aid_2):
+    assert isinstance(
+        settings_aid_2["main"]["more nests"]["extra data"], type(None)
+    )
