@@ -203,13 +203,22 @@ class _FilterBySubclass(object):
 
 class _PluginStorage(object):
 
+    __logger = logging.getLogger(__name__ + "._PluginStorage")
     plugins = []
     __locations = []
     __append_count = 0
 
+    def __init__(self):
+        self.__logger.addHandler(logging.NullHandler())
+
     def add_location(self, location):
+        self.__note_if_index_is_zero()
         self.__locations.append(location)
         self.__append_count = self.__append_count +1
+
+    def __note_if_index_is_zero(self):
+        if self.__append_count == 0:
+            self.__logger.debug("Initializing _PluginStorage for first time")
 
     def location_already_added(self, location):
         if location in self.__locations:
@@ -248,6 +257,11 @@ class PluginLoader(object):
                 modules = self.__importer.fetch_modules(location)
                 self.__append_modules(modules)
                 self.__storage.add_location(location)
+                self.__logger.info("Adding plugin location: %s" % location)
+        else:
+            self.__logger.debug(
+                "Received blank location! This might be an error."
+            )
 
     def __append_modules(self, modules):
         for the_module in modules:
