@@ -17,7 +17,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Simply loads the configuration file using ruamel.yaml.
+Execute Tools, general libs needed to build the program.
+--------------------------------------------------------
+
+- ConfigurationLoader - Simply loads the configuration file using ruamel.yaml.
+
+- Module Picking - This loads all the plugins, then parses their templates 
+  into one massive template dictionary.
+
+- TemplateLoader - Allows the program to fetch plugins and mains by their 
+  name so that the names inside the configuration file can match up to their 
+  respected plugin.
 """
 
 import logging
@@ -27,6 +37,7 @@ import ruamel.yaml.comments
 import ruamel.yaml.parser
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import storage
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -57,3 +68,50 @@ class ConfigurationLoader(object):
     def __process_error(self, user_error):
         self.__logger.exception(user_error)
         raise SyntaxError(str(user_error))
+
+
+class ModulePicking(storage.Storage):
+
+    def __init__(self):
+        super(ModulePicking, self).__init__()
+
+    def request_main_by_id(self, the_id):
+        for main in self._get_shells():
+            if main.plugin_name == the_id:
+                return main
+
+    def request_plugin_by_name(self, name):
+        for plugin in self._get_plugins():
+            if plugin.plugin_name == name:
+                return plugin
+
+
+class TemplateLoader(storage.Storage):
+
+    __logger = logging.getLogger(__name__ + ".ModuleTemplates")
+    __templates = None  # type: dict
+
+    def __init__(self):
+        super(TemplateLoader, self).__init__()
+        self.__logger.addHandler(logging.NullHandler())
+        self._update_extra()
+
+    def _update_extra(self):
+        self.__templates = {}
+        self.__process_options()
+        self.__process_main()
+
+    def __process_options(self):
+        for plugin in self._get_plugins():
+            self.__add_module(plugin)
+
+    def __process_main(self):
+        for main in self._get_shells():
+            self.__add_module(main)
+
+    def __add_module(self, main):
+        self.__templates[main.plugin_name] = main.option_types
+
+    def get_templates(self):
+        self._check_for_updates()
+        return self.__templates

@@ -17,14 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Core storage of plugins and mains for the configurator
-------------------------------------------------------
+The Root Storage objects for the configurator.
+----------------------------------------------
+- _InternalStorage - The true storage of the plugins and shells, should act as
+  a singleton.
 
-- ModuleStorage - Stores the plugins and mains for other parts of the 
-  configurator.
-
-- MetadataStorage - Takes all the loaded plugins and searches through them 
-  for plugins matching a name or plugins matching a type.
+- Storage - Provides a programmatic interface to the plugins and shells, and
+  has the ability to update internal data when called if new plugin locations
+  have been added.
 """
 
 import logging
@@ -41,7 +41,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _OptionStorage(object):
+class _InternalStorage(object):
 
     plugins = []  # type: [options.Plugin]
     shells = []  # type: [options.Main]
@@ -53,7 +53,7 @@ class Storage(object):
     __logging = logging.getLogger(__name__ + ".ConfiguratorStorage")
     __plugin_locations = {PyPWA.builtin_plugins, PyPWA.shell, PyPWA.core}
     __loader = plugin_loader.PluginLoader()
-    __storage = _OptionStorage()
+    __storage = _InternalStorage()
     __index = None  # type: int
 
     def __init__(self):
@@ -102,50 +102,3 @@ class Storage(object):
     def _get_shells(self):
         self._check_for_updates()
         return self.__storage.shells
-
-
-class MetadataStorage(Storage):
-
-    __logger = logging.getLogger(__name__)
-    __actual_storage = None  # type: {}
-
-    def __init__(self):
-        super(MetadataStorage, self).__init__()
-        self.__logger.addHandler(logging.NullHandler())
-        self._update_extra()
-
-    def _update_extra(self):
-        self.__actual_storage = {}
-        for plugin in self._get_plugins():
-            self.__add_type(plugin)
-            self.__append_plugin(plugin)
-
-    def __add_type(self, plugin):
-        if plugin.provides not in self.__actual_storage:
-            self.__actual_storage[plugin.provides] = []
-
-    def __append_plugin(self, plugin):
-        self.__actual_storage[plugin.provides].append(plugin)
-
-    def search_plugin(self, plugin_name, plugin_type):
-        if plugin_type in self.__actual_storage:
-            return self.__plugin_name_search(plugin_name, plugin_type)
-        else:
-            self.__cant_find_plugin(plugin_name)
-
-    def __plugin_name_search(self, plugin_name, plugin_type):
-        for plugin in self.__actual_storage[plugin_type]:
-            if plugin.plugin_name == plugin_name:
-                return plugin
-        self.__cant_find_plugin(plugin_name)
-
-    @staticmethod
-    def __cant_find_plugin(self, plugin_name):
-        error = "Failed to find plugin {0}".format(plugin_name)
-        raise ValueError(error)
-
-    def request_plugins_by_type(self, plugin_type):
-        if plugin_type in self.__actual_storage:
-            return self.__actual_storage[plugin_type]
-        else:
-            raise ValueError("Unknown plugin type: %s!" % plugin_type)
