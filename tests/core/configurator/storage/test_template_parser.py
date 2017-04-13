@@ -30,7 +30,7 @@ __version__ = VERSION
 @pytest.fixture()
 def templates():
     loader = template_parser.TemplateLoader()
-    return loader.templates
+    return loader.get_templates()
 
 
 def test_template_is_dict(templates):

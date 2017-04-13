@@ -31,35 +31,17 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class ModulePicking(object):
+class ModulePicking(core_storage.Storage):
 
-    __logger = logging.getLogger(__name__)
-    __module_storage = None  # type: core_storage.ModuleStorage
-
-    def __init__(self, extra_locations=None):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__module_storage = core_storage.ModuleStorage(extra_locations)
+    def __init__(self):
+        super(ModulePicking, self).__init__()
 
     def request_main_by_id(self, the_id):
-        for main in self.__module_storage.shell_modules:
-            the_main = self.__safely_load_module(main)
-            if not isinstance(the_main, type(None)):
-                if the_main.plugin_name == the_id:
-                    return the_main
+        for main in self._get_shells():
+            if main.plugin_name == the_id:
+                return main
 
     def request_plugin_by_name(self, name):
-        for plugin in self.__module_storage.option_modules:
-            the_plugin = self.__safely_load_module(plugin)
-            if not isinstance(the_plugin, type(None)):
-                if the_plugin.plugin_name == name:
-                    return the_plugin
-
-    def __safely_load_module(self, module):
-        try:
-            return module()
-        except Exception as Error:
-            self.__log_error(Error)
-
-    def __log_error(self, error):
-        self.__logger.error("Failed to load module!")
-        self.__logger.exception(error)
+        for plugin in self._get_plugins():
+            if plugin.plugin_name == name:
+                return plugin

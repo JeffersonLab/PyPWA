@@ -30,45 +30,32 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class TemplateLoader(object):
+class TemplateLoader(core_storage.Storage):
 
     __logger = logging.getLogger(__name__ + ".ModuleTemplates")
-    __plugin_storage = None  # type: core_storage.ModuleStorage
     __templates = None  # type: dict
 
-    def __init__(self, extra_locations=False):
-        self.__plugin_storage = core_storage.ModuleStorage(extra_locations)
+    def __init__(self):
+        super(TemplateLoader, self).__init__()
         self.__logger.addHandler(logging.NullHandler())
+        self._update_extra()
+
+    def _update_extra(self):
         self.__templates = {}
         self.__process_options()
         self.__process_main()
 
     def __process_options(self):
-        for plugin in self.__plugin_storage.option_modules:
-            self.__load_templates(plugin)
+        for plugin in self._get_plugins():
+            self.__add_module(plugin)
 
     def __process_main(self):
-        for main in self.__plugin_storage.shell_modules:
-            self.__load_templates(main)
+        for main in self._get_shells():
+            self.__add_module(main)
 
-    def __load_templates(self, plugin):
-        loaded = self.__safely_load_module(plugin)
-        if not isinstance(loaded, type(None)):
-            self.__add_module(loaded)
+    def __add_module(self, main):
+        self.__templates[main.plugin_name] = main.option_types
 
-    def __safely_load_module(self, module):
-        try:
-            return module()
-        except Exception as Error:
-            self.__log_error(Error)
-
-    def __log_error(self, error):
-        self.__logger.warning("Failed to load plugin!")
-        self.__logger.exception(error)
-
-    def __add_module(self, module):
-        self.__templates[module.plugin_name] = module.option_types
-
-    @property
-    def templates(self):
+    def get_templates(self):
+        self._check_for_updates()
         return self.__templates

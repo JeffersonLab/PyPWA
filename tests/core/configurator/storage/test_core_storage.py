@@ -34,30 +34,24 @@ __version__ = VERSION
 
 @pytest.fixture()
 def module_storage():
-    return core_storage.ModuleStorage(None)
+    return core_storage.Storage()
 
 
 @pytest.fixture()
 def metadata_storage():
-    loader = plugin_loader.PluginLoader()
-    loader.add_plugin_location(builtin_plugins)
-    plugins = loader.get_by_class(options.Plugin)
-
-    storage = core_storage.MetadataStorage()
-    storage.add_plugins(plugins)
-    return storage
+    return core_storage.MetadataStorage()
 
 
 def test_module_finds_shells(module_storage):
-    assert len(module_storage.shell_modules) != 0
+    assert len(module_storage._get_shells()) != 0
 
 
 def test_module_finds_fitter(module_storage):
-    assert pyfit.ShellFitting in module_storage.shell_modules
+    assert pyfit.ShellFitting in module_storage._get_shells()
 
 
 def test_module_finds_options(module_storage):
-    assert len(module_storage.option_modules) != 0
+    assert len(module_storage._get_plugins()) != 0
 
 
 def test_metadata_storage_finds_builtin_parser(metadata_storage):
@@ -68,7 +62,7 @@ def test_metadata_storage_finds_builtin_parser(metadata_storage):
 
 
 def test_metadata_storage_finds_optimizers(metadata_storage):
-    object = metadata_storage.request_plugin_by_type(
+    object = metadata_storage.request_plugins_by_type(
         options.Types.OPTIMIZER
     )
     assert len(object) == 2
