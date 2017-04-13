@@ -10,7 +10,7 @@ def module_picking():
 
 @pytest.fixture()
 def templates():
-    loader = _tools.TemplateLoader()
+    loader = _tools.Templates()
     return loader.get_templates()
 
 

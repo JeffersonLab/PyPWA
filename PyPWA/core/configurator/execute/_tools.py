@@ -25,7 +25,7 @@ Execute Tools, general libs needed to build the program.
 - Module Picking - This loads all the plugins, then parses their templates 
   into one massive template dictionary.
 
-- TemplateLoader - Allows the program to fetch plugins and mains by their 
+- Templates - Allows the program to fetch plugins and mains by their 
   name so that the names inside the configuration file can match up to their 
   respected plugin.
 """
@@ -86,13 +86,13 @@ class ModulePicking(storage.Storage):
                 return plugin
 
 
-class TemplateLoader(storage.Storage):
+class Templates(storage.Storage):
 
-    __logger = logging.getLogger(__name__ + ".ModuleTemplates")
+    __logger = logging.getLogger(__name__ + ".Templates")
     __templates = None  # type: dict
 
     def __init__(self):
-        super(TemplateLoader, self).__init__()
+        super(Templates, self).__init__()
         self.__logger.addHandler(logging.NullHandler())
         self._update_extra()
 
