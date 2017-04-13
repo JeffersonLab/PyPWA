@@ -205,18 +205,21 @@ class _PluginStorage(object):
 
     plugins = []
     __locations = []
+    __append_count = 0
 
     def add_location(self, location):
         self.__locations.append(location)
-
-    def get_locations(self):
-        return self.__locations
+        self.__append_count = self.__append_count +1
 
     def location_already_added(self, location):
         if location in self.__locations:
             return True
         else:
             return False
+
+    @property
+    def plugin_index(self):
+        return self.__append_count
 
 
 class PluginLoader(object):
@@ -265,3 +268,7 @@ class PluginLoader(object):
 
     def get_by_class(self, template):
         return self.__filter_subclass.filter(template)
+
+    @property
+    def storage_index(self):
+        return self.__storage.plugin_index
