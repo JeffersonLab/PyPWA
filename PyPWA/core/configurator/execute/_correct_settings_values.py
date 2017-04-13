@@ -34,6 +34,7 @@ import logging
 
 import fuzzywuzzy.process
 import numpy
+from PyPWA.core.configurator.execute import _tools
 
 from PyPWA import AUTHOR, VERSION
 
@@ -220,13 +221,12 @@ class SettingsAid(object):
     __correct_values = _CorrectValues()
     __key_corrector = None  # type: _CorrectKeys
 
-    __TEMPLATE = None
+    __template = _tools.Templates()
     __settings = None
 
-    def __init__(self, template):
+    def __init__(self):
         self.__logger.addHandler(logging.NullHandler())
-        self.__TEMPLATE = template
-        self.__key_corrector = _CorrectKeys(template)
+        self.__key_corrector = _CorrectKeys(self.__template.get_templates())
 
     def correct_settings(self, value):
         self.__set_settings(value)
@@ -242,5 +242,5 @@ class SettingsAid(object):
 
     def __correct_all(self):
         self.__settings = self.__correct_values.correct_all(
-            self.__settings, self.__TEMPLATE
+            self.__settings, self.__template.get_templates()
         )

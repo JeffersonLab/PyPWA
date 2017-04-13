@@ -53,15 +53,33 @@ found_2 = {
 }
 
 
+def temp1(self):
+    return template_1
+
+
+def temp2(self):
+    return template_2
+
+
 @pytest.fixture
-def settings_aid_1():
-    aid = _correct_settings_values.SettingsAid(template_1)
+def settings_aid_1(monkeypatch):
+    monkeypatch.setattr(
+        _correct_settings_values._tools.Templates,
+        "get_templates",
+        temp1
+    )
+    aid = _correct_settings_values.SettingsAid()
     return aid.correct_settings(found_1)
 
 
 @pytest.fixture
-def settings_aid_2():
-    aid = _correct_settings_values.SettingsAid(template_2)
+def settings_aid_2(monkeypatch):
+    monkeypatch.setattr(
+        _correct_settings_values._tools.Templates,
+        "get_templates",
+        temp2
+    )
+    aid = _correct_settings_values.SettingsAid()
     return aid.correct_settings(found_2)
 
 
