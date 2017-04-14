@@ -25,7 +25,7 @@ takes those settings to package together a little runnable program.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator.execute import _plugins
+from PyPWA.core.configurator.execute import _plugin_data
 from PyPWA.core.configurator.execute import _settings
 
 __credits__ = ["Mark Jones"]
@@ -36,7 +36,7 @@ __version__ = VERSION
 class Execute(object):
 
     __settings = _settings.Setup()
-    __executor = None  # type: _plugins.SetupProgram
+    __executor = None  # type: _plugin_data.SetupProgram
 
     def run(self, function_settings, configuration_location):
         self.__set_settings(function_settings, configuration_location)
@@ -49,7 +49,7 @@ class Execute(object):
         )
 
     def __set_executor(self):
-        self.__executor = _plugins.SetupProgram(self.__settings)
+        self.__executor = _plugin_data.SetupProgram(self.__settings)
 
     def __execute(self):
         self.__executor.execute()

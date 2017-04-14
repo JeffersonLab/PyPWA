@@ -64,7 +64,7 @@ def temp2(self):
 @pytest.fixture
 def settings_aid_1(monkeypatch):
     monkeypatch.setattr(
-        _correct_configuration._tools.Templates,
+        _correct_configuration._storage_data.Templates,
         "get_templates",
         temp1
     )
@@ -75,7 +75,7 @@ def settings_aid_1(monkeypatch):
 @pytest.fixture
 def settings_aid_2(monkeypatch):
     monkeypatch.setattr(
-        _correct_configuration._tools.Templates,
+        _correct_configuration._storage_data.Templates,
         "get_templates",
         temp2
     )

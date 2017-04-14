@@ -1,16 +1,16 @@
 import pytest
 
-from PyPWA.core.configurator.execute import _tools
+from PyPWA.core.configurator.execute import _storage_data
 
 
 @pytest.fixture()
 def module_picking():
-    return _tools.ModulePicking()
+    return _storage_data.ModulePicking()
 
 
 @pytest.fixture()
 def templates():
-    loader = _tools.Templates()
+    loader = _storage_data.Templates()
     return loader.get_templates()
 
 

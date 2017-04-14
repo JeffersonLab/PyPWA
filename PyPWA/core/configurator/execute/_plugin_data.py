@@ -25,7 +25,7 @@ import logging
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator.execute import _settings
-from PyPWA.core.configurator.execute import _tools
+from PyPWA.core.configurator.execute import _storage_data
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -35,7 +35,7 @@ __version__ = VERSION
 class _RequestedPlugins(object):
 
     __logger = logging.getLogger(__name__ + "._RequestedPlugins")
-    __storage = _tools.ModulePicking()
+    __storage = _storage_data.ModulePicking()
     __the_ids = None
     __plugins = None
     __main = None

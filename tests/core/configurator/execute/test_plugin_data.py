@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator.execute import _plugins
+from PyPWA.core.configurator.execute import _plugin_data
 
 
 config = {
@@ -29,7 +29,7 @@ class FakeSettings(object):
 
 @pytest.fixture
 def setup_settings():
-    return _plugins.SetupProgram(FakeSettings())
+    return _plugin_data.SetupProgram(FakeSettings())
 
 
 def test_full_configurator_execute_with_blank_module(setup_settings):
