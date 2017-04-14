@@ -26,7 +26,15 @@ start the program.
 - _correct_configuration - Corrects the parsed configuration file using the
   rendered template dict from all the known plugins.
   
-- config_loader - Reads in the configuration from file.
+- _plugin_data - Contains the logic pertaining to loading the plugins listed
+  in the user's config file and initializing it with the users settings
+  
+- _settings - Reads in the configuration file, processes the overrides, 
+  appends the plugin directory to the plugin search path, then corrects the
+  received values using _correct_configuration.
+  
+- _storage_data - contains the objects that operate directly with the loaded
+  plugins.
 
 - start - Where the main source of execution occurs for the program.
 """

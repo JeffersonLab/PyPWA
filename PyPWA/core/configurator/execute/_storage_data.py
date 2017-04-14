@@ -19,7 +19,7 @@
 """
 Execute Tools, general libs needed to build the program.
 --------------------------------------------------------
-- Module Picking - This loads all the plugins, then parses their templates 
+- ModulePicking - This loads all the plugins, then parses their templates 
   into one massive template dictionary.
 
 - Templates - Allows the program to fetch plugins and mains by their 

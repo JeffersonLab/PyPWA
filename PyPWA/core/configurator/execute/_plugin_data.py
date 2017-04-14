@@ -17,7 +17,29 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Plugin Setup
+------------
+This source file is file that initializes the plugins for use in the main 
+program.
 
+- _RequestedPlugins - Takes the ids from the settings and uses it to grab the
+  metadata for all the plugins listed in the configuration file, plugins
+  are loaded into loaded_plugin_metadata and the main is loaded 
+  into loaded_main_metadata.
+
+- _InitializePlugin - Takes the settings and metadata for a plugin and uses
+  it to load and extract the actual executed plugin.
+  
+- _SetupPlugins - Contains the main loop needed to initialize all the plugins,
+  loads the plugins into a dictionary where the key is the plugin type, and
+  exposes that dictionary through loaded_plugins.
+  
+- _SetupMain - Takes all of the objects and uses them to load the plugin data
+  into the settings for the main, then initializes the main and exposes that
+  through main_program.
+  
+- SetupProgram - Takes the settings object and uses that to initialize all of
+  the plugins. Exposes execute to begin the main program.
 """
 
 import logging
@@ -75,11 +97,11 @@ class _RequestedPlugins(object):
             raise ValueError("Unknown plugin %s" % the_id)
 
     @property
-    def loaded_plugins(self):
+    def loaded_plugin_metadata(self):
         return self.__plugins
 
     @property
-    def loaded_main(self):
+    def loaded_main_metadata(self):
         return self.__main
 
 
@@ -120,7 +142,7 @@ class _SetupPlugins(object):
 
     def __setup_plugins(self):
         self.__logger.info("Initializing plugins.")
-        for metadata in self.__selected_modules.loaded_plugins:
+        for metadata in self.__selected_modules.loaded_plugin_metadata:
             self.__logger.debug("Plugin Type: '%s'" % repr(metadata))
             self.__process_plugin(metadata)
 
@@ -146,17 +168,17 @@ class _SetupMain(object):
         self.__settings = settings
         self.__selected_modules = loaded_modules
         self.__plugins = plugins
-        self.__name = loaded_modules.loaded_main.plugin_name
+        self.__name = loaded_modules.loaded_main_metadata.plugin_name
         self.__setup_main()
 
     def __setup_main(self):
         self.__add_plugins_to_settings()
         self.__main = _InitializePlugin.initialize(
-            self.__selected_modules.loaded_main, self.__settings
+            self.__selected_modules.loaded_main_metadata, self.__settings
         )
 
     def __add_plugins_to_settings(self):
-        for key, value in self.__plugins.loaded_plugins.items():
+        for key, value in self.__plugins.loaded_plugin_metadata.items():
             self.__logger.debug("Adding '%s' to main's settings" % key)
             self.__settings[self.__name][key] = value
 
