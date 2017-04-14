@@ -203,6 +203,10 @@ class KernelInterface(object):
 
 class OptimizerOptionParser(object):
 
+    # A simple multiplier that will be multiplied to the final result of
+    # every run call.
+    multiplier = 1
+
     def convert(self, passed_value):
         """
         This should take any value sent by optimizer and clean up the value 

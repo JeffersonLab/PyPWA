@@ -84,6 +84,7 @@ class _ThreadInterface(object):
 
 
 class _OutputThread(threading.Thread):
+
     __output_pulse = "-"
     __send_queue = None  # type: Queue
     __receive_queue = None  # type: Queue
@@ -183,7 +184,8 @@ class FittingInterface(internals.KernelInterface):
         values = numpy.zeros(shape=len(communication))
         for index, pipe in enumerate(communication):
             values[index] = pipe.receive()
-        self.__last_value = numpy.sum(values)
+        final_value = numpy.sum(values)
+        self.__last_value = self.__parameter_parser.multiplier * final_value
 
     def __log_final_value(self):
         self.__logger.info("Final Value is: %f15" % self.__last_value)

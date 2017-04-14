@@ -45,6 +45,8 @@ __version__ = VERSION
 
 class _ParserObject(internals.OptimizerOptionParser):
 
+    multiplier = -1
+
     def __init__(self, parameters):
         self._parameters = parameters
 
