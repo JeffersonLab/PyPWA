@@ -54,9 +54,11 @@ class _CorrectKeys(object):
     __KEYS = None
     __initial_settings = None
     __corrected_keys = None
+    __depth = None
 
-    def __init__(self, template):
+    def __init__(self, template, depth=0):
         self.__logger.addHandler(logging.NullHandler())
+        self.__depth = depth
         self.__TEMPLATE = template  # type: dict
         self.__logger.debug("Received template: %s" % template)
         self.__set_keys()
@@ -82,7 +84,7 @@ class _CorrectKeys(object):
             if found:
                 self.__set_corrected_key(found, key)
             else:
-                self.__log_key_error(key)
+                self.__handle_key_error(key)
             self.__check_for_dictionary(found)
 
     def __get_potential_key(self, key):
@@ -105,14 +107,17 @@ class _CorrectKeys(object):
             self.__correct_nested_dictionary(found)
 
     def __correct_nested_dictionary(self, found):
-        correction = _CorrectKeys(self.__TEMPLATE[found])
+        correction = _CorrectKeys(self.__TEMPLATE[found], self.__depth+1)
         corrected = correction.correct_keys(self.__corrected_keys[found])
         self.__corrected_keys[found] = corrected
 
-    def __log_key_error(self, key):
-        self.__logger.warning(
-            "Unknown key %s, value is being removed!" % key
-        )
+    def __handle_key_error(self, key):
+        if self.__depth:
+            raise ValueError("Root level key error! Unknown Plugin %s!" % key)
+        else:
+            self.__logger.warning(
+                "Unknown key %s, value is being removed!" % key
+            )
 
 
 class _CorrectValues(object):
