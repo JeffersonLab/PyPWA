@@ -57,7 +57,6 @@ class _CorrectKeys(object):
     __depth = None
 
     def __init__(self, template, depth=0):
-        self.__logger.addHandler(logging.NullHandler())
         self.__depth = depth
         self.__TEMPLATE = template  # type: dict
         self.__logger.debug("Received template: %s" % template)
@@ -113,10 +112,12 @@ class _CorrectKeys(object):
 
     def __handle_key_error(self, key):
         if self.__depth:
-            raise ValueError("Root level key error! Unknown Plugin %s!" % key)
+            raise ValueError(
+                "Root level key error! Unknown Plugin '%s'!" % key
+            )
         else:
             self.__logger.warning(
-                "Unknown key %s, value is being removed!" % key
+                "Unknown key '%s', value is being removed!" % key
             )
 
 
@@ -170,8 +171,8 @@ class _CorrectValues(object):
 
             else:
                 self.__logger.debug(
-                    "Key {0} is not correctable by settings "
-                    "aid.".format(key)
+                    "Key '%s' is not correctable by settings aid because "
+                    "its expected value is not known." % key
                 )
 
                 corrected_dictionary[key] = current_value
@@ -230,7 +231,6 @@ class SettingsAid(object):
     __settings = None
 
     def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
         self.__key_corrector = _CorrectKeys(self.__template.get_templates())
 
     def correct_settings(self, value):
