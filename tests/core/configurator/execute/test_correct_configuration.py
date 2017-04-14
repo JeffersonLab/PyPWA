@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator.execute import _correct_settings_values
+from PyPWA.core.configurator.execute import _correct_configuration
 
 template_1 = {
     "predetermined value": ["this", "that", "other"],
@@ -64,22 +64,22 @@ def temp2(self):
 @pytest.fixture
 def settings_aid_1(monkeypatch):
     monkeypatch.setattr(
-        _correct_settings_values._tools.Templates,
+        _correct_configuration._tools.Templates,
         "get_templates",
         temp1
     )
-    aid = _correct_settings_values.SettingsAid()
+    aid = _correct_configuration.SettingsAid()
     return aid.correct_settings(found_1)
 
 
 @pytest.fixture
 def settings_aid_2(monkeypatch):
     monkeypatch.setattr(
-        _correct_settings_values._tools.Templates,
+        _correct_configuration._tools.Templates,
         "get_templates",
         temp2
     )
-    aid = _correct_settings_values.SettingsAid()
+    aid = _correct_configuration.SettingsAid()
     return aid.correct_settings(found_2)
 
 

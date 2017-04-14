@@ -23,7 +23,7 @@ This module takes the written configuration file along with some information
 from the entry point and tries to use that attempt to load the plugins and 
 start the program.
 
-- _correct_settings_values - Corrects the parsed configuration file using the
+- _correct_configuration - Corrects the parsed configuration file using the
   rendered template dict from all the known plugins.
   
 - config_loader - Reads in the configuration from file.
