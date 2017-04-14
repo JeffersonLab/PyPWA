@@ -36,8 +36,8 @@ is going to be rendering it.
   override in the entry function. Useful so that you can have multiple names
   for the same main module.
   
-- _SetupPluginDir - Pulls the plugin directory from the configuration and 
-  adds the path to the storage objects plugin search path.
+- _SetupPluginDir - Static Object that pulls the plugin directory from the 
+  configuration and adds the path to the storage objects plugin search path.
   
 - Setup - Takes the configuration and override information then parses that 
   information into a usable configuration dictionary.
@@ -61,12 +61,11 @@ class _ConfigurationLoader(object):
 
     __logger = logging.getLogger(__name__ + ".ConfigurationLoader")
 
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
-
     def read_config(self, configuration):
         with open(configuration, "r") as stream:
-            return self.__process_stream(stream)
+            data = self.__process_stream(stream)
+            self.__logger.info("Parsed %s" % configuration)
+            return data
 
     def __process_stream(self, stream):
         try:
@@ -88,9 +87,6 @@ class _InternalizeSettings(object):
     __logger = logging.getLogger(__name__ + "._InternalizeSettings")
     __settings = None
     __overrides = None
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
 
     def processed_settings(self, settings, settings_overrides):
         self.__settings = settings
@@ -125,20 +121,22 @@ class _SetupPluginDir(object):
     __logger = logging.getLogger(__name__ + "._SetupPluginDir")
     __loader = storage.Storage()
 
-    def add_locations_from_settings(self, settings):
+    @classmethod
+    def add_locations_from_settings(cls, settings):
         try:
-            location = self.__get_location_from_settings(settings)
-            self.__add_found_location(location)
+            location = cls.__get_location_from_settings(settings)
+            cls.__add_found_location(location)
         except KeyError:
-            self.__logger.info("No extra plugin directories found.")
+            cls.__logger.info("No extra plugin directories found.")
 
     @staticmethod
     def __get_location_from_settings(settings):
         return settings["Global Options"]["plugin directory"]
 
-    def __add_found_location(self, location):
-        self.__loader.add_location(location)
-        self.__logger.info("Found extra plugin locations %s" % repr(location))
+    @classmethod
+    def __add_found_location(cls, location):
+        cls.__loader.add_location(location)
+        cls.__logger.info("Found extra plugin locations %s" % repr(location))
 
 
 class Setup(object):
@@ -165,8 +163,7 @@ class Setup(object):
 
     @staticmethod
     def __process_plugin_path(settings):
-        plugin_dir = _SetupPluginDir()
-        plugin_dir.add_locations_from_settings(settings)
+        _SetupPluginDir.add_locations_from_settings(settings)
 
     def __correct_settings(self, settings):
         corrector = _correct_configuration.SettingsAid()
