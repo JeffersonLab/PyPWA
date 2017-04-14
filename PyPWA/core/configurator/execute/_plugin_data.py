@@ -178,7 +178,7 @@ class _SetupMain(object):
         )
 
     def __add_plugins_to_settings(self):
-        for key, value in self.__plugins.loaded_plugin_metadata.items():
+        for key, value in self.__plugins.loaded_plugins.items():
             self.__logger.debug("Adding '%s' to main's settings" % key)
             self.__settings[self.__name][key] = value
 
