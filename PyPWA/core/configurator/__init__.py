@@ -29,10 +29,7 @@ plugins and render those into a template configuration file.
 
 - execute - This takes a already made configuration file and then renders 
   it into requested objects that then becomes the program.
-  
-- storage - Here are where the loading and parsing of options from the 
-  plugins is done. Each of these work with **all** plugins.
-  
+    
 - option_tools - the various little objects needed to parse and pass 
   information between the plugins.
   
@@ -40,6 +37,9 @@ plugins and render those into a template configuration file.
   the configurator.
   
 - start - Argument loading, logging, and initial setup for the configurator.
+
+- storage - The Storage singleton that is the core to all managing and 
+  interacting with plugins.
 """
 
 from PyPWA import AUTHOR, VERSION
