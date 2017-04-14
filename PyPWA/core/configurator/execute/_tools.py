@@ -19,9 +19,6 @@
 """
 Execute Tools, general libs needed to build the program.
 --------------------------------------------------------
-
-- ConfigurationLoader - Simply loads the configuration file using ruamel.yaml.
-
 - Module Picking - This loads all the plugins, then parses their templates 
   into one massive template dictionary.
 
@@ -32,42 +29,12 @@ Execute Tools, general libs needed to build the program.
 
 import logging
 
-import ruamel.yaml
-import ruamel.yaml.comments
-import ruamel.yaml.parser
-
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import storage
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-class ConfigurationLoader(object):
-
-    __logger = logging.getLogger(__name__ + ".ConfigurationLoader")
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
-
-    def read_config(self, configuration):
-        with open(configuration, "r") as stream:
-            return self.__process_stream(stream)
-
-    def __process_stream(self, stream):
-        try:
-            return self.__load_configuration(stream)
-        except ruamel.yaml.parser.ParserError as UserError:
-            self.__process_error(UserError)
-
-    @staticmethod
-    def __load_configuration(stream):
-        return ruamel.yaml.load(stream, ruamel.yaml.RoundTripLoader)
-
-    def __process_error(self, user_error):
-        self.__logger.exception(user_error)
-        raise SyntaxError(str(user_error))
 
 
 class ModulePicking(storage.Storage):
