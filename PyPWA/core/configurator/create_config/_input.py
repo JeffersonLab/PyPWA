@@ -119,7 +119,7 @@ class SimpleInputObject(object):
 
     __logger = logging.getLogger(__name__ + ".SimpleInputObject")
     __input = _Input
-    __is_correct = _IsCorrect
+    __is_correct = _IsCorrectLoop
 
     __auto_correction_percentage = None
     __users_input = None
@@ -128,7 +128,7 @@ class SimpleInputObject(object):
     def __init__(self, auto_correct_percentage=75):
         self.__auto_correction_percentage = auto_correct_percentage
         self.__input = _Input()
-        self.__is_correct = _IsCorrect()
+        self.__is_correct = _IsCorrectLoop()
 
     def input(
             self, string, possible_answers=False,

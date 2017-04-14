@@ -42,7 +42,7 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _input
-from PyPWA.core.configurator.storage import core_storage
+from PyPWA.core.configurator.create_config import _metadata
 from PyPWA.core.shared import plugin_loader
 
 
@@ -58,7 +58,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
 
     __plugin_handler = None  # type:
 
-    __storage = None  # type: core_storage.MetadataStorage()
+    __storage = None  # type: _metadata.MetadataStorage()
     __plugin_directory = None  # type: str
     __save_location = None  # type: str
     __level = None  # type: str
@@ -113,7 +113,7 @@ class ConfigurationBuilder(object):  # help, I am not simple
 
         plugins = self.__plugin_handler.get_by_class(options.Plugin)
 
-        self.__storage = core_storage.MetadataStorage()
+        self.__storage = _metadata.MetadataStorage()
         self.__storage.add_plugins(plugins)
 
     def __make_plugin_list(self, main_plugin):
@@ -227,7 +227,7 @@ class PluginList(object):
     __logger = logging.getLogger(__name__)
     __ask_for_plugin = _AskForSpecificPlugin()
 
-    __storage = None  # type: core_storage.MetadataStorage()
+    __storage = None  # type: _metadata.MetadataStorage()
     __plugin_types = None  # type: typing.List[str]
 
     def __init__(self, storage):
