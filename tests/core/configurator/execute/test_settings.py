@@ -11,6 +11,7 @@ CONFIGURATION_FILE = os.path.join(
 OVERRIDE = {
         "main": "shell fitting method",
         "main name": "General Fitting",
+        "main options": {"save name": "output file location"},
         "extras": None
     }
 
@@ -20,6 +21,7 @@ def setup():
     setup_object = _settings.Setup()
     setup_object.load_settings(OVERRIDE, CONFIGURATION_FILE)
     return setup_object
+
 
 @pytest.fixture
 def ids(setup):
@@ -78,12 +80,6 @@ def test_minuit_settings(settings):
     assert settings["Minuit"]["settings"]['limit_O5'] == [-15., 10.]
 
 
-
-
-
-
-
-
-
-
-
+def test_override_settings(settings):
+    assert settings["shell fitting method"]["save name"] == \
+           "output file location"
