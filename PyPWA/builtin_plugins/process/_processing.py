@@ -21,10 +21,12 @@ The processes and their factories are defined here. The current supported
 methods are Duplex for worker processes and Simplex for offload processes.
 """
 
+import logging
 import multiprocessing
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process._communication import CommunicationFactory
+from PyPWA.core.shared import initial_logging
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -34,8 +36,11 @@ __version__ = VERSION
 class _DuplexProcess(multiprocessing.Process):
     daemon = True  # This is set to true so that if the main process
     # dies the child processes will die as well.
+    __logging_level = None
+    __logging_file = None
+    __logger = None
 
-    def __init__(self, index, kernel, communicator):
+    def __init__(self, index, kernel, communicator, level, file):
         """
         Main object for duplex processes. These processes are worker
         processes and as such will continue to run indefinitely until
@@ -51,6 +56,8 @@ class _DuplexProcess(multiprocessing.Process):
                 children and vice versa.
         """
         super(_DuplexProcess, self).__init__()
+        self.__logging_level = level
+        self.__logging_file = file
         self._kernel = kernel
         self._kernel.processor_id = index
         self._communicator = communicator
@@ -63,6 +70,11 @@ class _DuplexProcess(multiprocessing.Process):
         Returns:
             0: When the process is closed cleanly.
         """
+        self.__setup_logger()
+        self.__set_logger()
+        self.__logger.info(
+            "Starting logging in proc index %d" % self._kernel.processor_id
+        )
         self._kernel.setup()
         while True:
             value = self._communicator.receive()
@@ -72,12 +84,23 @@ class _DuplexProcess(multiprocessing.Process):
                 self._communicator.send(self._kernel.process(value))
         return 0
 
+    def __setup_logger(self):
+        initial_logging.InternalLogger.configure_root_logger(
+            self.__logging_level, self.__logging_file
+        )
+
+    def __set_logger(self):
+        self.__logger = logging.getLogger(__name__ + "._DuplexProcess")
+
 
 class _SimplexProcess(multiprocessing.Process):
     daemon = True  # Set to true so that if the main process dies,
     # the children will die as well.
+    __logging_level = None
+    __logging_file = None
+    __logger = None
 
-    def __init__(self, index, single_kernel, communicator):
+    def __init__(self, index, single_kernel, communicator, level, file):
         """
         The simplex process is the simple offload process, anything
         passed to here will be ran immediately then send to the result
@@ -92,6 +115,8 @@ class _SimplexProcess(multiprocessing.Process):
                 processed.
         """
         super(_SimplexProcess, self).__init__()
+        self.__logging_level = level
+        self.__logging_file = file
         self._kernel = single_kernel
         self._kernel.processor_id = index
         self._communicator = communicator
@@ -105,9 +130,22 @@ class _SimplexProcess(multiprocessing.Process):
         Returns:
             0: On success.
         """
+        self.__setup_logger()
+        self.__set_logger()
         self._kernel.setup()
+        self.__logger.info(
+            "Starting logging in proc index %d" % self._kernel.processor_id
+        )
         self._communicator.send(self._kernel.process())
         return 0
+
+    def __setup_logger(self):
+        initial_logging.InternalLogger.configure_root_logger(
+            self.__logging_level, self.__logging_file
+        )
+
+    def __set_logger(self):
+        self.__logger = logging.getLogger(__name__ + "._SimplexProcess")
 
 
 class CalculationFactory(object):
@@ -136,7 +174,9 @@ class CalculationFactory(object):
 
         for index, internals in enumerate(zip(process_kernels, sends)):
             processes.append(_SimplexProcess(
-                index, internals[0], internals[1]
+                index, internals[0], internals[1],
+                initial_logging.InternalLogger.get_level(),
+                initial_logging.InternalLogger.get_filename()
             ))
 
         return [processes, receives]
@@ -160,7 +200,9 @@ class CalculationFactory(object):
 
         for index, internals in enumerate(zip(process_kernels, process_com)):
             processes.append(_DuplexProcess(
-                index, internals[0], internals[1]
+                index, internals[0], internals[1],
+                initial_logging.InternalLogger.get_level(),
+                initial_logging.InternalLogger.get_filename()
             ))
 
         return [processes, main_com]

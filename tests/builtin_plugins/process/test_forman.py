@@ -2,9 +2,14 @@ import time
 
 import numpy
 import pytest
+import logging
 
 from PyPWA.builtin_plugins.process import foreman, _communication
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared import initial_logging
+
+
+initial_logging.InternalLogger.set_level_to_global()
 
 
 def test_DuplexProcess_SumOfIntegers_Return50():
@@ -18,10 +23,11 @@ def test_DuplexProcess_SumOfIntegers_Return50():
     # Create a test process kernel
     class TestKernel(internals.Kernel):
 
+        __logger = logging.getLogger("TEST")
         the_data = False  # type: numpy.ndarray
 
         def setup(self):
-            pass
+            self.__logger.debug("Test setup called!")
 
         def process(self, data=False):
             if data[0] == "go":  # data is a tuple.
