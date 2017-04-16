@@ -7,7 +7,7 @@ from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _level_processing
 
 sys.path.append(os.path.join(
-    os.path.dirname(__file__), ".."
+    os.path.dirname(__file__), "../../../data"
 ))
 
 import simple_option_object

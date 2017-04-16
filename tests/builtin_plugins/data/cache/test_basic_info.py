@@ -20,7 +20,7 @@ from PyPWA.builtin_plugins.data.cache import _basic_info
 
 
 DATA = os.path.join(
-    os.path.dirname(__file__), "../builtin/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
 )
 
 SIMPLE_STRING = "1234567890aoeuidhtns-"
