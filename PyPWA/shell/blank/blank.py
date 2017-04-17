@@ -20,6 +20,7 @@
 
 """
 
+from PyPWA.builtin_plugins.data import memory
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import plugins
 
@@ -30,5 +31,12 @@ __version__ = VERSION
 
 class Blank(plugins.Main):
 
+    __options = None
+
+    def __init__(self, options_object):
+        self.__options = options_object
+
     def start(self):
-        pass
+        assert isinstance(self.__options.data_parser, memory.Memory)
+        assert self.__options.option_1 == 123
+        assert isinstance(self.__options.option_2, str)

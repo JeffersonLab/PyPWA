@@ -37,4 +37,4 @@ class BlankSetup(options.Setup):
         self.__options = options_object
 
     def return_interface(self):
-        return blank.Blank()
+        return blank.Blank(self.__options)
