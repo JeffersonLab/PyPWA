@@ -44,9 +44,10 @@ __version__ = VERSION
 class CommandOptions(object):
 
     __logger = logging.getLogger(__name__ + ".CommandOptions")
+    __options = None
 
     def __init__(self, default_options, loaded_options):
-        self.__logger.addHandler(logging.NullHandler())
+        self.__options = []
         self.__set_variables(default_options)
         self.__set_variables(loaded_options)
 
@@ -54,6 +55,7 @@ class CommandOptions(object):
         for key in list(plugin_options.keys()):
             name = self.__find_variable_name(key)
             setattr(self, name, plugin_options[key])
+            self.__options.append(name)
 
     def __find_variable_name(self, key):
         underscored_name = key.replace(" ", "_")
@@ -61,6 +63,12 @@ class CommandOptions(object):
         filtered_name = re.sub(r'[^a-z0-9_]', '', lowercase_name)
         self.__logger.debug("Converted {0} to {1}".format(key, filtered_name))
         return filtered_name
+
+    def __getattr__(self, item):
+        raise AttributeError(
+            "No option named '%s', only '%s' have been defined." %
+            (item, repr(self.__options))
+        )
 
 
 class PluginNameConversion(object):

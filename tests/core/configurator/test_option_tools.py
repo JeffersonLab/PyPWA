@@ -61,3 +61,8 @@ def test_command_full_options_set():
     assert FULL_OPTIONS.option_2 == "words"
     assert FULL_OPTIONS.option_3 == ["Preset 1"]
     assert isinstance(FULL_OPTIONS.option_4, type(None))
+
+
+def test_command_fails_correctly_with_attribute_error():
+    with pytest.raises(AttributeError):
+        FULL_OPTIONS.option_5
