@@ -29,6 +29,7 @@ Shared logic between PyFit and PySimulate
 """
 
 import os
+import logging
 
 import numpy
 
@@ -124,6 +125,7 @@ class DataLoading(object):
 
 class FunctionLoader(object):
 
+    __logger = logging.getLogger(__name__ + ".FunctionLoader")
     __loader = plugin_loader.PluginLoader()
     __process_name = None
     __setup_name = None
@@ -145,10 +147,12 @@ class FunctionLoader(object):
     def __load_setup(self):
         if isinstance(self.__setup_name, str):
             self.__setup = self.__loader.get_by_name(self.__setup_name, False)
+            self.__logger.debug("Found setup type %s" % repr(self.__setup))
         self.__set_none_to_empty()
 
     def __set_none_to_empty(self):
         if self.__setup is None:
+            self.__logger.info("No setup function found, settings to empty.")
             self.__setup = self.__empty
 
     @staticmethod
