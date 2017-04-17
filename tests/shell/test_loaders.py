@@ -94,7 +94,7 @@ def function_without_math_or_setup():
 def test_function_and_setup_return_true(function_without_math):
     processing = function_without_math.process
     setup = function_without_math.setup
-    assert processing(1,1)
+    assert processing(1, 1)
     assert setup()
 
 

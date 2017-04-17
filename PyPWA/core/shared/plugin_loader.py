@@ -270,7 +270,9 @@ class PluginLoader(object):
     def get_by_name(self, name, fail=True):
         for plugin in self.__storage.plugins:
             if hasattr(plugin, name):
-                return getattr(plugin, name)
+                possible_answer = getattr(plugin, name)
+                if callable(possible_answer):
+                    return possible_answer
         if fail:
             raise ImportError
         else:
