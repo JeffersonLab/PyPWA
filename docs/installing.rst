@@ -28,16 +28,16 @@ Installing on your local machine using pip
 Installing Dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Debian based distributions.
-::
+Debian based distributions. ::
+
   $ sudo apt install python-dev gcc
 
-Fedora 22 and later.
-::
+Fedora 22 and later. ::
+
   $ sudo dnf install python-devel gcc
 
-Arch Linux.
-::
+Arch Linux. ::
+
   $ sudo pacman -Su python gcc
 
 Downloading and installing the Python Wheel
@@ -51,37 +51,10 @@ Download the current package from `here`_.
 
 
 Navigate to where you downloaded the package file, then install the
-package using pip.::
+package using pip. ::
+  
   $ sudo pip install PyPWA*.whl
 
 .. note::
   You can install the package in your home directory without needing super
   user permissions, using ``$ pip install --user PyPWA*.whl`` instead.
-
-
-Installing locally using Virtualenv
------------------------------------
-You will still need the listed dependencies listed above in
-`Installing Dependencies`_ in order to use a virtualenv.
-
-Before you begin, you will need to install `virtualenv`_ using the
-instructions on their documentation.
-
-  
-
-Installing on your local machine using SetupTools
--------------------------------------------------
-
-Before you begin, start by referencing `Installing Dependencies`_ above to
-install the needed packages.
-
-Download the source from our `GitHub`_ using `Git`_ somewhere you have write
-permissions, then cd into the package.
-
-Once inside the pacakge, run:
-::
-  $ sudo python setup.py install
-
-Or alternatively to install just in your home folder:
-::
-  $ python setup.py install --local
