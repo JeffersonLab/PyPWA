@@ -127,7 +127,7 @@ class NestledSampling(plugins.Optimizer):
 class LoadPrior(object):
 
     __logger = logging.getLogger("_LoadPrior." + __name__)
-    __plugin_storage = plugin_loader.PluginStorage()
+    __plugin_storage = plugin_loader.PluginLoader()
     __found_prior = None  # type: typing.Any
 
     def __init__(self):

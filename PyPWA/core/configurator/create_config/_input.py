@@ -27,6 +27,7 @@ Handles the input for WriteConfig
 - SimpleInputObject - Is the main loop for questions that need to be asked.
 """
 
+import logging
 import os
 import sys
 
@@ -58,18 +59,17 @@ class _Input(object):
         return input(string)
 
 
-class _IsCorrect(object):
+class _IsCorrectLoop(object):
 
     __QUERY = "It looks like you selected '{0}', is this correct?\n" + \
              "[Y]es/No: "
 
-    __input = _Input
+    __input = _Input()
     __auto_correct_percentage = None
     __input_data = None
     __processed_answer = None
 
-    def __init__(self, auto_correct_percentage=90):
-        self.__input = _Input()
+    def __init__(self, auto_correct_percentage=75):
         self.__auto_correct_percentage = auto_correct_percentage
 
     def ask(self, value):
@@ -80,7 +80,7 @@ class _IsCorrect(object):
         while True:
             self.__get_value(value)
 
-            if self._input_data == "":
+            if self.__input_data == "":
                 self.__set_answer("yes")
                 break
 
@@ -90,56 +90,61 @@ class _IsCorrect(object):
 
     def __get_value(self, value):
         input_data = self.__input.input(self.__QUERY.format(value))
-        self._input_data = input_data.lower()
+        self.__input_data = input_data.lower()
 
     def __set_answer(self, value):
-        self._processed_answer = [value, 100]
+        self.__processed_answer = [value, 100]
 
     def __fuzz_value(self):
         choices = ["yes", "no"]
 
-        self._processed_answer = fuzzywuzzy.process.extractOne(
-            self._input_data, choices
+        self.__processed_answer = fuzzywuzzy.process.extractOne(
+            self.__input_data, choices
         )
 
     def __answer_is_valid(self):
-        if self._processed_answer[1] > self.__auto_correct_percentage:
+        if self.__processed_answer[1] > self.__auto_correct_percentage:
             return True
         else:
             return False
 
     def __process_final_answer(self):
-        if self._processed_answer[0] == "yes":
+        if self.__processed_answer[0] == "yes":
             return True
-        elif self._processed_answer[0] == "no":
+        elif self.__processed_answer[0] == "no":
             return False
 
 
 class SimpleInputObject(object):
 
+    __logger = logging.getLogger(__name__ + ".SimpleInputObject")
     __input = _Input
-    __is_correct = _IsCorrect
+    __is_correct = _IsCorrectLoop
 
     __auto_correction_percentage = None
     __users_input = None
     __processed_value = None
 
     def __init__(self, auto_correct_percentage=75):
-        self._auto_correction_percentage = auto_correct_percentage
-        self._input = _Input()
-        self._is_correct = _IsCorrect()
+        self.__auto_correction_percentage = auto_correct_percentage
+        self.__input = _Input()
+        self.__is_correct = _IsCorrectLoop()
 
     def input(
             self, string, possible_answers=False,
-            default_answer=False, is_dir=False
+            default_answer=False
     ):
-        self.__question_loop(string, possible_answers, default_answer, is_dir)
-        return self._processed_value[0]
+        self.__question_loop(string, possible_answers, default_answer)
+        self.__logger.info("Found answer: %s" % self.__processed_value[0])
+        return self.__processed_value[0]
 
     def __question_loop(
             self, string, possible_answers=False,
-            default_answer=False, is_dir=False
+            default_answer=False
     ):
+        self.__logger.debug("Question: %s" % string)
+        self.__logger.debug("Potential Answers: %s" % possible_answers)
+        self.__logger.debug("Default Answer: %s" % default_answer)
 
         while True:
             self.__get_input(string)
@@ -147,6 +152,9 @@ class SimpleInputObject(object):
             if self.__users_input is "":
                 if default_answer:
                     self.__set_processed_value(default_answer)
+                    self.__logger.info(
+                        "Using default answer: %s" % default_answer
+                    )
                     break
                 continue
 
@@ -155,26 +163,26 @@ class SimpleInputObject(object):
                     self.__process_value(possible_answers)
 
                     if self.__answer_is_valid():
-                        continue
-                if is_dir:
-                    if not os.path.isdir(self._processed_value[0]):
-                        continue
-                if self._is_correct.ask(self._processed_value[0]):
+                        break
+                else:
                     break
 
     def __get_input(self, string):
-        self._users_input = self._input.input(string)
+        self.__users_input = self.__input.input(string)
 
     def __set_processed_value(self, value):
-        self._processed_value = [value, 100]
+        self.__processed_value = [value, 100]
 
     def __process_value(self, possible_answers):
-        self._processed_value = fuzzywuzzy.process.extractOne(
-            self._users_input, possible_answers
+        self.__processed_value = fuzzywuzzy.process.extractOne(
+            self.__users_input, possible_answers
         )
 
     def __answer_is_valid(self):
-        if self._processed_value[1] > self._auto_correction_percentage:
-            return True
+        if self.__processed_value[1] > self.__auto_correction_percentage:
+            if self.__processed_value[1] < 95:
+                return self.__is_correct.ask(self.__processed_value[0])
+            else:
+                return True
         else:
             return False

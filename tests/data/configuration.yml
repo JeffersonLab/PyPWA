@@ -1,0 +1,29 @@
+buitin parse:
+  enable cache: true
+Builtin Multiprocessing:
+  number of processes: 4
+miniut:
+  parameters:
+    - O1
+    - O2
+    - O3
+    - O4
+    - O5
+  setttings: {
+    'O1':6E+8, 'fix_O1':True,  'error_O1':0.1,  'limit_O1':[0,10.E+12],
+    'O2':0.3,  'fix_O2':True,  'error_O2':0.01,
+    'O3':-0.1, 'fix_O3':True,  'error_O3':0.01,
+    'O4':-0.1, 'fix_O4':True,  'error_O4':0.01,
+    'O5':0.1,  'fix_O5':False, 'error_O5':0.01, 'limit_O5':[-15.,10.]
+  }
+  stratigy: 1
+General Fitting:
+  likelihoodtype: Chi Squared
+  generated length:
+  function location: test.py
+  process name: weighting
+  setup name: setup_fortran
+  qfactors location:
+  datas location: kvars.csv
+  accepted montecarlo location:
+  savename: output

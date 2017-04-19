@@ -19,13 +19,13 @@ DOES_NOT_EXIST = os.path.join(
 
 @pytest.fixture(scope="module")
 def plugin_loader_with_plugins():
-    loader = plugin_loader.PluginStorage()
+    loader = plugin_loader.PluginLoader()
     loader.add_plugin_location([builtin_plugins, None])
     return loader.get_by_class(options.Plugin)
 
 
 def test_plugin_loader_with_sets():
-    loader = plugin_loader.PluginStorage()
+    loader = plugin_loader.PluginLoader()
     loader.add_plugin_location({builtin_plugins})
 
 
@@ -58,7 +58,7 @@ def test_options_test_is_found(plugin_loader_with_plugins):
 
 @pytest.fixture(scope="module")
 def python_sheet_loader():
-    loader = plugin_loader.PluginStorage()
+    loader = plugin_loader.PluginLoader()
     loader.add_plugin_location(EXAMPLE_SHEET)
     return loader
 
@@ -80,5 +80,5 @@ def test_returns_empty(python_sheet_loader):
 
 def test_can_load_non_existant_file():
     with pytest.raises(ImportError):
-        loader = plugin_loader.PluginStorage()
+        loader = plugin_loader.PluginLoader()
         loader.add_plugin_location(DOES_NOT_EXIST)

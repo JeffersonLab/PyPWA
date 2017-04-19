@@ -29,7 +29,8 @@ from PyPWA.builtin_plugins.data.cache import _basic_info
 
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../builtin/test_docs/temporary_write_data"
+    os.path.dirname(__file__),
+    "../../../data/test_docs/temporary_write_data"
 )
 
 DATA = ";qjkxbmwvzpyfgcrl"

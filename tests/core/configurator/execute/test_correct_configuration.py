@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator.execute import _correct_settings_values
+from PyPWA.core.configurator.execute import _correct_configuration
 
 template_1 = {
     "predetermined value": ["this", "that", "other"],
@@ -19,7 +19,9 @@ template_2 = {
         "settings": set,
         "data": str,
         "more nests": {
-            "correct": bool
+            "correct": bool,
+            "settings": dict,
+            "extra data": str
         }
     }
 }
@@ -41,21 +43,43 @@ found_2 = {
         "setings": ["limit_A1", "limit_A1"],
         "daTa": "/usr/local/this",
         "moR nests": {
-            "CoRRct": "tru"
+            "extr dat": None,
+            "CoRRct": "tru",
+            "settngs": {
+                "somedata": "That we don't know about for whatever reason."
+            }
         }
     }
 }
 
 
+def temp1(self):
+    return template_1
+
+
+def temp2(self):
+    return template_2
+
+
 @pytest.fixture
-def settings_aid_1():
-    aid = _correct_settings_values.SettingsAid(template_1)
+def settings_aid_1(monkeypatch):
+    monkeypatch.setattr(
+        _correct_configuration._storage_data.Templates,
+        "get_templates",
+        temp1
+    )
+    aid = _correct_configuration.SettingsAid()
     return aid.correct_settings(found_1)
 
 
 @pytest.fixture
-def settings_aid_2():
-    aid = _correct_settings_values.SettingsAid(template_2)
+def settings_aid_2(monkeypatch):
+    monkeypatch.setattr(
+        _correct_configuration._storage_data.Templates,
+        "get_templates",
+        temp2
+    )
+    aid = _correct_configuration.SettingsAid()
     return aid.correct_settings(found_2)
 
 
@@ -97,3 +121,9 @@ def test_2_data(settings_aid_2):
 
 def test_2_more_nests(settings_aid_2):
     assert settings_aid_2["main"]["more nests"]["correct"] is True
+
+
+def test_2_extra_data(settings_aid_2):
+    assert isinstance(
+        settings_aid_2["main"]["more nests"]["extra data"], type(None)
+    )

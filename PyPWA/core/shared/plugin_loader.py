@@ -19,9 +19,13 @@
 """
 The core plugin parser for functions and packages.
 --------------------------------------------------
-There are 4 objects here, _AppendPath, _Importer, _FilterBySubclass, and the
-main PluginStorage object. If you wish to use the plugin storage module, you
-will need to call and use PluginStorage.
+There are 5 objects here, _AppendPath, _Importer, _FilterBySubclass,
+_PluginStorage and the main PluginLoader object. If you wish to use the 
+plugin storage module, you will need to call and use PluginLoader.
+
+.. note::
+    This plugin will save all loaded plugins anywhere in the program. The
+    benefit to this is that all user plugins can be loaded once, then 
 
 - _AppendPath - This object takes the path of modules that exist outside of
   the defined Python Path and imports their root directory into the System
@@ -34,8 +38,10 @@ will need to call and use PluginStorage.
   PluginStorage then searches for all objects that are subclass-ed by the 
   provided class.
   
-- PluginStorage - This object actually stores everything that was imported 
-  from the provided locations, then returns objects and functions based on the
+- _PluginStorage - This object actually stores everything that was imported 
+  from the provided locations.
+   
+- PluginLoader - The main object, returns objects and functions based on the
   provided search conditions.
 """
 
@@ -148,25 +154,32 @@ class _FilterBySubclass(object):
 
     __logger = logging.getLogger(__name__ + "._FilterBySubclass")
 
-    __plugins = None
-    __classes = None
+    __storage = None
+    __found_classes = None
     __template = None
 
-    def __init__(self):
+    def __init__(self, storage):
         self.__logger.addHandler(logging.NullHandler())
+        self.__storage = storage
 
-    def filter(self, plugins, template):
-        self.__classes = []
-        self.__plugins = plugins
-        self.__template = template
+    def filter(self, template):
+        self.__clear_search()
+        self.__set_search_template(template)
         plugins = self.__filter_plugins()
         self.__log_plugin_search(plugins)
         return plugins
-        
+
+    def __clear_search(self):
+        self.__found_classes = []
+        self.__template = None
+
+    def __set_search_template(self, template):
+        self.__template = template
+
     def __filter_plugins(self):
-        for plugin in self.__plugins:
+        for plugin in self.__storage.plugins:
             self.__process_plugin(plugin)
-        return self.__classes
+        return self.__found_classes
 
     def __process_plugin(self, plugin):
         for attribute_name in dir(plugin):
@@ -181,24 +194,52 @@ class _FilterBySubclass(object):
 
     def __process_attribute(self, attribute):
         if issubclass(attribute, self.__template):
-            self.__classes.append(attribute)
+            self.__found_classes.append(attribute)
 
     def __log_plugin_search(self, plugins):
         self.__logger.debug("Using template: %s" % self.__template)
         self.__logger.debug("Found: %s" % plugins)
 
 
-class PluginStorage(object):
+class _PluginStorage(object):
 
-    __importer = _Importer()
+    __logger = logging.getLogger(__name__ + "._PluginStorage")
+    plugins = []
+    __locations = []
+    __append_count = 0
+
+    def __init__(self):
+        self.__logger.addHandler(logging.NullHandler())
+
+    def add_location(self, location):
+        self.__note_if_index_is_zero()
+        self.__locations.append(location)
+        self.__append_count = self.__append_count +1
+
+    def __note_if_index_is_zero(self):
+        if self.__append_count == 0:
+            self.__logger.debug("Initializing _PluginStorage for first time")
+
+    def location_already_added(self, location):
+        if location in self.__locations:
+            return True
+        else:
+            return False
+
+    @property
+    def plugin_index(self):
+        return self.__append_count
+
+
+class PluginLoader(object):
+
     __logger = logging.getLogger(__name__ + ".PluginStorage")
-    __filter_subclass = _FilterBySubclass()
-
-    __plugins = None  # type: [types.ModuleType]
+    __storage = _PluginStorage()
+    __importer = _Importer()
+    __filter_subclass = _FilterBySubclass(__storage)
     
     def __init__(self):
         self.__logger.addHandler(logging.NullHandler())
-        self.__plugins = []
 
     def add_plugin_location(self, location):
         if isinstance(location, list) or isinstance(location, set):
@@ -212,17 +253,26 @@ class PluginStorage(object):
 
     def __process_single_module(self, location):
         if location is not None and location is not "":
-            modules = self.__importer.fetch_modules(location)
-            self.__append_modules(modules)
-        
+            if not self.__storage.location_already_added(location):
+                modules = self.__importer.fetch_modules(location)
+                self.__append_modules(modules)
+                self.__storage.add_location(location)
+                self.__logger.info("Adding plugin location: %s" % location)
+        else:
+            self.__logger.debug(
+                "Received blank location! This might be an error."
+            )
+
     def __append_modules(self, modules):
         for the_module in modules:
-            self.__plugins.append(the_module)
+            self.__storage.plugins.append(the_module)
 
     def get_by_name(self, name, fail=True):
-        for plugin in self.__plugins:
+        for plugin in self.__storage.plugins:
             if hasattr(plugin, name):
-                return getattr(plugin, name)
+                possible_answer = getattr(plugin, name)
+                if callable(possible_answer):
+                    return possible_answer
         if fail:
             raise ImportError
         else:
@@ -233,4 +283,8 @@ class PluginStorage(object):
         pass
 
     def get_by_class(self, template):
-        return self.__filter_subclass.filter(self.__plugins, template)
+        return self.__filter_subclass.filter(template)
+
+    @property
+    def storage_index(self):
+        return self.__storage.plugin_index

@@ -6,7 +6,7 @@ from PyPWA.core import configurator
 
 
 def load_plugins():
-    loader = plugin_loader.PluginStorage()
+    loader = plugin_loader.PluginLoader()
     loader.add_plugin_location([builtin_plugins, configurator])
     return loader.get_by_class(options.Plugin)
 

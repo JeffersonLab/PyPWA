@@ -17,22 +17,26 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-For directly interacting with plugins and mains
------------------------------------------------
-This package was written to store the plugins and important information 
-regarding the plugins.
 
-- core_storage - Core plugin storage. Has objects that store the plugins 
-  and mains separately, and lets you extract plugins via name or type.
-  
-- module_fetcher - lets you specify main or plugin by their name.
-
-- template_parser - Parses all the plugins templates together to create one
-  large template dictionary.
 """
 
+from PyPWA.builtin_plugins.data import memory
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
+
+
+class Blank(plugins.Main):
+
+    __options = None
+
+    def __init__(self, options_object):
+        self.__options = options_object
+
+    def start(self):
+        assert isinstance(self.__options.data_parser, memory.Memory)
+        assert self.__options.option_1 == 123
+        assert isinstance(self.__options.option_2, str)

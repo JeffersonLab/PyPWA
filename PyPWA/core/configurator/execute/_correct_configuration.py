@@ -34,6 +34,7 @@ import logging
 
 import fuzzywuzzy.process
 import numpy
+from PyPWA.core.configurator.execute import _storage_data
 
 from PyPWA import AUTHOR, VERSION
 
@@ -47,16 +48,18 @@ FUZZY_STRING_CONFIDENCE_LEVEL = 75
 
 class _CorrectKeys(object):
 
-    __logger = logging.getLogger("_CorrectKeys." + __name__)
+    __logger = logging.getLogger(__name__ + "._CorrectKeys")
 
     __TEMPLATE = None
     __KEYS = None
     __initial_settings = None
     __corrected_keys = None
+    __depth = None
 
-    def __init__(self, template):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__TEMPLATE = template
+    def __init__(self, template, depth=0):
+        self.__depth = depth
+        self.__TEMPLATE = template  # type: dict
+        self.__logger.debug("Received template: %s" % template)
         self.__set_keys()
 
     def __set_keys(self):
@@ -80,7 +83,7 @@ class _CorrectKeys(object):
             if found:
                 self.__set_corrected_key(found, key)
             else:
-                self.__log_key_error(key)
+                self.__handle_key_error(key)
             self.__check_for_dictionary(found)
 
     def __get_potential_key(self, key):
@@ -96,23 +99,31 @@ class _CorrectKeys(object):
         self.__corrected_keys[found] = self.__initial_settings[key]
 
     def __check_for_dictionary(self, found):
-        if isinstance(self.__corrected_keys[found], dict):
+        if isinstance(self.__TEMPLATE[found], dict):
+            self.__logger.debug(
+                "Correcting internal dictionary: %s" % self.__TEMPLATE[found]
+            )
             self.__correct_nested_dictionary(found)
 
     def __correct_nested_dictionary(self, found):
-        correction = _CorrectKeys(self.__TEMPLATE[found])
+        correction = _CorrectKeys(self.__TEMPLATE[found], self.__depth+1)
         corrected = correction.correct_keys(self.__corrected_keys[found])
         self.__corrected_keys[found] = corrected
 
-    def __log_key_error(self, key):
-        self.__logger.warning(
-            "Unknown key %s, value is being removed!" % key
-        )
+    def __handle_key_error(self, key):
+        if self.__depth:
+            raise ValueError(
+                "Root level key error! Unknown Plugin '%s'!" % key
+            )
+        else:
+            self.__logger.warning(
+                "Unknown key '%s', value is being removed!" % key
+            )
 
 
 class _CorrectValues(object):
 
-    __logger = logging.getLogger("_CorrectValues." + __name__)
+    __logger = logging.getLogger(__name__ + "._CorrectValues")
     __FAILED = "failed to find"
 
     def correct_all(self, dictionary, template_dictionary):
@@ -121,7 +132,10 @@ class _CorrectValues(object):
             template_value = template_dictionary[key]
             current_value = dictionary[key]
 
-            if template_value == int:
+            if isinstance(current_value, type(None)):
+                corrected_dictionary[key] = None
+
+            elif template_value == int:
                 corrected_dictionary[key] = self.__correct_integers(
                     current_value
                 )
@@ -157,8 +171,8 @@ class _CorrectValues(object):
 
             else:
                 self.__logger.debug(
-                    "Key {0} is not correctable by settings "
-                    "aid.".format(key)
+                    "Key '%s' is not correctable by settings aid because "
+                    "its expected value is not known." % key
                 )
 
                 corrected_dictionary[key] = current_value
@@ -209,17 +223,15 @@ class _CorrectValues(object):
 
 class SettingsAid(object):
 
-    __logger = logging.getLogger("SettingsAid." + __name__)
+    __logger = logging.getLogger(__name__ + ".SettingsAid")
     __correct_values = _CorrectValues()
     __key_corrector = None  # type: _CorrectKeys
 
-    __TEMPLATE = None
+    __template = _storage_data.Templates()
     __settings = None
 
-    def __init__(self, template):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__TEMPLATE = template
-        self.__key_corrector = _CorrectKeys(template)
+    def __init__(self):
+        self.__key_corrector = _CorrectKeys(self.__template.get_templates())
 
     def correct_settings(self, value):
         self.__set_settings(value)
@@ -235,5 +247,5 @@ class SettingsAid(object):
 
     def __correct_all(self):
         self.__settings = self.__correct_values.correct_all(
-            self.__settings, self.__TEMPLATE
+            self.__settings, self.__template.get_templates()
         )

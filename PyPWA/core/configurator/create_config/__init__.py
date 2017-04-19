@@ -28,6 +28,20 @@ they want to run using all the plugins they wish to use.
 - _input - Handles all user input into the program for the configuration
 
 - create - The main entry point for the program.
+
+.. todo::
+    This entire module is actually in a rather bad state. The entire code 
+    base has had careful thought behind its design, everything was written 
+    with a clear purpose in mind.
+    
+    Not this module though, this module was written as a quick solution to 
+    a complex problem. Now its in a awful state of rot, it's even been put 
+    into its own folder so the smell doesn't carry far into the other 
+    packages.
+    
+    What this package needs is a careful rebuilding using the same specs 
+    that made this package, a new package that entirely replaces this 
+    shameful waste of development resources.
 """
 
 from PyPWA import AUTHOR, VERSION

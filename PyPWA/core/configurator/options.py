@@ -84,10 +84,10 @@ class Setup(object):
 
     def return_interface(self):
         """
-        This should return the intialized plugin or main using the 
+        This should return the initialized plugin or main using the 
         CommandOptions that would be received via the __init__
         
-        :return: The intialized plugin or main.
+        :return: The initialized plugin or main.
         """
         raise NotImplementedError
 

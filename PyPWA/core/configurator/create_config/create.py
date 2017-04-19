@@ -37,7 +37,7 @@ class Config(object):
 
     __config_maker = _builder.ConfigurationBuilder()
     __logger = logging.getLogger(__name__ + ".Config")
-    __loader = plugin_loader.PluginStorage()
+    __loader = plugin_loader.PluginLoader()
 
     __main_plugin = None
     __settings = None

@@ -29,7 +29,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-HEADER_SEARCH_BITS = 1024
+HEADER_SEARCH_BITS = 3072
 
 
 class SvDataTest(data_templates.ReadTest):

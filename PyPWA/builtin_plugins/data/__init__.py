@@ -53,7 +53,7 @@ class DataParser(options.Plugin):
     default_options = {
         "enable cache": True,
         "clear cache": False,
-        "user plugin": "cwd=/path/to/file;"
+        "user plugin": None
     }
 
     option_difficulties = {
@@ -88,7 +88,7 @@ class DataIterator(options.Plugin):
 
     default_options = {
         "fail": False,
-        "user plugin": "cwd=/path/to/file;"
+        "user plugin": None
     }
 
     option_difficulties = {

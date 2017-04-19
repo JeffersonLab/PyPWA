@@ -4,7 +4,7 @@ from PyPWA.core.shared import generate_hash
 
 FILE_LOCATION = os.path.join(
     os.path.dirname(__file__),
-    "../../builtin_plugins/data/builtin/test_docs/sv_test_data.tsv"
+    "../../data/test_docs/sv_test_data.tsv"
 )
 
 

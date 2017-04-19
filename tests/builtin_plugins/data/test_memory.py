@@ -6,11 +6,11 @@ import pytest
 from PyPWA.builtin_plugins.data import memory
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "builtin/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.csv"
 )
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "builtin/test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../../data/test_docs/temporary_write_data"
 )
 
 

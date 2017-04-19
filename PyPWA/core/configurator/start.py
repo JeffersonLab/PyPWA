@@ -59,9 +59,10 @@ class _Arguments(object):
     def __set_arguments(self, description):
         self.__set_parser(description)
         self.__add_configurator_argument()
-        self.__add_verbose_argument()
-        self.__add_version_argument()
         self.__add_write_config_argument()
+        self.__add_verbose_argument()
+        self.__add_log_file_argument()
+        self.__add_version_argument()
 
     def __set_parser(self, description):
         self.__parser = argparse.ArgumentParser(description=description)
@@ -78,12 +79,6 @@ class _Arguments(object):
                  "directory"
         )
 
-    def __add_version_argument(self):
-        self.__parser.add_argument(
-            "--Version", "-V", action="version",
-            version="%(prog)s (version " + __version__ + ")"
-        )
-
     def __add_verbose_argument(self):
         self.__parser.add_argument(
             "--verbose", "-v", action="count", default=0,
@@ -91,6 +86,17 @@ class _Arguments(object):
                  "from there. -v will include warning, -vv will show "
                  "warnings and info, and -vvv will show info, warnings, "
                  "debugging."
+        )
+
+    def __add_log_file_argument(self):
+        self.__parser.add_argument(
+            "--log-file", "-l", type=str, default="", nargs="?"
+        )
+
+    def __add_version_argument(self):
+        self.__parser.add_argument(
+            "--Version", "-V", action="version",
+            version="%(prog)s (version " + __version__ + ")"
         )
 
     def __parse_arguments(self):
@@ -113,12 +119,16 @@ class _Arguments(object):
     def verbose(self):
         return self.__arguments.verbose
 
+    @property
+    def log_file(self):
+        return self.__arguments.log_file
+
 
 class StartProgram(object):
 
     __configuration = None  # type: dict
 
-    __execute = start.SetupSettings()
+    __execute = start.Execute()
     __create_config = create.Config()
     __arguments = _Arguments()
 
@@ -127,7 +137,7 @@ class StartProgram(object):
         self.__process_extras()
         self.__load_arguments()
         self.__begin_output()
-        self.__set_logging_level()
+        self.__setup_logger()
         self.__process_arguments()
 
     def __set_configuration(self, configuration):
@@ -136,7 +146,7 @@ class StartProgram(object):
     def __process_extras(self):
         if self.__configuration["extras"]:
             print(
-                "[INFO] Caught something unaccounted for, "
+                "[ERROR] Caught something unaccounted for, "
                 "this should be reported, caught: "
                 "{}".format(self.__configuration["extras"][0])
             )
@@ -174,15 +184,23 @@ Credit:
     Joshua Pond
 """
 
-    def __set_logging_level(self):
+    def __setup_logger(self):
         if self.__arguments.verbose == 1:
-            initial_logging.define_logger(logging.WARNING)
+            initial_logging.InternalLogger.configure_root_logger(
+                logging.WARNING, self.__arguments.log_file
+            )
         elif self.__arguments.verbose == 2:
-            initial_logging.define_logger(logging.INFO)
+            initial_logging.InternalLogger.configure_root_logger(
+                logging.INFO, self.__arguments.log_file
+            )
         elif self.__arguments.verbose >= 3:
-            initial_logging.define_logger(logging.DEBUG)
+            initial_logging.InternalLogger.configure_root_logger(
+                logging.DEBUG, self.__arguments.log_file
+            )
         else:
-            initial_logging.define_logger(logging.ERROR)
+            initial_logging.InternalLogger.configure_root_logger(
+                logging.ERROR, self.__arguments.log_file
+            )
 
     def __process_arguments(self):
         if self.__arguments.write_config:
