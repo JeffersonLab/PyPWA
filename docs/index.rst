@@ -7,14 +7,15 @@ Welcome to PyPWA's documentation!
 Wave and Amplitude Analysis with the goal of extracting resonance information
 from multiparticle final states.
 
-If you have any issues with the documentation or with PyPWA, please let us know
-on our `issue`_ tracker.
+If you have any issues with the documentation or with PyPWA, please let us 
+know on our `issue`_ tracker.
 
 
 .. note::
-   Make sure that you are using a version of the documentation that corresponds
-   to your installed version of `PyPWA`_ before reporting issues, as the 
-   documentation is constantly updated to reflect the state of PyPWA at that time.
+   Make sure that you are using a version of the documentation that 
+   corresponds to your installed version of `PyPWA`_ before reporting issues,
+   as the documentation is constantly updated to reflect the state of PyPWA 
+   at that time.
 
 
 .. toctree::
