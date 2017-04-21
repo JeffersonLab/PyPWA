@@ -81,7 +81,7 @@ class _Arguments(object):
 
     def __add_verbose_argument(self):
         self.__parser.add_argument(
-            "--verbose", "-v", action="count", default=0,
+            "-v", action="count", default=0,
             help="Adds logging, defaults to errors, then setups up on "
                  "from there. -v will include warning, -vv will show "
                  "warnings and info, and -vvv will show info, warnings, "
