@@ -117,7 +117,7 @@ class _Arguments(object):
 
     @property
     def verbose(self):
-        return self.__arguments.verbose
+        return self.__arguments.v
 
     @property
     def log_file(self):
