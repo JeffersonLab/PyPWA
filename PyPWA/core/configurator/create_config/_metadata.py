@@ -17,15 +17,18 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Takes all the loaded plugins and searches through them for plugins matching 
-a name or plugins matching a type.
+Handles direct interaction with plugins
+---------------------------------------
+
+- MetadataStorage - Interacts directly with the plugins.
+- GetPluginList - Stores the dependency plugins for the configuration.
 """
 
 import logging
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import storage
 from PyPWA.core.configurator import options
+from PyPWA.core.configurator import storage
 from PyPWA.core.configurator.create_config import _questions
 
 __credits__ = ["Mark Jones"]

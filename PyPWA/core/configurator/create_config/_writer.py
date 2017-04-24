@@ -17,11 +17,21 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Simple writers to export configurations.
+----------------------------------------
 
+- _YmlWriter - Exports configurations using ruamel.yaml, this is default, and
+  is the only way to get comments.
+  
+- _JsonWriter - Exports configurations using json for masochists who prefer 
+  it, does not support comments.
+  
+- Write - Simple wrapping main object around the two defined writers.
 """
 
-import os
 import json
+import os
+
 import ruamel.yaml
 
 from PyPWA import AUTHOR, VERSION

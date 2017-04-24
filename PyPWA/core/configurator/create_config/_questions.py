@@ -17,14 +17,25 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+All questions that can be asked, ever.
+--------------------------------------
 
+- GetPluginLevel - Asks the user for the preferred difficulty.
+
+- GetPluginDirectory - Asks the user if they have any extra plugins they would
+  like to add.
+  
+- GetSaveLocation - Asks the user for a save file location if one hasn't 
+  already been provided.
+  
+- GetSpecificPlugin - Asks the user to select a plugin when there are multiple
+  plugins that can fill the same dependency.
 """
 
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator.create_config import _input_loop
-
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import option_tools
+from PyPWA.core.configurator import options
+from PyPWA.core.configurator.create_config import _input_loop
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

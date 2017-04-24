@@ -17,7 +17,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Handles all setting overrides
+-----------------------------
 
+- _ExternalizeName - Swaps the internal name for the shell plugin for the
+  external name
+  
+- RemovePredefinedOptions - Takes any options that are defined in the entries
+  and removes them from the configuration.
+  
+- Override - The main override object.
 """
 
 from PyPWA import AUTHOR, VERSION

@@ -20,15 +20,8 @@
 Creates the configuration
 -------------------------
 
-.. todo::
-   Refactor this entire file.
-
-- ConfigurationBuilder - Actually holds the questions being asked.
-
-- _AskForSpecificPlugin - Handles selecting the plugin needed when there is 
-  more than one plugin when it can.
-  
-- PluginList - Returns a list of all the plugins.
+- _GlobalOptions - Setups the global options if any are required.
+- BuildConfig - The main object that builds the configuration.
 """
 
 import ruamel.yaml.comments

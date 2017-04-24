@@ -17,7 +17,15 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Handles all real input for Create Config
+----------------------------------------
 
+- _Input - Handles differences between Python 2 and 3
+
+- _IsCorrectLoop - A simple loop that asks the user if about their input
+  is fuzzing wasn't good enough.
+  
+- QuestionLoop - The main question loop, handles all input.
 """
 
 import logging
