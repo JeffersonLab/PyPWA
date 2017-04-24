@@ -32,6 +32,7 @@ Example:
 import multiprocessing
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.builtin_plugins.process import _setup
 from PyPWA.builtin_plugins.process import foreman
 from PyPWA.core.configurator import options
 
@@ -43,7 +44,7 @@ __version__ = VERSION
 class Processing(options.Plugin):
 
     plugin_name = "Builtin Multiprocessing"
-    setup = options.Setup
+    setup = _setup.ProcessSetup
     provides = options.Types.KERNEL_PROCESSING
     defined_function = None
     module_comment = "Builtin SMP Plugin, should be 'good enough'"
