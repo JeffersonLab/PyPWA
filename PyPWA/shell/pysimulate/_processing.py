@@ -65,6 +65,8 @@ class IntensityInterface(internals.KernelInterface):
 
 class IntensityKernel(internals.Kernel):
 
+    __logger = logging.getLogger(__name__ + ".IntensityKernel")
+
     data = None  # type: numpy.ndarray
     __setup_function = None  # type: function
     __processing_function = None  # type: function
@@ -79,6 +81,7 @@ class IntensityKernel(internals.Kernel):
         self.__setup_function()
 
     def process(self, data=False):
+        self.__logger.debug("%d is alive!" % self.processor_id)
         calculated_data = self.__processing_function(
             self.data, self.__parameters
         )
