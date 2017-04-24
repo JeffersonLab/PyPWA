@@ -60,7 +60,7 @@ class FittingSetup(options.Setup):
         self.__interface = pyfit.Fitting(
             self.__options.optimizer, self.__options.kernel_processing,
             self.__data_loader, self.__functions,
-            self.__options.likelihood_type, self.__options.generated_lenght,
+            self.__options.likelihood_type, self.__options.generated_length,
             self.__options.save_name
         )
 
