@@ -45,41 +45,14 @@ is going to be rendering it.
 
 import logging
 
-import ruamel.yaml
-import ruamel.yaml.parser
-
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import storage
 from PyPWA.core.configurator.execute import _correct_configuration
+from PyPWA.core.configurator.execute import _reader
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-class _ConfigurationLoader(object):
-
-    __logger = logging.getLogger(__name__ + ".ConfigurationLoader")
-
-    def read_config(self, configuration):
-        with open(configuration, "r") as stream:
-            data = self.__process_stream(stream)
-            self.__logger.info("Parsed %s" % configuration)
-            return data
-
-    def __process_stream(self, stream):
-        try:
-            return self.__load_configuration(stream)
-        except ruamel.yaml.parser.ParserError as UserError:
-            self.__process_error(UserError)
-
-    @staticmethod
-    def __load_configuration(stream):
-        return ruamel.yaml.load(stream, ruamel.yaml.RoundTripLoader)
-
-    def __process_error(self, user_error):
-        self.__logger.exception(user_error)
-        raise SyntaxError(str(user_error))
 
 
 class _InternalizeSettings(object):
@@ -151,7 +124,7 @@ class Setup(object):
 
     @staticmethod
     def __load_config(configuration_location):
-        loader = _ConfigurationLoader()
+        loader = _reader.ConfigurationLoader()
         return loader.read_config(configuration_location)
 
     @staticmethod
