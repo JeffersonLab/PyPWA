@@ -43,6 +43,7 @@ class SimulationSetup(options.Setup):
         self.__options = options_object
         self.__load_functions()
         self.__load_data()
+        self.__set_interface()
 
     def __load_functions(self):
         the_type = self.__options.the_type
