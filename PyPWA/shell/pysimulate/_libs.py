@@ -102,8 +102,11 @@ class Intensities(object):
         the_interface = _processing.IntensityInterface()
 
         self.__processing.main_options(
-            self.__data_loader.data, the_kernel, the_interface
+            self.__get_kernel_data(), the_kernel, the_interface
         )
+
+    def __get_kernel_data(self):
+        return {"data": self.__data_loader.data}
 
     def __process_intensities(self):
         operational_interface = self.__processing.fetch_interface()
