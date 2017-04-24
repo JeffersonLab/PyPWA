@@ -68,7 +68,7 @@ class InternalLogger(object):
 
     @classmethod
     def __compute_file_name(cls, processor_id):
-        if cls.__data.filename:
+        if processor_id:
             cls.__data.filename = processor_id + "--" + cls.__data.filename
 
     @classmethod
