@@ -56,7 +56,7 @@ class SimulationSetup(options.Setup):
 
     def __load_data(self):
         self.__data_loader = _libs.DataHandler(
-            self.__options.DATA_PARSER, self.__options.data_location,
+            self.__options.data_parser, self.__options.data_location,
             self.__options.save_name
         )
         self.__data_loader.load_data()
@@ -64,7 +64,7 @@ class SimulationSetup(options.Setup):
     def __set_interface(self):
         self.__interface = pysimulate.Simulator(
             self.__data_loader, self.__options.the_type,
-            self.__options.KERNEL_PROCESSING, self.__functions,
+            self.__options.kernel_processing, self.__functions,
             self.__options.parameters, self.__options.max_intensity
         )
 
