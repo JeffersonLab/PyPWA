@@ -119,7 +119,7 @@ class QuestionLoop(object):
     _possible_answers = False
     _default_answer = False
 
-    def __question_loop(self):
+    def _question_loop(self):
         self.__log_initial_data()
 
         while True:
