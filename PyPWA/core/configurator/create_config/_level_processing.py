@@ -29,7 +29,6 @@ that can be used for output.
   loaded into a template configuration file.
 """
 
-import copy
 import logging
 
 from ruamel.yaml import comments
@@ -49,7 +48,6 @@ class _FullOptions(object):
     __built_options = None  # type: comments.CommentedMap
 
     def __init__(self, options_object):
-        self.__logger.addHandler(logging.NullHandler())
         self.__options = options_object
         self.__build_options()
 
