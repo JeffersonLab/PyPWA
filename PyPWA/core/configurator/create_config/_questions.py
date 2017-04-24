@@ -20,6 +20,7 @@
 
 """
 
+from PyPWA.core.configurator import options
 from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator.create_config import _input_loop
 
@@ -32,38 +33,53 @@ __version__ = VERSION
 
 class GetPluginLevel(_input_loop.QuestionLoop):
 
-    _default_answer = "Optional"
+    _default_answer = "optional"
     _possible_answers = ["required", "optional", "advanced"]
-    _question = "\nHow much control would you like to have over the " \
-                "configuration? \nrequired\noptional (default, " \
-                "recommended)\nadvanced\n\n[optional]: "
+    _question = """
+How much control would you like to have over the configuration? 
+required
+optional (default, recommended)
+advanced
+
+[optional]: """
 
     def ask_for_plugin_level(self):
         self._question_loop()
 
     def get_plugin_level(self):
-        return self._answer
+        if self._answer is "required":
+            return options.Levels.REQUIRED
+        elif self._answer is "optional":
+            return options.Levels.OPTIONAL
+        elif self._answer is "advanced":
+            return options.Levels.ADVANCED
+        else:
+            raise ValueError("Unknown answer '%s'" % self._answer)
 
 
 class GetPluginDirectory(_input_loop.QuestionLoop):
 
-    _question = "\nWould you like to use your own plugins? If YES " \
-                "then please enter the location, if NO then just " \
-                  "press ENTER.\n[None]: "
+    _question = """
+Would you like to use your own plugins? If so enter the path to your plugins
+[None]: """
 
-    _default_answer = None
+    _default_answer = "None"
 
     def ask_for_plugin_directory(self):
         self._question_loop()
 
     def get_plugin_directory(self):
-        return self._answer
+        if self._answer is "None":
+            return None
+        else:
+            return self._answer
 
 
 class GetSaveLocation(_input_loop.QuestionLoop):
 
-    _question = "\nWhat would you like to name the configuration " \
-                "file?\nFile Name?: "
+    _question = """
+What would you like to name the configuration file?
+File Name?: """
 
     __override = False
 
