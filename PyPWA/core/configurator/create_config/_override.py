@@ -29,6 +29,8 @@ Handles all setting overrides
 - Override - The main override object.
 """
 
+import logging
+
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
@@ -37,6 +39,9 @@ __version__ = VERSION
 
 
 class _ExternalizeName(object):
+
+    __logger = logging.getLogger(__name__ + "._ExternalizeName")
+
     __configuration = None
     __internal_name = None
     __external_name = None
@@ -55,6 +60,9 @@ class _ExternalizeName(object):
         self.__external_name = override["main name"]
 
     def __externalize_shell_name(self):
+        self.__logger.debug("Converting '%s'to '%s'" % (
+            self.__internal_name, self.__external_name
+        ))
         shell_options = self.__configuration[self.__internal_name]
         self.__configuration[self.__external_name] = shell_options
 
@@ -67,6 +75,9 @@ class _ExternalizeName(object):
 
 
 class _RemovePredefinedOptions(object):
+
+    __logger = logging.getLogger(__name__ + "._RemovePredefinedOptions")
+
     __configuration = None
     __predefined_options = None
     __name = None
@@ -74,14 +85,18 @@ class _RemovePredefinedOptions(object):
     def override(self, configuration, override):
         self.__set_configuration(configuration)
         self.__setup_override(override)
+        self.__process_options()
 
     def __set_configuration(self, configuration):
         self.__configuration = configuration
 
     def __setup_override(self, override):
         if "main options" in override:
+            self.__logger.debug("Removing override options.")
             self.__predefined_options = override["main options"]
             self.__name = override["main name"]
+        else:
+            self.__logger.debug("No options to override.")
 
     def __process_options(self):
         if self.__predefined_options:
@@ -89,6 +104,7 @@ class _RemovePredefinedOptions(object):
 
     def __pop_unneeded_options(self):
         for option in self.__predefined_options:
+            self.__logger.debug("Removing option '%s'" % option)
             self.__configuration[self.__name].pop(option)
 
     @property
@@ -97,6 +113,7 @@ class _RemovePredefinedOptions(object):
 
 
 class Override(object):
+
     __externalize = _ExternalizeName()
     __predefined_options = _RemovePredefinedOptions()
 
