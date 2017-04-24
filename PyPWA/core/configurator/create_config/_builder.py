@@ -42,16 +42,38 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
+class _GlobalOptions(object):
+
+    __global_options = {"Global Options": {"plugin directory": ""}}
+
+    def build_options(self, plugin_dir):
+        if plugin_dir.get_plugin_directory():
+            self.__set_plugin_dir(plugin_dir)
+        else:
+            self.__global_options = None
+
+    def __set_plugin_dir(self, plugin_dir):
+        self.__global_options["Global Options"]["plugin directory"] = \
+            plugin_dir.get_plugin_directory()
+
+    @property
+    def global_options(self):
+        return self.__global_options
+
+
 class BuildConfig(object):
 
+    __global = _GlobalOptions()
     __configuration = ruamel.yaml.comments.CommentedMap()
     __level_fetch = _level_processing.ProcessOptions()
     __overrider = _override.Override()
 
+    __plugin_dir = None
     __plugin_list = None
     __level = None
 
-    def __init__(self, plugin_list, level):
+    def __init__(self, plugin_dir, plugin_list, level):
+        self.__plugin_dir = plugin_dir
         self.__plugin_list = plugin_list
         self.__level = level
 
@@ -62,6 +84,11 @@ class BuildConfig(object):
     def __create_configuration(self):
         self.__update_shell()
         self.__update_plugins()
+
+    def __update_global_options(self):
+        self.__global.build_options(self.__plugin_dir)
+        if self.__global.global_options:
+            self.__configuration.update(self.__global.global_options)
 
     def __update_shell(self):
         self.__configuration.update(

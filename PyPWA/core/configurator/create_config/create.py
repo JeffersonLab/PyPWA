@@ -33,13 +33,15 @@ __version__ = VERSION
 
 class StartConfig(object):
 
+    __writer = _writer.Write()
     __storage = _metadata.MetadataStorage()
     __plugin_dir = _questions.GetPluginDirectory()
     __level = _questions.GetPluginLevel()
     __save_location = _questions.GetSaveLocation()
     __plugin_list = _metadata.GetPluginList()
-    __configuration = _builder.BuildConfig(__plugin_list, __level)
-    __writer = _writer.Write()
+    __configuration = _builder.BuildConfig(
+        __plugin_dir, __plugin_list, __level
+    )
 
     __main_plugin = None
 
