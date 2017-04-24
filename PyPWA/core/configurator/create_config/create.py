@@ -22,72 +22,103 @@ Creates the template configuration file when --WriteConfig is passed
 
 import logging
 
-import PyPWA.shell
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _builder
-from PyPWA.core.shared import plugin_loader
+from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.core.configurator.create_config import _questions
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Config(object):
+class _GetPluginList(object):
+    __logger = logging.getLogger(__name__)
+    __ask_for_plugin = _questions.GetSpecificPlugin()
+    __storage = _metadata.MetadataStorage()
 
-    __config_maker = _builder.ConfigurationBuilder()
-    __logger = logging.getLogger(__name__ + ".Config")
-    __loader = plugin_loader.PluginLoader()
-
+    __plugin_list = None
     __main_plugin = None
-    __settings = None
-    __shell_name = None  # type: str
-    __shell_id = None  # type: str
-    __potential_plugins = None
 
     def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__setup_loader()
+        self.__plugin_list = []
 
-    def __setup_loader(self):
-        self.__loader.add_plugin_location(PyPWA.shell)
+    def parse_plugins(self, main_plugin):
+        for plugin_type in options.Types:
+            if plugin_type in main_plugin.required_plugins:
+                self.__plugin_list.append(self.__process_plugins(plugin_type))
+        self.__main_plugin = main_plugin
+
+    def __process_plugins(self, plugin_type):
+        plugin_list = self.__storage.request_plugins_by_type(plugin_type)
+        if self.__only_one_plugin(plugin_list):
+            return plugin_list[0]
+        else:
+            self.__ask_for_plugin.ask_for_plugin(plugin_list, plugin_type)
+            name = self.__ask_for_plugin.get_specific_plugin()
+
+            empty_plugin = self.__storage.search_plugin(name, plugin_type)
+            return empty_plugin
+
+    @staticmethod
+    def __only_one_plugin(plugin_list):
+        if len(plugin_list) == 1:
+            return True
+        else:
+            return False
+
+    @property
+    def plugins(self):
+        return self.__plugin_list
+
+    @property
+    def shell(self):
+        return self.__main_plugin
+
+
+class StartConfig(object):
+
+    __storage = _metadata.MetadataStorage()
+    __plugin_dir = _questions.GetPluginDirectory()
+    __level = _questions.GetPluginLevel()
+    __save_location = _questions.GetSaveLocation()
+    __plugin_list = _GetPluginList()
+    __configuration = _builder.BuildConfig(__plugin_list, __level)
+
+    __main_plugin = None
 
     def make_config(self, function_settings, config_location):
-        self.__process_function_settings(function_settings)
-        self.__log_names()
-        self.__load_potential_plugins()
-        self.__search_for_main_plugin()
-        self.__check_found_main()
-        self.__create_configuration(config_location)
+        self.__fetch_main_plugin(function_settings)
+        self.__get_plugin_directories()
+        self.__set_level()
+        self.__set_plugin_list()
+        self.__set_save_location(config_location)
 
-    def __process_function_settings(self, function_settings):
-        self.__shell_id = function_settings["main"]
-        self.__shell_name = function_settings["main name"]
-        if "main options" in function_settings:
-            self.__settings = function_settings["main options"]
-
-    def __log_names(self):
-        self.__logger.debug("Searching for ID: %s" % self.__shell_id)
-        self.__logger.debug("Searching for name: %s" % self.__shell_name)
-
-    def __load_potential_plugins(self):
-        self.__potential_plugins = self.__loader.get_by_class(options.Main)
-
-    def __search_for_main_plugin(self):
-        for plugin in self.__potential_plugins:
-            temp_object = plugin()
-            if temp_object.plugin_name == self.__shell_id:
-                self.__main_plugin = temp_object
-                break
-
-    def __check_found_main(self):
-        if isinstance(self.__main_plugin, type(None)):
-            raise RuntimeError(
-                "Could not find the main object %s!" % self.__shell_name
-            )
-
-    def __create_configuration(self, config_location):
-        self.__config_maker.build_configuration(
-            self.__main_plugin, self.__main_plugin, self.__settings,
-            config_location
+    def __fetch_main_plugin(self, function_settings):
+        self.__main_plugin = self.__storage.request_main_plugin_by_name(
+            function_settings["main"]
         )
+
+    def __get_plugin_directories(self):
+        self.__plugin_dir.ask_for_plugin_directory()
+        self.__storage.add_location(self.__plugin_dir.get_plugin_directory())
+
+    def __set_level(self):
+        self.__level.ask_for_plugin_level()
+
+    def __set_plugin_list(self):
+        self.__plugin_list.parse_plugins(self.__main_plugin)
+
+    def __set_save_location(self, save_location):
+        if save_location:
+            self.__save_location.override_save_location(save_location)
+        else:
+            self.__save_location.ask_for_save_location()
+
+    def __create_configuration(self, function_settings):
+        self.__configuration.build(function_settings)
+
+    def __save_configuration(self):
+        print("Cause I've already done a lot.")
+        print(self.__configuration.configuration)
