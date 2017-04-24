@@ -34,7 +34,7 @@ __version__ = VERSION
 
 
 class EmptyLikelihood(interfaces.Setup):
-    name = "Chi-Squared"
+    name = "empty"
     _data = None  # type: loaders.DataLoading
     _functions = None  # type: loaders.FunctionLoader
     _dictionary_data = None  # type: dict

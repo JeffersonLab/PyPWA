@@ -35,7 +35,7 @@ __version__ = VERSION
 
 class ChiLikelihood(interfaces.Setup):
 
-    name = "Chi-Squared"
+    name = "chi-squared"
     _data = None  # type: loaders.DataLoading
     _functions = None  # type: loaders.FunctionLoader
     _dictionary_data = None  # type: dict

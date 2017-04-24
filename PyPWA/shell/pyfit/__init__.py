@@ -82,7 +82,7 @@ class ShellFitting(options.Main):
     }
 
     option_types = {
-        "likelihood type": ["likelihood", "chi-squared"],
+        "likelihood type": ["likelihood", "chi-squared", "empty"],
         "generated length": int,
         "function's location": str,
         "processing name": str,
