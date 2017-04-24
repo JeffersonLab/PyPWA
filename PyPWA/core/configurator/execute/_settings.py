@@ -29,8 +29,6 @@ is going to be rendering it.
     _correct_configuration.py for the logic regarding setting value 
     correction.
 
-- ConfigurationLoader - Simply loads the configuration file using ruamel.yaml.
-
 - _InternalizeSettings - Takes the settings loaded from the configuration, 
   and replaces select keys in the configuration with keys from the settings 
   override in the entry function. Useful so that you can have multiple names

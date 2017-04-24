@@ -29,9 +29,11 @@ start the program.
 - _plugin_data - Contains the logic pertaining to loading the plugins listed
   in the user's config file and initializing it with the users settings
   
-- _settings - Reads in the configuration file, processes the overrides, 
-  appends the plugin directory to the plugin search path, then corrects the
-  received values using _correct_configuration.
+- _reader - Loads the different types of supported configuration files.  
+  
+- _settings - Processes the overrides,appends the plugin directory to the 
+  plugin search path, then corrects the received values 
+  using _correct_configuration.
   
 - _storage_data - contains the objects that operate directly with the loaded
   plugins.

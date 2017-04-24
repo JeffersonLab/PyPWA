@@ -17,7 +17,13 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Loads in the users configuration files.
+---------------------------------------
+- _ReadData - Abstract class used to define the config parsers
+- _ReadYml - Loads the Yaml configuration files.
+- _ReadJson - Loads the Json configuration files.
+- ConfigurationLoader - Main object to call for loading configuration,
+  defaults to Yml unless files extension is json.
 """
 
 import json
