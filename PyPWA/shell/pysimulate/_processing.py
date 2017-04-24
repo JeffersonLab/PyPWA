@@ -59,8 +59,16 @@ class IntensityInterface(internals.KernelInterface):
 
     def __process_data(self, list_of_data):
         final_array = numpy.concatenate(list_of_data)
-        self.__logger.debug("Final Array: " + repr(final_array))
+        self.__log_final_array_statistics(final_array)
         return [final_array, final_array.max()]
+
+    def __log_final_array_statistics(self, array):
+        self.__logger.debug("Final Array: " + repr(array))
+        self.__logger.info("Max Intensity: %f" % array.max())
+        self.__logger.info("Min Intensity: %f" % array.min())
+        self.__logger.info("Intensities Range: %f" % array.ptp())
+        self.__logger.info("Intensities STD: %f" % array.std())
+        self.__logger.info("Intensities Mean: %f" % array.mean())
 
 
 class IntensityKernel(internals.Kernel):
