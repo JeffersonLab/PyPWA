@@ -50,7 +50,7 @@ class _ExternalizeName(object):
         self.__configuration[self.__external_name] = shell_options
 
     def __remove_old_name(self):
-        self.__configuration[self.__internal_name].pop()
+        self.__configuration.pop(self.__internal_name)
 
     @property
     def configuration(self):
