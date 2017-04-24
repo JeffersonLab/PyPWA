@@ -21,6 +21,7 @@ Creates the template configuration file when --WriteConfig is passed
 """
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator.create_config import _writer
 from PyPWA.core.configurator.create_config import _builder
 from PyPWA.core.configurator.create_config import _metadata
 from PyPWA.core.configurator.create_config import _questions
@@ -38,6 +39,7 @@ class StartConfig(object):
     __save_location = _questions.GetSaveLocation()
     __plugin_list = _metadata.GetPluginList()
     __configuration = _builder.BuildConfig(__plugin_list, __level)
+    __writer = _writer.Write()
 
     __main_plugin = None
 
@@ -48,6 +50,7 @@ class StartConfig(object):
         self.__set_plugin_list()
         self.__create_configuration(function_settings)
         self.__set_save_location(config_location)
+        self.__save_configuration()
 
     def __fetch_main_plugin(self, function_settings):
         self.__main_plugin = self.__storage.request_main_plugin_by_name(
@@ -74,5 +77,7 @@ class StartConfig(object):
             self.__save_location.ask_for_save_location()
 
     def __save_configuration(self):
-        print("Cause I've already done a lot.")
-        print(self.__configuration.configuration)
+        self.__writer.write(
+            self.__configuration.configuration,
+            self.__save_location.get_save_location()
+        )
