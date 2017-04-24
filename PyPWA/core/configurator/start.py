@@ -175,13 +175,7 @@ class StartProgram(object):
                                         $$$ $$   $$ $      $$      $$
                                   $$$$$$$$   $   $   $$$$$  $$$$$$  $$$$$$
 
-Developed By:
-    Mark Jones: maj@jlab.org
-
-Credit:
-    Dr. Carlos Salgado: salgado@jlab.org
-    Will Phelps: wphelps@jlab.org
-    Joshua Pond
+Built in Jefferson Lab.
 """
 
     def __setup_logger(self):
