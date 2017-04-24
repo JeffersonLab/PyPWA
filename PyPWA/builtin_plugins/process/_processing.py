@@ -130,7 +130,6 @@ class _SimplexProcess(multiprocessing.Process):
         Returns:
             0: On success.
         """
-        self.__setup_logger()
         self.__set_logger()
         self._kernel.setup()
         self.__logger.info(
@@ -138,11 +137,6 @@ class _SimplexProcess(multiprocessing.Process):
         )
         self._communicator.send(self._kernel.process())
         return 0
-
-    def __setup_logger(self):
-        initial_logging.InternalLogger.configure_root_logger(
-            self.__logging_level, self.__logging_file
-        )
 
     def __set_logger(self):
         self.__logger = logging.getLogger(__name__ + "._SimplexProcess")
