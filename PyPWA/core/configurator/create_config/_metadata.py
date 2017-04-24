@@ -83,3 +83,47 @@ class MetadataStorage(storage.Storage):
             if plugin.plugin_name == name:
                 return plugin
         raise ValueError("Unknown shell name '%s'" % name)
+
+
+class GetPluginList(object):  # This might need yo be
+    __logger = logging.getLogger(__name__)
+    __ask_for_plugin = _questions.GetSpecificPlugin()
+    __storage = MetadataStorage()
+
+    __plugin_list = None
+    __main_plugin = None
+
+    def __init__(self):
+        self.__plugin_list = []
+
+    def parse_plugins(self, main_plugin):
+        for plugin_type in options.Types:
+            if plugin_type in main_plugin.required_plugins:
+                self.__plugin_list.append(self.__process_plugins(plugin_type))
+        self.__main_plugin = main_plugin
+
+    def __process_plugins(self, plugin_type):
+        plugin_list = self.__storage.request_plugins_by_type(plugin_type)
+        if self.__only_one_plugin(plugin_list):
+            return plugin_list[0]
+        else:
+            self.__ask_for_plugin.ask_for_plugin(plugin_list, plugin_type)
+            name = self.__ask_for_plugin.get_specific_plugin()
+
+            empty_plugin = self.__storage.search_plugin(name, plugin_type)
+            return empty_plugin
+
+    @staticmethod
+    def __only_one_plugin(plugin_list):
+        if len(plugin_list) == 1:
+            return True
+        else:
+            return False
+
+    @property
+    def plugins(self):
+        return self.__plugin_list
+
+    @property
+    def shell(self):  # needed so that BuildConfig can know the shell plugin
+        return self.__main_plugin
