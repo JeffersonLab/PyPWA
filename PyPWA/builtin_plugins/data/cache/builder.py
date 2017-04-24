@@ -75,7 +75,6 @@ class CacheBuilder(object):
     _logger = logging.getLogger(__name__)
 
     def __init__(self, use_cache=True, clear_cache=False):
-        self._logger.addHandler(logging.NullHandler())
         self._clear_cache = clear_cache
         self._use_cache = use_cache
 

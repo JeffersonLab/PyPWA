@@ -93,13 +93,13 @@ class FindBasicInfo(BasicInfoInterface):
             filename_without_extension + filename_extension
         )
 
-        self._logger.info("Cache Location set to %s" % final_location)
+        self._logger.debug("Cache Location set to %s" % final_location)
         return final_location
 
     def _set_file_hash(self, original_file):
         self._found_hash = self._file_hash(original_file)
 
-        self._logger.info("Found SHA512 hash for %s" % self._cache_location)
+        self._logger.debug("Found SHA512 hash for %s" % self._cache_location)
         self._logger.debug("File Hash is set to %s" % self._found_hash)
 
     def _file_hash(self, original_file):

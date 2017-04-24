@@ -117,7 +117,7 @@ class _FindReadPlugins(object):
         read_test = plugin().get_plugin_read_test()
         read_test.quick_test(file_location)
         self.__logger.info(
-            "Found %s will load %s" % (plugin.__name__, file_location)
+            "Found '%s' will load '%s'" % (plugin.__name__, file_location)
         )
 
 
@@ -126,6 +126,7 @@ class _FindWritePlugins(object):
     __data_is_gamp = False
     __data_is_flat = False
     __file_extension = ""
+    __file_name = ""
     __logger = logging.getLogger(__name__ + "._FindWritePlugins")
     __potential_plugins = None
 
@@ -142,13 +143,13 @@ class _FindWritePlugins(object):
         shape_count = len(data.shape)
 
         if shape_count == 3:
-            self.__logger.info("Found data type: GAMP")
+            self.__logger.debug("Found data type: GAMP")
             self.__data_is_gamp = True
         elif shape_count == 1:
-            self.__logger.info("Found data type: Flat")
+            self.__logger.debug("Found data type: Flat")
             self.__data_is_flat = True
         else:
-            self.__logger.info(
+            self.__logger.error(
                 "Found noise, data shape_count is: " + str(shape_count)
             )
 
@@ -158,6 +159,7 @@ class _FindWritePlugins(object):
         split_extension = os.path.splitext(file_location)
         extension = split_extension[1]
         self.__file_extension = extension
+        self.__file_name = file_location
 
         self.__logger.debug("Data's extension is: " + repr(extension))
 
@@ -165,6 +167,7 @@ class _FindWritePlugins(object):
         for plugin in self.__potential_plugins:
             the_plugin = plugin()
             if self.__check_plugin(the_plugin):
+                self.__log_found_plugin(the_plugin)
                 return the_plugin
 
         raise exceptions.UnknownData
@@ -185,17 +188,24 @@ class _FindWritePlugins(object):
 
     def __supports_file_extension(self, extensions):
         if self.__file_extension == "":
-            self.__logger.warn(
+            self.__logger.warning(
                 "No extension found! Will use first data match! This could "
                 "result in strange or unusual data in your file! Considering "
                 "using an extension in the future!"
             )
             return True
         elif self.__file_extension in extensions:
-            self.__logger.info(
+            self.__logger.debug(
                 "Found %s in %s!" % (self.__file_extension, repr(extensions))
             )
             return True
         else:
             self.__logger.info("Extension not supported!")
             return False
+
+    def __log_found_plugin(self, plugin):
+        self.__logger.info(
+            "Found '%s' to write '%s'" % (
+                plugin.plugin_name, self.__file_name
+            )
+        )

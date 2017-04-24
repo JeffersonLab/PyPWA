@@ -68,9 +68,6 @@ class _AppendPath(object):
 
     __logger = logging.getLogger(__name__ + "._AppendPath")
 
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
-
     def append_path(self, filename):
         function_path = self.__get_function_path(filename)
         self.__log_path(function_path)
@@ -83,16 +80,13 @@ class _AppendPath(object):
         return path_without_basename
 
     def __log_path(self, path):
-        self.__logger.info("Adding %s to the path." % path)
+        self.__logger.debug("Adding %s to the path." % path)
 
         
 class _Importer(object):
 
     __logger = logging.getLogger(__name__ + "._Importer")
     __path_handler = _AppendPath()
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
 
     def fetch_modules(self, package):
         found_module = self.__load_module(package)
@@ -257,7 +251,7 @@ class PluginLoader(object):
                 modules = self.__importer.fetch_modules(location)
                 self.__append_modules(modules)
                 self.__storage.add_location(location)
-                self.__logger.info("Adding plugin location: %s" % location)
+                self.__logger.debug("Adding plugin location: %s" % location)
         else:
             self.__logger.debug(
                 "Received blank location! This might be an error."

@@ -64,7 +64,9 @@ class Memory(plugins.DataParser):
         self._set_cache_plugin()
         self._set_cache_interface(file_location)
         if self._cache_interface.is_valid:
-            self._logger.info("Found Cache, loading!")
+            self._logger.info(
+                "Found Cache for '%s', loading!" % file_location
+            )
             return self._cache_interface.read_cache()
         else:
             self._logger.info("No cache found, loading file directly.")

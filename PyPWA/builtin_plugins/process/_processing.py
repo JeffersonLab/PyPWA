@@ -132,7 +132,7 @@ class _SimplexProcess(multiprocessing.Process):
         """
         self.__set_logger()
         self._kernel.setup()
-        self.__logger.info(
+        self.__logger.debug(
             "Starting logging in proc index %d" % self._kernel.processor_id
         )
         self._communicator.send(self._kernel.process())
