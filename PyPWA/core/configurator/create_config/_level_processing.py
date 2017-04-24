@@ -115,7 +115,6 @@ class ProcessOptions(object):
 
     def __set_processed_options(self):
         self.__processed_options = self.__full_options.plugin_options
-        print(repr(self.__processed_options))
 
     def __set_difficulty_rejection_list(self, requested_difficulty):
         if requested_difficulty == options.Levels.REQUIRED:
