@@ -129,7 +129,7 @@ class StartProgram(object):
     __configuration = None  # type: dict
 
     __execute = start.Execute()
-    __create_config = create.Config()
+    __create_config = create.StartConfig()
     __arguments = _Arguments()
 
     def start(self, configuration):
