@@ -22,6 +22,9 @@ Creates the initial configuration template for users to modify.
 
 - _builder - Builds the actual configuration for the program.
 
+- _function_builder - Defines how the example function file is built and 
+  written to file.
+
 - _input_loop - Provides a simple object to extend for defining questions.
 
 - _level_processing - takes a plugin and a requested level and returns

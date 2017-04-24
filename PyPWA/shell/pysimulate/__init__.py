@@ -36,6 +36,7 @@ plane of data provided by the user.
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
+from PyPWA.shell import pyshell_functions
 from PyPWA.shell.pysimulate import initial_setup
 
 __credits__ = ["Mark Jones"]
@@ -47,6 +48,7 @@ class ShellSimulation(options.Main):
 
     plugin_name = "shell simulation"
     setup = initial_setup.SimulationSetup
+    defined_function = pyshell_functions.ShellFunctionFile
 
     required_plugins = [
         options.Types.DATA_PARSER,

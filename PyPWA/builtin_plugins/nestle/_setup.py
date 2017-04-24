@@ -18,7 +18,7 @@
 
 """
 Takes the options from OptionsObject and parses those options into 
-NestedSampling.
+NestedSampling. Also contains the reference function for Nestle's Prior.
 """
 
 import logging
@@ -65,3 +65,15 @@ class NestleSetup(options.Setup):
 
     def return_interface(self):
         return self.__interface
+
+
+class NestlePriorFunction(options.FileBuilder):
+    imports = set()
+    functions = [
+        """
+def prior(x):
+    # For information about how to use nestle's prior function, please read
+    # nestle's documentation at: http://kylebarbary.com/nestle/index.html
+    return x
+        """
+    ]

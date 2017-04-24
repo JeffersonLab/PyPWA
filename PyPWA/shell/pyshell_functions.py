@@ -17,31 +17,34 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-============
-Main Objects
-============
-
-This is where the main logic of the programs is defined. Each folder here
-represents a core program and contains the main logic required for the 
-program to function.
-
-Each of the programs act as a plugin, and their metadata is stored in each 
-of their __init__.py files.
-
-- pyfit - the package that dictates how PyFit, PyLikelihood, 
-  and PyChiSquared operate
-
-- pysimulate - defines how PySimulate, PyIntensities, and PyWeighting operate.
-
-- pyshell_functions - Defines the output functions for PyShell applications.
-
-There is no actual core logic defined here, data loading, processing, and
-optimization is all defined elsewhere, however the algorithms used to 
-calculate the final values are found here.
+Simply defines the user's functions that are shared between PyFit, PySimulate,
+and their derivative programs.
 """
 
+from PyPWA.core.configurator import options
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
+
+
+class ShellFunctionFile(options.FileBuilder):
+    imports = {"numpy"}
+    functions = [
+        """
+def processing_function(the_array, the_params):
+    # The Params is passed by your optimizer, each optimizer passes something
+    # different to check with the documentation if you are unsure how to use
+    # it.
+    
+    final_value = the_array["x"] * the_params["A1"]
+    return final_value
+        """,
+        """
+def setup_function():
+    # If you have an amplitude that needs a method are function called before
+    # you can begin processing, call it here.
+    pass
+        """
+    ]
