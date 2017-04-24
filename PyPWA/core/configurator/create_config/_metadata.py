@@ -25,6 +25,8 @@ import logging
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import storage
+from PyPWA.core.configurator import options
+from PyPWA.core.configurator.create_config import _questions
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -38,7 +40,6 @@ class MetadataStorage(storage.Storage):
 
     def __init__(self):
         super(MetadataStorage, self).__init__()
-        self.__logger.addHandler(logging.NullHandler())
         self._update_extra()
 
     def _update_extra(self):
@@ -76,3 +77,9 @@ class MetadataStorage(storage.Storage):
             return self.__actual_storage[plugin_type]
         else:
             raise ValueError("Unknown plugin type: %s!" % plugin_type)
+
+    def request_main_plugin_by_name(self, name):
+        for plugin in self._get_shells():
+            if plugin.plugin_name == name:
+                return plugin
+        raise ValueError("Unknown shell name '%s'" % name)
