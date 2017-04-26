@@ -97,9 +97,8 @@ class NestledSampling(plugins.Optimizer):
 
     def __setup_callback(self):
         if self.__folder_location:
-            self.__callback_object = _graph_data.SaveData(
-                self.__folder_location
-            )
+            callback = _graph_data.SaveData(self.__folder_location)
+            self.__callback_object = callback.process_callback
 
     def __start_sampling(self):
         self.__results = nestle.sample(
@@ -114,7 +113,7 @@ class NestledSampling(plugins.Optimizer):
             maxcall=self.__maxcall,
             dlogz=self.__dlogz,
             decline_factor=self.__decline_factor,
-            callback=self.__callback_object.process_callback
+            callback=self.__callback_object
         )
 
     def return_parser(self):
