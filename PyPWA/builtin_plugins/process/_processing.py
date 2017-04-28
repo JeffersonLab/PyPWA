@@ -72,7 +72,7 @@ class _DuplexProcess(multiprocessing.Process):
         """
         self.__setup_logger()
         self.__set_logger()
-        self.__logger.info(
+        self.__logger.debug(
             "Starting logging in proc index %d" % self._kernel.processor_id
         )
         self._kernel.setup()
