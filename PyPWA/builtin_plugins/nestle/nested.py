@@ -76,7 +76,6 @@ class NestledSampling(plugins.Optimizer):
             update_interval=None, npdim=None, maxiter=None, maxcall=None,
             dlogz=None, decline_factor=None, folder_location=False
     ):
-        self.__logger.addHandler(logging.NullHandler())
         self.__prior = prior
         self.__ndim = ndim
         self.__npoints = npoints
@@ -97,6 +96,7 @@ class NestledSampling(plugins.Optimizer):
 
     def __setup_callback(self):
         if self.__folder_location:
+            self.__logger.info("Writing nestle's data to disk.")
             callback = _graph_data.SaveData(self.__folder_location)
             self.__callback_object = callback.process_callback
 
@@ -128,9 +128,6 @@ class LoadPrior(object):
     __logger = logging.getLogger("_LoadPrior." + __name__)
     __plugin_storage = plugin_loader.PluginLoader()
     __found_prior = None  # type: typing.Any
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
 
     def load_prior(self, prior_location, prior_name):
         self.__add_prior_location(prior_location)
