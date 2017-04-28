@@ -53,6 +53,7 @@ class NestleSetup(options.Setup):
         self.__loader.load_prior(
             self.__options.prior_location, self.__options.prior_name
         )
+        self.__prior = self.__loader.prior
 
     def __set_minimizer(self):
         self.__interface = nested.NestledSampling(
