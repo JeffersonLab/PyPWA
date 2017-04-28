@@ -49,7 +49,7 @@ __version__ = VERSION
 class _NestleParserObject(internals.OptimizerOptionParser):
 
     def convert(self, *args):
-        return args[0][0]
+        return args[0][0][0]
 
 
 class NestledSampling(plugins.Optimizer):
