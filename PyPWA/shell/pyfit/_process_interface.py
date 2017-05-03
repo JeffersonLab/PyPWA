@@ -54,17 +54,29 @@ __version__ = VERSION
 
 class _ThreadInterface(object):
 
+    __logger = logging.getLogger(__name__ + "_ThreadInterface")
+    __root_logger = logging.getLogger()
     __send_queue = Queue()
     __receive_queue = Queue()
     __times = []
+    __enabled = False
+
+    def __init__(self):
+        if not self.__root_logger.isEnabledFor(logging.INFO):
+            self.__enabled = True
+        else:
+            self.__logger.info(
+                "Processor Output is disabled while info logging is enabled"
+            )
 
     def start(self, last_value):
-        thread = _OutputThread(
-            self.__receive_queue, self.__send_queue,
-            last_value, self.__get_last_time(), self.__average_time()
-        )
+        if self.__enabled:
+            thread = _OutputThread(
+                self.__receive_queue, self.__send_queue,
+                last_value, self.__get_last_time(), self.__average_time()
+            )
 
-        thread.start()
+            thread.start()
 
     def __get_last_time(self):
         if len(self.__times) == 0:
@@ -79,8 +91,9 @@ class _ThreadInterface(object):
             return sum(self.__times) / len(self.__times)
 
     def stop(self):
-        self.__send_queue.put("die")
-        self.__times.append(float(self.__receive_queue.get()))
+        if self.__enabled:
+            self.__send_queue.put("die")
+            self.__times.append(float(self.__receive_queue.get()))
 
 
 class _OutputThread(threading.Thread):
@@ -92,6 +105,7 @@ class _OutputThread(threading.Thread):
     __last_time = None  # type: float
     __average_time = None  # type: float
     __initial_time = None  # type: float
+    __index = None
 
     def __init__(
             self, send_queue, receive_queue, last_value,
@@ -113,7 +127,6 @@ class _OutputThread(threading.Thread):
             self.__output()
 
     def __output(self):
-        time.sleep(1)
         print("\r" + self.__create_output(), end="\r")
 
     def __create_output(self):
@@ -125,15 +138,15 @@ class _OutputThread(threading.Thread):
     def __simple_output(self):
         self.__pulse()
         runtime = self.__get_current_runtime()
-        return "Elapsed time: {0: >5} {1}".format(
+        return "Elapsed time: {0: .2f} {1}".format(
             runtime, self.__output_pulse
         )
 
     def __full_output(self):
         self.__pulse()
         runtime = self.__get_current_runtime()
-        return "Last Value: {0: >5}, Average Time: {1: >5}, " \
-               "Elapsed Time: {2: >5} {3}".format(
+        return "Last Value: {0: .3f}, Average Time: {1: .2f}, " \
+               "Elapsed Time: {2: .2f} {3}".format(
                  self.__last_value, self.__average_time,
                  runtime, self.__output_pulse
                )
@@ -160,11 +173,11 @@ class FittingInterface(internals.KernelInterface):
     __logger = logging.getLogger(__name__ + ".FittingInterfaceKernel")
     __parameter_parser = None  # type: internals.OptimizerOptionParser
     __last_value = None  # type: numpy.float64
-    __thread_interface = _ThreadInterface()
+    __thread_interface = None
 
     def __init__(self, minimizer_function):
-        self.__logger.addHandler(logging.NullHandler())
         self.__parameter_parser = minimizer_function
+        self.__thread_interface = _ThreadInterface()
 
     def run(self, communication, *args):
         self.__send_arguments(communication, args)
