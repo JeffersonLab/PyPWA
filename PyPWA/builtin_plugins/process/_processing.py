@@ -78,7 +78,10 @@ class _DuplexProcess(multiprocessing.Process):
         self._kernel.setup()
         while True:
             value = self._communicator.receive()
-            if value == "DIE":
+            if isinstance(value, str) and value == "DIE":
+                self.__logger.debug(
+                    "Shutting down %d" % self._kernel.processor_id
+                )
                 break
             else:
                 self._communicator.send(self._kernel.process(value))
