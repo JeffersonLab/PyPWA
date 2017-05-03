@@ -31,12 +31,14 @@ your parameter space for provided function.
 """
 
 import logging
+import typing
 
 import nestle
-import typing
+import tabulate
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _graph_data
+from PyPWA.builtin_plugins.nestle import _save_results
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
@@ -70,6 +72,7 @@ class NestledSampling(plugins.Optimizer):
     __dlogz = None  # type: float
     __decline_factor = None  # type: float
     __folder_location = False  # type: str
+    __save_data = _save_results.SaveData()
 
     def __init__(
             self, prior, ndim, npoints=100, method="single",
@@ -120,7 +123,7 @@ class NestledSampling(plugins.Optimizer):
         return _NestleParserObject()
 
     def save_extra(self, save_name):
-        print(self.__results.summary())
+        self.__save_data.save_data(save_name, self.__results)
 
 
 class LoadPrior(object):
