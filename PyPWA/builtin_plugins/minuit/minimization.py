@@ -32,9 +32,9 @@ import logging
 
 import iminuit
 import numpy
-import tabulate
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.builtin_plugins.minuit import _save_data
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 
@@ -61,6 +61,7 @@ class _ParserObject(internals.OptimizerOptionParser):
 class Minuit(plugins.Optimizer):
 
     __logger = logging.getLogger(__name__ + ".Minuit")
+    __save_data = _save_data.SaveData()
 
     __final_value = 0  # type: numpy.float64
     __covariance = 0  # type: tuple
@@ -77,8 +78,6 @@ class Minuit(plugins.Optimizer):
             self, parameters=False, settings=False,
             strategy=1, number_of_calls=10000,
     ):
-        self.__logger.addHandler(logging.NullHandler())
-
         self.__parameters = parameters
         self.__settings = settings
         self.__strategy = strategy
@@ -127,46 +126,7 @@ class Minuit(plugins.Optimizer):
 
     def save_extra(self, save_name):
         if not isinstance(self.__covariance, type(None)):
-            print("Covariance.\n")
-            the_x = []
-            the_y = []
-            for field in self.__covariance:
-                the_x.append(field[0])
-                the_y.append(field[1])
-
-            x_true = set(the_x)
-            y_true = set(the_y)
-
-            covariance = []
-            for x in x_true:
-                holding = [x]
-                for y in y_true:
-                    holding.append(self.__covariance[(x, y)])
-                covariance.append(holding)
-
-            table_fancy = tabulate.tabulate(
-                covariance, y_true, "fancy_grid", numalign="center"
-            )
-
-            table = tabulate.tabulate(
-                covariance, y_true, "grid", numalign="center"
-            )
-
-            try:
-                print(table_fancy)
-            except UnicodeEncodeError:
-                    print(table)
-
-            with open(save_name + ".txt", "w") as stream:
-                stream.write("Covariance.\n")
-                stream.write(table)
-                stream.write("\n")
-                stream.write("fval: "+str(self.__final_value))
-
-            numpy.save(
-                save_name + ".npy", {
-                    "covariance": self.__covariance,
-                    "fval": self.__final_value,
-                    "values": self.__values
-                }
+            self.__save_data.save_data(
+                save_name, self.__covariance, self.__final_value,
+                self.__values
             )
