@@ -55,7 +55,7 @@ class _MakeTable(object):
     def __clear_variables(self):
         self.__x.clear()
         self.__y.clear()
-        self.__covariance.clear()
+        self.__covariance[:] = []
 
     def __set_x_y_data(self, covariance_data):
         for field in covariance_data:

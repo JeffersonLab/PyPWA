@@ -34,7 +34,6 @@ import logging
 import typing
 
 import nestle
-import tabulate
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _graph_data

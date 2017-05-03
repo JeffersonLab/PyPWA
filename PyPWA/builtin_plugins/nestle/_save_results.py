@@ -57,9 +57,9 @@ class _MakeTable(object):
         self.__create_covariance_tables()
 
     def __clear_variables(self):
-        self.__covariance_list.clear()
-        self.__mean_list.clear()
-        self.__index_list.clear()
+        self.__covariance_list[:] = []
+        self.__mean_list.clear[:] = []
+        self.__index_list.clear[:] = []
 
     def __load_mean_and_covariance(self, results):
         self.__means, self.__covariance = nestle.mean_and_cov(
