@@ -29,6 +29,8 @@ Saves Data for Nestle in a way the User can interact with it
 - SaveData - the main object for saving data from iMinuit.
 """
 
+from __future__ import print_function
+
 import numpy
 import nestle
 import tabulate
@@ -58,8 +60,8 @@ class _MakeTable(object):
 
     def __clear_variables(self):
         self.__covariance_list[:] = []
-        self.__mean_list.clear[:] = []
-        self.__index_list.clear[:] = []
+        self.__mean_list[:] = []
+        self.__index_list[:] = []
 
     def __load_mean_and_covariance(self, results):
         self.__means, self.__covariance = nestle.mean_and_cov(
