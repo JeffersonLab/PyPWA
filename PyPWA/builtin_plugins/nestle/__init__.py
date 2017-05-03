@@ -27,7 +27,10 @@ the documentation inside nestle.
 
 - _graph_data - Doesn't graph the data, but saves the data needed to 
   generate a graph to file.
-  
+
+- _save_results - Where the table for the results are created and the data
+  is saved to disk
+
 - _setup - Provides the interface between the plugin and the configurator.
 
 - nested - Where the actual optimization process takes place.
