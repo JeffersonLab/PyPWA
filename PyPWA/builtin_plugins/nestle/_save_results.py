@@ -108,7 +108,7 @@ class _MakeTable(object):
             print(self.__fancy_mean_table)
             print("Covariance: ")
             print(self.__fancy_cov_table)
-        except UnicodeDecodeError:
+        except UnicodeEncodeError:
             print(self.__regular_mean_table)
             print("Covariance: ")
             print(self.__regular_cov_table)
