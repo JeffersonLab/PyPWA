@@ -59,9 +59,12 @@ class _ThreadInterface(object):
     __send_queue = Queue()
     __receive_queue = Queue()
     __times = []
+    __initial_time = None
     __enabled = False
 
     def __init__(self):
+        self.__initial_time = time.time()
+
         if not self.__root_logger.isEnabledFor(logging.INFO):
             self.__enabled = True
         else:
@@ -73,7 +76,8 @@ class _ThreadInterface(object):
         if self.__enabled:
             thread = _OutputThread(
                 self.__receive_queue, self.__send_queue,
-                last_value, self.__get_last_time(), self.__average_time()
+                last_value, self.__get_last_time(), self.__average_time(),
+                self.__initial_time
             )
 
             thread.start()
@@ -105,17 +109,19 @@ class _OutputThread(threading.Thread):
     __last_time = None  # type: float
     __average_time = None  # type: float
     __initial_time = None  # type: float
+    __start_time = None
     __index = None
 
     def __init__(
             self, send_queue, receive_queue, last_value,
-            last_time, average_time
+            last_time, average_time, start_time
     ):
         self.__send_queue = send_queue
         self.__receive_queue = receive_queue
         self.__last_value = last_value
         self.__last_time = last_time
         self.__average_time = average_time
+        self.__start_time = start_time
         self.__initial_time = time.time()
         super(_OutputThread, self).__init__()
 
@@ -146,13 +152,17 @@ class _OutputThread(threading.Thread):
         self.__pulse()
         runtime = self.__get_current_runtime()
         return "Last Value: {0: .3f}, Average Time: {1: .2f}, " \
-               "Elapsed Time: {2: .2f} {3}".format(
+               "Elapsed Time: {2: .2f}, " \
+               "Total Runtime {3: .2f} {4}".format(
                  self.__last_value, self.__average_time,
-                 runtime, self.__output_pulse
+                 runtime, self.__get_total_runtime(), self.__output_pulse
                )
 
     def __get_current_runtime(self):
         return time.time() - self.__initial_time
+
+    def __get_total_runtime(self):
+        return time.time() - self.__start_time
 
     def __pulse(self):
         if self.__output_pulse is "-":
