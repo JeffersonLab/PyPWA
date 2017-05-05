@@ -45,7 +45,6 @@ class ReadCache(_template.ReadInterface):
         Loads the cache from disk if it exists, will raise CacheError if
         something is wrong with the cache.
         """
-        self._logger.addHandler(logging.NullHandler())
         self._info_object = basic_info
         self._attempt_cache_load()
 
@@ -76,12 +75,12 @@ class ReadCache(_template.ReadInterface):
             self._logger.info("No cache exists.")
         except (
                 pickle.PickleError, ValueError, IndexError, KeyError
-        ) as Error:
+        ) as error:
             returned_data = self._empty_raw_data
             self._logger.warning(
                 "Pickle is from a different Python version or is damaged."
             )
-            self._logger.exception(Error)
+            self._logger.debug(error, exc_info=True)
         return returned_data
 
     @property
