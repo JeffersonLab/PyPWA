@@ -123,6 +123,8 @@ class Fitting(plugins.Main):
             }
         )
 
+        self.__likelihood.setup_interface()
+
     def __setup_processing(self):
         self.__processing.main_options(
             self.__likelihood.data, self.__likelihood.likelihood,

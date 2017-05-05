@@ -20,74 +20,74 @@
 Creates the template configuration file when --WriteConfig is passed
 """
 
-import logging
-
-import PyPWA.shell
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _builder
-from PyPWA.core.shared import plugin_loader
+from PyPWA.core.configurator.create_config import _function_builder
+from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.core.configurator.create_config import _questions
+from PyPWA.core.configurator.create_config import _writer
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Config(object):
+class StartConfig(object):
 
-    __config_maker = _builder.ConfigurationBuilder()
-    __logger = logging.getLogger(__name__ + ".Config")
-    __loader = plugin_loader.PluginLoader()
+    __writer = _writer.Write()
+    __functions = _function_builder.FunctionHandler()
+    __storage = _metadata.MetadataStorage()
+    __plugin_dir = _questions.GetPluginDirectory()
+    __level = _questions.GetPluginLevel()
+    __save_location = _questions.GetSaveLocation()
+    __plugin_list = _metadata.GetPluginList()
+    __configuration = _builder.BuildConfig(
+        __plugin_dir, __plugin_list, __level
+    )
 
     __main_plugin = None
-    __settings = None
-    __shell_name = None  # type: str
-    __shell_id = None  # type: str
-    __potential_plugins = None
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
-        self.__setup_loader()
-
-    def __setup_loader(self):
-        self.__loader.add_plugin_location(PyPWA.shell)
 
     def make_config(self, function_settings, config_location):
-        self.__process_function_settings(function_settings)
-        self.__log_names()
-        self.__load_potential_plugins()
-        self.__search_for_main_plugin()
-        self.__check_found_main()
-        self.__create_configuration(config_location)
+        self.__fetch_main_plugin(function_settings)
+        self.__get_plugin_directories()
+        self.__set_level()
+        self.__set_plugin_list()
+        self.__create_configuration(function_settings)
+        self.__set_save_location(config_location)
+        self.__save_configuration()
+        self.__save_functions()
 
-    def __process_function_settings(self, function_settings):
-        self.__shell_id = function_settings["main"]
-        self.__shell_name = function_settings["main name"]
-        if "main options" in function_settings:
-            self.__settings = function_settings["main options"]
+    def __fetch_main_plugin(self, function_settings):
+        self.__main_plugin = self.__storage.request_main_plugin_by_name(
+            function_settings["main"]
+        )
 
-    def __log_names(self):
-        self.__logger.debug("Searching for ID: %s" % self.__shell_id)
-        self.__logger.debug("Searching for name: %s" % self.__shell_name)
+    def __get_plugin_directories(self):
+        self.__plugin_dir.ask_for_plugin_directory()
+        self.__storage.add_location(self.__plugin_dir.get_plugin_directory())
 
-    def __load_potential_plugins(self):
-        self.__potential_plugins = self.__loader.get_by_class(options.Main)
+    def __set_level(self):
+        self.__level.ask_for_plugin_level()
 
-    def __search_for_main_plugin(self):
-        for plugin in self.__potential_plugins:
-            temp_object = plugin()
-            if temp_object.plugin_name == self.__shell_id:
-                self.__main_plugin = temp_object
-                break
+    def __set_plugin_list(self):
+        self.__plugin_list.parse_plugins(self.__main_plugin)
 
-    def __check_found_main(self):
-        if isinstance(self.__main_plugin, type(None)):
-            raise RuntimeError(
-                "Could not find the main object %s!" % self.__shell_name
-            )
+    def __create_configuration(self, function_settings):
+        self.__configuration.build(function_settings)
 
-    def __create_configuration(self, config_location):
-        self.__config_maker.build_configuration(
-            self.__main_plugin, self.__main_plugin, self.__settings,
-            config_location
+    def __set_save_location(self, save_location):
+        if save_location:
+            self.__save_location.override_save_location(save_location)
+        else:
+            self.__save_location.ask_for_save_location()
+
+    def __save_configuration(self):
+        self.__writer.write(
+            self.__configuration.configuration,
+            self.__save_location.get_save_location()
+        )
+
+    def __save_functions(self):
+        self.__functions.output_functions(
+            self.__plugin_list, self.__save_location.get_save_location()
         )

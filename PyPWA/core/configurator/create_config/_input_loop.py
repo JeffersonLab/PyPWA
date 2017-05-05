@@ -17,18 +17,18 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Handles the input for WriteConfig
----------------------------------
+Handles all real input for Create Config
+----------------------------------------
 
-- _Input - Handles differences between Python 2 and Python 3
+- _Input - Handles differences between Python 2 and 3
 
-- _IsCorrect - Asks if the provided question is correct.
-
-- SimpleInputObject - Is the main loop for questions that need to be asked.
+- _IsCorrectLoop - A simple loop that asks the user if about their input
+  is fuzzing wasn't good enough.
+  
+- QuestionLoop - The main question loop, handles all input.
 """
 
 import logging
-import os
 import sys
 
 import fuzzywuzzy.process
@@ -61,16 +61,11 @@ class _Input(object):
 
 class _IsCorrectLoop(object):
 
-    __QUERY = "It looks like you selected '{0}', is this correct?\n" + \
-             "[Y]es/No: "
-
+    __logger = logging.getLogger(__name__ + "._IsCorrectLoop")
     __input = _Input()
-    __auto_correct_percentage = None
+    __auto_correct_percentage = 90
     __input_data = None
     __processed_answer = None
-
-    def __init__(self, auto_correct_percentage=75):
-        self.__auto_correct_percentage = auto_correct_percentage
 
     def ask(self, value):
         self.__question_loop(value)
@@ -78,22 +73,25 @@ class _IsCorrectLoop(object):
 
     def __question_loop(self, value):
         while True:
-            self.__get_value(value)
+            self.__get_answer(value)
 
             if self.__input_data == "":
-                self.__set_answer("yes")
+                self.__assume_answer_is_correct()
                 break
 
             self.__fuzz_value()
             if self.__answer_is_valid():
                 break
 
-    def __get_value(self, value):
-        input_data = self.__input.input(self.__QUERY.format(value))
+    def __get_answer(self, value):
+        input_data = self.__input.input(
+            "It looks like you selected '%s', is this correct?\n"
+            "[Y]es/No: " % value
+        )
         self.__input_data = input_data.lower()
 
-    def __set_answer(self, value):
-        self.__processed_answer = [value, 100]
+    def __assume_answer_is_correct(self):
+        self.__processed_answer = ["yes", 100]
 
     def __fuzz_value(self):
         choices = ["yes", "no"]
@@ -115,74 +113,82 @@ class _IsCorrectLoop(object):
             return False
 
 
-class SimpleInputObject(object):
+class QuestionLoop(object):
 
-    __logger = logging.getLogger(__name__ + ".SimpleInputObject")
-    __input = _Input
-    __is_correct = _IsCorrectLoop
+    __logger = logging.getLogger(__name__ + ".QuestionLoop")
+    __input = _Input()
+    __is_correct = _IsCorrectLoop()
 
-    __auto_correction_percentage = None
     __users_input = None
     __processed_value = None
 
-    def __init__(self, auto_correct_percentage=75):
-        self.__auto_correction_percentage = auto_correct_percentage
-        self.__input = _Input()
-        self.__is_correct = _IsCorrectLoop()
+    _auto_correction_percentage = 75
+    _question = None
+    _possible_answers = False
+    _default_answer = False
 
-    def input(
-            self, string, possible_answers=False,
-            default_answer=False
-    ):
-        self.__question_loop(string, possible_answers, default_answer)
-        self.__logger.info("Found answer: %s" % self.__processed_value[0])
-        return self.__processed_value[0]
-
-    def __question_loop(
-            self, string, possible_answers=False,
-            default_answer=False
-    ):
-        self.__logger.debug("Question: %s" % string)
-        self.__logger.debug("Potential Answers: %s" % possible_answers)
-        self.__logger.debug("Default Answer: %s" % default_answer)
+    def _question_loop(self):
+        self.__log_initial_data()
 
         while True:
-            self.__get_input(string)
+            self.__get_input(self._question)
 
             if self.__users_input is "":
-                if default_answer:
-                    self.__set_processed_value(default_answer)
-                    self.__logger.info(
-                        "Using default answer: %s" % default_answer
-                    )
+                if self._default_answer:
+                    self.__set_processed_value_to_default_answer()
                     break
                 continue
 
             else:
-                if possible_answers:
-                    self.__process_value(possible_answers)
+                if self._possible_answers:
+                    self.__process_input_using_known_values()
 
                     if self.__answer_is_valid():
                         break
                 else:
+                    self.__set_processed_value_to_user_input()
                     break
+
+    def __log_initial_data(self):
+        self.__logger.debug("Question: %s" % self._question)
+
+        if self._possible_answers:
+            self.__logger.debug(
+                "Potential Answers: %s" % self._possible_answers
+            )
+        else:
+            self.__logger.debug("No potential answers provided")
+
+        if self._default_answer:
+            self.__logger.debug("Default Answer: %s" % self._default_answer)
+        else:
+            self.__logger.debug("No default answer set.")
 
     def __get_input(self, string):
         self.__users_input = self.__input.input(string)
 
-    def __set_processed_value(self, value):
-        self.__processed_value = [value, 100]
+    def __set_processed_value_to_default_answer(self):
+        self.__processed_value = [self._default_answer, 100]
+        self.__logger.info("Using default answer: %s" % self._default_answer)
 
-    def __process_value(self, possible_answers):
+    def __process_input_using_known_values(self):
         self.__processed_value = fuzzywuzzy.process.extractOne(
-            self.__users_input, possible_answers
+            self.__users_input, self._possible_answers
         )
 
     def __answer_is_valid(self):
-        if self.__processed_value[1] > self.__auto_correction_percentage:
+        if self.__processed_value[1] > self._auto_correction_percentage:
             if self.__processed_value[1] < 95:
                 return self.__is_correct.ask(self.__processed_value[0])
             else:
                 return True
         else:
             return False
+
+    def __set_processed_value_to_user_input(self):
+        self.__processed_value = [self.__users_input, 100]
+        self.__logger.info("Setting answer to %s" % self.__users_input)
+
+    @property
+    def _answer(self):
+        return self.__processed_value[0]

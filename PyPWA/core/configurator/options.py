@@ -55,6 +55,9 @@ plugin to be used with the configurator plugin.
 
 - Main - The interface to define the metadata for mains, this is essentially
   the beginning of a program.
+  
+- FileBuilder - This is the object that needs to be extended and filled out
+  if your plugin needs a function to be defined for it to be usable.
 """
 
 import enum
@@ -115,3 +118,8 @@ class Plugin(Base):
 class Main(Base):
     setup = None  # type: Setup
     required_plugins = []  # type: [Types]
+
+
+class FileBuilder(object):
+    imports = set()
+    functions = []

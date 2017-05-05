@@ -29,7 +29,6 @@ that can be used for output.
   loaded into a template configuration file.
 """
 
-import copy
 import logging
 
 from ruamel.yaml import comments
@@ -49,7 +48,6 @@ class _FullOptions(object):
     __built_options = None  # type: comments.CommentedMap
 
     def __init__(self, options_object):
-        self.__logger.addHandler(logging.NullHandler())
         self.__options = options_object
         self.__build_options()
 
@@ -117,7 +115,6 @@ class ProcessOptions(object):
 
     def __set_processed_options(self):
         self.__processed_options = self.__full_options.plugin_options
-        print(repr(self.__processed_options))
 
     def __set_difficulty_rejection_list(self, requested_difficulty):
         if requested_difficulty == options.Levels.REQUIRED:

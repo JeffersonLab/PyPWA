@@ -36,7 +36,7 @@ requires = [
     "python-Levenshtein"
 ]
 
-if sys.version_info.major != 3 or sys.version_info.minor < 4:
+if sys.version_info.major != 3 or sys.version_info.minor <= 4:
     requires.append("enum34")
     requires.append("typing")
 

@@ -52,4 +52,5 @@ class Execute(object):
         self.__executor = _plugin_data.SetupProgram(self.__settings)
 
     def __execute(self):
+        self.__executor.setup()
         self.__executor.execute()

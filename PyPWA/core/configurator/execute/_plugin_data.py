@@ -69,7 +69,7 @@ class _RequestedPlugins(object):
 
     def __find_metadata(self):
         for the_id in self.__the_ids:
-            self.__logger.info("Scanning plugins for '%s'" % the_id)
+            self.__logger.debug("Scanning plugins for '%s'" % the_id)
             self.__check_metadata(the_id)
 
     def __check_metadata(self, the_id):
@@ -84,12 +84,12 @@ class _RequestedPlugins(object):
 
     def __process_potential(self, potential_main, potential_plugin, the_id):
         if potential_main:
-            self.__logger.info(
+            self.__logger.debug(
                 "Found that '%s' is the main" % potential_main.plugin_name
             )
             self.__main = potential_main
         elif potential_plugin:
-            self.__logger.info(
+            self.__logger.debug(
                 "Found that '%s' is a plugin" % potential_plugin.plugin_name
             )
             self.__plugins.append(potential_plugin)

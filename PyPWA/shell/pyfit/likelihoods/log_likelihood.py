@@ -36,7 +36,7 @@ __version__ = VERSION
 
 class LogLikelihood(interfaces.Setup):
 
-    name = "Log Likelihood"
+    name = "likelihood"
     _data = None  # type: loaders.DataLoading
     _functions = None  # type: loaders.FunctionLoader
     __generated_length = None  # type: int

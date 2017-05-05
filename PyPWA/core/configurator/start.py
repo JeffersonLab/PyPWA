@@ -81,7 +81,7 @@ class _Arguments(object):
 
     def __add_verbose_argument(self):
         self.__parser.add_argument(
-            "--verbose", "-v", action="count", default=0,
+            "-v", action="count", default=0,
             help="Adds logging, defaults to errors, then setups up on "
                  "from there. -v will include warning, -vv will show "
                  "warnings and info, and -vvv will show info, warnings, "
@@ -117,7 +117,7 @@ class _Arguments(object):
 
     @property
     def verbose(self):
-        return self.__arguments.verbose
+        return self.__arguments.v
 
     @property
     def log_file(self):
@@ -129,7 +129,7 @@ class StartProgram(object):
     __configuration = None  # type: dict
 
     __execute = start.Execute()
-    __create_config = create.Config()
+    __create_config = create.StartConfig()
     __arguments = _Arguments()
 
     def start(self, configuration):
@@ -175,13 +175,7 @@ class StartProgram(object):
                                         $$$ $$   $$ $      $$      $$
                                   $$$$$$$$   $   $   $$$$$  $$$$$$  $$$$$$
 
-Developed By:
-    Mark Jones: maj@jlab.org
-
-Credit:
-    Dr. Carlos Salgado: salgado@jlab.org
-    Will Phelps: wphelps@jlab.org
-    Joshua Pond
+Built in Jefferson Lab.
 """
 
     def __setup_logger(self):

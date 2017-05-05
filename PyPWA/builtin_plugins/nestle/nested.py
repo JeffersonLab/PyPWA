@@ -31,12 +31,13 @@ your parameter space for provided function.
 """
 
 import logging
+import typing
 
 import nestle
-import typing
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _graph_data
+from PyPWA.builtin_plugins.nestle import _save_results
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
@@ -49,7 +50,7 @@ __version__ = VERSION
 class _NestleParserObject(internals.OptimizerOptionParser):
 
     def convert(self, *args):
-        return args[0][0]
+        return args[0][0][0]
 
 
 class NestledSampling(plugins.Optimizer):
@@ -70,13 +71,13 @@ class NestledSampling(plugins.Optimizer):
     __dlogz = None  # type: float
     __decline_factor = None  # type: float
     __folder_location = False  # type: str
+    __save_data = _save_results.SaveData()
 
     def __init__(
             self, prior, ndim, npoints=100, method="single",
             update_interval=None, npdim=None, maxiter=None, maxcall=None,
             dlogz=None, decline_factor=None, folder_location=False
     ):
-        self.__logger.addHandler(logging.NullHandler())
         self.__prior = prior
         self.__ndim = ndim
         self.__npoints = npoints
@@ -97,9 +98,9 @@ class NestledSampling(plugins.Optimizer):
 
     def __setup_callback(self):
         if self.__folder_location:
-            self.__callback_object = _graph_data.SaveData(
-                self.__folder_location
-            )
+            self.__logger.info("Writing nestle's data to disk.")
+            callback = _graph_data.SaveData(self.__folder_location)
+            self.__callback_object = callback.process_callback
 
     def __start_sampling(self):
         self.__results = nestle.sample(
@@ -114,14 +115,14 @@ class NestledSampling(plugins.Optimizer):
             maxcall=self.__maxcall,
             dlogz=self.__dlogz,
             decline_factor=self.__decline_factor,
-            callback=self.__callback_object.process_callback
+            callback=self.__callback_object
         )
 
     def return_parser(self):
         return _NestleParserObject()
 
     def save_extra(self, save_name):
-        print(self.__results.summary())
+        self.__save_data.save_data(save_name, self.__results)
 
 
 class LoadPrior(object):
@@ -129,9 +130,6 @@ class LoadPrior(object):
     __logger = logging.getLogger("_LoadPrior." + __name__)
     __plugin_storage = plugin_loader.PluginLoader()
     __found_prior = None  # type: typing.Any
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
 
     def load_prior(self, prior_location, prior_name):
         self.__add_prior_location(prior_location)

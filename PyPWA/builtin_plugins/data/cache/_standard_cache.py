@@ -45,7 +45,6 @@ class ReadCache(_template.ReadInterface):
         Loads the cache from disk if it exists, will raise CacheError if
         something is wrong with the cache.
         """
-        self._logger.addHandler(logging.NullHandler())
         self._info_object = basic_info
         self._attempt_cache_load()
 
@@ -64,24 +63,24 @@ class ReadCache(_template.ReadInterface):
         self._set_data(found_data)
 
     def _graciously_load_cache(self):
-        self._logger.info(
+        self._logger.debug(
             "Attempting to load %s" % self._info_object.cache_location
         )
 
         try:
             returned_data = self._load_data()
-            self._logger.info("Successfully loaded pickle cache!")
+            self._logger.debug("Successfully loaded pickle cache!")
         except (OSError, IOError):
             returned_data = self._empty_raw_data
             self._logger.info("No cache exists.")
         except (
                 pickle.PickleError, ValueError, IndexError, KeyError
-        ) as Error:
+        ) as error:
             returned_data = self._empty_raw_data
-            self._logger.info(
+            self._logger.warning(
                 "Pickle is from a different Python version or is damaged."
             )
-            self._logger.exception(Error)
+            self._logger.debug(error, exc_info=True)
         return returned_data
 
     @property
@@ -104,7 +103,7 @@ class ReadCache(_template.ReadInterface):
             return self._cache_hash_changed()
 
     def _caches_match(self):
-        self._logger.info("Cache Hashes match!")
+        self._logger.debug("Cache Hashes match!")
         return True
 
     def _cache_hash_is_false(self):
@@ -148,7 +147,7 @@ class WriteCache(_template.WriteInterface):
     def _write_cache_data(self):
         location = self._info_object.cache_location
 
-        self._logger.info("Making cache for %s" % location)
+        self._logger.debug("Making cache for '%s'" % location)
 
         with io.open(location, "wb") as stream:
             pickle.dump(

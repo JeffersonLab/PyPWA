@@ -45,9 +45,9 @@ class FittingSetup(options.Setup):
 
     def __load_data(self):
         self.__data_loader = loaders.DataLoading(
-            self.__options.DATA_PARSER,
+            self.__options.data_parser,
             self.__options.data_location, self.__options.qfactor_location,
-            self.__options.accepted_monte_monte_carlo_location
+            self.__options.accepted_monte_carlo_location
         )
 
     def __load_functions(self):
@@ -58,9 +58,9 @@ class FittingSetup(options.Setup):
 
     def __setup_interface(self):
         self.__interface = pyfit.Fitting(
-            self.__options.OPTIMIZER, self.__options.KERNEL_PROCESSING,
+            self.__options.optimizer, self.__options.kernel_processing,
             self.__data_loader, self.__functions,
-            self.__options.likelihood_type, self.__options.generated_lenght,
+            self.__options.likelihood_type, self.__options.generated_length,
             self.__options.save_name
         )
 

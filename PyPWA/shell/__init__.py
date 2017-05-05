@@ -33,6 +33,8 @@ of their __init__.py files.
 
 - pysimulate - defines how PySimulate, PyIntensities, and PyWeighting operate.
 
+- pyshell_functions - Defines the output functions for PyShell applications.
+
 There is no actual core logic defined here, data loading, processing, and
 optimization is all defined elsewhere, however the algorithms used to 
 calculate the final values are found here.

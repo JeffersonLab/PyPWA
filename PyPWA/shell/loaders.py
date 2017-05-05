@@ -68,6 +68,8 @@ class DataLoading(object):
     def __load_data(self):
         if self.__is_file(self._data_file):
             self.__data = self._parser.parse(self._data_file)
+        else:
+            raise ValueError("Data Location isn't a file!")
 
     def __process_data(self):
         self.__qfactor = self.__extract_data("qfactor")

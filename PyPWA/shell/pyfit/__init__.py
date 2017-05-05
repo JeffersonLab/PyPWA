@@ -38,6 +38,7 @@ the processing module tha is picked.
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
+from PyPWA.shell import pyshell_functions
 from PyPWA.shell.pyfit import intial_setup
 
 __credits__ = ["Mark Jones"]
@@ -49,6 +50,7 @@ class ShellFitting(options.Main):
 
     plugin_name = "shell fitting method"
     setup = intial_setup.FittingSetup
+    defined_function = pyshell_functions.ShellFunctionFile
     required_plugins = [
         options.Types.OPTIMIZER,
         options.Types.DATA_PARSER,
@@ -80,7 +82,7 @@ class ShellFitting(options.Main):
     }
 
     option_types = {
-        "likelihood type": ["likelihood", "chi-squared"],
+        "likelihood type": ["likelihood", "chi-squared", "empty"],
         "generated length": int,
         "function's location": str,
         "processing name": str,

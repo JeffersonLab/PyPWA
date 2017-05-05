@@ -5,7 +5,7 @@ from PyPWA.core.configurator.execute import _settings
 
 
 CONFIGURATION_FILE = os.path.join(
-    os.path.dirname(__file__), "../../../data/configuration.yml"
+    os.path.dirname(__file__), "../../../data/test_docs/configuration.yml"
 )
 
 OVERRIDE = {

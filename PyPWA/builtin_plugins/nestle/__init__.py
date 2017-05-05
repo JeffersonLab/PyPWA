@@ -27,7 +27,10 @@ the documentation inside nestle.
 
 - _graph_data - Doesn't graph the data, but saves the data needed to 
   generate a graph to file.
-  
+
+- _save_results - Where the table for the results are created and the data
+  is saved to disk
+
 - _setup - Provides the interface between the plugin and the configurator.
 
 - nested - Where the actual optimization process takes place.
@@ -47,13 +50,12 @@ class NestleOptions(options.Plugin):
     plugin_name = "Nestle"
     setup = _setup.NestleSetup
     provides = options.Types.OPTIMIZER
-    defined_function = None
+    defined_function = _setup.NestlePriorFunction
     module_comment = "Nestle, a python based multinest implementation."
 
     default_options = {
         "prior location": "/location/to/prior.py",
         "prior name": "prior_function",
-        "folder location": None,
         "ndim": 1,
         "npoints": 100,
         "method": "single",
@@ -82,7 +84,6 @@ class NestleOptions(options.Plugin):
     option_types = {
         "prior location": str,
         "prior name": str,
-        "folder location": str,
         "ndim": int,
         "npoints": int,
         "method": ["classic", "single", "multi"],
@@ -99,8 +100,6 @@ class NestleOptions(options.Plugin):
             "The path of the file containing the prior.",
         "prior name":
             "The name of the prior function.",
-        "folder location":
-            "The name of the folder where you want to save graph data into.",
         "ndim":
             "Number of parameters returned by prior.",
         "npoints":
