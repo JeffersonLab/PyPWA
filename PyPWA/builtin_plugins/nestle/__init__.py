@@ -56,7 +56,6 @@ class NestleOptions(options.Plugin):
     default_options = {
         "prior location": "/location/to/prior.py",
         "prior name": "prior_function",
-        "folder location": None,
         "ndim": 1,
         "npoints": 100,
         "method": "single",
@@ -85,7 +84,6 @@ class NestleOptions(options.Plugin):
     option_types = {
         "prior location": str,
         "prior name": str,
-        "folder location": str,
         "ndim": int,
         "npoints": int,
         "method": ["classic", "single", "multi"],
@@ -102,8 +100,6 @@ class NestleOptions(options.Plugin):
             "The path of the file containing the prior.",
         "prior name":
             "The name of the prior function.",
-        "folder location":
-            "The name of the folder where you want to save graph data into.",
         "ndim":
             "Number of parameters returned by prior.",
         "npoints":
