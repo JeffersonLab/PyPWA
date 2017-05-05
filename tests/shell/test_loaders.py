@@ -7,21 +7,22 @@ from PyPWA.builtin_plugins.data import memory
 from PyPWA.shell import loaders
 
 DATA = os.path.join(
-    os.path.dirname(__file__), "../data/data.csv"
+    os.path.dirname(__file__), "../data/pyfit/data/data.csv"
 )
 
 QFACTOR = os.path.join(
-    os.path.dirname(__file__), "../data/qfactor.txt"
+    os.path.dirname(__file__), "../data/pyfit/data/qfactor.txt"
 )
 
 MONTE_CARLO = os.path.join(
-    os.path.dirname(__file__), "../data/monte_carlo.csv"
+    os.path.dirname(__file__), "../data/pyfit/data/monte_carlo.csv"
 )
 
 PARSER = memory.Memory(False, True)
 
 FUNCTIONS_FOR_TEST = os.path.join(
-    os.path.dirname(__file__), "../data/functions_without_math.py"
+    os.path.dirname(__file__),
+    "../data/source_files/functions_without_math.py"
 )
 
 
