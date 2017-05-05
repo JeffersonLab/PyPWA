@@ -53,6 +53,7 @@ class _ExternalizeName(object):
         self.__remove_old_name()
 
     def __set_configuration(self, configuration):
+        self.__configuration = None
         self.__configuration = configuration
 
     def __find_names(self, override):
@@ -96,6 +97,7 @@ class _RemovePredefinedOptions(object):
             self.__predefined_options = override["main options"]
             self.__name = override["main name"]
         else:
+            self.__predefined_options = None
             self.__logger.debug("No options to override.")
 
     def __process_options(self):
