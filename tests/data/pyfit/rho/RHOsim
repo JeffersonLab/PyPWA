@@ -8,6 +8,6 @@ Simulator:
     A1: 100.
     A2: 0.4
   setup name: setup_function
-  data location: tests/data/pyfit/rho/total_events.txt
+  data location: tests/data/pyfit/rho/flat_data.csv
   processing name: processing_function
   save name: outputRHO

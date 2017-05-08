@@ -18,5 +18,5 @@ General Fitting:
   save name: outputRHOFIT
   setup name: setup_function
   processing name: processing_function
-  data location: tests/data/pyfit/rho/RHOw.txt
+  data location: tests/data/pyfit/rho/RHOw.csv
   likelihood type: likelihood
