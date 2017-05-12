@@ -49,6 +49,9 @@ other plugins.
 """
 
 import enum
+from typing import Any
+from typing import Optional as Opt
+
 import numpy
 
 from PyPWA import AUTHOR, VERSION
@@ -61,6 +64,7 @@ __version__ = VERSION
 class Reader(object):
 
     def next(self):
+        # type: () -> numpy.ndarray
         """
         Called to get the next event from the reader.
         
@@ -82,6 +86,7 @@ class Reader(object):
         self.close()
 
     def close(self):
+        # type: () -> None
         """
         Should close any open objects or streams.
         """
@@ -91,6 +96,7 @@ class Reader(object):
 class Writer(object):
 
     def write(self, data):
+        # type: (numpy.ndarray) -> None
         """
         Should write the received event to the stream.
         
@@ -105,6 +111,7 @@ class Writer(object):
         self.close()
 
     def close(self):
+        # type: () -> None
         """
         Should close the stream and any open streams or objects.
         """
@@ -114,6 +121,7 @@ class Writer(object):
 class ProcessInterface(object):
 
     def run(self, *args):
+        # type: (*Any) -> Any
         """
         This function will start the processing of the processes, whatever was
         passed through the kernel will be started with this method.
@@ -125,6 +133,7 @@ class ProcessInterface(object):
 
     @property
     def previous_value(self):
+        # type: () -> Any
         """
         The previous value received from the kernel interface.
         
@@ -133,6 +142,7 @@ class ProcessInterface(object):
         raise NotImplementedError
 
     def stop(self, force=False):
+        # type: (Opt[bool]) -> None
         """
         Should stop all process, threads, etc, that are being used to 
         calculate.
@@ -144,6 +154,7 @@ class ProcessInterface(object):
 
     @property
     def is_alive(self):
+        # type: () -> bool
         """
         Should return whether the children are still alive or have been 
         shutdown.
@@ -157,9 +168,10 @@ class ProcessInterface(object):
 class Kernel(object):
 
     # process_id should be set by the Kernel Processing plugin.
-    processor_id = None  # type: int
+    PROCESS_ID = None  # type: int
 
     def setup(self):
+        # type: () -> None
         """
         Anything that should be setup in the thread or process should be 
         put here, this will be called only once before any calculation begins.
@@ -167,6 +179,7 @@ class Kernel(object):
         raise NotImplementedError()
 
     def process(self, data=False):
+        # type: (Opt[Any]) -> Any
         """
         The actual calculation or function of the program, can optionally 
         support values from the main thread / process.
@@ -186,9 +199,10 @@ class KernelInterface(object):
     # its first run; however, if this is true then the kernel will stay
     # running and waiting for a value from the interface indefinitely until
     # they are shutdown manually.
-    is_duplex = False
+    IS_DUPLEX = False
 
     def run(self, communicator, args):
+        # type: (List[Any], Any) -> Any
         """
         The method that will be called to begin the calculation. This is 
         the interface between the kernels and the calling object.
@@ -205,9 +219,10 @@ class OptimizerOptionParser(object):
 
     # A simple multiplier that will be multiplied to the final result of
     # every run call.
-    multiplier = 1
+    MULTIPLIER = 1
 
     def convert(self, passed_value):
+        # type: (Any) -> Any
         """
         This should take any value sent by optimizer and clean up the value 
         to something easier for the user to interact with if possible.

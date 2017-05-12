@@ -40,7 +40,7 @@ def test_DuplexProcess_SumOfIntegers_Return50():
 
     # Create a test interface
     class TestInterface(internals.KernelInterface):
-        is_duplex = True
+        IS_DUPLEX = True
 
         def run(self, communicator, arguments):
             for the_communicator in communicator:
@@ -90,7 +90,7 @@ def test_SimplexProcess_SumIntegers_Return50():
 
     # Create Interface
     class TestInterface(internals.KernelInterface):
-        is_duplex = False
+        IS_DUPLEX = False
 
         def run(self, communicator, args):
             value = numpy.zeros(len(communicator))

@@ -28,8 +28,10 @@ Shared logic between PyFit and PySimulate
   predictable way.
 """
 
-import os
 import logging
+import os
+from typing import Any, Callable, Union
+from typing import Optional as Opt
 
 import numpy
 
@@ -44,29 +46,29 @@ __version__ = VERSION
 
 class DataLoading(object):
 
-    _parser = None  # type: plugins.DataParser
-    _data_file = None  # type: str
-    _qfactor_file = None  # type: str
-    _monte_carlo_file = None  # type: str
-    __data = None  # type: numpy.ndarray
-    __qfactor = None  # type: numpy.ndarray
-    __monte_carlo = None  # type: numpy.ndarray
-    __binned = None  # type: numpy.ndarray
+    __LOGGER = logging.getLogger(__name__ + ".DataLoading")
 
     def __init__(self, parser, data, qfactor=None, monte_carlo=None):
+        # type: (plugins.DataParser, str, Opt[str], Opt[str]) -> None
         self._parser = parser
         self._data_file = data
         self._qfactor_file = qfactor
         self._monte_carlo_file = monte_carlo
-
-    def load_data(self):
+        self.__data = None  # type: numpy.ndarray
+        self.__qfactor = None  # type: numpy.ndarray
+        self.__monte_carlo = None  # type: numpy.ndarray
+        self.__binned = None  # type: numpy.ndarray
         self.__load_data()
-        self.__process_data()
-        self.__load_qfactor()
-        self.__load_monte_carlo()
 
     def __load_data(self):
+        self.__parse_data_file()
+        self.__process_data()
+        self.__parse_qfactor_file()
+        self.__parse_monte_carlo_file()
+
+    def __parse_data_file(self):
         if self.__is_file(self._data_file):
+            self.__LOGGER.info("Loading data.")
             self.__data = self._parser.parse(self._data_file)
         else:
             raise ValueError("Data Location isn't a file!")
@@ -76,6 +78,7 @@ class DataLoading(object):
         self.__binned = self.__extract_data("BinN")
 
     def __extract_data(self, column):
+        # type: (str) -> numpy.ndarray
         names = list(self.__data.dtype.names)
         if column in names:
             names.remove(column)
@@ -86,60 +89,68 @@ class DataLoading(object):
 
         return data
 
-    def __load_qfactor(self):
+    def __parse_qfactor_file(self):
         if self.__is_file(self._qfactor_file):
+            self.__LOGGER.info("Loading QFactor data.")
             self.__qfactor = self._parser.parse(self._qfactor_file)
         elif self.__qfactor is None:
             self.__qfactor = numpy.ones(len(self.__data))
 
-    def __load_monte_carlo(self):
+    def __parse_monte_carlo_file(self):
         if self.__is_file(self._monte_carlo_file):
+            self.__LOGGER.info("Loading Monte Carlo Data.")
             self.__monte_carlo = self._parser.parse(self._monte_carlo_file)
         else:
-            self.__monte_carlo = False
+            self.__monte_carlo = None
 
     @staticmethod
     def __is_file(file_location):
+        # type: (str) -> bool
         if isinstance(file_location, str) and os.path.isfile(file_location):
             return True
         else:
             return False
 
     def write(self, file_location, data):
+        # type: (str, numpy.ndarray) -> None
         self._parser.write(file_location, data)
 
     @property
     def data(self):
+        # type: () -> numpy.ndarray
         return self.__data
 
     @property
     def qfactor(self):
+        # type: () -> numpy.ndarray
         return self.__qfactor
 
     @property
     def monte_carlo(self):
+        # type: () -> Union[numpy.ndarray, None]
         return self.__monte_carlo
 
     @property
     def binned(self):
+        # type: () -> numpy.ndarray
         return self.__binned
 
 
 class FunctionLoader(object):
 
-    __logger = logging.getLogger(__name__ + ".FunctionLoader")
-    __loader = plugin_loader.PluginLoader()
-    __process_name = None
-    __setup_name = None
-    __process = None
-    __setup = None
+    __LOGGER = logging.getLogger(__name__ + ".FunctionLoader")
 
     def __init__(self, location, process_name, setup_name=None):
+        # type: (str, str, Opt[str]) -> None
+        self.__loader = plugin_loader.PluginLoader()
         self.__loader.add_plugin_location(location)
         self.__process_name = process_name
         self.__setup_name = setup_name
+        self.__process = None
+        self.__setup = None
+        self.__load_functions()
 
-    def load_functions(self):
+    def __load_functions(self):
         self.__load_process()
         self.__load_setup()
 
@@ -149,22 +160,25 @@ class FunctionLoader(object):
     def __load_setup(self):
         if isinstance(self.__setup_name, str):
             self.__setup = self.__loader.get_by_name(self.__setup_name, False)
-            self.__logger.debug("Found setup type %s" % repr(self.__setup))
+            self.__LOGGER.debug("Found setup type %s" % repr(self.__setup))
         self.__set_none_to_empty()
 
     def __set_none_to_empty(self):
         if self.__setup is None:
-            self.__logger.info("No setup function found, settings to empty.")
+            self.__LOGGER.info("No setup function found, settings to empty.")
             self.__setup = self.__empty
 
     @staticmethod
     def __empty():
+        # type: () -> None
         pass
 
     @property
     def process(self):
+        # type: () -> Callable[[numpy.ndarray, Any], numpy.ndarray]
         return self.__process
 
     @property
     def setup(self):
+        # type: () -> Callable[[], None]
         return self.__setup

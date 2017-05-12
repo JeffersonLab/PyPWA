@@ -29,21 +29,18 @@ FUNCTIONS_FOR_TEST = os.path.join(
 @pytest.fixture
 def data_with_qfactor():
     loader = loaders.DataLoading(PARSER, DATA, QFACTOR, MONTE_CARLO)
-    loader.load_data()
     return loader
 
 
 @pytest.fixture
 def data_without_qfactor():
     loader = loaders.DataLoading(PARSER, DATA, monte_carlo=MONTE_CARLO)
-    loader.load_data()
     return loader
 
 
 @pytest.fixture
 def data_without_extra():
     loader = loaders.DataLoading(PARSER, MONTE_CARLO)
-    loader.load_data()
     return loader
 
 
@@ -79,7 +76,6 @@ def function_without_math():
     loader = loaders.FunctionLoader(
         FUNCTIONS_FOR_TEST, "processing", "setup"
     )
-    loader.load_functions()
     return loader
 
 
@@ -88,7 +84,6 @@ def function_without_math_or_setup():
     loader = loaders.FunctionLoader(
         FUNCTIONS_FOR_TEST, "processing", "A dirty lie"
     )
-    loader.load_functions()
     return loader
 
 

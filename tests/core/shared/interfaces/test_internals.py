@@ -81,7 +81,7 @@ def test_process_interface_is_alive(process_interface):
 
 
 def test_kernel_process_id(kernel):
-    assert kernel.processor_id is None
+    assert kernel.PROCESS_ID is None
 
 
 def test_kernel_setup(kernel):
@@ -95,7 +95,7 @@ def test_kernel_process(kernel):
 
 
 def test_kernel_interface_is_duplex(kernel_interface):
-    assert isinstance(kernel_interface.is_duplex, bool)
+    assert isinstance(kernel_interface.IS_DUPLEX, bool)
 
 
 def test_kernel_interface_run(kernel_interface):

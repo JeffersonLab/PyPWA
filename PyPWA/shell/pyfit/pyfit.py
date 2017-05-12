@@ -93,19 +93,12 @@ class Fitting(plugins.Main):
         self.__save_name = save_name
 
     def start(self):
-        self.__load_nested_data()
         self.__setup_interface()
         self.__setup_likelihood()
         self.__setup_processing()
         self.__set_interface()
         self.__start_optimizer()
         self.__finalize_program()
-
-    def __load_nested_data(self):
-        print("Loading Data.")
-        self.__data_loader.load_data()
-        print("Loading Functions.")
-        self.__function_loader.load_functions()
 
     def __setup_interface(self):
         self.__processing_interface = _process_interface.FittingInterface(
