@@ -49,7 +49,7 @@ other plugins.
 """
 
 import enum
-from typing import Any
+from typing import Any, List
 from typing import Optional as Opt
 
 import numpy

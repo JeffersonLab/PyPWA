@@ -66,8 +66,8 @@ __version__ = VERSION
 
 class Optimizer(object):
 
-    def main_options(self, calc_function, fitting_type=False):
-        # type: (Callable[Any], Opt[internals.LikelihoodTypes]) -> None
+    def main_options(self, calc_function, fitting_type=None):
+        # type: (Callable[[Any], Any], Opt[internals.LikelihoodTypes]) -> None
         """
         The main options for the Optimizer, these are options that are 
         typically needed for optimization, but due to the design of the 
