@@ -1,10 +1,19 @@
 PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=master)](https://travis-ci.org/JeffersonLab/PyPWA) [![Coverage Status](https://coveralls.io/repos/github/JeffersonLab/PyPWA/badge.svg?branch=release-v2.0.0)](https://coveralls.io/github/JeffersonLab/PyPWA?branch=release-v2.0.0)
 =====
 
-A python based software framework designed to perform Partial Wave and Amplitude Analysis with the goal of extracting resonance information from multi-particle final states.
-Supports the Un/Extended Un/Binned likelihood maximum estimation, Acceptance Rejection Method, and ISOBAR Model.
+A python based software framework designed to perform Partial Wave and 
+Amplitude Analysis with the goal of extracting resonance information from 
+multi-particle final states.
 Is constantly tested to work with Python Versions 2.7, 3.4, 3.5, and 3.6.
 
+Has support for multiple likelihoods, including:
+ - Extended Log Likelihood
+ - Standard Log Likelihood, Optionally Binned
+ - Binned ChiSquared Likelihood
+ 
+ You can even define your own likelihood, or calculate entirely without one
+ if you chose to do so!
+ 
 Features
 --------
 
@@ -15,8 +24,9 @@ Generic Fitting Tools
  - Supports a quality factor per event
 - PySimulate
 - Easy to use Yaml based configuration
-- A configuration builder, to walk you through the initial creation of the configuration
-- Supports using all the CPUs on the machine
+- A configuration builder, to walk you through the initial creation of 
+  the configuration
+- Supports using all the threads on the machine
 
 More Documentation
 ------------------
@@ -29,14 +39,16 @@ For in-depth details on:
 
 Visit our online documentation at: https://pypwa.readthedocs.io
 
-Installation
-------------
+Installation from GitHub
+------------------------
 
-Clone the master branch onto your computer, or if you are daring clone the development branch
+Clone the master branch onto your computer, or if you are daring clone the 
+development branch
 
      $ git clone https://github.com/JeffersonLab/PyPWA
 
-Then install the package to your system, run this from inside the PyPWA folder:
+Then install the package to your system, run this from inside the PyPWA 
+folder:
 
      $ sudo python setup.py install
 
@@ -63,7 +75,8 @@ Contribute
 Support
 -------
 
-If you have any issues, or would like to see any features added to the project, let us know!
+If you have any issues, or would like to see any features added to the 
+project, let us know!
 
 - Mail list: pypwa@jlab.org
 
