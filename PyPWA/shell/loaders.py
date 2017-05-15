@@ -30,10 +30,11 @@ Shared logic between PyFit and PySimulate
 
 import logging
 import os
-from typing import Any, Callable, Union
+from typing import Callable, Dict, Union
 from typing import Optional as Opt
 
 import numpy
+from numpy import ndarray, float64
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared import plugin_loader
@@ -42,6 +43,10 @@ from PyPWA.core.shared.interfaces import plugins
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
+
+
+users_process_function = Callable[[ndarray, Dict[str, float64]], ndarray]
+users_setup_function = Callable[[], None]
 
 
 class DataLoading(object):
@@ -54,10 +59,10 @@ class DataLoading(object):
         self._data_file = data
         self._qfactor_file = qfactor
         self._monte_carlo_file = monte_carlo
-        self.__data = None  # type: numpy.ndarray
-        self.__qfactor = None  # type: numpy.ndarray
-        self.__monte_carlo = None  # type: numpy.ndarray
-        self.__binned = None  # type: numpy.ndarray
+        self.__data = None  # type: ndarray
+        self.__qfactor = None  # type: ndarray
+        self.__monte_carlo = None  # type: ndarray
+        self.__binned = None  # type: ndarray
         self.__load_data()
 
     def __load_data(self):
@@ -78,9 +83,10 @@ class DataLoading(object):
         self.__binned = self.__extract_data("BinN")
 
     def __extract_data(self, column):
-        # type: (str) -> numpy.ndarray
+        # type: (str) -> ndarray
         names = list(self.__data.dtype.names)
         if column in names:
+            self.__LOGGER.info("Extracting '%s' from data." % column)
             names.remove(column)
             data = self.__data[column]
             self.__data = self.__data[names]
@@ -112,27 +118,27 @@ class DataLoading(object):
             return False
 
     def write(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (str, ndarray) -> None
         self._parser.write(file_location, data)
 
     @property
     def data(self):
-        # type: () -> numpy.ndarray
+        # type: () -> ndarray
         return self.__data
 
     @property
     def qfactor(self):
-        # type: () -> numpy.ndarray
+        # type: () -> ndarray
         return self.__qfactor
 
     @property
     def monte_carlo(self):
-        # type: () -> Union[numpy.ndarray, None]
+        # type: () -> Union[ndarray, None]
         return self.__monte_carlo
 
     @property
     def binned(self):
-        # type: () -> numpy.ndarray
+        # type: () -> ndarray
         return self.__binned
 
 
@@ -146,8 +152,8 @@ class FunctionLoader(object):
         self.__loader.add_plugin_location(location)
         self.__process_name = process_name
         self.__setup_name = setup_name
-        self.__process = None
-        self.__setup = None
+        self.__process = None  # type: users_process_function
+        self.__setup = None  # type: users_setup_function
         self.__load_functions()
 
     def __load_functions(self):
@@ -175,10 +181,10 @@ class FunctionLoader(object):
 
     @property
     def process(self):
-        # type: () -> Callable[[numpy.ndarray, Any], numpy.ndarray]
+        # type: () -> users_process_function
         return self.__process
 
     @property
     def setup(self):
-        # type: () -> Callable[[], None]
+        # type: () -> users_setup_function
         return self.__setup
