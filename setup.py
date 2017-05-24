@@ -25,20 +25,18 @@ __status__ = "production"
 
 
 requires = [
-    "iminuit<2.0",  # Default minimizer
-    "scipy",        # Needed for Nestle with multiple ellipsoids.
-    "nestle",       # New more advanced minimizer
-    "numpy<2.0",    # Arrays and optimizations
-    "ruamel.yaml",  # Advanced YAML Parser
-    "tabulate",     # Great aesthetic tables
-    "appdirs",      # Attempts to find data locations
-    "fuzzywuzzy",   # Fuzzes the user input
-    "python-Levenshtein"
+    "iminuit<2.0",   # Default minimizer
+    "scipy",         # Needed for Nestle with multiple ellipsoids.
+    "nestle",        # New more advanced minimizer
+    "numpy>1,<2.0",  # Arrays and optimizations
+    "ruamel.yaml",   # Advanced YAML Parser
+    "tabulate",      # Great aesthetic tables
+    "appdirs",       # Attempts to find data locations
+    "fuzzywuzzy",    # Fuzzes the user input
+    "python-Levenshtein",
+    'enum34;python_version<"3.4"',
+    'typing;python_version<"3.5"'
 ]
-
-if sys.version_info.major != 3 or sys.version_info.minor <= 4:
-    requires.append("enum34")
-    requires.append("typing")
 
 configurator_entry = "PyPWA.entries.configurator"
 

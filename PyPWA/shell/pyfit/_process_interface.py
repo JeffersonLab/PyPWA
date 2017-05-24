@@ -179,7 +179,7 @@ class _OutputThread(threading.Thread):
 
 class FittingInterface(internals.KernelInterface):
 
-    is_duplex = True
+    IS_DUPLEX = True
     __logger = logging.getLogger(__name__ + ".FittingInterfaceKernel")
     __parameter_parser = None  # type: internals.OptimizerOptionParser
     __last_value = None  # type: numpy.float64
@@ -208,7 +208,7 @@ class FittingInterface(internals.KernelInterface):
         for index, pipe in enumerate(communication):
             values[index] = pipe.receive()
         final_value = numpy.sum(values)
-        self.__last_value = self.__parameter_parser.multiplier * final_value
+        self.__last_value = self.__parameter_parser.MULTIPLIER * final_value
 
     def __log_final_value(self):
         self.__logger.info("Final Value is: %f15" % self.__last_value)

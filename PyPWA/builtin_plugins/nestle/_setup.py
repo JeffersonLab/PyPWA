@@ -22,13 +22,14 @@ NestedSampling. Also contains the reference function for Nestle's Prior.
 """
 
 import logging
+from typing import Callable
 
-import typing
+import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import nested
-from PyPWA.core.configurator import options
 from PyPWA.core.configurator import option_tools
+from PyPWA.core.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -37,15 +38,16 @@ __version__ = VERSION
 
 class NestleSetup(options.Setup):
 
-    __logger = logging.getLogger("NestleSetup." + __name__)
-    __loader = nested.LoadPrior()
-
-    __interface = None  # type: nested.NestledSampling()
-    __options = None  # type: option_tools.CommandOptions
-    __prior = None  # type: typing.Any
+    __LOGGER = logging.getLogger(__name__ + ".NestleSetup")
 
     def __init__(self, options_object):
+        # type: (option_tools.CommandOptions) -> None
         self.__options = options_object
+        self.__loader = nested.LoadPrior()
+
+        self.__prior = None  # type: Callable[[numpy.ndarray], numpy.ndarray]
+        self.__minimizer = None  # type: nested.NestledSampling
+
         self.__load_prior()
         self.__set_minimizer()
 
@@ -56,7 +58,7 @@ class NestleSetup(options.Setup):
         self.__prior = self.__loader.prior
 
     def __set_minimizer(self):
-        self.__interface = nested.NestledSampling(
+        self.__minimizer = nested.NestledSampling(
             self.__prior, self.__options.ndim, self.__options.npoints,
             self.__options.method, self.__options.update_interval,
             self.__options.npdim, self.__options.maxiter,
@@ -65,7 +67,8 @@ class NestleSetup(options.Setup):
         )
 
     def return_interface(self):
-        return self.__interface
+        # type: () -> nested.NestledSampling
+        return self.__minimizer
 
 
 class NestlePriorFunction(options.FileBuilder):
@@ -73,6 +76,7 @@ class NestlePriorFunction(options.FileBuilder):
     functions = [
         """
 def prior(x):
+    # type: Callable[[numpy.ndarray], numpy.ndarray]
     # For information about how to use nestle's prior function, please read
     # nestle's documentation at: http://kylebarbary.com/nestle/index.html
     return x

@@ -1,16 +1,15 @@
-Brandon DeMello 
- - Initial Developer for the ISOBAR model
+# Contributors to PyPWA (in Chronological Order)
 
-Josh Pond 
- - Added batch farm submission 
- - made initial General Shell
+## PyPWA Staff:
+ - Carlos Salgado <https://github.com/cwsalgado>
+ - Will Phelps <https://github.com/wphelps>
+ - Brandon DeMello <https://github.com/bdell>
+ - Stephanie Bramlett <https://github.com/skbramlett>
+ - Josh Pond <https://github.com/JTPond>
+ - Mark Jones <markjonestx@live.com> <https://github.com/Markjonestx>
+ - LaRay Hare <https://github.com/lmhare>
 
-Stephanie Bramlett
- - Wrote vector libraries
+High School Interns:
 
-Mark Jones
- - Added setup.py for package
- - Added plugin loader
- - Wrote PyFit and PySimulate
- - Added logging
-
+ - Ryan Wright <https://github.com/painballking>
+   - Ran Amplitude benchmarks on the XeonPhi

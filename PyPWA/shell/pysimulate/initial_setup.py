@@ -22,6 +22,7 @@ can be used by the Simulation package and its various objects.
 """
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator import options
 from PyPWA.shell import loaders
 from PyPWA.shell.pysimulate import _libs
@@ -34,13 +35,14 @@ __version__ = VERSION
 
 class SimulationSetup(options.Setup):
 
-    __interface = None
-    __options = None
-    __functions = None
-    __data_loader = None
-
     def __init__(self, options_object):
+        # type: (option_tools.CommandOptions) -> None
         self.__options = options_object
+
+        self.__simulator = None  # type: pysimulate.Simulator
+        self.__functions = None  # type: loaders.FunctionLoader
+        self.__data_loader = None  # type: _libs.DataHandler
+
         self.__load_functions()
         self.__load_data()
         self.__set_interface()
@@ -53,21 +55,20 @@ class SimulationSetup(options.Setup):
                 self.__options.functions_location,
                 self.__options.processing_name, self.__options.setup_name
             )
-            self.__functions.load_functions()
 
     def __load_data(self):
         self.__data_loader = _libs.DataHandler(
             self.__options.data_parser, self.__options.data_location,
             self.__options.save_name
         )
-        self.__data_loader.load_data()
 
     def __set_interface(self):
-        self.__interface = pysimulate.Simulator(
+        self.__simulator = pysimulate.Simulator(
             self.__data_loader, self.__options.the_type,
             self.__options.kernel_processing, self.__functions,
             self.__options.parameters, self.__options.max_intensity
         )
 
     def return_interface(self):
-        return self.__interface
+        # type: () -> pysimulate.Simulator
+        return self.__simulator

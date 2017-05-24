@@ -59,7 +59,7 @@ class _DuplexProcess(multiprocessing.Process):
         self.__logging_level = level
         self.__logging_file = file
         self._kernel = kernel
-        self._kernel.processor_id = index
+        self._kernel.PROCESS_ID = index
         self._communicator = communicator
 
     def run(self):
@@ -73,14 +73,14 @@ class _DuplexProcess(multiprocessing.Process):
         self.__setup_logger()
         self.__set_logger()
         self.__logger.debug(
-            "Starting logging in proc index %d" % self._kernel.processor_id
+            "Starting logging in proc index %d" % self._kernel.PROCESS_ID
         )
         self._kernel.setup()
         while True:
             value = self._communicator.receive()
             if isinstance(value, str) and value == "DIE":
                 self.__logger.debug(
-                    "Shutting down %d" % self._kernel.processor_id
+                    "Shutting down %d" % self._kernel.PROCESS_ID
                 )
                 break
             else:
@@ -121,7 +121,7 @@ class _SimplexProcess(multiprocessing.Process):
         self.__logging_level = level
         self.__logging_file = file
         self._kernel = single_kernel
-        self._kernel.processor_id = index
+        self._kernel.PROCESS_ID = index
         self._communicator = communicator
 
     def run(self):
@@ -136,7 +136,7 @@ class _SimplexProcess(multiprocessing.Process):
         self.__set_logger()
         self._kernel.setup()
         self.__logger.debug(
-            "Starting logging in proc index %d" % self._kernel.processor_id
+            "Starting logging in proc index %d" % self._kernel.PROCESS_ID
         )
         self._communicator.send(self._kernel.process())
         return 0

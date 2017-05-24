@@ -22,8 +22,15 @@ on the type of program execution passed to it, the actual logic for the
 program exists in _libs.py
 """
 
+import logging
+from typing import Dict, Union
+from typing import Optional as Opt
+
+import numpy
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import plugins
+from PyPWA.shell import loaders
 from PyPWA.shell.pysimulate import _libs
 
 __credits__ = ["Mark Jones"]
@@ -33,34 +40,28 @@ __version__ = VERSION
 
 class Simulator(plugins.Main):
 
-    __data_loader = None  # type: _libs.DataHandler
-    __program_type = None  # type: str
-    __intensity_processing = None  # type: _libs.Intensities
-    __rejection_processing = None  # type: _libs.RejectionList
+    __LOGGER = logging.getLogger(__name__ + ".Simulator")
 
     def __init__(
-            self, data_loader, the_type, kernel_processing=None,
-            function_loader=None, parameters=None, max_intensity=None
+            self,
+            data_loader,  # type: _libs.DataHandler
+            the_type,   # type: Union["full", "intensities", "weighting"]
+            kernel_processing=None,  # type: Opt[plugins.KernelProcessing]
+            function_loader=None,  # type: Opt[loaders.FunctionLoader]
+            parameters=None,  # type: Opt[Dict[str, numpy.float64]]
+            max_intensity=None  # type: Opt[numpy.float64]
     ):
+        # type: (...) -> None
         self.__data_loader = data_loader
         self.__program_type = the_type
+        self.__kernel_processing = kernel_processing
+        self.__function_loader = function_loader
+        self.__parameters = parameters
+        self.__max_intensity = max_intensity
 
-        if the_type == "full" or the_type == "intensities":
-            self.__setup_intensity_processing(
-                function_loader, kernel_processing, parameters
-            )
-        elif the_type == "weighting":
-            self.__setup_rejection_method(data_loader.data, max_intensity)
-
-    def __setup_intensity_processing(self, functions, processing, parameters):
-        self.__intensity_processing = _libs.Intensities(
-            self.__data_loader, functions, processing, parameters
-        )
-
-    def __setup_rejection_method(self, intensities, max_intensity):
-        self.__rejection_processing = _libs.RejectionList(
-            intensities, max_intensity
-        )
+        self.__intensity_calc = None  # type: _libs.Intensities
+        self.__rejection_calc = None  # type: _libs.RejectionList
+        self.__intensity_array = None  # type: numpy.ndarray
 
     def start(self):
         if self.__program_type == "full":
@@ -73,25 +74,51 @@ class Simulator(plugins.Main):
             self.__raise_program_type_error()
 
     def __full_program_run(self):
-        self.__intensity_processing.calc_intensities()
-        self.__setup_rejection_method(
-            self.__intensity_processing.processed_intensities,
-            self.__intensity_processing.max_intensity
+        self.__setup_intensity_calc()
+        self.__intensity_calc.calc_intensities()
+        self.__set_intensities_from_intensity_calc()
+        self.__setup_rejection_calc()
+        self.__rejection_calc.rejection_method()
+        self.__write_rejection_data()
+
+    def __setup_intensity_calc(self):
+        self.__LOGGER.debug("Setting up Intensity Calculation.")
+        self.__intensity_calc = _libs.Intensities(
+            self.__data_loader, self.__function_loader,
+            self.__kernel_processing, self.__parameters
         )
-        self.__rejection_program()
+
+    def __set_intensities_from_intensity_calc(self):
+        self.__max_intensity = self.__intensity_calc.max_intensity
+        self.__intensity_array = self.__intensity_calc.processed_intensities
+
+    def __setup_rejection_calc(self):
+        self.__LOGGER.debug("Setting up Rejection Method.")
+        self.__rejection_calc = _libs.RejectionList(
+            self.__intensity_array, self.__max_intensity
+        )
+
+    def __write_rejection_data(self):
+        self.__data_loader.write_rejection_list(
+            self.__rejection_calc.rejection_list
+        )
 
     def __intensity_program(self):
-        self.__intensity_processing.calc_intensities()
-        self.__data_loader.write_intensity_data(
-            self.__intensity_processing.processed_intensities,
-            self.__intensity_processing.max_intensity
-        )
+        self.__setup_intensity_calc()
+        self.__intensity_calc.calc_intensities()
+        self.__write_intensity_data()
 
     def __rejection_program(self):
-            self.__rejection_processing.rejection_method()
-            self.__data_loader.write_rejection_list(
-                self.__rejection_processing.rejection_list
-            )
+        self.__intensity_array = self.__data_loader.data
+        self.__setup_rejection_calc()
+        self.__rejection_calc.rejection_method()
+        self.__write_rejection_data()
+
+    def __write_intensity_data(self):
+        self.__data_loader.write_intensity_data(
+            self.__intensity_calc.processed_intensities,
+            self.__intensity_calc.max_intensity
+        )
 
     def __raise_program_type_error(self):
         error = "The type is not set correctly! Found: %s but expected " \

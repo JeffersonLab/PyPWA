@@ -24,8 +24,10 @@ that Simulation's intensities calculations can be executed quicker.
 """
 
 import logging
+from typing import Any, Callable, Dict, List, Tuple
 
 import numpy
+from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
@@ -37,61 +39,65 @@ __version__ = VERSION
 
 class IntensityInterface(internals.KernelInterface):
 
-    is_duplex = False
-    __logger = logging.getLogger(__name__ + "IntensityInterface")
-
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
+    IS_DUPLEX = False
+    __LOGGER = logging.getLogger(__name__ + "IntensityInterface")
 
     def run(self, communicator, args):
+        # type: (List[Any], Any) -> Tuple[ndarray, numpy.float64]
         data = self.__receive_data(communicator)
         return self.__process_data(data)
 
     def __receive_data(self, communicator):
+        # type: (List[Any]) -> List[ndarray]
         list_of_data = list(range(len(communicator)))
 
         for communication in communicator:
             data = communication.receive()
-            self.__logger.debug("Received data: " + repr(data))
+            self.__LOGGER.debug("Received data: " + repr(data))
             list_of_data[data[0]] = data[1]
 
         return list_of_data
 
     def __process_data(self, list_of_data):
+        # type: (List[ndarray]) -> Tuple[ndarray, numpy.float64]
         final_array = numpy.concatenate(list_of_data)
         self.__log_final_array_statistics(final_array)
-        return [final_array, final_array.max()]
+        return final_array, final_array.max()
 
     def __log_final_array_statistics(self, array):
-        self.__logger.debug("Final Array: " + repr(array))
-        self.__logger.info("Max Intensity: %f" % array.max())
-        self.__logger.info("Min Intensity: %f" % array.min())
-        self.__logger.info("Intensities Range: %f" % array.ptp())
-        self.__logger.info("Intensities STD: %f" % array.std())
-        self.__logger.info("Intensities Mean: %f" % array.mean())
+        # type: (ndarray) -> None
+        self.__LOGGER.debug("Final Array: " + repr(array))
+        self.__LOGGER.info("Max Intensity: %f" % array.max())
+        self.__LOGGER.info("Min Intensity: %f" % array.min())
+        self.__LOGGER.info("Intensities Range: %f" % array.ptp())
+        self.__LOGGER.info("Intensities STD: %f" % array.std())
+        self.__LOGGER.info("Intensities Mean: %f" % array.mean())
 
 
 class IntensityKernel(internals.Kernel):
 
-    __logger = logging.getLogger(__name__ + ".IntensityKernel")
+    __LOGGER = logging.getLogger(__name__ + ".IntensityKernel")
 
-    data = None  # type: numpy.ndarray
-    __setup_function = None  # type: function
-    __processing_function = None  # type: function
-    __parameters = None  # type: dict
-
-    def __init__(self, setup_function, processing_function, parameters):
+    def __init__(
+            self,
+            setup_function,  # type: Callable[[], None]
+            processing_function,  # type: Callable[[ndarray, Any], ndarray]
+            parameters  # type: Dict[str, numpy.float64]
+    ):
+        # type: (...) -> None
         self.__setup_function = setup_function
         self.__processing_function = processing_function
         self.__parameters = parameters
+        self.data = None  # type: ndarray
 
     def setup(self):
         self.__setup_function()
 
     def process(self, data=False):
-        self.__logger.debug("%d is alive!" % self.processor_id)
+        # type: (Any) -> Tuple[int, ndarray]
+        self.__LOGGER.debug("%d is alive!" % self.PROCESS_ID)
         calculated_data = self.__processing_function(
             self.data, self.__parameters
         )
 
-        return [self.processor_id, calculated_data]
+        return self.PROCESS_ID, calculated_data

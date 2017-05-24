@@ -58,7 +58,6 @@ class _ProcessInterface(internals.ProcessInterface):
                 processing processes.
         """
         self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
 
         self._com = process_com
         self._interface_kernel = interface_kernel
@@ -157,7 +156,6 @@ class CalculationForeman(plugins.KernelProcessing):
         self._interface_template = False
 
         self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
 
         self._number_of_processes = number_of_processes
 
@@ -187,7 +185,7 @@ class CalculationForeman(plugins.KernelProcessing):
             process_template, process_data
         )
 
-        self._duplex = interface_template.is_duplex
+        self._duplex = interface_template.IS_DUPLEX
         self._interface_template = interface_template
 
         self._interface = self._build()

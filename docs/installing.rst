@@ -11,7 +11,7 @@
 
 Installation
 ============
-PyPWA is tested against Python 2.7, Python 3.3+, `Intel's Python`_, and
+PyPWA is tested against Python 2.7, Python 3.4+, `Intel's Python`_, and
 `Anaconda`_ to ensure compatibility.
 We have also tested PyPWA on Cent-OS 6 & 7, the latest version of Fedora,
 Arch Linux, and Debian.
@@ -22,23 +22,23 @@ Arch Linux, and Debian.
   with only a few non-pure-python dependencies.
 
 
-Installing on your local machine using pip
-------------------------------------------
+Installation with pip
+---------------------
 
 Installing Dependencies
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Debian based distributions. ::
 
-  $ sudo apt install python-dev gcc
+  $ sudo apt install python3-dev gcc
 
 Fedora 22 and later. ::
 
-  $ sudo dnf install python-devel gcc
+  $ sudo dnf install python3-devel gcc
 
 Arch Linux. ::
 
-  $ sudo pacman -Su python gcc
+  $ sudo pacman -Su python3 gcc
 
 Downloading and installing the Python Wheel
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -52,9 +52,16 @@ Download the current package from `here`_.
 
 Navigate to where you downloaded the package file, then install the
 package using pip. ::
-  
+
   $ sudo pip install PyPWA*.whl
 
 .. note::
   You can install the package in your home directory without needing super
   user permissions, using ``$ pip install --user PyPWA*.whl`` instead.
+
+
+Installing with Anaconda
+------------------------
+
+.. todo::
+  Add some the channel information to install in anaconda.
