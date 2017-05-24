@@ -20,7 +20,7 @@
 PyFit, LikelihoodFitting, and ChiSquaredFitting
 -----------------------------------------------
 PyFit is a simple fitting tool that can use multiple processes depending on 
-the processing module tha is picked.
+the processing module that is picked.
 
 - likelihoods - the various builtin likelihoods the PyFit supports.
 
@@ -65,6 +65,7 @@ class ShellFitting(options.Main):
         "setup name": "setup_function",
         "qfactor location": None,
         "data location": "/path/to/the/data.csv",
+        "internal data": {"quality factor": "Qfactors"},
         "accepted monte carlo location": None,
         "save name": "output"
     }
@@ -77,6 +78,7 @@ class ShellFitting(options.Main):
         "setup name": options.Levels.REQUIRED,
         "qfactor location": options.Levels.OPTIONAL,
         "data location": options.Levels.REQUIRED,
+        "internal data": options.Levels.OPTIONAL,
         "accepted monte carlo location": options.Levels.OPTIONAL,
         "save name": options.Levels.REQUIRED
     }
@@ -89,6 +91,7 @@ class ShellFitting(options.Main):
         "setup name": str,
         "qfactor location": str,
         "data location": str,
+        "internal data": dict,
         "accepted monte carlo location": str,
         "save name": str
     }
@@ -103,6 +106,7 @@ class ShellFitting(options.Main):
         "setup name": "The name of your setup function.",
         "qfactor location": "The path of the qfactors file.",
         "data location": "The path of your data file.",
+        "internal data": "Internal name mapping.",
         "accepted monte carlo location":
             "The path to your accepted monte carlo file",
         "save name": "The name out the output files."

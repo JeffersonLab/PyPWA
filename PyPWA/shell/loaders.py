@@ -53,16 +53,26 @@ class DataLoading(object):
 
     __LOGGER = logging.getLogger(__name__ + ".DataLoading")
 
-    def __init__(self, parser, data, qfactor=None, monte_carlo=None):
-        # type: (plugins.DataParser, str, Opt[str], Opt[str]) -> None
+    def __init__(
+            self,
+            parser,  # type: plugins.DataParser
+            data,  # type: str
+            internal_data=None,  # type: Opt[Dict[str, str]]
+            qfactor=None,  # type: Opt[str]
+            monte_carlo=None  # type: Opt[str]
+    ):
+        # type: (...) -> None
         self._parser = parser
         self._data_file = data
         self._qfactor_file = qfactor
         self._monte_carlo_file = monte_carlo
+        self.__internal_names = internal_data
         self.__data = None  # type: ndarray
         self.__qfactor = None  # type: ndarray
         self.__monte_carlo = None  # type: ndarray
         self.__binned = None  # type: ndarray
+        self.__event_errors = None  # type: ndarray
+        self.__expected_values = None  # type: ndarray
         self.__load_data()
 
     def __load_data(self):
@@ -79,8 +89,29 @@ class DataLoading(object):
             raise ValueError("Data Location isn't a file!")
 
     def __process_data(self):
-        self.__qfactor = self.__extract_data("qfactor")
-        self.__binned = self.__extract_data("BinN")
+        if "quality factor" in self.__internal_names:
+            self.__qfactor = self.__extract_data(
+                self.__internal_names["quality factor"]
+            )
+        else:
+            self.__qfactor = self.__extract_data("qfactor")
+
+        if "binned data" in self.__internal_names:
+            self.__binned = self.__extract_data(
+                self.__internal_names["binned data"]
+            )
+        else:
+            self.__qfactor = self.__extract_data("BinN")
+
+        if "event errors" in self.__internal_names:
+            self.__event_errors = self.__extract_data(
+                self.__internal_names["event errors"]
+            )
+
+        if "expected values" in self.__internal_names:
+            self.__expected_values = self.__extract_data(
+                self.__internal_names["expected values"]
+            )
 
     def __extract_data(self, column):
         # type: (str) -> ndarray
@@ -140,6 +171,16 @@ class DataLoading(object):
     def binned(self):
         # type: () -> ndarray
         return self.__binned
+
+    @property
+    def event_errors(self):
+        # type: () -> ndarray
+        return self.__event_errors
+
+    @property
+    def expected_values(self):
+        # type: () -> ndarray
+        return self.__expected_values
 
 
 class FunctionLoader(object):

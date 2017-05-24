@@ -54,20 +54,36 @@ class ChiLikelihood(interfaces.Setup):
         self._dictionary_data["data"] = self._data.data
         self._dictionary_data["qfactor"] = self._data.qfactor
         self._dictionary_data["binned"] = self._data.binned
+        self._dictionary_data["event errors"] = self._data.event_errors
+        self._dictionary_data["expected values"] = self._data.expected_values
 
     def __setup_likelihood(self):
+        if not numpy.all(self._data.binned == 1):
+            self.__setup_chi()
+        elif self._data.event_errors and self._data.expected_values:
+            self.__setup_unbinned_chi()
+        else:
+            raise ValueError(
+                "Given unbinned data without expected value and error"
+            )
+
+    def __setup_chi(self):
         self._likelihood = Chi(
+            self._functions.setup, self._functions.process
+        )
+
+    def __setup_unbinned_chi(self):
+        self._likelihood = UnBinnedChi(
             self._functions.setup, self._functions.process
         )
 
 
 class Chi(interfaces.Likelihood):
 
-    data = None  # type: numpy.ndarray
-    binned = None  # type: numpy.ndarray
-
     def __init__(self, setup_function, processing_function):
         super(Chi, self).__init__(setup_function, processing_function)
+        self.data = None  # type: numpy.ndarray
+        self.binned = None  # type: numpy.ndarray
 
     def process(self, data=False):
         processed_data = self._processing_function(self.data, data)
@@ -75,3 +91,19 @@ class Chi(interfaces.Likelihood):
 
     def __likelihood(self, data):
         return numpy.sum(((data - self.binned)**2) / self.binned)
+
+
+class UnBinnedChi(interfaces.Likelihood):
+
+    def __init__(self, setup_function, processing_function):
+        super(UnBinnedChi, self).__init__(setup_function, processing_function)
+        self.data = None  # type: numpy.ndarray
+        self.expected = None  # type: numpy.ndarray
+        self.error = None  # type: numpy.ndarry
+
+    def process(self, data=False):
+        processed_data = self._processing_function(self.data, data)
+        return self.__likelihood(processed_data)
+
+    def __likelihood(self, data):
+        return numpy.sum(((data - self.expected)**2) / self.error)
