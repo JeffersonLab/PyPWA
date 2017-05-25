@@ -32,22 +32,22 @@ __version__ = VERSION
 
 class FittingSetup(options.Setup):
 
-    __interface = None
-    __options = None
-    __data_loader = None  # type: loaders.DataLoading
-    __functions = None  # type: loaders.FunctionLoader
-
     def __init__(self, options_object):
         self.__options = options_object
+        self.__interface = None  # type: pyfit.Fitting
+        self.__data_loader = None  # type: loaders.DataLoading
+        self.__functions = None  # type: loaders.FunctionLoader
+        self.__run_setup()
+
+    def __run_setup(self):
         self.__load_data()
         self.__load_functions()
         self.__setup_interface()
 
     def __load_data(self):
         self.__data_loader = loaders.DataLoading(
-            self.__options.data_parser, self.__options.internal_data,
-            self.__options.data_location,
-            self.__options.qfactor_location,
+            self.__options.data_parser, self.__options.data_location,
+            self.__options.internal_data, self.__options.qfactor_location,
             self.__options.accepted_monte_carlo_location
         )
 
@@ -66,4 +66,5 @@ class FittingSetup(options.Setup):
         )
 
     def return_interface(self):
+        # type: () -> pyfit.Fitting
         return self.__interface

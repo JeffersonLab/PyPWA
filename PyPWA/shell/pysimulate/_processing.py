@@ -24,13 +24,14 @@ that Simulation's intensities calculations can be executed quicker.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy
 from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.shell import shell_types
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -43,7 +44,7 @@ class IntensityInterface(internals.KernelInterface):
     __LOGGER = logging.getLogger(__name__ + "IntensityInterface")
 
     def run(self, communicator, args):
-        # type: (List[Any], Any) -> Tuple[ndarray, numpy.float64]
+        # type: (List[Any], Any) -> Tuple[ndarray, float]
         data = self.__receive_data(communicator)
         return self.__process_data(data)
 
@@ -59,7 +60,7 @@ class IntensityInterface(internals.KernelInterface):
         return list_of_data
 
     def __process_data(self, list_of_data):
-        # type: (List[ndarray]) -> Tuple[ndarray, numpy.float64]
+        # type: (List[ndarray]) -> Tuple[ndarray, float]
         final_array = numpy.concatenate(list_of_data)
         self.__log_final_array_statistics(final_array)
         return final_array, final_array.max()
@@ -80,9 +81,9 @@ class IntensityKernel(internals.Kernel):
 
     def __init__(
             self,
-            setup_function,  # type: Callable[[], None]
-            processing_function,  # type: Callable[[ndarray, Any], ndarray]
-            parameters  # type: Dict[str, numpy.float64]
+            setup_function,  # type: shell_types.users_setup
+            processing_function,  # type: shell_types.users_processing
+            parameters  # type: Dict[str, float]
     ):
         # type: (...) -> None
         self.__setup_function = setup_function

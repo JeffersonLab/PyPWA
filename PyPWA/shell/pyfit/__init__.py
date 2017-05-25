@@ -40,6 +40,7 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.shell import pyshell_functions
 from PyPWA.shell.pyfit import intial_setup
+from PyPWA.shell.pyfit import pyfit
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -47,6 +48,8 @@ __version__ = VERSION
 
 
 class ShellFitting(options.Main):
+
+    __likelihood_loader = pyfit.LikelihoodPackager()
 
     plugin_name = "shell fitting method"
     setup = intial_setup.FittingSetup
@@ -84,7 +87,7 @@ class ShellFitting(options.Main):
     }
 
     option_types = {
-        "likelihood type": ["likelihood", "chi-squared", "empty"],
+        "likelihood type": __likelihood_loader.get_likelihood_name_list(),
         "generated length": int,
         "function's location": str,
         "processing name": str,

@@ -38,7 +38,6 @@ works. All here is the true main logic of the program.
 import io
 import random
 import time
-
 from typing import Dict
 
 import numpy
@@ -61,7 +60,7 @@ class DataHandler(loaders.DataLoading):
         self.__save_location = save_name
 
     def write_intensity_data(self, intensities, max_intensity):
-        # type: (numpy.ndarray, numpy.float64) -> None
+        # type: (numpy.ndarray, float) -> None
         self.__write_intensity_array(intensities)
         self.__write_max_intensity(max_intensity)
 
@@ -71,7 +70,7 @@ class DataHandler(loaders.DataLoading):
         self.write(save_location, intensities)
 
     def __write_max_intensity(self, max_intensity):
-        # type: (numpy.float64) -> None
+        # type: (float) -> None
         save_location = self.__save_location + "_max.txt"
         with io.open(save_location, "w") as stream:
             stream.write(str(max_intensity))
@@ -89,7 +88,7 @@ class Intensities(object):
             data_loader,  # type: DataHandler
             function_loader,  # type: loaders.FunctionLoader
             processing,  # type: plugins.KernelProcessing
-            parameters  # type: Dict[str, numpy.float64]
+            parameters  # type: Dict[str, float]
     ):
         self.__data_loader = data_loader
         self.__function_loader = function_loader
@@ -97,7 +96,7 @@ class Intensities(object):
         self.__parameters = parameters
 
         self.__found_intensities = None  # type: numpy.ndarray
-        self.__max_intensity = None  # type: numpy.float64
+        self.__max_intensity = None  # type: float
 
     def calc_intensities(self):
         self.__load_processing_module()
@@ -130,7 +129,7 @@ class Intensities(object):
 
     @property
     def max_intensity(self):
-        # type: () -> numpy.float64
+        # type: () -> float
         return self.__max_intensity
 
 
@@ -139,7 +138,7 @@ class RejectionList(object):
     __RANDOM = random.SystemRandom(time.gmtime())
 
     def __init__(self, intensities, max_intensity):
-        # type: (numpy.ndarray, numpy.float64) -> None
+        # type: (numpy.ndarray, float) -> None
         self.__intensities = intensities
         self.__max_intensity = max_intensity
 

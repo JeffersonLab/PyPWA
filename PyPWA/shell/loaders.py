@@ -30,23 +30,20 @@ Shared logic between PyFit and PySimulate
 
 import logging
 import os
-from typing import Callable, Dict, Union
 from typing import Optional as Opt
+from typing import Union
 
 import numpy
-from numpy import ndarray, float64
+from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import plugins
+from PyPWA.shell import shell_types
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-users_process_function = Callable[[ndarray, Dict[str, float64]], ndarray]
-users_setup_function = Callable[[], None]
 
 
 class DataLoading(object):
@@ -66,7 +63,10 @@ class DataLoading(object):
         self._data_file = data
         self._qfactor_file = qfactor
         self._monte_carlo_file = monte_carlo
-        self.__internal_names = internal_data
+        if internal_data:
+            self.__internal_names = internal_data
+        else:
+            self.__internal_names = dict()
         self.__data = None  # type: ndarray
         self.__qfactor = None  # type: ndarray
         self.__monte_carlo = None  # type: ndarray
@@ -86,7 +86,7 @@ class DataLoading(object):
             self.__LOGGER.info("Loading data.")
             self.__data = self._parser.parse(self._data_file)
         else:
-            raise ValueError("Data Location isn't a file!")
+            raise ValueError('"' + self._data_file + '"' + " is not a file!")
 
     def __process_data(self):
         if "quality factor" in self.__internal_names:
@@ -101,7 +101,7 @@ class DataLoading(object):
                 self.__internal_names["binned data"]
             )
         else:
-            self.__qfactor = self.__extract_data("BinN")
+            self.__binned = self.__extract_data("BinN")
 
         if "event errors" in self.__internal_names:
             self.__event_errors = self.__extract_data(
@@ -193,8 +193,8 @@ class FunctionLoader(object):
         self.__loader.add_plugin_location(location)
         self.__process_name = process_name
         self.__setup_name = setup_name
-        self.__process = None  # type: users_process_function
-        self.__setup = None  # type: users_setup_function
+        self.__process = None  # type: shell_types.users_processing
+        self.__setup = None  # type: shell_types.users_setup
         self.__load_functions()
 
     def __load_functions(self):
@@ -222,10 +222,10 @@ class FunctionLoader(object):
 
     @property
     def process(self):
-        # type: () -> users_process_function
+        # type: () -> shell_types.users_processing
         return self.__process
 
     @property
     def setup(self):
-        # type: () -> users_setup_function
+        # type: () -> shell_types.users_setup
         return self.__setup

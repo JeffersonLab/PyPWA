@@ -22,10 +22,14 @@ The Empty likelihood is defined here:
 - Σ(I°(D))
 """
 
+from typing import Any, Dict
+from typing import Optional as Opt
+
 import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.shell import loaders
+from PyPWA.shell import shell_types
 from PyPWA.shell.pyfit import interfaces
 
 __credits__ = ["Mark Jones"]
@@ -34,36 +38,54 @@ __version__ = VERSION
 
 
 class EmptyLikelihood(interfaces.Setup):
-    name = "empty"
-    _data = None  # type: loaders.DataLoading
-    _functions = None  # type: loaders.FunctionLoader
-    _dictionary_data = None  # type: dict
-    _likelihood = None  # type: interfaces.Likelihood
 
-    def __init__(self, data_package, function_package, extra_info):
-        self._data = data_package
-        self._functions = function_package
+    NAME = "empty"
 
-    def setup_interface(self):
-        self.__setup_data()
-        self.__setup_likelihood()
+    def __init__(self):
+        super(EmptyLikelihood, self).__init__()
+        self.__data = dict()
+        self.__likelihood = None  # type: interfaces.Likelihood
 
-    def __setup_data(self):
-        self._dictionary_data = dict()
-        self._dictionary_data["data"] = self._data.data
+    def setup_likelihood(
+            self,
+            data_package,  # type: loaders.DataLoading
+            function_package,  # type: loaders.FunctionLoader
+            extra_info=None  # type: Opt[Dict[str, Any]]
+    ):
+        # type: (...) -> None
+        self.__setup_data(data_package)
+        self.__setup_likelihood(function_package)
 
-    def __setup_likelihood(self):
+    def __setup_data(self, data_package):
+        # type: (loaders.DataLoading) -> None
+        self.__data["data"] = data_package.data
+
+    def __setup_likelihood(self, function_package):
+        # type: (loaders.FunctionLoader) -> None
         self._likelihood = Empty(
-            self._functions.setup, self._functions.process
+            function_package.setup, function_package.process
         )
+
+    def get_likelihood(self):
+        # type: () -> interfaces.Likelihood
+        return self.__likelihood
+
+    def get_data(self):
+        # type: () -> Dict[str, numpy.ndarray]
+        return self.__data
 
 
 class Empty(interfaces.Likelihood):
 
-    data = None  # type: numpy.ndarray
-
-    def __init__(self, setup_function, processing_function):
-        super(Empty, self).__init__(setup_function, processing_function)
+    def __init__(
+            self,
+            setup_function,  # type: shell_types.users_setup
+            processing_function  # type: shell_types.users_processing
+    ):
+        super(Empty, self).__init__(setup_function)
+        self.__processing_function = processing_function
+        self.data = None  # type: numpy.ndarray
 
     def process(self, data=False):
-        return numpy.sum(self._processing_function(self.data, data))
+        # type: (Dict[str, float]) -> float
+        return numpy.sum(self.__processing_function(self.data, data))
