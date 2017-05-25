@@ -46,8 +46,9 @@ class FittingSetup(options.Setup):
 
     def __load_data(self):
         self.__data_loader = loaders.DataLoading(
-            self.__options.data_parser,
-            self.__options.data_location, self.__options.qfactor_location,
+            self.__options.data_parser, self.__options.internal_data,
+            self.__options.data_location,
+            self.__options.qfactor_location,
             self.__options.accepted_monte_carlo_location
         )
 
