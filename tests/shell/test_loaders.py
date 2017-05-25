@@ -10,6 +10,17 @@ DATA = os.path.join(
     os.path.dirname(__file__), "../data/pyfit/data/data.csv"
 )
 
+INTERNAL_NAMES = os.path.join(
+    os.path.dirname(__file__), "../data/pyfit/data/internal_names.csv"
+)
+
+INTERNAL_NAMES_DICT = {
+    "quality factor": "qf",
+    "binned data": "bn",
+    "event errors": "err",
+    "expected values": "exp"
+}
+
 QFACTOR = os.path.join(
     os.path.dirname(__file__), "../data/pyfit/data/qfactor.txt"
 )
@@ -28,7 +39,9 @@ FUNCTIONS_FOR_TEST = os.path.join(
 
 @pytest.fixture
 def data_with_qfactor():
-    loader = loaders.DataLoading(PARSER, DATA, QFACTOR, MONTE_CARLO)
+    loader = loaders.DataLoading(
+        PARSER, DATA, qfactor=QFACTOR, monte_carlo=MONTE_CARLO
+    )
     return loader
 
 
@@ -41,6 +54,12 @@ def data_without_qfactor():
 @pytest.fixture
 def data_without_extra():
     loader = loaders.DataLoading(PARSER, MONTE_CARLO)
+    return loader
+
+
+@pytest.fixture
+def data_with_internal_names():
+    loader = loaders.DataLoading(PARSER, INTERNAL_NAMES, INTERNAL_NAMES_DICT)
     return loader
 
 
@@ -69,6 +88,24 @@ def test_qfactor_size_is_correct(data_without_extra):
     multiplier = data_without_extra.qfactor * data_without_extra.data['x']
     for index, value in enumerate(multiplier):
         assert value == data_without_extra.data['x'][index]
+
+
+def test_qfactor_sum_with_internal_names(data_with_internal_names):
+    assert numpy.sum(data_with_internal_names.qfactor) == 4.3227260998520247
+
+
+def test_binned_sum_with_internal_names(data_with_internal_names):
+    assert numpy.sum(data_with_internal_names.binned) == 4.7429487930395018
+
+
+def test_error_sum_with_internal_names(data_with_internal_names):
+    assert numpy.sum(data_with_internal_names.event_errors) == \
+           4.2857024214064667
+
+
+def test_expected_sum_with_internal_names(data_with_internal_names):
+    assert numpy.sum(data_with_internal_names.expected_values) == \
+           5.673049557244684
 
 
 @pytest.fixture

@@ -63,7 +63,10 @@ class DataLoading(object):
         self._data_file = data
         self._qfactor_file = qfactor
         self._monte_carlo_file = monte_carlo
-        self.__internal_names = internal_data
+        if internal_data:
+            self.__internal_names = internal_data
+        else:
+            self.__internal_names = dict()
         self.__data = None  # type: ndarray
         self.__qfactor = None  # type: ndarray
         self.__monte_carlo = None  # type: ndarray
@@ -83,7 +86,7 @@ class DataLoading(object):
             self.__LOGGER.info("Loading data.")
             self.__data = self._parser.parse(self._data_file)
         else:
-            raise ValueError("Data Location isn't a file!")
+            raise ValueError('"' + self._data_file + '"' + " is not a file!")
 
     def __process_data(self):
         if "quality factor" in self.__internal_names:
@@ -98,7 +101,7 @@ class DataLoading(object):
                 self.__internal_names["binned data"]
             )
         else:
-            self.__qfactor = self.__extract_data("BinN")
+            self.__binned = self.__extract_data("BinN")
 
         if "event errors" in self.__internal_names:
             self.__event_errors = self.__extract_data(
