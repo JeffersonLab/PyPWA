@@ -17,7 +17,7 @@ def startup():
 
 @pytest.fixture
 def likelihood():
-    return interfaces.Likelihood(startup, processing)
+    return interfaces.Likelihood(startup)
 
 
 @pytest.fixture
@@ -37,4 +37,4 @@ def test_process_raises_not_implemented_error(likelihood):
 
 def test_setup_interface_raises_not_implemented_error(setup):
     with pytest.raises(NotImplementedError):
-        setup.setup_interface()
+        setup.setup_likelihood("data", "functions")

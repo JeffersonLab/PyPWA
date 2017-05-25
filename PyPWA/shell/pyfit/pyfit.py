@@ -26,12 +26,14 @@ PyFit, a flexible python fitting utility.
 - Fitting - defines the actual main logic for the program.
 """
 
+from typing import List
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 from PyPWA.shell import loaders
-from PyPWA.shell.pyfit import _process_interface
+from PyPWA.shell.pyfit._process_interface import FittingInterface
 from PyPWA.shell.pyfit import interfaces
 from PyPWA.shell.pyfit import likelihoods
 
@@ -40,49 +42,52 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _LikelihoodPackager(object):
-
-    __plugin_search = plugin_loader.PluginLoader()
+class LikelihoodPackager(object):
 
     def __init__(self):
+        self.__plugin_search = plugin_loader.PluginLoader()
         self.__plugin_search.add_plugin_location(likelihoods)
 
     def get_likelihood(self, name):
+        # type: (str) -> interfaces.Setup
         likelihood_list = self.__get_likelihoods()
         return self.__get_likelihood_by_name(likelihood_list, name)
 
     def __get_likelihoods(self):
+        # type: () -> List[type(interfaces.Setup)]
         return self.__plugin_search.get_by_class(interfaces.Setup)
 
     def __get_likelihood_by_name(self, potential_likelihoods, name):
+        # type: (List[type(interfaces.Setup)], str) -> interfaces.Setup
         for likelihood in potential_likelihoods:
-            if likelihood.name == name:
-                return likelihood
+            if likelihood.NAME == name:
+                return likelihood()
         self.__failed_to_find_likelihood(name)
 
     @staticmethod
     def __failed_to_find_likelihood(name):
+        # type: (str) -> None
         raise ValueError("Failed to find likelihood: %s" % name)
+
+    def get_likelihood_name_list(self):
+        # type: () -> List[str]
+        names = []
+        for likelihood in self.__get_likelihoods():
+            names.append(likelihood.NAME)
+        return names
 
 
 class Fitting(plugins.Main):
-    __optimizer = None  # type: plugins.Optimizer
-    __processing = None  # type: plugins.KernelProcessing
-    __data_loader = None  # type: loaders.DataLoading
-    __function_loader = None  # type: loaders.FunctionLoader
-    __likelihood_type = None  # type: str
-    __generated_length = None  # type: int
-    __save_name = None  # type: str
-
-    __processing_interface = None  # type: _process_interface.FittingInterface
-    __likelihood_loader = _LikelihoodPackager()
-    __likelihood = None  # type: interfaces.Setup
-    __interface = None  # type: internals.ProcessInterface
 
     def __init__(
-            self, optimizer, kernel_processing, data_loader,
-            function_loader, likelihood_type, generated_length,
-            save_name
+            self,
+            optimizer,  # type: plugins.Optimizer
+            kernel_processing,  # type: plugins.KernelProcessing
+            data_loader,  # type: loaders.DataLoading
+            function_loader,  # type: loaders.FunctionLoader
+            likelihood_type,  # type: str
+            generated_length,  # type: int
+            save_name  # type: str
     ):
         self.__optimizer = optimizer
         self.__processing = kernel_processing
@@ -91,6 +96,11 @@ class Fitting(plugins.Main):
         self.__likelihood_type = likelihood_type
         self.__generated_length = generated_length
         self.__save_name = save_name
+
+        self.__likelihood_loader = LikelihoodPackager()
+        self.__process_interface = None  # type: FittingInterface
+        self.__likelihood = None  # type: interfaces.Setup
+        self.__interface = None  # type: internals.ProcessInterface
 
     def start(self):
         self.__setup_interface()
@@ -101,26 +111,23 @@ class Fitting(plugins.Main):
         self.__finalize_program()
 
     def __setup_interface(self):
-        self.__processing_interface = _process_interface.FittingInterface(
+        self.__processing_interface = FittingInterface(
             self.__optimizer.return_parser()
         )
 
     def __setup_likelihood(self):
-        likelihood = self.__likelihood_loader.get_likelihood(
+        self.__likelihood = self.__likelihood_loader.get_likelihood(
             self.__likelihood_type
         )
 
-        self.__likelihood = likelihood(
-            self.__data_loader, self.__function_loader, {
-                "Generated Length": self.__generated_length
-            }
+        self.__likelihood.setup_likelihood(
+            self.__data_loader, self.__function_loader,
+            {"generated length": self.__generated_length}
         )
-
-        self.__likelihood.setup_interface()
 
     def __setup_processing(self):
         self.__processing.main_options(
-            self.__likelihood.data, self.__likelihood.likelihood,
+            self.__likelihood.get_data(), self.__likelihood.get_likelihood(),
             self.__processing_interface
         )
 

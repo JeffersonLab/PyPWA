@@ -30,23 +30,20 @@ Shared logic between PyFit and PySimulate
 
 import logging
 import os
-from typing import Callable, Dict, Union
 from typing import Optional as Opt
+from typing import Union
 
 import numpy
-from numpy import ndarray, float64
+from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared import plugin_loader
 from PyPWA.core.shared.interfaces import plugins
+from PyPWA.shell import shell_types
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-users_process_function = Callable[[ndarray, Dict[str, float64]], ndarray]
-users_setup_function = Callable[[], None]
 
 
 class DataLoading(object):
@@ -152,8 +149,8 @@ class FunctionLoader(object):
         self.__loader.add_plugin_location(location)
         self.__process_name = process_name
         self.__setup_name = setup_name
-        self.__process = None  # type: users_process_function
-        self.__setup = None  # type: users_setup_function
+        self.__process = None  # type: shell_types.users_processing
+        self.__setup = None  # type: shell_types.users_setup
         self.__load_functions()
 
     def __load_functions(self):
@@ -181,10 +178,10 @@ class FunctionLoader(object):
 
     @property
     def process(self):
-        # type: () -> users_process_function
+        # type: () -> shell_types.users_processing
         return self.__process
 
     @property
     def setup(self):
-        # type: () -> users_setup_function
+        # type: () -> shell_types.users_setup
         return self.__setup

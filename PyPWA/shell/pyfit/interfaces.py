@@ -26,8 +26,15 @@ These are the interfaces needed to define a new likelihood.
   the likelihood.
 """
 
+from typing import Any, Dict
+from typing import Optional as Opt
+
+import numpy
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.shell import loaders
+from PyPWA.shell import shell_types
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -36,30 +43,37 @@ __version__ = VERSION
 
 class Likelihood(internals.Kernel):
 
-    def __init__(self, setup_function, processing_function):
+    def __init__(self, setup_function=None):
+        # type: (shell_types.users_setup) -> None
         self.__setup_function = setup_function
-        self._processing_function = processing_function
 
     def setup(self):
+        # type: () -> None
         if self.__setup_function:
             self.__setup_function()
 
     def process(self, data=False):
+        # type: (Dict[str, numpy.float64]) -> numpy.float64
         raise NotImplementedError
 
 
 class Setup(object):
-    name = NotImplemented
-    _dictionary_data = None  # type: dict
-    _likelihood = None  # type: Likelihood
 
-    def setup_interface(self):
+    NAME = NotImplemented
+
+    def setup_likelihood(
+            self,
+            data_package,  # type: loaders.DataLoading
+            function_package,  # type: loaders.FunctionLoader
+            extra_info=None  # type: Opt[Dict[str, Any]]
+    ):
+        # type: (...) -> None
         raise NotImplementedError
 
-    @property
-    def likelihood(self):
-        return self._likelihood
+    def get_likelihood(self):
+        # type: () -> Likelihood
+        raise NotImplementedError
 
-    @property
-    def data(self):
-        return self._dictionary_data
+    def get_data(self):
+        # type: () -> Dict[str, numpy.ndarray]
+        raise NotImplementedError

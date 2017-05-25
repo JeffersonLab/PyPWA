@@ -23,10 +23,15 @@ The Log-Likelihood Extended and UnExtended are defined here:
 - Extended Σln(Q*I°(D)) - 1/total_number * Σ(I°(MC))
 """
 
+from typing import Any, Dict
+from typing import Optional as Opt
+
+import logging
 import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.shell import loaders
+from PyPWA.shell import shell_types
 from PyPWA.shell.pyfit import interfaces
 
 __credits__ = ["Mark Jones"]
@@ -36,105 +41,138 @@ __version__ = VERSION
 
 class LogLikelihood(interfaces.Setup):
 
-    name = "likelihood"
-    _data = None  # type: loaders.DataLoading
-    _functions = None  # type: loaders.FunctionLoader
-    __generated_length = None  # type: int
-    _dictionary_data = None  # type: dict
-    _likelihood = None  # type: interfaces.Likelihood
+    NAME = "likelihood"
 
-    def __init__(self, data_package, function_package, extra_info):
-        self._data = data_package
-        self._functions = function_package
-        self.__generated_length = extra_info["Generated Length"]
+    def __init__(self):
+        self.__data = dict()  # type: Dict[str, numpy.ndarray]
+        self.__generated_length = None  # type: float
+        self.__likelihood = None  # type: interfaces.Likelihood
 
-    def setup_interface(self):
-        self.__setup_data()
-        self.__setup_likelihood()
+    def setup_likelihood(
+            self,
+            data_package,  # type: loaders.DataLoading
+            function_package,  # type: loaders.FunctionLoader
+            extra_info=None  # type: Opt[Dict[str, Any]]
+    ):
+        # type: (...) -> None
+        self.__setup_data(data_package)
+        self.__setup_likelihood(function_package)
+        self.__extract_generated_length(extra_info)
 
-    def __setup_data(self):
-        self._dictionary_data = dict()
-        self._dictionary_data["data"] = self._data.data
-        self._dictionary_data["qfactor"] = self._data.qfactor
-        self._dictionary_data["binned"] = self._data.binned
-        if self._data.monte_carlo:
-            self._dictionary_data["monte_carlo"] = self._data.monte_carlo
+    def __setup_data(self, data_package):
+        # type: (loaders.DataLoading) -> None
+        self.__data["data"] = data_package.data
+        self.__data["qfactor"] = data_package.qfactor
+        self.__data["binned"] = data_package.binned
+        if data_package.monte_carlo:
+            self.__data["monte_carlo"] = data_package.monte_carlo
 
-    def __setup_likelihood(self):
-        if self._data.monte_carlo:
-            self.__setup_extended_monte_carlo()
+    def __extract_generated_length(self, extra_info):
+        # type: (Dict[str, float]) -> None
+        if extra_info:
+            self.__generated_length = extra_info["generated length"]
+
+    def __setup_likelihood(self, function_package):
+        # type: (loaders.FunctionLoader) -> None
+        if "monte_carlo" in self.__data:
+            self.__setup_extended_monte_carlo(function_package)
         else:
-            self.__setup_standard_likelihood()
+            self.__setup_standard_likelihood(function_package)
 
-    def __setup_extended_monte_carlo(self):
-        self._likelihood = ExtendedLikelihoodAmplitude(
-            self._functions.setup, self._functions.process,
+    def __setup_extended_monte_carlo(self, function_package):
+        # type: (loaders.FunctionLoader) -> None
+        self.__likelihood = ExtendedLikelihoodAmplitude(
+            function_package.setup, function_package.process,
             self.__generated_length
         )
 
-    def __setup_standard_likelihood(self):
-        self._likelihood = UnExtendedLikelihoodAmplitude(
-            self._functions.setup, self._functions.process
+    def __setup_standard_likelihood(self, function_package):
+        # type: (loaders.FunctionLoader) -> None
+        self.__likelihood = UnExtendedLikelihoodAmplitude(
+            function_package.setup, function_package.process
         )
+
+    def get_data(self):
+        # type: () -> Dict[str, numpy.ndarray]
+        return self.__data
+
+    def get_likelihood(self):
+        # type: () -> interfaces.Likelihood
+        return self.__likelihood
 
 
 class ExtendedLikelihoodAmplitude(interfaces.Likelihood):
-    __processed = 0  # type: numpy.float64
-    data = None  # type: numpy.ndarray
-    monte_carlo = None  # type: numpy.ndarray
-    qfactor = 1  # type: numpy.ndarray
+
+    __LOGGER = logging.getLogger(__name__ + ".ExtendedLikelihoodAmplitude")
 
     def __init__(
-            self, setup_function, processing_function, generated_length
+            self,
+            setup_function,  # type: shell_types.users_setup
+            processing_function,  # type: shell_types.users_processing
+            generated_length  # type: float
     ):
-        super(ExtendedLikelihoodAmplitude, self).__init__(
-            setup_function, processing_function
-        )
-
+        # type: (...) -> None
+        super(ExtendedLikelihoodAmplitude, self).__init__(setup_function)
+        self.__processing_function = processing_function
         self.__processed = 1.0 / generated_length
+        self.data = None  # type: numpy.ndarray
+        self.monte_carlo = None  # type: numpy.ndarray
+        self.qfactor = 1  # type: numpy.ndarray
 
     def process(self, data=False):
-        processed_data = self._processing_function(self.data, data)
-        processed_monte_carlo = self._processing_function(
+        # type: (Dict[str, float]) -> float
+        processed_data = self.__processing_function(self.data, data)
+        processed_monte_carlo = self.__processing_function(
             self.monte_carlo, data
         )
-
         return self.__likelihood(processed_data, processed_monte_carlo)
 
     def __likelihood(self, data, monte_carlo):
+        # type: (numpy.ndarray, numpy.ndarray) -> float
         self.__check_data_for_zeros(data)
+        data_result = self.__process_log_likelihood(data)
+        monte_carlo_result = self.__process_monte_carlo(monte_carlo)
+        return data_result + monte_carlo_result
 
-        return self.__process_log_likelihood(data) + \
-            self.__process_monte_carlo(monte_carlo)
-
-    @staticmethod
-    def __check_data_for_zeros(data):
-        if numpy.any(data == 0):
-            print("WARNING, Found Zeros! " + repr(
-                numpy.count_nonzero(data == 0)
-            ))
+    def __check_data_for_zeros(self, data):
+        # type: (numpy.ndarray) -> None
+        if numpy.count_nonzero(data == 0):
+            self.__LOGGER.warning(
+                "WARNING, Found Zeros! " + repr(
+                    numpy.count_nonzero(data == 0)
+                )
+            )
 
     def __process_log_likelihood(self, data):
+        # type: (numpy.ndarray) -> float
         return numpy.sum(self.qfactor * numpy.log(data))
 
     def __process_monte_carlo(self, monte_carlo):
+        # type: (numpy.ndarray) -> float
         return self.__processed * numpy.sum(monte_carlo)
 
 
 class UnExtendedLikelihoodAmplitude(interfaces.Likelihood):
-    data = None  # type: numpy.ndarray
-    qfactor = 1  # type: numpy.ndarray
-    binned = 1  # type: numpy.ndarray
 
-    def __init__(self, setup_function, processing_function):
-        super(UnExtendedLikelihoodAmplitude, self).__init__(
-            setup_function, processing_function
-        )
+    def __init__(
+            self,
+            setup_function,  # type: shell_types.users_setup
+            processing_function  # type: shell_types.users_processing
+    ):
+        # type: (...) -> None
+        super(UnExtendedLikelihoodAmplitude, self).__init__(setup_function)
+        self.__processing_function = processing_function
+        self.data = None  # type: numpy.ndarray
+        self.qfactor = 1  # type: numpy.ndarray
+        self.binned = 1  # type: numpy.ndarray
 
     def process(self, data=False):
-        processed_data = self._processing_function(self.data, data)
+        # type: (Dict[str, float]) -> float
+        processed_data = self.__processing_function(self.data, data)
         return self.__likelihood(processed_data)
 
     def __likelihood(self, data):
-        value = numpy.sum(self.qfactor * self.binned * numpy.log(data))
+        # type: (numpy.ndarray) -> float
+        processed = self.qfactor * self.binned * numpy.log(data)
+        value = numpy.sum(processed)
         return value
