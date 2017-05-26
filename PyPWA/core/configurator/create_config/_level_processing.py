@@ -30,6 +30,7 @@ that can be used for output.
 """
 
 import logging
+from typing import List
 
 from ruamel.yaml import comments
 
@@ -43,18 +44,18 @@ __version__ = VERSION
 
 class _FullOptions(object):
 
-    __logger = logging.getLogger(__name__ + ".FullOptions")
-    __options = None  # type: options.Base
-    __built_options = None  # type: comments.CommentedMap
+    __LOGGER = logging.getLogger(__name__ + ".FullOptions")
 
     def __init__(self, options_object):
+        # type: (options.Base) -> None
         self.__options = options_object
+        self.__built_options = None  # type: comments.CommentedMap
         self.__build_options()
 
     def __build_options(self):
         self.__set_header_into_built_options()
         self.__set_content_into_built_options()
-        self.__logger.info(
+        self.__LOGGER.info(
             "Built the options for %s" % self.__options.plugin_name
         )
 
@@ -72,51 +73,50 @@ class _FullOptions(object):
         self.__built_options[self.__options.plugin_name] = commented_content
 
     def __add_default_options(self, content):
+        # type: (comments.CommentedMap) -> comments.CommentedMap
         for option, value in self.__options.default_options.items():
             content[option] = value
         return content
 
     def __add_option_comments(self, content):
+        # type: (comments.CommentedMap) -> comments.CommentedMap
         for option, comment in self.__options.option_comments.items():
             content.yaml_add_eol_comment(comment, option)
         return content
 
     @property
     def plugin_options(self):
+        # type: () -> comments.CommentedMap
         return self.__built_options
 
     @property
     def name(self):
+        # type: () -> str
         return self.__options.plugin_name
 
     @property
     def difficulties(self):
+        # type: () -> List[options.Types]
         return self.__options.option_difficulties.items()
 
 
 class ProcessOptions(object):
 
-    __full_options = None  # type: _FullOptions
-    __processed_options = None  # type: comments.CommentedMap
-    __rejection_list = None  # type: list
+    def __init__(self):
+        self.__rejection_list = None  # type: list
+        self.__full_options = None  # type: _FullOptions
+        self.__processed_options = None  # type: comments.CommentedMap
 
     def processed_options(self, options_object, requested_difficulty):
-        self.__setup_options(options_object)
+        # type: (options.Base, options.Levels) -> comments.CommentedMap
+        self.__full_options = _FullOptions(options_object)
+        self.__processed_options = self.__full_options.plugin_options
         self.__set_difficulty_rejection_list(requested_difficulty)
         self.__remove_difficulties()
         return self.__processed_options
 
-    def __setup_options(self, options_object):
-        self.__set_full_options(options_object)
-        self.__set_processed_options()
-
-    def __set_full_options(self, options_object):
-        self.__full_options = _FullOptions(options_object)
-
-    def __set_processed_options(self):
-        self.__processed_options = self.__full_options.plugin_options
-
     def __set_difficulty_rejection_list(self, requested_difficulty):
+        # type: (options.Levels) -> None
         if requested_difficulty == options.Levels.REQUIRED:
             self.__rejection_list = [
                 options.Levels.OPTIONAL,

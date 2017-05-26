@@ -31,6 +31,7 @@ Simple writers to export configurations.
 
 import json
 import os
+from typing import Any, Dict
 
 import ruamel.yaml
 
@@ -45,6 +46,7 @@ class _YmlWriter(object):
 
     @staticmethod
     def write(settings, location):
+        # type: (Dict[str, Any], str) -> None
         with open(location, "w") as stream:
             stream.write(
                 ruamel.yaml.dump(
@@ -58,15 +60,19 @@ class _JsonWriter(object):
 
     @staticmethod
     def write(settings, location):
+        # type: (Dict[str, Any], str) -> None
         with open(location, "w") as stream:
             stream.write(json.dumps(settings, indent=4))
 
 
 class Write(object):
-    __json = _JsonWriter()
-    __yml = _YmlWriter()
+
+    def __init__(self):
+        self.__json = _JsonWriter()
+        self.__yml = _YmlWriter()
 
     def write(self, settings, location):
+        # type: (Dict[str, Any], str) -> None
         if self.__is_json(location):
             self.__json.write(settings, location)
         else:
@@ -74,6 +80,7 @@ class Write(object):
 
     @staticmethod
     def __is_json(location):
+        # type: (str) -> bool
         if os.path.splitext(location)[1] == ".json":
             return True
         else:

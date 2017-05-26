@@ -30,6 +30,7 @@ Handles all real input for Create Config
 
 import logging
 import sys
+from typing import List, Tuple
 
 import fuzzywuzzy.process
 
@@ -42,36 +43,43 @@ __version__ = VERSION
 
 class _Input(object):
 
-    __version = sys.version_info.major
+    __VERSION = sys.version_info.major
 
-    def input(self, string):
-        if self.__version == 2:
-            return self.__python_2(string)
+    @classmethod
+    def input(cls, string):
+        # type: (str) -> str
+        if cls.__VERSION == 2:
+            return cls.__python_2(string)
         else:
-            return self.__python_new(string)
+            return cls.__python_new(string)
 
     @staticmethod
     def __python_2(string):
+        # type: (str) -> str
         return raw_input(string)
 
     @staticmethod
     def __python_new(string):
+        # type: (str) -> str
         return input(string)
 
 
 class _IsCorrectLoop(object):
 
-    __logger = logging.getLogger(__name__ + "._IsCorrectLoop")
-    __input = _Input()
-    __auto_correct_percentage = 90
-    __input_data = None
-    __processed_answer = None
+    __LOGGER = logging.getLogger(__name__ + "._IsCorrectLoop")
+    __AUTO_CORRECT_PERCENTAGE = 90
+
+    def __init__(self):
+        self.__input_data = None  # type: str
+        self.__processed_answer = None  # type: Tuple[str, int]
 
     def ask(self, value):
+        # type: (str) -> bool
         self.__question_loop(value)
         return self.__process_final_answer()
 
     def __question_loop(self, value):
+        # type: (str) -> None
         while True:
             self.__get_answer(value)
 
@@ -84,7 +92,8 @@ class _IsCorrectLoop(object):
                 break
 
     def __get_answer(self, value):
-        input_data = self.__input.input(
+        # type: (str) -> None
+        input_data = _Input.input(
             "It looks like you selected '%s', is this correct?\n"
             "[Y]es/No: " % value
         )
@@ -101,12 +110,14 @@ class _IsCorrectLoop(object):
         )
 
     def __answer_is_valid(self):
-        if self.__processed_answer[1] > self.__auto_correct_percentage:
+        # type: () -> bool
+        if self.__processed_answer[1] > self.__AUTO_CORRECT_PERCENTAGE:
             return True
         else:
             return False
 
     def __process_final_answer(self):
+        # type: () -> bool
         if self.__processed_answer[0] == "yes":
             return True
         elif self.__processed_answer[0] == "no":
@@ -115,17 +126,17 @@ class _IsCorrectLoop(object):
 
 class QuestionLoop(object):
 
-    __logger = logging.getLogger(__name__ + ".QuestionLoop")
-    __input = _Input()
-    __is_correct = _IsCorrectLoop()
+    __LOGGER = logging.getLogger(__name__ + ".QuestionLoop")
 
-    __users_input = None
-    __processed_value = None
+    def __init__(self):
+        self.__is_correct = _IsCorrectLoop()
+        self.__users_input = None  # type: str
+        self.__processed_value = None  # type: Tuple[str, int]
 
-    _auto_correction_percentage = 75
-    _question = None
-    _possible_answers = False
-    _default_answer = False
+        self._auto_correction_percentage = 75
+        self._question = None  # type: str
+        self._possible_answers = False  # type: List[str]
+        self._default_answer = False  # type: str
 
     def _question_loop(self):
         self.__log_initial_data()
@@ -150,26 +161,27 @@ class QuestionLoop(object):
                     break
 
     def __log_initial_data(self):
-        self.__logger.debug("Question: %s" % self._question)
+        self.__LOGGER.debug("Question: %s" % self._question)
 
         if self._possible_answers:
-            self.__logger.debug(
+            self.__LOGGER.debug(
                 "Potential Answers: %s" % self._possible_answers
             )
         else:
-            self.__logger.debug("No potential answers provided")
+            self.__LOGGER.debug("No potential answers provided")
 
         if self._default_answer:
-            self.__logger.debug("Default Answer: %s" % self._default_answer)
+            self.__LOGGER.debug("Default Answer: %s" % self._default_answer)
         else:
-            self.__logger.debug("No default answer set.")
+            self.__LOGGER.debug("No default answer set.")
 
     def __get_input(self, string):
-        self.__users_input = self.__input.input(string)
+        # type: (str) -> None
+        self.__users_input = _Input.input(string)
 
     def __set_processed_value_to_default_answer(self):
         self.__processed_value = [self._default_answer, 100]
-        self.__logger.info("Using default answer: %s" % self._default_answer)
+        self.__LOGGER.info("Using default answer: %s" % self._default_answer)
 
     def __process_input_using_known_values(self):
         self.__processed_value = fuzzywuzzy.process.extractOne(
@@ -177,6 +189,7 @@ class QuestionLoop(object):
         )
 
     def __answer_is_valid(self):
+        # type: () -> bool
         if self.__processed_value[1] > self._auto_correction_percentage:
             if self.__processed_value[1] < 95:
                 return self.__is_correct.ask(self.__processed_value[0])
@@ -187,8 +200,9 @@ class QuestionLoop(object):
 
     def __set_processed_value_to_user_input(self):
         self.__processed_value = [self.__users_input, 100]
-        self.__logger.info("Setting answer to %s" % self.__users_input)
+        self.__LOGGER.info("Setting answer to %s" % self.__users_input)
 
     @property
     def _answer(self):
+        # type: () -> str
         return self.__processed_value[0]

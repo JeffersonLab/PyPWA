@@ -31,6 +31,7 @@ import logging
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import storage
+from PyPWA.core.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -43,11 +44,13 @@ class ModulePicking(storage.Storage):
         super(ModulePicking, self).__init__()
 
     def request_main_by_id(self, the_id):
+        # type: (str) -> options.Main
         for main in self._get_shells():
             if main.plugin_name == the_id:
                 return main
 
     def request_plugin_by_name(self, name):
+        # type: (str) -> options.Plugin
         for plugin in self._get_plugins():
             if plugin.plugin_name == name:
                 return plugin
@@ -55,12 +58,11 @@ class ModulePicking(storage.Storage):
 
 class Templates(storage.Storage):
 
-    __logger = logging.getLogger(__name__ + ".Templates")
-    __templates = None  # type: dict
+    __LOGGER = logging.getLogger(__name__ + ".Templates")
 
     def __init__(self):
         super(Templates, self).__init__()
-        self.__logger.addHandler(logging.NullHandler())
+        self.__templates = None  # type: dict
         self._update_extra()
 
     def _update_extra(self):
@@ -77,6 +79,7 @@ class Templates(storage.Storage):
             self.__add_module(main)
 
     def __add_module(self, main):
+        # type: (options.Main) -> None
         self.__templates[main.plugin_name] = main.option_types
 
     def get_templates(self):

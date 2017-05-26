@@ -108,15 +108,15 @@ class Base(object):
     option_comments = {}
     # The defined functions if needed.
     defined_function = None
+    # The setup object
+    setup = None  # type: Setup
 
 
 class Plugin(Base):
-    setup = Setup  # type: Setup
     provides = Types.SKIP  # type: Types
 
 
 class Main(Base):
-    setup = None  # type: Setup
     required_plugins = []  # type: [Types]
 
 

@@ -21,6 +21,7 @@
 """
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator import options
 from PyPWA.shell.blank import blank
 
@@ -31,10 +32,10 @@ __version__ = VERSION
 
 class BlankSetup(options.Setup):
 
-    __options = None
-
     def __init__(self, options_object):
+        # type: (option_tools.CommandOptions) -> None
         self.__options = options_object
 
     def return_interface(self):
+        # type: () -> blank.Blank
         return blank.Blank(self.__options)

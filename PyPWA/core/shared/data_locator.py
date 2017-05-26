@@ -33,31 +33,37 @@ __version__ = VERSION
 
 
 def get_cache_uri():
+    # type: () -> str
     possible_uri = appdirs.user_cache_dir("PyPWA", "JLab", __version__)
     return __find_usable_uri(possible_uri)
 
 
 def get_data_uri():
+    # type: () -> str
     possible_uri = appdirs.user_data_dir("PyPWA", "JLab", __version__)
     return __find_usable_uri(possible_uri)
 
 
 def get_log_uri():
+    # type: () -> str
     possible_uri = appdirs.user_log_dir("PyPWA", "JLab", __version__)
     return __find_usable_uri(possible_uri)
 
 
 def get_config_uri():
+    # type: () -> str
     possible_uri = appdirs.user_config_dir("PyPWA", "JLab", __version__)
     return __find_usable_uri(possible_uri)
 
 
 def __find_usable_uri(potential_uri):
+    # type: (str) -> str
     __recursively_make_uri_directories(potential_uri)
     return __determine_potential_or_cwd(potential_uri)
 
 
 def __recursively_make_uri_directories(potential_uri):
+    # type: (str) -> None
     try:
         os.makedirs(potential_uri)
     except OSError:
@@ -65,6 +71,7 @@ def __recursively_make_uri_directories(potential_uri):
 
 
 def __determine_potential_or_cwd(potential_uri):
+    # type: (str) -> str
     try:
         __check_writable(potential_uri)
         return potential_uri
@@ -74,6 +81,7 @@ def __determine_potential_or_cwd(potential_uri):
 
 
 def __check_writable(potential_uri):
+    # type: (str) -> None
     test_file = potential_uri + "/test"
     with open(test_file, "w") as stream:
         stream.write("test")

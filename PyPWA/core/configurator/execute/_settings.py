@@ -42,6 +42,7 @@ is going to be rendering it.
 """
 
 import logging
+from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import storage
@@ -55,11 +56,14 @@ __version__ = VERSION
 
 class _InternalizeSettings(object):
 
-    __logger = logging.getLogger(__name__ + "._InternalizeSettings")
-    __settings = None
-    __overrides = None
+    __LOGGER = logging.getLogger(__name__ + "._InternalizeSettings")
+
+    def __init__(self):
+        self.__settings = None
+        self.__overrides = None
 
     def processed_settings(self, settings, settings_overrides):
+        # type: (Dict[str, Any], Dict[str, Any]) -> Dict[str, Any]
         self.__settings = settings
         self.__overrides = settings_overrides
         self.__process()
@@ -73,7 +77,7 @@ class _InternalizeSettings(object):
         if "main options" in self.__overrides:
             self.__process_overrides()
         else:
-            self.__logger.debug("Failed to find main options")
+            self.__LOGGER.debug("Failed to find main options")
 
     def __process_overrides(self):
         for key in self.__overrides["main options"]:
@@ -89,32 +93,37 @@ class _InternalizeSettings(object):
 
 class _SetupPluginDir(object):
 
-    __logger = logging.getLogger(__name__ + "._SetupPluginDir")
-    __loader = storage.Storage()
+    __LOGGER = logging.getLogger(__name__ + "._SetupPluginDir")
 
-    @classmethod
-    def add_locations_from_settings(cls, settings):
+    def __init__(self):
+        self.__loader = storage.Storage()
+
+    def add_locations_from_settings(self, settings):
+        # type: (Dict[str, Any]) -> None
         try:
-            location = cls.__get_location_from_settings(settings)
-            cls.__add_found_location(location)
+            location = self.__get_location_from_settings(settings)
+            self.__add_found_location(location)
         except KeyError:
-            cls.__logger.info("No extra plugin directories found.")
+            self.__LOGGER.info("No extra plugin directories found.")
 
     @staticmethod
     def __get_location_from_settings(settings):
+        # type: (Dict[str, Dict[str, str]]) -> str
         return settings["Global Options"]["plugin directory"]
 
-    @classmethod
-    def __add_found_location(cls, location):
-        cls.__loader.add_location(location)
-        cls.__logger.info("Found extra plugin locations %s" % repr(location))
+    def __add_found_location(self, location):
+        # type: (str) -> None
+        self.__loader.add_location(location)
+        self.__LOGGER.info("Found extra plugin locations %s" % repr(location))
 
 
 class Setup(object):
 
-    __settings = None
+    def __init__(self):
+        self.__settings = None
 
     def load_settings(self, settings_overrides, configuration_location):
+        # type: (Dict[str, Any], str) -> None
         config = self.__load_config(configuration_location)
         internal = self.__internalize_settings(config, settings_overrides)
         self.__process_plugin_path(internal)
@@ -122,11 +131,13 @@ class Setup(object):
 
     @staticmethod
     def __load_config(configuration_location):
+        # type: (str) -> Dict[str, Any]
         loader = _reader.ConfigurationLoader()
         return loader.read_config(configuration_location)
 
     @staticmethod
     def __internalize_settings(configuration, settings_overrides):
+        # type: (Dict[str, Any], Dict[str, Any]) -> Dict[str, Any]
         internalize = _InternalizeSettings()
         return internalize.processed_settings(
             configuration, settings_overrides
@@ -134,16 +145,21 @@ class Setup(object):
 
     @staticmethod
     def __process_plugin_path(settings):
-        _SetupPluginDir.add_locations_from_settings(settings)
+        # type: (Dict[str, Any]) -> None
+        plugin_dir = _SetupPluginDir()
+        plugin_dir.add_locations_from_settings(settings)
 
     def __correct_settings(self, settings):
+        # type: (Dict[str, Any]) -> None
         corrector = _correct_configuration.SettingsAid()
         self.__settings = corrector.correct_settings(settings)
 
     @property
     def loaded_settings(self):
+        # type: () -> Dict[str, Any]
         return self.__settings
 
     @property
     def plugin_ids(self):
+        # type: () -> List[str]
         return list(self.__settings.keys())
