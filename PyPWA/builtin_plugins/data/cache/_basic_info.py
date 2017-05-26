@@ -17,10 +17,9 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Finds the hash and cache location for the Cache Module.
 """
 
-import abc
 import logging
 import os
 
@@ -33,55 +32,37 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class BasicInfoInterface(object):
-    __metaclass__ = abc.ABCMeta
+class FindBasicInfo(object):
 
-    @property
-    @abc.abstractmethod
-    def file_hash(self):
-        raise NotImplementedError
-
-    @property
-    @abc.abstractmethod
-    def cache_location(self):
-        raise NotImplementedError
-
-
-class FindBasicInfo(BasicInfoInterface):
-    _logger = logging.getLogger(__name__)
-    _cache_location = ""
-    _found_hash = ""
+    __LOGGER = logging.getLogger(__name__ + ".FindBasicInfo")
 
     def __init__(self, original_file):
-        """
-        Finds the hash and cache location for the Cache Module.
-        """
-        self._setup_basic_info(original_file)
-        self._logger.addHandler(logging.NullHandler())
+        # type: (str) -> None
+        self.__cache_location = ""
+        self.__found_hash = ""
+        self.__setup_basic_info(original_file)
 
-    @property
-    def file_hash(self):
-        return self._found_hash
+    def __setup_basic_info(self, original_file):
+        # type: (str) -> None
+        self.__set_cache_location(original_file)
+        self.__set_file_hash(original_file)
 
-    @property
-    def cache_location(self):
-        return self._cache_location
+    def __set_cache_location(self, original_file):
+        # type: (str) -> None
+        cache_location = self.__get_cache_uri()
+        location = self.__pair_filename_with_uri(
+            original_file, cache_location
+        )
+        self.__cache_location = location
 
-    def _setup_basic_info(self, original_file):
-        self._set_cache_location(original_file)
-        self._set_file_hash(original_file)
-
-    def _set_cache_location(self, original_file):
-        cache_location = self._get_cache_uri()
-        location = self._pair_filename_with_uri(original_file, cache_location)
-        self._cache_location = location
-
-    def _get_cache_uri(self):
+    def __get_cache_uri(self):
+        # type: () -> str
         potential_cache_location = data_locator.get_cache_uri()
-        self._logger.debug("Found location is %s" % potential_cache_location)
+        self.__LOGGER.debug("Found location is %s" % potential_cache_location)
         return potential_cache_location
 
-    def _pair_filename_with_uri(self, original_file, found_location):
+    def __pair_filename_with_uri(self, original_file, found_location):
+        # type: (str, str) ->  str
         beginning_of_uri = "/"
         filename_extension = ".pickle"
 
@@ -93,14 +74,26 @@ class FindBasicInfo(BasicInfoInterface):
             filename_without_extension + filename_extension
         )
 
-        self._logger.debug("Cache Location set to %s" % final_location)
+        self.__LOGGER.debug("Cache Location set to '%s'" % final_location)
         return final_location
 
-    def _set_file_hash(self, original_file):
-        self._found_hash = self._file_hash(original_file)
+    def __set_file_hash(self, original_file):
+        # type: (str) -> None
+        self.__found_hash = self.__file_hash(original_file)
+        self.__LOGGER.debug(
+            "Found hash '%s' for '%s'" % (
+                self.__found_hash, self.__cache_location
+            )
+        )
 
-        self._logger.debug("Found SHA512 hash for %s" % self._cache_location)
-        self._logger.debug("File Hash is set to %s" % self._found_hash)
-
-    def _file_hash(self, original_file):
+    @staticmethod
+    def __file_hash(original_file):
         return generate_hash.get_sha512_hash(original_file)
+
+    @property
+    def file_hash(self):
+        return self.__found_hash
+
+    @property
+    def cache_location(self):
+        return self.__cache_location

@@ -19,6 +19,7 @@
 """
 
 """
+from typing import Any
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import exceptions
@@ -32,12 +33,12 @@ __version__ = VERSION
 class NoWrite(_template.WriteInterface):
 
     def write_cache(self, data):
+        # type: (Any) -> None
         pass
 
 
 class NoRead(_template.ReadInterface):
 
-    @property
     def is_valid(self):
         return False
 

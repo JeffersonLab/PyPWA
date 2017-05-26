@@ -60,11 +60,6 @@ def standard_basic_info():
     return _basic_info.FindBasicInfo(DATA)
 
 
-@pytest.fixture
-def basic_info_interface():
-    return _basic_info.BasicInfoInterface()
-
-
 def test_basic_info_hash_is_string(standard_basic_info):
     assert isinstance(standard_basic_info.file_hash, str)
 
@@ -80,12 +75,3 @@ def test_mock_basic_info_equals_simple_string(mocked_basic_info):
 def test_mock_basic_info_equals_fake_location(mocked_basic_info):
     assert mocked_basic_info.cache_location \
            == FAKE_LOCATION + "/sv_test_data.pickle"
-
-def test_interface_file_hash_raises_error(basic_info_interface):
-    with pytest.raises(NotImplementedError):
-        basic_info_interface.file_hash
-
-
-def test_interface_cache_location_raises_error(basic_info_interface):
-    with pytest.raises(NotImplementedError):
-        basic_info_interface.cache_location

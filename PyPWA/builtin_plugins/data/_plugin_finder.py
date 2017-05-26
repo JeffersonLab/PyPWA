@@ -32,6 +32,9 @@ whatever data needs to be read/written.
 
 import logging
 import os
+from typing import List
+
+import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import builtin
@@ -46,15 +49,16 @@ __version__ = VERSION
 
 class PluginSearch(object):
 
-    __logger = logging.getLogger(__name__ + ".PluginSearch")
-    __found_plugins = None
+    __LOGGER = logging.getLogger(__name__ + ".PluginSearch")
 
     def __init__(self, user_plugin_dir=""):
-        self.__logger.addHandler(logging.NullHandler())
+        # type: (str) -> None
+        self.__found_plugins = None
         self.__setup_plugin_storage(user_plugin_dir)
         self.__log_found_plugins()
 
     def __setup_plugin_storage(self, user_plugin_dir):
+        # type: (str) -> None
         plugin_storage = plugin_loader.PluginLoader()
         plugin_storage.add_plugin_location([builtin, user_plugin_dir])
 
@@ -65,24 +69,25 @@ class PluginSearch(object):
         self.__found_plugins = found_plugins
 
     def __log_found_plugins(self):
-        self.__logger.debug("Loaded Data Plugins: %s" % self.__found_plugins)
+        self.__LOGGER.debug("Loaded Data Plugins: %s" % self.__found_plugins)
 
     def get_read_plugin(self, file_location):
+        # type: (str) -> data_templates.TemplateDataPlugin
         plugin_finder = _FindReadPlugins(self.__found_plugins)
         return plugin_finder.get_plugin(file_location)
 
     def get_write_plugin(self, file_location, data):
+        # type: (str, numpy.ndarray) -> data_templates.TemplateDataPlugin
         plugin_finder = _FindWritePlugins(self.__found_plugins)
         return plugin_finder.get_plugin(file_location, data)
 
 
 class _FindReadPlugins(object):
 
-    __logger = logging.getLogger(__name__ + "._FindReadPlugins")
-    __potential_plugins = None
+    __LOGGER = logging.getLogger(__name__ + "._FindReadPlugins")
 
     def __init__(self, potential_plugins):
-        self.__logger.addHandler(logging.NullHandler())
+        # type: (List[data_templates.TemplateDataPlugin]) -> None
         self.__potential_plugins = potential_plugins
 
     def get_plugin(self, file_location):
@@ -98,11 +103,12 @@ class _FindReadPlugins(object):
         )
 
     def __plugin_can_read(self, plugin, file_location):
+        # type: (data_templates.TemplateDataPlugin, str) -> bool
         try:
-            self._run_read_test(plugin, file_location)
+            self.__run_read_test(plugin, file_location)
             return True
         except exceptions.IncompatibleData:
-            self.__logger.debug(
+            self.__LOGGER.debug(
                 "Skipping %s for data %s, test failed." %
                 (plugin.__name__, file_location)
             )
@@ -110,60 +116,63 @@ class _FindReadPlugins(object):
         except Exception as Error:
             # We don't want a plugin to halt execution, but we do want to know
             # that a plugin failed to load and why.
-            self.__logger.exception(Error)
+            self.__LOGGER.debug(Error)
             return False
 
-    def _run_read_test(self, plugin, file_location):
+    def __run_read_test(self, plugin, file_location):
+        # type: (data_templates.TemplateDataPlugin, str) -> None
         read_test = plugin().get_plugin_read_test()
         read_test.quick_test(file_location)
-        self.__logger.info(
+        self.__LOGGER.info(
             "Found '%s' will load '%s'" % (plugin.__name__, file_location)
         )
 
 
 class _FindWritePlugins(object):
 
-    __data_is_gamp = False
-    __data_is_flat = False
-    __file_extension = ""
-    __file_name = ""
-    __logger = logging.getLogger(__name__ + "._FindWritePlugins")
-    __potential_plugins = None
+    __LOGGER = logging.getLogger(__name__ + "._FindWritePlugins")
 
     def __init__(self, potential_plugins):
-        self.__logger.addHandler(logging.NullHandler())
+        # type: (List[data_templates.TemplateDataPlugin]) -> None
         self.__potential_plugins = potential_plugins
+        self.__data_is_gamp = False
+        self.__data_is_flat = False
+        self.__file_extension = ""
+        self.__file_name = ""
 
     def get_plugin(self, file_location, data):
+        # type: (str, numpy.ndarray) -> data_templates.TemplateDataPlugin
         self.__set_data_type(data)
         self.__set_data_extension(file_location)
         return self.__search_for_plugins()
 
     def __set_data_type(self, data):
+        # type: (numpy.ndarray) -> None
         shape_count = len(data.shape)
 
         if shape_count == 3:
-            self.__logger.debug("Found data type: GAMP")
+            self.__LOGGER.debug("Found data type: GAMP")
             self.__data_is_gamp = True
         elif shape_count == 1:
-            self.__logger.debug("Found data type: Flat")
+            self.__LOGGER.debug("Found data type: Flat")
             self.__data_is_flat = True
         else:
-            self.__logger.error(
+            self.__LOGGER.error(
                 "Found noise, data shape_count is: " + str(shape_count)
             )
 
             raise exceptions.UnknownData
 
     def __set_data_extension(self, file_location):
+        # type: (str) -> None
         split_extension = os.path.splitext(file_location)
         extension = split_extension[1]
         self.__file_extension = extension
         self.__file_name = file_location
-
-        self.__logger.debug("Data's extension is: " + repr(extension))
+        self.__LOGGER.debug("Data's extension is: " + repr(extension))
 
     def __search_for_plugins(self):
+        # type: () -> data_templates.TemplateDataPlugin
         for plugin in self.__potential_plugins:
             the_plugin = plugin()
             if self.__check_plugin(the_plugin):
@@ -173,6 +182,7 @@ class _FindWritePlugins(object):
         raise exceptions.UnknownData
 
     def __check_plugin(self, the_plugin):
+        # type: (data_templates.TemplateDataPlugin) -> bool
         supported_extensions = the_plugin.plugin_supported_extensions
         if self.__supports_data_type(the_plugin):
             if self.__supports_file_extension(supported_extensions):
@@ -181,30 +191,33 @@ class _FindWritePlugins(object):
         return False
 
     def __supports_data_type(self, plugin):
+        # type: (data_templates.TemplateDataPlugin) -> bool
         if self.__data_is_flat:
             return plugin.plugin_supports_flat_data
         elif self.__data_is_gamp:
             return plugin.plugin_supports_gamp_data
 
     def __supports_file_extension(self, extensions):
+        # type: (List[str]) -> bool
         if self.__file_extension == "":
-            self.__logger.warning(
+            self.__LOGGER.warning(
                 "No extension found! Will use first data match! This could "
                 "result in strange or unusual data in your file! Considering "
                 "using an extension in the future!"
             )
             return True
         elif self.__file_extension in extensions:
-            self.__logger.debug(
+            self.__LOGGER.debug(
                 "Found %s in %s!" % (self.__file_extension, repr(extensions))
             )
             return True
         else:
-            self.__logger.info("Extension not supported!")
+            self.__LOGGER.info("Extension not supported!")
             return False
 
     def __log_found_plugin(self, plugin):
-        self.__logger.info(
+        # type: (data_templates.TemplateDataPlugin) -> None
+        self.__LOGGER.info(
             "Found '%s' to write '%s'" % (
                 plugin.plugin_name, self.__file_name
             )

@@ -21,11 +21,13 @@ Main object for iterating over data.
 """
 
 import logging
+import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.core.shared.interfaces import plugins
+from PyPWA.core.shared.interfaces import internals
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -34,36 +36,38 @@ __version__ = VERSION
 
 class Iterator(plugins.DataIterator):
 
-    _logger = logging.getLogger(__name__)
-    _fail = True
-    _plugin_fetcher = _plugin_finder.PluginSearch
+    __LOGGER = logging.getLogger(__name__ + ".Iterator")
 
     def __init__(self, fail=True, user_plugin=""):
-        self._logger.addHandler(logging.NullHandler())
-
-        self._fail = fail
-        self._plugin_fetcher = _plugin_finder.PluginSearch(user_plugin)
+        # type: (bool, str) -> None
+        self.__fail = fail
+        self.__plugin_fetcher = _plugin_finder.PluginSearch(user_plugin)
 
     def return_reader(self, file_location):
+        # type: (str) -> internals.Reader
         try:
-            return self._get_reader_plugin(file_location)
+            return self.__get_reader_plugin(file_location)
         except exceptions.UnknownData as Error:
-            self._error_management(Error)
+            self.__error_management(Error)
 
-    def _get_reader_plugin(self, file_location):
-        plugin = self._plugin_fetcher.get_read_plugin(file_location)
+    def __get_reader_plugin(self, file_location):
+        # type: (str) -> internals.Reader
+        plugin = self.__plugin_fetcher.get_read_plugin(file_location)
         return plugin.get_plugin_reader(file_location)
 
-    def return_writer(self, file_location, data_shape):
+    def return_writer(self, file_location, data):
+        # type: (str, numpy.ndarray) -> internals.Writer
         try:
-            self._get_writer_plugin(file_location, data_shape)
+            return self.__get_writer_plugin(file_location, data)
         except exceptions.UnknownData as Error:
-            self._error_management(Error)
+            self.__error_management(Error)
 
-    def _get_writer_plugin(self, file_location, data):
-        plugin = self._plugin_fetcher.get_write_plugin(file_location, data)
+    def __get_writer_plugin(self, file_location, data):
+        # type: (str, numpy.ndarray) -> internals.Writer
+        plugin = self.__plugin_fetcher.get_write_plugin(file_location, data)
         return plugin.get_plugin_writer(file_location)
 
-    def _error_management(self, error):
-        if self._fail:
+    def __error_management(self, error):
+        # type: (Exception) -> None
+        if self.__fail:
             raise error
