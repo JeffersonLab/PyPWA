@@ -109,7 +109,7 @@ class Base(object):
     # The defined functions if needed.
     defined_function = None
     # The setup object
-    setup = None  # type: Setup
+    setup = Setup  # type: Setup
 
 
 class Plugin(Base):
