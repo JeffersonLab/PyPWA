@@ -121,6 +121,7 @@ File Name?: """
 class GetSpecificPlugin(_input_loop.QuestionLoop):
 
     def __init__(self):
+        super(GetSpecificPlugin, self).__init__()
         self.__name_conversion = option_tools.PluginNameConversion()
 
     def ask_for_plugin(self, plugin_list, plugin_type):
