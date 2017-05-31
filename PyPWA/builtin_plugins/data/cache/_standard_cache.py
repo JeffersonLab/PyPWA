@@ -74,7 +74,7 @@ class ReadCache(_template.ReadInterface):
             returned_data = self._empty_raw_data
             self._logger.info("No cache exists.")
         except (
-                pickle.PickleError, ValueError, IndexError, KeyError
+                pickle.PickleError, ValueError, IndexError, KeyError, EOFError
         ) as error:
             returned_data = self._empty_raw_data
             self._logger.warning(
