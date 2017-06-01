@@ -34,7 +34,7 @@ def test_writer_doesnt_fail(NoWrite):
 
 
 def test_reader_isnt_valid(NoRead):
-    assert not NoRead.is_valid
+    assert not NoRead.is_valid()
 
 
 def test_reader_get_cache(NoRead):

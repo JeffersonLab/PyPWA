@@ -20,8 +20,9 @@
 
 """
 
-from PyPWA.builtin_plugins.data import memory
 from PyPWA import AUTHOR, VERSION
+from PyPWA.builtin_plugins.data import memory
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
@@ -31,9 +32,8 @@ __version__ = VERSION
 
 class Blank(plugins.Main):
 
-    __options = None
-
     def __init__(self, options_object):
+        # type: (option_tools.CommandOptions) -> None
         self.__options = options_object
 
     def start(self):

@@ -29,6 +29,9 @@ Loads in the users configuration files.
 import json
 import logging
 import os
+import io
+
+from typing import Any, Dict
 
 import ruamel.yaml
 
@@ -40,24 +43,30 @@ __version__ = VERSION
 
 
 class _ReadData(object):
-    __logger = logging.getLogger(__name__ + "._ReadData")
+
+    __LOGGER = logging.getLogger(__name__ + "._ReadData")
 
     def read(self, configuration):
-        with open(configuration, "r") as stream:
+        # type: (str) -> Dict[str, Any]
+        with io.open(configuration, "r") as stream:
             data = self._process_stream(stream)
-            self.__logger.info("Parsed %s" % configuration)
+            self.__LOGGER.info("Parsed %s" % configuration)
             return data
 
     def _process_stream(self, stream):
+        # type: (io.TextIOWrapper) -> Dict[str, Any]
         raise NotImplementedError
 
     def _process_error(self, user_error):
-        self.__logger.exception(user_error)
+        # type: (Exception) -> None
+        self.__LOGGER.exception(user_error)
         raise SyntaxError(str(user_error))
 
 
 class _ReadYml(_ReadData):
+
     def _process_stream(self, stream):
+        # type: (io.TextIOWrapper) -> Dict[str, Any]
         try:
             return self.__load_configuration(stream)
         except ruamel.yaml.parser.ParserError as UserError:
@@ -65,11 +74,14 @@ class _ReadYml(_ReadData):
 
     @staticmethod
     def __load_configuration(stream):
+        # type: (io.TextIOWrapper) -> Dict[str, Any]
         return ruamel.yaml.load(stream, ruamel.yaml.RoundTripLoader)
 
 
 class _ReadJson(_ReadData):
+
     def _process_stream(self, stream):
+        # type: (io.TextIOWrapper) -> Dict[str, Any]
         try:
             return self._load_configuration(stream)
         except json.JSONDecodeError as UserError:
@@ -77,15 +89,20 @@ class _ReadJson(_ReadData):
 
     @staticmethod
     def _load_configuration(stream):
+        # type: (io.TextIOWrapper) -> Dict[str, Any]
         return json.loads(stream)
 
 
 class ConfigurationLoader(object):
-    __logger = logging.getLogger(__name__ + ".ConfigurationLoader")
-    __json = _ReadJson()
-    __yml = _ReadYml()
+
+    __LOGGER = logging.getLogger(__name__ + ".ConfigurationLoader")
+
+    def __init__(self):
+        self.__json = _ReadJson()
+        self.__yml = _ReadYml()
 
     def read_config(self, configuration):
+        # type: (str) -> Dict[str, Any]
         if os.path.splitext(configuration)[1] is json:
             return self.__json.read(configuration)
         else:

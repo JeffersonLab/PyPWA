@@ -20,7 +20,7 @@ import csv
 import io
 
 import numpy
-
+from typing import Dict, List, Tuple
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
 
@@ -34,119 +34,120 @@ HEADER_SEARCH_BITS = 1024
 
 class SvReader(internals.Reader):
 
-    _previous_event = None  # type: collections.namedtuple
-    _reader = False  # type: csv.DictReader
-    _file = False  # type: io.TextIOBase
-    _types = False  # type: list[tuple]
-    _elements = False  # type: list[str]
-
     def __init__(self, file_location):
-        self._the_file = file_location
-        self._set_file_location(file_location)
-        self._start_input()
+        # type: (str) -> None
+        self.__file = io.open(file_location)
+        self.__previous_event = None  # type: numpy.ndarray
+        self.__reader = False  # type: csv.DictReader
+        self.__types = False  # type: List[Tuple[str]]
+        self.__elements = False  # type: List[str]
+        self.__start_input()
 
-    def _set_file_location(self, file_location):
-        self._file_location = file_location
+    def __start_input(self):
+        dialect = self.__get_dialect()
+        self.__set_reader(dialect)
+        self.__set_elements()
+        self.__set_numpy_types()
 
-    def _start_input(self):
-        self._set_file()
-        dialect = self._get_dialect()
-        self._set_reader(dialect)
-        self._set_elements()
-        self._set_numpy_types()
-
-    def _set_file(self):
-        self._file = io.open(self._file_location)
-
-    def _get_dialect(self):
+    def __get_dialect(self):
+        # type: () -> str
         dialect = csv.Sniffer().sniff(
-            self._file.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
+            self.__file.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
         )
-        self._file.seek(0)
+        self.__file.seek(0)
         return dialect
 
-    def _set_reader(self, dialect):
-        self._reader = csv.reader(self._file, dialect)
+    def __set_reader(self, dialect):
+        # type: (str) -> None
+        self.__reader = csv.reader(self.__file, dialect)
 
-    def _set_elements(self):
-        self._elements = next(self._reader)
+    def __set_elements(self):
+        self.__elements = next(self.__reader)
 
-    def _set_numpy_types(self):
-        self._types = []
-        for element in self._elements:
-            self._types.append((element, "f8"))
+    def __set_numpy_types(self):
+        self.__types = []
+        for element in self.__elements:
+            self.__types.append((element, "f8"))
 
     def close(self):
-        self._file.close()
+        self.__file.close()
 
     def next(self):
-        non_parsed = list(next(self._reader))
-        parsed = numpy.zeros(1, self._types)
+        # type: () -> numpy.ndarray
+        non_parsed = list(next(self.__reader))
+        parsed = numpy.zeros(1, self.__types)
 
-        for index, element in enumerate(self._elements):
+        for index, element in enumerate(self.__elements):
             parsed[element][0] = non_parsed[index]
 
-        self._previous_event = parsed
+        self.__previous_event = parsed
 
-        return self._previous_event
+        return self.__previous_event
 
 
 class SvWriter(internals.Writer):
 
-    _dialect = csv.Dialect
-    _writer = csv.DictWriter
-    _field_names = [str]
-
     def __init__(self, file_location):
-        self._the_file = file_location
-        self._file = open(file_location, "w")
-        self._set_dialect(file_location)
+        # type: (str) ->  None
+        self.__file = open(file_location, "w")
+        self.__dialect = None  # type: csv.Dialect
+        self.__writer = None  # type: csv.DictWriter
+        self.__field_names = None  # type: List[str]
+        self.__set_dialect(file_location)
 
-    def _set_dialect(self, file_location):
-        if self._is_tab(file_location):
-            self._dialect = csv.excel_tab
+    def __set_dialect(self, file_location):
+        # type: (str) -> None
+        if self.__is_tab(file_location):
+            self.__dialect = csv.excel_tab
         else:
-            self._dialect = csv.excel
+            self.__dialect = csv.excel
 
-    def _is_tab(self, file_location):
-        return self._get_extension(file_location) == ".tsv"
+    def __is_tab(self, file_location):
+        # type: (str) -> bool
+        return self.__get_extension(file_location) == ".tsv"
 
     @staticmethod
-    def _get_extension(file_location):
+    def __get_extension(file_location):
+        # type: (str) -> str
         return file_location.split(".")[-1]
 
     def write(self, data):
-        self._writer_setup(data)
-        converted_data = self._convert_to_dict(data)
-        self._write_row(converted_data)
+        # type: (numpy.ndarray) -> None
+        self.__writer_setup(data)
+        converted_data = self.__convert_to_dict(data)
+        self.__write_row(converted_data)
 
-    def _writer_setup(self, data):
-        if not self._writer:
-            self._set_field_names(data)
-            self._set_writer()
-            self._write_header()
+    def __writer_setup(self, data):
+        # type: (numpy.ndarray) -> None
+        if not self.__writer:
+            self.__set_field_names(data)
+            self.__set_writer()
+            self.__write_header()
 
-    def _set_field_names(self, data):
-        self._field_names = list(data.dtype.names)
+    def __set_field_names(self, data):
+        # type: (numpy.ndarray) -> None
+        self.__field_names = list(data.dtype.names)
 
-    def _set_writer(self):
-        self._writer = csv.DictWriter(
-            self._file,
-            fieldnames=self._field_names,
-            dialect=self._dialect
+    def __set_writer(self):
+        self.__writer = csv.DictWriter(
+            self.__file,
+            fieldnames=self.__field_names,
+            dialect=self.__dialect
         )
 
-    def _write_header(self):
-        self._writer.writeheader()
+    def __write_header(self):
+        self.__writer.writeheader()
 
-    def _convert_to_dict(self, data):
+    def __convert_to_dict(self, data):
+        # type: (numpy.ndarray) -> Dict[str, str]
         dict_data = {}
-        for field_name in self._field_names:
+        for field_name in self.__field_names:
             dict_data[field_name] = repr(data[0][field_name])
         return dict_data
 
-    def _write_row(self, dict_data):
-        self._writer.writerow(dict_data)
+    def __write_row(self, dict_data):
+        # type: (Dict[str, str]) -> None
+        self.__writer.writerow(dict_data)
 
     def close(self):
-        self._file.close()
+        self.__file.close()

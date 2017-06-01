@@ -20,7 +20,7 @@ def parser_with_cache():
         raise RuntimeError("Cache was not loaded!")
 
     mem = memory.Memory(enable_cache=True)
-    mem._read_data = raise_error
+    mem.__read_data = raise_error
 
     return mem
 

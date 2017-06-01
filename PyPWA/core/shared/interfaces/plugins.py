@@ -198,13 +198,13 @@ class DataIterator(object):
         """
         raise NotImplementedError
 
-    def return_writer(self, text_file, data_shape):
-        # type: (str, int) -> internals.Writer
+    def return_writer(self, text_file, data):
+        # type: (str, numpy.ndarray) -> internals.Writer
         """
         Returns an initialized writer that will work with the data type.
         
         :param str text_file: Where to write the data.
-        :param int data_shape: Can be 1 for flat array, or 3 for GAMP.
+        :param numpy.ndarray data: The array or event you want to write. 
         :return: An initialized writer.
         :rtype: internals.Writer
         """

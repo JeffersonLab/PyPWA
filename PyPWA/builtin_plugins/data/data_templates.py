@@ -21,7 +21,12 @@ Holds the different implementation interfaces that are needed to interface
 data module.
 """
 
+from typing import List
+
+import numpy
+
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.shared.interfaces import internals
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -32,44 +37,56 @@ class TemplateDataPlugin(object):
 
     @property
     def plugin_name(self):
+        # type: () -> str
         raise NotImplementedError()
 
     def get_plugin_memory_parser(self):
+        # type: () -> TemplateMemory
         raise NotImplementedError()
 
     def get_plugin_reader(self, file_location):
+        # type: (str) -> internals.Reader
         raise NotImplementedError()
 
     def get_plugin_writer(self, file_location):
+        # type: (str) -> internals.Writer
         raise NotImplementedError()
 
     def get_plugin_read_test(self):
+        # type: () -> ReadTest
         raise NotImplementedError()
 
     @property
     def plugin_supported_extensions(self):
+        # type: () -> List[str]
         raise NotImplementedError()
 
     @property
     def plugin_supports_flat_data(self):
+        # type: () -> bool
         raise NotImplementedError()
 
     @property
     def plugin_supports_gamp_data(self):
+        # type: () -> bool
         raise NotImplementedError()
 
 
 class TemplateMemory(object):
+
     def parse(self, file_location):
+        # type: (str) -> numpy.ndarray
         raise NotImplementedError()
 
     def write(self, file_location, data):
+        # type: (str, numpy.ndarray) -> None
         raise NotImplementedError()
 
 
 class ReadTest(object):
 
     def quick_test(self, file_location):
+        # type: (str) -> None
         """
         Raises:
             PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised
@@ -78,6 +95,7 @@ class ReadTest(object):
         raise NotImplementedError()
 
     def full_test(self, file_location):
+        # type: (str) -> None
         """
         Raises:
             PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised

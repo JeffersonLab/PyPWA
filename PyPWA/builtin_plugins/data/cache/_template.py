@@ -17,8 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Interfaces for the cache objects defined in this package
+--------------------------------------------------------
 
+- WriteInterface - Interface for all write objects
+- ReadInterface - Interface for all read objects.
 """
+
+from typing import Any
 
 from PyPWA import AUTHOR, VERSION
 
@@ -30,12 +36,12 @@ __version__ = VERSION
 class WriteInterface(object):
 
     def write_cache(self, data):
+        # type: (Any) -> None
         raise NotImplementedError
 
 
 class ReadInterface(object):
 
-    @property
     def is_valid(self):
         raise NotImplementedError
 

@@ -35,6 +35,7 @@ program.
 import argparse
 import logging
 import sys
+from typing import Dict
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator.create_config import create
@@ -48,15 +49,18 @@ __version__ = VERSION
 
 class _Arguments(object):
 
-    __parser = None  # type: argparse.ArgumentParser()
-    __arguments = None  # type: argparse.Namespace()
+    def __init__(self):
+        self.__parser = None  # type: argparse.ArgumentParser
+        self.__arguments = None  # type: argparse.Namespace()
 
     def parse_arguments(self, description):
+        # type: (str) -> None
         self.__set_arguments(description)
         self.__parse_arguments()
         self.__quit_if_no_args()
 
     def __set_arguments(self, description):
+        # type: (str) -> None
         self.__set_parser(description)
         self.__add_configurator_argument()
         self.__add_write_config_argument()
@@ -65,6 +69,7 @@ class _Arguments(object):
         self.__add_version_argument()
 
     def __set_parser(self, description):
+        # type: (str) -> None
         self.__parser = argparse.ArgumentParser(description=description)
 
     def __add_configurator_argument(self):
@@ -109,30 +114,35 @@ class _Arguments(object):
 
     @property
     def write_config(self):
+        # type: () -> bool
         return self.__arguments.WriteConfig
 
     @property
     def configuration_location(self):
+        # type: () -> str
         return self.__arguments.configuration
 
     @property
     def verbose(self):
+        # type: () -> int
         return self.__arguments.v
 
     @property
     def log_file(self):
+        # type: () -> str
         return self.__arguments.log_file
 
 
 class StartProgram(object):
 
-    __configuration = None  # type: dict
-
-    __execute = start.Execute()
-    __create_config = create.StartConfig()
-    __arguments = _Arguments()
+    def __init__(self):
+        self.__execute = start.Execute()
+        self.__create_config = create.StartConfig()
+        self.__arguments = _Arguments()
+        self.__configuration = None  # type: dict
 
     def start(self, configuration):
+        # type: (Dict[str, str]) -> None
         self.__set_configuration(configuration)
         self.__process_extras()
         self.__load_arguments()
@@ -141,6 +151,7 @@ class StartProgram(object):
         self.__process_arguments()
 
     def __set_configuration(self, configuration):
+        # type: (Dict[str, str]) -> None
         self.__configuration = configuration
 
     def __process_extras(self):
@@ -160,6 +171,7 @@ class StartProgram(object):
 
     @staticmethod
     def __opening_art():
+        # type: () -> str
         return """\
 #########          ######### ##                ##  ###
 ##      ##         ##      ## ##              ##  ## ##

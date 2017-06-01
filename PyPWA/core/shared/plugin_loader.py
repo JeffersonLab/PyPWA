@@ -51,6 +51,7 @@ import os
 import pkgutil
 import sys
 
+from typing import Any, Callable, List, Union, Set
 import types
 
 from PyPWA import AUTHOR, VERSION
@@ -66,67 +67,80 @@ __version__ = VERSION
 
 class _AppendPath(object):
 
-    __logger = logging.getLogger(__name__ + "._AppendPath")
+    __LOGGER = logging.getLogger(__name__ + "._AppendPath")
 
     def append_path(self, filename):
+        # type: (str) -> None
         function_path = self.__get_function_path(filename)
         self.__log_path(function_path)
         sys.path.append(function_path)
 
     @staticmethod
     def __get_function_path(filename):
+        # type: (str) -> str
         absolute_path = os.path.abspath(filename)
         path_without_basename = os.path.dirname(absolute_path)
         return path_without_basename
 
     def __log_path(self, path):
-        self.__logger.debug("Adding %s to the path." % path)
+        # type: (str) -> None
+        self.__LOGGER.debug("Adding %s to the path." % path)
 
-        
+
 class _Importer(object):
 
-    __logger = logging.getLogger(__name__ + "._Importer")
-    __path_handler = _AppendPath()
+    __LOGGER = logging.getLogger(__name__ + "._Importer")
+
+    def __init__(self):
+        self.__path_handler = _AppendPath()
 
     def fetch_modules(self, package):
+        # type: (Union[str, types.ModuleType]) -> object
         found_module = self.__load_module(package)
         return self.__process_module(found_module)
 
     def __load_module(self, package):
+        # type: (Union[str, types.ModuleType]) -> object
         if isinstance(package, types.ModuleType):
             return package
         else:
             return self.__import_module(package)
 
     def __import_module(self, package):
+        # type: (str) -> types.ModuleType
         self.__path_handler.append_path(package)
         name = self.__get_module_name(package)
         return self.__get_module(name)
 
     @staticmethod
     def __get_module_name(package):
+        # type: (str) -> str
         file_name = os.path.basename(package)
         module_name = os.path.splitext(file_name)[0]
         return module_name
-        
+
     def __get_module(self, package):
+        # type: (str) -> types.ModuleType
         try:
             return importlib.import_module(package)
         except Exception as Error:
             self.__process_module_error(Error)
 
     def __process_module_error(self, error):
-        self.__logger.exception(error)
+        # type: (Exception) -> None
+        self.__LOGGER.exception(error)
 
-    def __process_module(self, module):
-        if hasattr(module, "__path__"):
-            return self.__load_multiple_modules(module)
-        elif isinstance(module, types.ModuleType):
-            return [module]
+    def __process_module(self, potential_module):
+        # type: (types.ModuleType) -> List[types.ModuleType]
+        if hasattr(potential_module, "__path__"):
+            return self.__load_multiple_modules(potential_module)
+        elif isinstance(potential_module, types.ModuleType):
+            return [potential_module]
         else:
             self.__raise_module_error()
 
     def __load_multiple_modules(self, package):
+        # type: (types.ModuleType) -> List[types.ModuleType]
         """
         See Also:
             - http://stackoverflow.com/a/1310912
@@ -146,17 +160,16 @@ class _Importer(object):
 
 class _FilterBySubclass(object):
 
-    __logger = logging.getLogger(__name__ + "._FilterBySubclass")
-
-    __storage = None
-    __found_classes = None
-    __template = None
+    __LOGGER = logging.getLogger(__name__ + "._FilterBySubclass")
 
     def __init__(self, storage):
-        self.__logger.addHandler(logging.NullHandler())
+        # type: (_PluginStorage) -> None
         self.__storage = storage
+        self.__found_classes = None
+        self.__template = None
 
     def filter(self, template):
+        # type: (type) -> List[type]
         self.__clear_search()
         self.__set_search_template(template)
         plugins = self.__filter_plugins()
@@ -168,101 +181,114 @@ class _FilterBySubclass(object):
         self.__template = None
 
     def __set_search_template(self, template):
+        # type: (type) -> None
         self.__template = template
 
     def __filter_plugins(self):
-        for plugin in self.__storage.plugins:
+        # type: () -> List[type]
+        for plugin in self.__storage.PLUGINS:
             self.__process_plugin(plugin)
         return self.__found_classes
 
     def __process_plugin(self, plugin):
+        # type: (type) -> None
         for attribute_name in dir(plugin):
             attribute = getattr(plugin, attribute_name)
             self.__try_to_process_object(attribute)
 
     def __try_to_process_object(self, attribute):
+        # type: (type) -> None
         try:
             self.__process_attribute(attribute)
         except TypeError:
             pass
 
     def __process_attribute(self, attribute):
+        # type: (type) -> None
         if issubclass(attribute, self.__template):
             self.__found_classes.append(attribute)
 
     def __log_plugin_search(self, plugins):
-        self.__logger.debug("Using template: %s" % self.__template)
-        self.__logger.debug("Found: %s" % plugins)
+        # type: (List[type]) -> None
+        self.__LOGGER.debug("Using template: '%s'" % self.__template)
+        self.__LOGGER.debug("Found: '%s'" % plugins)
 
 
 class _PluginStorage(object):
 
-    __logger = logging.getLogger(__name__ + "._PluginStorage")
-    plugins = []
-    __locations = []
-    __append_count = 0
+    __LOGGER = logging.getLogger(__name__ + "._PluginStorage")
+    PLUGINS = []  # type: List[type]
+    __LOCATIONS = []  # type: List[str]
+    __APPEND_COUNT = 0
 
-    def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
+    @classmethod
+    def add_location(cls, location):
+        # type: (str) -> None
+        cls.__note_if_index_is_zero()
+        cls.__LOCATIONS.append(location)
+        cls.__APPEND_COUNT = cls.__APPEND_COUNT + 1
 
-    def add_location(self, location):
-        self.__note_if_index_is_zero()
-        self.__locations.append(location)
-        self.__append_count = self.__append_count +1
+    @classmethod
+    def __note_if_index_is_zero(cls):
+        if cls.__APPEND_COUNT == 0:
+            cls.__LOGGER.debug("Initializing _PluginStorage for first time")
 
-    def __note_if_index_is_zero(self):
-        if self.__append_count == 0:
-            self.__logger.debug("Initializing _PluginStorage for first time")
-
-    def location_already_added(self, location):
-        if location in self.__locations:
+    @classmethod
+    def location_already_added(cls, location):
+        # type: (str) -> bool
+        if location in cls.__LOCATIONS:
             return True
         else:
             return False
 
-    @property
-    def plugin_index(self):
-        return self.__append_count
+    @classmethod
+    def plugin_index(cls):
+        # type: () -> int
+        return cls.__APPEND_COUNT
 
 
 class PluginLoader(object):
 
-    __logger = logging.getLogger(__name__ + ".PluginStorage")
-    __storage = _PluginStorage()
-    __importer = _Importer()
-    __filter_subclass = _FilterBySubclass(__storage)
-    
+    __LOGGER = logging.getLogger(__name__ + ".PluginStorage")
+    __STORAGE = _PluginStorage()
+
     def __init__(self):
-        self.__logger.addHandler(logging.NullHandler())
+        self.__importer = _Importer()
+        self.__filter_subclass = _FilterBySubclass(self.__STORAGE)
 
     def add_plugin_location(self, location):
+        # type: (Any) -> None
         if isinstance(location, list) or isinstance(location, set):
             self.__process_multiple_modules(location)
         else:
             self.__process_single_module(location)
 
     def __process_multiple_modules(self, locations):
+        # type: (Union[List[str, Set[str]]]) -> None
         for location in locations:
             self.__process_single_module(location)
 
     def __process_single_module(self, location):
+        # type: (str) -> None
         if location is not None and location is not "":
-            if not self.__storage.location_already_added(location):
+            if not self.__STORAGE.location_already_added(location):
                 modules = self.__importer.fetch_modules(location)
                 self.__append_modules(modules)
-                self.__storage.add_location(location)
-                self.__logger.debug("Adding plugin location: %s" % location)
+                self.__STORAGE.add_location(location)
+                self.__LOGGER.debug("Adding plugin location: %s" % location)
         else:
-            self.__logger.debug(
+            self.__LOGGER.debug(
                 "Received blank location! This might be an error."
             )
 
     def __append_modules(self, modules):
+        # type: (List[type]) -> None
         for the_module in modules:
-            self.__storage.plugins.append(the_module)
+            self.__STORAGE.PLUGINS.append(the_module)
 
     def get_by_name(self, name, fail=True):
-        for plugin in self.__storage.plugins:
+        # type: (str, bool) -> Callable[Any, Any]
+        for plugin in self.__STORAGE.PLUGINS:
             if hasattr(plugin, name):
                 possible_answer = getattr(plugin, name)
                 if callable(possible_answer):
@@ -274,11 +300,14 @@ class PluginLoader(object):
 
     @staticmethod
     def __empty_function(*args, **kwargs):
+        # type: (Any, Any) -> None
         pass
 
     def get_by_class(self, template):
+        # type: (type) -> List[type]
         return self.__filter_subclass.filter(template)
 
     @property
     def storage_index(self):
-        return self.__storage.plugin_index
+        # type: () -> int
+        return self.__STORAGE.plugin_index()

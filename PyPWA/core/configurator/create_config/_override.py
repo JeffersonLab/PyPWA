@@ -30,6 +30,7 @@ Handles all setting overrides
 """
 
 import logging
+from typing import Any, Dict
 
 from PyPWA import AUTHOR, VERSION
 
@@ -40,28 +41,32 @@ __version__ = VERSION
 
 class _ExternalizeName(object):
 
-    __logger = logging.getLogger(__name__ + "._ExternalizeName")
+    __LOGGER = logging.getLogger(__name__ + "._ExternalizeName")
 
-    __configuration = None
-    __internal_name = None
-    __external_name = None
+    def __init__(self):
+        self.__configuration = None  # type: Dict[str, Any]
+        self.__internal_name = None  # type: str
+        self.__external_name = None  # type: str
 
     def override(self, configuration, override):
+        # type: (Dict[str, Any], Dict[str, Any]) -> None
         self.__set_configuration(configuration)
         self.__find_names(override)
         self.__externalize_shell_name()
         self.__remove_old_name()
 
     def __set_configuration(self, configuration):
+        # type: (Dict[str, Any]) -> None
         self.__configuration = None
         self.__configuration = configuration
 
     def __find_names(self, override):
+        # type: (Dict[str, Any]) -> None
         self.__internal_name = override["main"]
         self.__external_name = override["main name"]
 
     def __externalize_shell_name(self):
-        self.__logger.debug("Converting '%s'to '%s'" % (
+        self.__LOGGER.debug("Converting '%s'to '%s'" % (
             self.__internal_name, self.__external_name
         ))
         shell_options = self.__configuration[self.__internal_name]
@@ -72,33 +77,38 @@ class _ExternalizeName(object):
 
     @property
     def configuration(self):
+        # type: () -> Dict[str, Any]
         return self.__configuration
 
 
 class _RemovePredefinedOptions(object):
 
-    __logger = logging.getLogger(__name__ + "._RemovePredefinedOptions")
+    __LOGGER = logging.getLogger(__name__ + "._RemovePredefinedOptions")
 
-    __configuration = None
-    __predefined_options = None
-    __name = None
+    def __init__(self):
+        self.__configuration = None  # type: Dict[str, Any]
+        self.__predefined_options = None  # type: Dict[str, Any]
+        self.__name = None  # type: str
 
     def override(self, configuration, override):
+        # type: (Dict[str, Any], Dict[str, Any]) -> None
         self.__set_configuration(configuration)
         self.__setup_override(override)
         self.__process_options()
 
     def __set_configuration(self, configuration):
+        # type: (Dict[str, Any]) -> None
         self.__configuration = configuration
 
     def __setup_override(self, override):
+        # type: (Dict[str, Any]) -> None
         if "main options" in override:
-            self.__logger.debug("Removing override options.")
+            self.__LOGGER.debug("Removing override options.")
             self.__predefined_options = override["main options"]
             self.__name = override["main name"]
         else:
             self.__predefined_options = None
-            self.__logger.debug("No options to override.")
+            self.__LOGGER.debug("No options to override.")
 
     def __process_options(self):
         if self.__predefined_options:
@@ -106,23 +116,25 @@ class _RemovePredefinedOptions(object):
 
     def __pop_unneeded_options(self):
         for option in self.__predefined_options:
-            self.__logger.debug("Removing option '%s'" % option)
+            self.__LOGGER.debug("Removing option '%s'" % option)
             self.__configuration[self.__name].pop(option)
 
     @property
     def configuration(self):
+        # type: () -> Dict[str, Any]
         return self.__configuration
 
 
 class Override(object):
 
-    __externalize = _ExternalizeName()
-    __predefined_options = _RemovePredefinedOptions()
-
-    __override = None
-    __configuration = None
+    def __init__(self):
+        self.__externalize = _ExternalizeName()
+        self.__predefined_options = _RemovePredefinedOptions()
+        self.__override = None  # type: Dict[str, Any]
+        self.__configuration = None # type: Dict[str, Any]
 
     def execute(self, configuration, override):
+        # type: (Dict[str, Any], Dict[str, Any]) -> None
         self.__override = override
         self.__configuration = configuration
         self.__start_processing()
@@ -143,4 +155,5 @@ class Override(object):
 
     @property
     def processed_configuration(self):
+        # type: () -> Dict[str, Any]
         return self.__configuration

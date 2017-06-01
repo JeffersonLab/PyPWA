@@ -24,6 +24,7 @@ iterator and an parser, it has two plugin interfaces.
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import iterator
 from PyPWA.builtin_plugins.data import memory
+from PyPWA.core.configurator import option_tools
 from PyPWA.core.configurator import options
 
 __credits__ = ["Mark Jones"]
@@ -33,38 +34,38 @@ __version__ = VERSION
 
 class SetupParser(options.Setup):
 
-    __options_object = None
-    __interface = None
-
     def __init__(self, command_object):
+        # type: (option_tools.CommandOptions) -> None
         self.__options_object = command_object
+        self.__parser = None
         self.__setup_memory_parser()
 
     def __setup_memory_parser(self):
-        self.__interface = memory.Memory(
+        self.__parser = memory.Memory(
             enable_cache=self.__options_object.enable_cache,
             clear_cache=self.__options_object.clear_cache,
             user_plugin_dir=self.__options_object.user_plugin
         )
 
     def return_interface(self):
-        return self.__interface
+        # type: () -> memory.Memory
+        return self.__parser
 
 
 class SetupIterator(options.Setup):
 
-    __options_object = None
-    __interface = None
-
     def __init__(self, command_object):
+        # type: (option_tools.CommandOptions) -> None
         self.__options_object = command_object
+        self.__iterator = None
         self.__setup_iterator()
 
     def __setup_iterator(self):
-        self.__interface = iterator.Iterator(
+        self.__iterator = iterator.Iterator(
             fail=self.__options_object.fail,
             user_plugin=self.__options_object.user_plugin
         )
 
     def return_interface(self):
-        return self.__interface
+        # type: () -> iterator.Iterator
+        return self.__iterator
