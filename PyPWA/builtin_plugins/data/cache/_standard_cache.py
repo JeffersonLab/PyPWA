@@ -22,9 +22,9 @@ Standard Cache
 This simple just writes and reads the cache files without anything special
 added to it.
 
-- ReadCache - Loads the cache from disk if it exists, will raise CacheError 
+- ReadCache - Loads the cache from disk if it exists, will raise CacheError
   if something is wrong with the cache.
-  
+
 - WriteCache - Writes the cache to disk.
 """
 
@@ -65,7 +65,7 @@ class ReadCache(_template.ReadInterface):
             self.__LOGGER.debug("No cache exists.")
         except pickle.PickleError:
             self.__LOGGER.debug("Pickle is from a different python version.")
-        except (ValueError, IndexError, KeyError) as error:
+        except Exception as error:
             self.__LOGGER.debug("Pickle is damaged.")
             self.__LOGGER.debug(error, exc_info=True)
 
