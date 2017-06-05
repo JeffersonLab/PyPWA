@@ -41,6 +41,10 @@ Writer for Example Functions
 
 import os
 
+from typing import List
+
+from PyPWA.core.configurator import options
+from PyPWA.core.configurator.create_config import _metadata
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
@@ -50,22 +54,22 @@ __version__ = VERSION
 
 class _GetFunctionLocation(object):
 
-    __function_location = None
+    def __init__(self):
+        self.__function_location = None  # type: str
 
     def process_location(self, configuration_location):
+        # type: (str) -> None
         self.__function_location = ""
         file_name = os.path.splitext(configuration_location)[0]
         self.__function_location += file_name + ".py"
 
     @property
     def function_location(self):
+        # type: () -> str
         return self.__function_location
 
 
 class _FunctionStorage(object):
-
-    imports = None
-    functions = None
 
     def __init__(self):
         self.imports = set()
@@ -74,13 +78,12 @@ class _FunctionStorage(object):
 
 class _BuildStorage(object):
 
-    __plugin_list = None
-    __storage = None
-
     def __init__(self):
         self.__storage = _FunctionStorage()
+        self.__plugin_list = None
 
     def process_plugin_list(self, plugin_list):
+        # type: (_metadata.GetPluginList) -> None
         self.__plugin_list = plugin_list
         self.__process_main()
         self.__process_plugins()
@@ -95,29 +98,35 @@ class _BuildStorage(object):
                 self.__process_function(plugin)
 
     def __process_function(self, plugin):
+        # type: (options.Plugin) -> None
         self.__add_imports(plugin.defined_function.imports)
         self.__add_function(plugin.defined_function.functions)
 
     def __add_imports(self, imports):
+        # type: (List[str]) -> None
         for the_import in imports:
             self.__storage.imports.add(the_import)
 
     def __add_function(self, functions):
+        # type: (List[str]) -> None
         for the_function in functions:
             self.__storage.functions.append(the_function)
 
     @property
     def storage(self):
+        # type: () -> _FunctionStorage
         return self.__storage
 
 
 class _FileBuilder(object):
 
-    __imports = None
-    __functions = None
-    __file = None
+    def __init__(self):
+        self.__imports = None  # type: List[str]
+        self.__functions = None  # type: List[str]
+        self.__file = None  # type: str
 
     def build(self, storage):
+        # type: (_FunctionStorage) -> None
         self.__file = ""
         self.__process_imports(storage)
         self.__process_functions(storage)
@@ -125,9 +134,11 @@ class _FileBuilder(object):
         self.__render_functions()
 
     def __process_imports(self, storage):
+        # type: (_FunctionStorage) -> None
         self.__imports = sorted(storage.imports)
 
     def __process_functions(self, storage):
+        # type: (_FunctionStorage) -> None
         self.__functions = sorted(storage.functions)
 
     def __render_imports(self):
@@ -141,6 +152,7 @@ class _FileBuilder(object):
 
     @property
     def functions_file(self):
+        # type: () -> str
         return self.__file
 
 
@@ -148,21 +160,21 @@ class _FileWriter(object):
 
     @staticmethod
     def write_file(file_location, file_data):
+        # type: (str, str) -> None
         with open(file_location, "w") as stream:
             stream.write(file_data)
 
 
 class FunctionHandler(object):
 
-    __file_location = _GetFunctionLocation()
-    __builder = _FileBuilder()
-    __writer = _FileWriter()
-    __storage = None
-
     def __init__(self):
+        self.__file_location = _GetFunctionLocation()
+        self.__builder = _FileBuilder()
+        self.__writer = _FileWriter()
         self.__storage = _BuildStorage()
 
     def output_functions(self, plugin_list, configuration_location):
+        # type: (_metadata.GetPluginList, str) -> None
         self.__file_location.process_location(configuration_location)
         self.__storage.process_plugin_list(plugin_list)
         self.__builder.build(self.__storage.storage)

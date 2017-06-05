@@ -28,6 +28,7 @@ The Root Storage objects for the configurator.
 """
 
 import logging
+from typing import Any, List
 
 import PyPWA.builtin_plugins
 import PyPWA.core
@@ -43,62 +44,61 @@ __version__ = VERSION
 
 class _InternalStorage(object):
 
-    plugins = []  # type: [options.Plugin]
-    shells = []  # type: [options.Main]
+    plugins = []  # type: List[options.Plugin]
+    shells = []  # type: List[options.Main]
     index = 0
 
 
 class Storage(object):
 
-    __logging = logging.getLogger(__name__ + ".ConfiguratorStorage")
-    __plugin_locations = {PyPWA.builtin_plugins, PyPWA.shell, PyPWA.core}
-    __loader = plugin_loader.PluginLoader()
-    __storage = _InternalStorage()
-    __index = None  # type: int
+    __LOGGER = logging.getLogger(__name__ + ".ConfiguratorStorage")
+    __STORAGE = _InternalStorage()
 
     def __init__(self):
-        self.__logging.addHandler(logging.NullHandler())
+        self.__loader = plugin_loader.PluginLoader()
+        self.__loader.add_plugin_location(
+            {PyPWA.builtin_plugins, PyPWA.shell, PyPWA.core}
+        )
         self.__index = 0
-        self.__add_builtin_plugin_locations()
         self._check_for_updates()
 
-    def __add_builtin_plugin_locations(self):
-        self.__loader.add_plugin_location(self.__plugin_locations)
-
     def _check_for_updates(self):
-        if self.__loader.storage_index < self.__storage.index:
-            self.__logging.critical(
+        if self.__loader.storage_index < self.__STORAGE.index:
+            self.__LOGGER.critical(
                 "PluginStorage has a smaller index than Storage! "
                 "This means something broke with PluginStorage, and the "
                 "program is likely to fail!"
             )
-        if not self.__loader.storage_index == self.__storage.index:
-            self.__logging.debug(
+        if not self.__loader.storage_index == self.__STORAGE.index:
+            self.__LOGGER.debug(
                 "Storage is out of date with plugin module, "
                 "refreshing plugins"
             )
             self.__update_storage()
 
-        if not self.__storage.index == self.__index:
-            self.__index = self.__storage.index
+        if not self.__STORAGE.index == self.__index:
+            self.__index = self.__STORAGE.index
             self._update_extra()
 
     def __update_storage(self):
-        self.__storage.plugins = self.__loader.get_by_class(options.Plugin)
-        self.__storage.shells = self.__loader.get_by_class(options.Main)
-        self.__storage.index = self.__loader.storage_index
+        self.__STORAGE.plugins = self.__loader.get_by_class(options.Plugin)
+        self.__STORAGE.shells = self.__loader.get_by_class(options.Main)
+        self.__STORAGE.index = self.__loader.storage_index
 
     def _update_extra(self):
         pass
 
     def add_location(self, location):
+        # type: (Any) -> None
         self.__loader.add_plugin_location(location)
         self._check_for_updates()
 
     def _get_plugins(self):
+        # type: () -> Any
         self._check_for_updates()
-        return self.__storage.plugins
+        return self.__STORAGE.plugins
 
     def _get_shells(self):
+        # type: () -> Any
         self._check_for_updates()
-        return self.__storage.shells
+        return self.__STORAGE.shells

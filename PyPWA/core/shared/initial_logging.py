@@ -33,62 +33,65 @@ __version__ = VERSION
 
 class _LoggerData(object):
 
-    level = None
-    filename = None
+    level = ""  # type: str
+    filename = ""  # type: str
 
 
 class InternalLogger(object):
 
-    __logger = logging.getLogger()
-    __data = _LoggerData()
-    __formatter = logging.Formatter(
+    __LOGGER = logging.getLogger()
+    __DATA = _LoggerData()
+    __FORMATTER = logging.Formatter(
         "[%(asctime)s][%(processName)s][%(name)s][%(levelname)s]: "
         "%(message)s", "%H:%M:%S"
     )
 
     @classmethod
     def configure_root_logger(cls, level, file_name="", processor_id=""):
-        cls.__data.level = level
-        cls.__data.filename = file_name
+        # type: (str, str, str) -> None
+        cls.__DATA.level = level
+        cls.__DATA.filename = file_name
         cls.__setup_handlers(processor_id)
         cls.__set_level()
 
     @classmethod
     def __setup_handlers(cls, processor_id):
+        # type: (str) -> None
         cls.__create_stream_handler()
-        if cls.__data.filename:
+        if cls.__DATA.filename:
             cls.__compute_file_name(processor_id)
             cls.__create_file_handler()
 
     @classmethod
     def __create_stream_handler(cls):
         handler = logging.StreamHandler()
-        handler.setFormatter(cls.__formatter)
-        cls.__logger.addHandler(handler)
+        handler.setFormatter(cls.__FORMATTER)
+        cls.__LOGGER.addHandler(handler)
 
     @classmethod
     def __compute_file_name(cls, processor_id):
+        # type: (str) -> None
         if processor_id:
-            cls.__data.filename = processor_id + "--" + cls.__data.filename
+            cls.__DATA.filename = processor_id + "--" + cls.__DATA.filename
 
     @classmethod
     def __create_file_handler(cls):
-        handler = logging.FileHandler(cls.__data.filename)
-        handler.setFormatter(cls.__formatter)
-        cls.__logger.addHandler(handler)
+        handler = logging.FileHandler(cls.__DATA.filename)
+        handler.setFormatter(cls.__FORMATTER)
+        cls.__LOGGER.addHandler(handler)
 
     @classmethod
     def __set_level(cls):
-        cls.__logger.setLevel(cls.__data.level)
+        cls.__LOGGER.setLevel(cls.__DATA.level)
 
     @classmethod
     def get_level(cls):
-        return cls.__data.level
+        return cls.__DATA.level
 
     @classmethod
     def get_filename(cls):
-        return cls.__data.filename
+        return cls.__DATA.filename
 
     @classmethod
     def set_level_to_global(cls):
-        cls.__data.level = cls.__logger.getEffectiveLevel()
+        cls.__DATA.level = cls.__LOGGER.getEffectiveLevel()

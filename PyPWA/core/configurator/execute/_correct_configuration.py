@@ -31,12 +31,13 @@ Attempts to correct the received settings if possible.
 """
 
 import logging
+from typing import Any, Dict, List, Union, Tuple
 
 import fuzzywuzzy.process
 import numpy
-from PyPWA.core.configurator.execute import _storage_data
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.configurator.execute import _storage_data
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -48,24 +49,22 @@ FUZZY_STRING_CONFIDENCE_LEVEL = 75
 
 class _CorrectKeys(object):
 
-    __logger = logging.getLogger(__name__ + "._CorrectKeys")
-
-    __TEMPLATE = None
-    __KEYS = None
-    __initial_settings = None
-    __corrected_keys = None
-    __depth = None
+    __LOGGER = logging.getLogger(__name__ + "._CorrectKeys")
 
     def __init__(self, template, depth=0):
+        # type: (Dict[str, Any], int) -> None
         self.__depth = depth
-        self.__TEMPLATE = template  # type: dict
-        self.__logger.debug("Received template: %s" % template)
+        self.__template = template
+        self.__LOGGER.debug("Received template: %s" % template)
+        self.__initial_settings = None  # type: Dict[str, Any]
+        self.__corrected_keys = None  # type: Dict[str, Any]
         self.__set_keys()
 
     def __set_keys(self):
-        self.__KEYS = list(self.__TEMPLATE.keys())
+        self.__keys = list(self.__template.keys())
 
     def correct_keys(self, dictionary):
+        # type: (Dict[str, Any]) -> Dict[str, Any]
         self.__empty_corrected()
         self.__set_initial_settings(dictionary)
         self.__loop_over_keys()
@@ -75,6 +74,7 @@ class _CorrectKeys(object):
         self.__corrected_keys = {}
 
     def __set_initial_settings(self, settings):
+        # type: (Dict[str, Any]) -> None
         self.__initial_settings = settings
 
     def __loop_over_keys(self):
@@ -87,46 +87,53 @@ class _CorrectKeys(object):
             self.__check_for_dictionary(found)
 
     def __get_potential_key(self, key):
+        # type: (str) -> str
         found_key = self.__fuzz_key(key)
         if found_key[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
             return found_key[0]
 
     def __fuzz_key(self, key):
-        found_key = fuzzywuzzy.process.extractOne(key, self.__KEYS)
+        # type: (str) -> Tuple(str, int)
+        found_key = fuzzywuzzy.process.extractOne(key, self.__keys)
         return found_key
 
     def __set_corrected_key(self, found, key):
+        # type: (str, str) -> None
         self.__corrected_keys[found] = self.__initial_settings[key]
 
     def __check_for_dictionary(self, found):
-        if isinstance(self.__TEMPLATE[found], dict):
-            self.__logger.debug(
-                "Correcting internal dictionary: %s" % self.__TEMPLATE[found]
+        # type: (str) -> None
+        if isinstance(self.__template[found], dict):
+            self.__LOGGER.debug(
+                "Correcting internal dictionary: %s" % self.__template[found]
             )
             self.__correct_nested_dictionary(found)
 
     def __correct_nested_dictionary(self, found):
-        correction = _CorrectKeys(self.__TEMPLATE[found], self.__depth+1)
+        # type: (str) -> None
+        correction = _CorrectKeys(self.__template[found], self.__depth + 1)
         corrected = correction.correct_keys(self.__corrected_keys[found])
         self.__corrected_keys[found] = corrected
 
     def __handle_key_error(self, key):
+        # type: (str) -> None
         if self.__depth:
             raise ValueError(
                 "Root level key error! Unknown Plugin '%s'!" % key
             )
         else:
-            self.__logger.warning(
+            self.__LOGGER.warning(
                 "Unknown key '%s', value is being removed!" % key
             )
 
 
 class _CorrectValues(object):
 
-    __logger = logging.getLogger(__name__ + "._CorrectValues")
+    __LOGGER = logging.getLogger(__name__ + "._CorrectValues")
     __FAILED = "failed to find"
 
     def correct_all(self, dictionary, template_dictionary):
+        # type: (Dict[str, Any], Dict[str, Any]) -> Dict[str, Any]
         corrected_dictionary = {}
         for key in dictionary.keys():
             template_value = template_dictionary[key]
@@ -170,7 +177,7 @@ class _CorrectValues(object):
                 )
 
             else:
-                self.__logger.debug(
+                self.__LOGGER.debug(
                     "Key '%s' is not correctable by settings aid because "
                     "its expected value is not known." % key
                 )
@@ -180,6 +187,7 @@ class _CorrectValues(object):
         return corrected_dictionary
 
     def __correct_from_list(self, string, value_list):
+        # type: (str, List[str]) -> str
         value = fuzzywuzzy.process.extractOne(string, value_list)
 
         if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
@@ -188,6 +196,7 @@ class _CorrectValues(object):
             return self.__FAILED
 
     def __correct_boolean_values(self, value):
+        # type: (Any) -> Union[bool, str]
         try:
             exact = int(value)
             if exact:
@@ -209,12 +218,14 @@ class _CorrectValues(object):
             return self.__FAILED
 
     def __correct_integers(self, value):
+        # type: (Any) -> Union[int, str]
         try:
             return int(value)
         except ValueError:
             return self.__FAILED
 
     def __correct_floats(self, value):
+        # type: (Any) -> Union[numpy.float64, str]
         try:
             return numpy.float64(value)
         except ValueError:
@@ -223,23 +234,23 @@ class _CorrectValues(object):
 
 class SettingsAid(object):
 
-    __logger = logging.getLogger(__name__ + ".SettingsAid")
-    __correct_values = _CorrectValues()
-    __key_corrector = None  # type: _CorrectKeys
-
-    __template = _storage_data.Templates()
-    __settings = None
+    __LOGGER = logging.getLogger(__name__ + ".SettingsAid")
 
     def __init__(self):
+        self.__template = _storage_data.Templates()
         self.__key_corrector = _CorrectKeys(self.__template.get_templates())
+        self.__correct_values = _CorrectValues()
+        self.__settings = None
 
     def correct_settings(self, value):
+        # type: (Dict[str, Any]) -> None
         self.__set_settings(value)
         self.__correct_keys()
         self.__correct_all()
         return self.__settings
 
     def __set_settings(self, values):
+        # type: (Dict[str, Any]) -> None
         self.__settings = values
 
     def __correct_keys(self):

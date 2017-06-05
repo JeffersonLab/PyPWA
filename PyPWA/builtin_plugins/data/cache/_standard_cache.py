@@ -17,12 +17,21 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Standard Cache
+--------------
+This simple just writes and reads the cache files without anything special
+added to it.
 
+- ReadCache - Loads the cache from disk if it exists, will raise CacheError
+  if something is wrong with the cache.
+
+- WriteCache - Writes the cache to disk.
 """
 
 import io
 import logging
 import pickle
+from typing import Any
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import exceptions
@@ -36,118 +45,83 @@ __version__ = VERSION
 
 class ReadCache(_template.ReadInterface):
 
-    _info_object = _basic_info.FindBasicInfo
-    _packaged_data = {"hash": "", "data": object}
-    _logger = logging.getLogger(__name__)
+    __LOGGER = logging.getLogger(__name__ + ".ReadCache")
 
     def __init__(self, basic_info):
-        """
-        Loads the cache from disk if it exists, will raise CacheError if
-        something is wrong with the cache.
-        """
-        self._info_object = basic_info
-        self._attempt_cache_load()
+        # type: (_basic_info.FindBasicInfo) -> None
+        self.__info_object = basic_info
+        self.__packaged_data = {"hash": False, "data": object}
+        self.__graciously_load_cache()
 
-    @property
-    def is_valid(self):
-        return self._check_cache_is_valid()
-
-    def get_cache(self):
-        if self.is_valid:
-            return self._packaged_data["data"]
-        else:
-            raise exceptions.CacheError
-
-    def _attempt_cache_load(self):
-        found_data = self._graciously_load_cache()
-        self._set_data(found_data)
-
-    def _graciously_load_cache(self):
-        self._logger.debug(
-            "Attempting to load %s" % self._info_object.cache_location
+    def __graciously_load_cache(self):
+        self.__LOGGER.debug(
+            "Attempting to load %s" % self.__info_object.cache_location
         )
 
         try:
-            returned_data = self._load_data()
-            self._logger.debug("Successfully loaded pickle cache!")
+            self.__load_data()
+            self.__LOGGER.debug("Successfully loaded pickle cache!")
         except (OSError, IOError):
-            returned_data = self._empty_raw_data
-            self._logger.info("No cache exists.")
+            self.__LOGGER.debug("No cache exists.")
+        except pickle.PickleError:
+            self.__LOGGER.debug("Pickle is from a different python version.")
         except Exception as error:
-            returned_data = self._empty_raw_data
-            self._logger.warning(
-                "Pickle is from a different Python version or is damaged."
-            )
-            self._logger.debug(error, exc_info=True)
-        return returned_data
+            self.__LOGGER.debug("Pickle is damaged.")
+            self.__LOGGER.debug(error, exc_info=True)
 
-    @property
-    def _empty_raw_data(self):
-        return {"hash": False, "data": object}
+    def __load_data(self):
+        with io.open(self.__info_object.cache_location, "rb") as stream:
+            self.__packaged_data = pickle.load(stream)
 
-    def _load_data(self):
-        with io.open(self._info_object.cache_location, "rb") as stream:
-            return pickle.load(stream)
-
-    def _set_data(self, loaded_data):
-            self._packaged_data = loaded_data
-
-    def _check_cache_is_valid(self):
-        if self._packaged_data["hash"] == self._info_object.file_hash:
-            return self._caches_match()
-        elif not self._packaged_data["hash"]:
-            return self._cache_hash_is_false()
+    def get_cache(self):
+        # type: () -> Any
+        if self.is_valid():
+            return self.__packaged_data["data"]
         else:
-            return self._cache_hash_changed()
+            raise exceptions.CacheError
 
-    def _caches_match(self):
-        self._logger.debug("Cache Hashes match!")
-        return True
-
-    def _cache_hash_is_false(self):
-        self._logger.debug("Cache load failed, hash is false.")
-        return False
-
-    def _cache_hash_changed(self):
-        self._logger.warning("File hash has changed.")
-
-        self._logger.debug(
-            "%s != %s" % (
-                self._packaged_data["hash"],
-                self._info_object.file_hash
+    def is_valid(self):
+        # type: () -> bool
+        if self.__packaged_data["hash"] == self.__info_object.file_hash:
+            self.__LOGGER.debug("Cache Hashes match!")
+            return True
+        elif not self.__packaged_data["hash"]:
+            self.__LOGGER.debug("Cache load failed, hash is false.")
+            return False
+        else:
+            self.__LOGGER.warning("File hash has changed.")
+            self.__LOGGER.debug(
+                "%s != %s" % (
+                    self.__packaged_data["hash"],
+                    self.__info_object.file_hash
+                )
             )
-        )
-
-        return False
+            return False
 
 
 class WriteCache(_template.WriteInterface):
 
-    _packaged_data = {"hash": "", "data": object}
-    _logger = logging.getLogger(__name__)
-    _info_object = _basic_info.FindBasicInfo
+    __LOGGER = logging.getLogger(__name__ + ".WriteCache")
 
     def __init__(self, basic_info):
-        """
-        Writes the cache to disk.
-        """
-        self._logger.addHandler(logging.NullHandler())
-        self._info_object = basic_info
+        # type: (_basic_info.FindBasicInfo) -> None
+        self.__info_object = basic_info
+        self.__packaged_data = {"hash": False, "data": object}
 
     def write_cache(self, data):
-        self._set_packaged_data(data)
-        self._write_cache_data()
+        # type: (Any) -> None
+        self.__set_packaged_data(data)
+        self.__write_cache_data()
 
-    def _set_packaged_data(self, data):
-        self._packaged_data["hash"] = self._info_object.file_hash
-        self._packaged_data["data"] = data
+    def __set_packaged_data(self, data):
+        # type: (Any) -> None
+        self.__packaged_data["hash"] = self.__info_object.file_hash
+        self.__packaged_data["data"] = data
 
-    def _write_cache_data(self):
-        location = self._info_object.cache_location
-
-        self._logger.debug("Making cache for '%s'" % location)
-
+    def __write_cache_data(self):
+        location = self.__info_object.cache_location
+        self.__LOGGER.debug("Making cache for '%s'" % location)
         with io.open(location, "wb") as stream:
             pickle.dump(
-                self._packaged_data, stream, protocol=pickle.HIGHEST_PROTOCOL
+                self.__packaged_data, stream, protocol=pickle.HIGHEST_PROTOCOL
             )

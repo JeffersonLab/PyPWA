@@ -20,6 +20,8 @@
 Creates the template configuration file when --WriteConfig is passed
 """
 
+from typing import Any, Dict
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator.create_config import _builder
 from PyPWA.core.configurator.create_config import _function_builder
@@ -34,20 +36,21 @@ __version__ = VERSION
 
 class StartConfig(object):
 
-    __writer = _writer.Write()
-    __functions = _function_builder.FunctionHandler()
-    __storage = _metadata.MetadataStorage()
-    __plugin_dir = _questions.GetPluginDirectory()
-    __level = _questions.GetPluginLevel()
-    __save_location = _questions.GetSaveLocation()
-    __plugin_list = _metadata.GetPluginList()
-    __configuration = _builder.BuildConfig(
-        __plugin_dir, __plugin_list, __level
-    )
-
-    __main_plugin = None
+    def __init__(self):
+        self.__writer = _writer.Write()
+        self.__functions = _function_builder.FunctionHandler()
+        self.__storage = _metadata.MetadataStorage()
+        self.__plugin_dir = _questions.GetPluginDirectory()
+        self.__level = _questions.GetPluginLevel()
+        self.__save_location = _questions.GetSaveLocation()
+        self.__plugin_list = _metadata.GetPluginList()
+        self.__configuration = _builder.BuildConfig(
+            self.__plugin_dir, self.__plugin_list, self.__level
+        )
+        self.__main_plugin = None
 
     def make_config(self, function_settings, config_location):
+        # type: (Dict[str, Any], str) -> None
         self.__fetch_main_plugin(function_settings)
         self.__get_plugin_directories()
         self.__set_level()
@@ -58,6 +61,7 @@ class StartConfig(object):
         self.__save_functions()
 
     def __fetch_main_plugin(self, function_settings):
+        # type: (Dict[str, Any]) -> None
         self.__main_plugin = self.__storage.request_main_plugin_by_name(
             function_settings["main"]
         )
@@ -73,9 +77,11 @@ class StartConfig(object):
         self.__plugin_list.parse_plugins(self.__main_plugin)
 
     def __create_configuration(self, function_settings):
+        # type: (Dict[str, Any]) -> None
         self.__configuration.build(function_settings)
 
     def __set_save_location(self, save_location):
+        # type: (str) -> None
         if save_location:
             self.__save_location.override_save_location(save_location)
         else:

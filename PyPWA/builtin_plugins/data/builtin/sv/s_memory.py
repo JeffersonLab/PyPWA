@@ -21,6 +21,7 @@ import io
 import logging
 import os
 import sys
+from typing import List, Tuple, Iterable, Dict
 
 import numpy
 
@@ -38,164 +39,189 @@ HEADER_SEARCH_BITS = 3072
 class SvMemory(data_templates.TemplateMemory):
 
     def parse(self, file_location):
+        # type: (str) -> numpy.ndarray
         parser = _SvParser()
         return parser.return_read_data(file_location)
 
     def write(self, file_location, data):
+        # type: (str, numpy.ndarray) -> None
         writer = _SvMemoryWriter()
         writer.write_memory_to_disk(file_location, data)
 
 
 class _SvParser(object):
 
-    _logger = logging.getLogger(__name__)
-    _line_count = 0
-    _dialect = None
-    _stream = None
-    _reader = None
-    _header = None
+    __LOGGER = logging.getLogger(__name__ + "._SvParser")
 
     def __init__(self):
-        self._logger.addHandler(logging.NullHandler())
+        self.__line_count = 0
+        self.__dialect = None  # type: str
+        self.__stream = None  # type: io.FileIO
+        self.__reader = None  # type: csv.reader
+        self.__header = None  # type: List[str]
 
     def return_read_data(self, file_location):
-        self._start_parsing(file_location)
-        return self._end_parsing()
+        # type: (str) -> numpy.ndarray
+        self.__start_parsing(file_location)
+        return self.__end_parsing()
 
-    def _start_parsing(self, file_location):
-        self._open_stream(file_location)
-        self._set_required_data()
+    def __start_parsing(self, file_location):
+        # type: (str) -> None
+        self.__open_stream(file_location)
+        self.__set_required_data()
 
-    def _open_stream(self, file_location):
-        self._stream = io.open(file_location, "r")
+    def __open_stream(self, file_location):
+        # type: (str) -> None
+        self.__stream = io.open(file_location, "r")
 
-    def _reset_stream(self):
-        self._stream.seek(0)
+    def __reset_stream(self):
+        self.__stream.seek(0)
 
-    def _close_stream(self):
-        self._stream.close()
+    def __close_stream(self):
+        self.__stream.close()
 
-    def _set_required_data(self):
-        self._set_line_number()
-        self._set_dialect()
-        self._set_reader()
-        self._set_header()
+    def __set_required_data(self):
+        self.__set_line_number()
+        self.__set_dialect()
+        self.__set_reader()
+        self.__set_header()
 
-    def _set_line_number(self):
-        for self._line_count, throw_away in enumerate(self._stream):
+    def __set_line_number(self):
+        for self.__line_count, throw_away in enumerate(self.__stream):
             pass
-        self._reset_stream()
+        self.__reset_stream()
 
-    def _set_dialect(self):
-        self._dialect = csv.Sniffer().sniff(
-            self._stream.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
+    def __set_dialect(self):
+        self.__dialect = csv.Sniffer().sniff(
+            self.__stream.read(HEADER_SEARCH_BITS), delimiters=[",", "\t"]
         )
-        self._reset_stream()
+        self.__reset_stream()
 
-    def _set_reader(self):
-        self._reader = csv.reader(self._stream, self._dialect)
+    def __set_reader(self):
+        self.__reader = csv.reader(self.__stream, self.__dialect)
 
-    def _set_header(self):
-        self._header = next(self._reader)
+    def __set_header(self):
+        self.__header = next(self.__reader)
 
-    def _end_parsing(self):
-        data = self._parse_data()
-        self._close_stream()
+    def __end_parsing(self):
+        # type: () -> numpy.ndarray
+        data = self.__parse_data()
+        self.__close_stream()
         return data
 
-    def _parse_data(self):
-        empty_array = self._setup_numpy_array()
-        return self._fill_array(empty_array)
+    def __parse_data(self):
+        # type: () -> numpy.ndarray
+        empty_array = self.__setup_numpy_array()
+        return self.__fill_array(empty_array)
 
-    def _setup_numpy_array(self):
-        types = self._build_numpy_types()
-        return self._make_empty_numpy_array(types)
+    def __setup_numpy_array(self):
+        # type: () -> numpy.ndarray
+        types = self.__build_numpy_types()
+        return self.__make_empty_numpy_array(types)
 
-    def _build_numpy_types(self):
+    def __build_numpy_types(self):
+        # type: () -> List[Tuple[str]]
         types = []
-        for column in self._header:
+        for column in self.__header:
             types.append((column, "f8"))
 
-        self._logger.debug("Types: " + repr(types))
+        self.__LOGGER.debug("Types: " + repr(types))
         return types
 
-    def _make_empty_numpy_array(self, dtype):
-        return numpy.zeros(self._line_count, dtype)
+    def __make_empty_numpy_array(self, data_types):
+        # type: (List[Tuple[str]]) -> numpy.ndarray
+        return numpy.zeros(self.__line_count, data_types)
 
-    def _fill_array(self, empty_array):
-        for row_index, row_data in enumerate(self._reader):
-            self._fill_row(empty_array, row_index, row_data)
+    def __fill_array(self, empty_array):
+        # type: (numpy.ndarray) -> numpy.ndarray
+        for row_index, row_data in enumerate(self.__reader):
+            # this works because numpy arrays are passed around by reference
+            self.__fill_row(empty_array, row_index, row_data)
         return empty_array
 
-    def _fill_row(self, array, row_index, row_data):
+    def __fill_row(self, array, row_index, row_data):
+        # type: (numpy.ndarray, int, List[str]) -> None
         for column_index in range(len(row_data)):
-            array[self._header[column_index]][row_index] = \
+            array[self.__header[column_index]][row_index] = \
                 row_data[column_index]
 
 
 class _SvMemoryWriter(object):
 
-    _dialect = ""
-    _column_names = None
-    _stream = None
-    _writer = None
+    def __init__(self):
+        self.__dialect = ""  # type: str
+        self.__column_names = None  # type: List[str]
+        self.__stream = None  # type: io.FileIO
+        self.__writer = None  # type: csv.DictWriter
 
     def write_memory_to_disk(self, file_location, data):
-        self._setup_initial_information(file_location, data)
-        self._setup_writer(file_location)
-        self._write_data(data)
+        # type: (str, numpy.ndarray) -> None
+        self.__setup_initial_information(file_location, data)
+        self.__setup_writer(file_location)
+        self.__write_data(data)
 
-    def _setup_initial_information(self, file_location, data):
-        self._process_dialect(file_location)
-        self._set_column_names(data)
+    def __setup_initial_information(self, file_location, data):
+        # type: (str, numpy.ndarray) -> None
+        self.__process_dialect(file_location)
+        self.__set_column_names(data)
 
-    def _process_dialect(self, file_location):
-        extension = self._get_extension(file_location)
-        self._set_dialect(extension)
+    def __process_dialect(self, file_location):
+        # type: (str) -> None
+        extension = self.__get_extension(file_location)
+        self.__set_dialect(extension)
 
     @staticmethod
-    def _get_extension(file_location):
+    def __get_extension(file_location):
+        # type: (str) -> str
         return os.path.splitext(file_location)[1]
 
-    def _set_dialect(self, extension):
+    def __set_dialect(self, extension):
+        # type: (str) -> None
         if extension == ".tsv":
-            self._dialect = csv.excel_tab
+            self.__dialect = csv.excel_tab
         else:
-            self._dialect = csv.excel
+            self.__dialect = csv.excel
 
-    def _set_column_names(self, data):
-        self._column_names = data.dtype.names
+    def __set_column_names(self, data):
+        # type: (numpy.ndarray) -> None
+        self.__column_names = data.dtype.names
 
-    def _setup_writer(self, file_location):
-        self._open_stream(file_location)
-        self._set_writer()
-        self._write_header()
+    def __setup_writer(self, file_location):
+        # type: (str) -> None
+        self.__open_stream(file_location)
+        self.__set_writer()
+        self.__write_header()
 
-    def _open_stream(self, file_location):
+    def __open_stream(self, file_location):
+        # type: (str) -> None
         if sys.version_info.major == 2:
-            self._stream = open(file_location, "w")
+            self.__stream = open(file_location, "w")
         else:
-            self._stream = io.open(file_location, "w")
+            self.__stream = io.open(file_location, "w")
 
-    def _set_writer(self):
-        self._writer = csv.DictWriter(
-            self._stream, fieldnames=self._column_names, dialect=self._dialect
+    def __set_writer(self):
+        self.__writer = csv.DictWriter(
+            self.__stream, fieldnames=self.__column_names,
+            dialect=self.__dialect
         )
 
-    def _write_header(self):
-        self._writer.writeheader()
+    def __write_header(self):
+        self.__writer.writeheader()
 
-    def _write_data(self, data):
-        for index in self._iterator_over_columns(data):
-            new_dict = self._convert_row_to_dict(index, data)
-            self._writer.writerow(new_dict)
+    def __write_data(self, data):
+        # type: (numpy.ndarray) -> None
+        for index in self.__iterator_over_columns(data):
+            new_dict = self.__convert_row_to_dict(index, data)
+            self.__writer.writerow(new_dict)
 
-    def _iterator_over_columns(self, data):
-        length = len(data[self._column_names[0]])
+    def __iterator_over_columns(self, data):
+        # type: (numpy.ndarray) -> Iterable
+        length = len(data[self.__column_names[0]])
         return range(length)
 
-    def _convert_row_to_dict(self, row_index, data):
+    def __convert_row_to_dict(self, row_index, data):
+        # type: (int, numpy.ndarray) -> Dict[str, str]
         new_dict = {}
-        for column in self._column_names:
+        for column in self.__column_names:
             new_dict[column] = repr(data[column][row_index])
         return new_dict

@@ -35,26 +35,24 @@ __version__ = VERSION
 
 class ClearCache(_template.ReadInterface):
 
-    _logger = logging.getLogger(__name__)
-    _info = _basic_info.FindBasicInfo
+    __LOGGER = logging.getLogger(__name__ + ".ClearCache")
 
     def __init__(self, basic_info):
-        self._logger.addHandler(logging.NullHandler())
-        self._info = basic_info
-        self._attempt_to_remove_cache()
+        # type: (_basic_info.FindBasicInfo) -> None
+        self.__info = basic_info
+        self.__attempt_to_remove_cache()
 
-    @property
     def is_valid(self):
         return False
 
     def get_cache(self):
         raise exceptions.CacheError
 
-    def _attempt_to_remove_cache(self):
+    def __attempt_to_remove_cache(self):
         try:
-            self._remove_cache()
+            self.__remove_cache()
         except OSError:
-            self._logger.info("No cache to delete.")
+            self.__LOGGER.debug("No cache to delete.")
 
-    def _remove_cache(self):
-        os.remove(self._info.cache_location)
+    def __remove_cache(self):
+        os.remove(self.__info.cache_location)

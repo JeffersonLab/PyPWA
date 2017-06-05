@@ -28,6 +28,8 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator.execute import _plugin_data
 from PyPWA.core.configurator.execute import _settings
 
+from typing import Dict
+
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
@@ -35,15 +37,18 @@ __version__ = VERSION
 
 class Execute(object):
 
-    __settings = _settings.Setup()
-    __executor = None  # type: _plugin_data.SetupProgram
+    def __init__(self):
+        self.__settings = _settings.Setup()
+        self.__executor = None  # type: _plugin_data.SetupProgram
 
     def run(self, function_settings, configuration_location):
+        # type: (Dict[str, str], str) -> None
         self.__set_settings(function_settings, configuration_location)
         self.__set_executor()
         self.__execute()
 
     def __set_settings(self, function_settings, configuration_location):
+        # type: (Dict[str, str], str) -> None
         self.__settings.load_settings(
             function_settings, configuration_location
         )
