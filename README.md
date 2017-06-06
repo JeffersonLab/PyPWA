@@ -10,6 +10,7 @@ Has support for multiple likelihoods, including:
  - Extended Log Likelihood
  - Standard Log Likelihood, Optionally Binned
  - Binned ChiSquared Likelihood
+ - Standard ChiSquared Likelihood
  
  You can even define your own likelihood, or calculate entirely without one
  if you chose to do so!
@@ -28,16 +29,6 @@ Generic Fitting Tools
   the configuration
 - Supports using all the threads on the machine
 
-More Documentation
-------------------
-
-For in-depth details on:
-- Installation
-- Usage
-- Examples of how to use
-- How to help
-
-Visit our online documentation at: https://pypwa.readthedocs.io
 
 Installation from GitHub
 ------------------------
@@ -58,29 +49,26 @@ Using PyFit and PySimulate
 
 Go to the directory that you would like to do your analysis in and run:
 
-     $ Py[Fit/Simulate] -wc [configuration_name]
+     $ [PyFit/PySimulate] -wc [configuration_name]
 
 Fill in the data in that configuration file using your favorite editor,
 then run your analysis:
 
-     $ Py[Fit/Simulate] [configuration_name]
+     $ [PyFit/PySimulate] [configuration_name]
 
 
-Contribute
-----------
-
-- Issue Tracker: <https://www.github.com/JeffersonLab/PyPWA/issues>
-- Source Code: <https://www.github.com/JeffersonLab/PyPWA>
-
-Support
--------
-
+Contribute or Support
+---------------------
 If you have any issues, or would like to see any features added to the 
 project, let us know!
 
-- Mail list: pypwa@jlab.org
+- Feature Tracker: <https://tree.taiga.io/project/markjonestx-pypwa/>
+- Issue Tracker: <https://www.github.com/JeffersonLab/PyPWA/issues>
+- Source Code: <https://www.github.com/JeffersonLab/PyPWA>
+
 
 License
 -------
 
 The project is licensed under the GPLv3 license.
+
