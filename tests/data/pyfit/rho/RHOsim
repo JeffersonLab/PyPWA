@@ -1,0 +1,13 @@
+Builtin Multiprocessing:
+  number of processes: 2
+Builtin Parser:
+  enable cache: false
+Simulator:
+  function's location: tests/data/pyfit/rho/testRHO.py
+  parameters:
+    A1: 100.
+    A2: 0.4
+  setup name: setup_function
+  data location: tests/data/pyfit/rho/flat_data.csv
+  processing name: processing_function
+  save name: outputRHO

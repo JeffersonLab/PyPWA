@@ -3,13 +3,31 @@ language: python
 cache: pip
 python:
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
+  - "3.6"
+  - "3.6-dev"
+  - "3.7-dev"
+  - "nightly"
+matrix:
+  allow_failures:
+    - python: "3.6-dev"
+    - python: "3.7-dev"
+    - python: "nightly"
+addons:
+  apt:
+    packages:
+      - "build-essential"
+      - "gfortran"
+      - "libatlas-base-dev"
 before_install:
   - python --version
   - uname -a
   - ls -a
+  - "pip install --upgrade pip setuptools wheel"
+  - "pip install --upgrade numpy scipy"
+  - "pip install --upgrade iminuit nestle ruamel.yaml tabulate appdirs"
+  - "pip install --upgrade fuzzywuzzy python-Levenshtein"
   - "pip install coveralls --upgrade"
   - "pip install coverage --upgrade"
   - "pip install pytest --upgrade"
@@ -24,9 +42,6 @@ after_success:
   - coveralls
   - head .coverage
 notifications:
-  emails: false
-  slack:
-    rooms:
-      - pypwa:qPFpdrleMXOkj6mE18RctZQR
+  emails:
     on_success: change
     on_failure: change

@@ -1,18 +1,20 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Gamp data reading and writing.
@@ -27,19 +29,15 @@ import io
 
 import numpy
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
+from PyPWA import AUTHOR, VERSION
+from PyPWA.core.shared.interfaces import internals
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
-class GampReader(interface_templates.ReaderInterfaceTemplate):
+class GampReader(internals.Reader):
 
     def __init__(self, file_location):
         """
@@ -50,9 +48,8 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         Args:
             file_location (str): Name of the GAMP file, can be any size.
         """
-        super(GampReader, self).__init__(file_location)
         self._previous_event = None  # type: numpy.ndarray
-
+        self._the_file = file_location
         self._start_input()
 
     def _start_input(self):
@@ -74,8 +71,7 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         """
         self._start_input()
 
-    @property
-    def next_event(self):
+    def next(self):
         """
         Structures the read in event from the GAMP file into a deque then
         passes it to the calling function.
@@ -94,10 +90,6 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         for index in range(count):
             event[index] = self._make_particle(self._file.readline())
         self._previous_event = event
-        return self._previous_event
-
-    @property
-    def previous_event(self):
         return self._previous_event
 
     @staticmethod
@@ -130,7 +122,7 @@ class GampReader(interface_templates.ReaderInterfaceTemplate):
         self._file.close()
 
 
-class GampWriter(interface_templates.WriterInterfaceTemplate):
+class GampWriter(internals.Writer):
 
     def __init__(self, file_location):
         """
@@ -141,7 +133,6 @@ class GampWriter(interface_templates.WriterInterfaceTemplate):
         Args:
             file_location (str): Where to write the GAMP data.
         """
-        super(GampWriter, self).__init__(file_location)
         self._file = open(file_location, "w")
 
     def write(self, data):

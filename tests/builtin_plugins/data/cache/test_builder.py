@@ -230,7 +230,7 @@ def test_read_cache(param_wrapper):
 
 def test_cache_is_valid(param_wrapper):
     with pytest.raises(param_wrapper[1]["valid"]):
-        param_wrapper[0].is_valid
+        param_wrapper[0].is_valid()
 
 
 @pytest.fixture
@@ -244,4 +244,4 @@ def cache_with_no_file(
 
 def test_cache_is_not_valid_when_no_file(cache_with_no_file):
     with pytest.raises(DidNotRead):
-        cache_with_no_file.is_valid
+        cache_with_no_file.is_valid()

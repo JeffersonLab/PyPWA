@@ -1,24 +1,21 @@
-import PyPWA.builtin_plugins
-from PyPWA.core import plugin_loader
-from PyPWA.core.configurator import _storage
-from PyPWA.core.templates import option_templates
+import pytest
+
+from PyPWA.core.configurator import storage
+from PyPWA.shell import pyfit
 
 
-def test_PluginStorage_RenderTemplate_IsDict():
-    storage = _storage.PluginStorage()
-    assert isinstance(storage.templates_config, dict)
+@pytest.fixture()
+def module_storage():
+    return storage.Storage()
 
 
-def test_MetadataStorage_LoadPluginsRandomPlugins_PluginsSorted():
-    loader = plugin_loader.PluginLoading(
-        option_templates.PluginsOptionsTemplate
-    )
+def test_module_finds_shells(module_storage):
+    assert len(module_storage._get_shells()) != 0
 
-    plugin_list = loader.fetch_plugin([PyPWA.builtin_plugins])
 
-    metadata_storage = _storage.MetadataStorage()
-    metadata_storage.add_plugins(plugin_list)
+def test_module_finds_fitter(module_storage):
+    assert pyfit.ShellFitting in module_storage._get_shells()
 
-    assert len(metadata_storage.data_parser) == 1
-    assert len(metadata_storage.data_reader) == 1
-    assert len(metadata_storage.kernel_processing) == 1
+
+def test_module_finds_options(module_storage):
+    assert len(module_storage._get_plugins()) != 0

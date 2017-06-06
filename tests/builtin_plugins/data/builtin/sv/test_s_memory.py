@@ -21,16 +21,27 @@ import pytest
 from PyPWA.builtin_plugins.data.builtin.sv import s_memory
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../test_docs/temporary_write_data"
+    os.path.dirname(__file__),
+    "../../../../data/test_docs/temporary_write_data"
 )
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../../data/test_docs/sv_test_data.csv"
+)
+
+CSV_TEST_DATA_2 = os.path.join(
+    os.path.dirname(__file__), "../../../../data/pyfit/data/data.csv"
 )
 
 TSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_docs/sv_test_data.tsv"
+    os.path.dirname(__file__), "../../../../data/test_docs/sv_test_data.tsv"
 )
+
+
+@pytest.fixture
+def full_data():
+    parser = s_memory.SvMemory()
+    return parser.parse(CSV_TEST_DATA_2)
 
 
 @pytest.fixture(scope="module")
@@ -65,6 +76,10 @@ def looping_parser_test_data(numpy_flat, request):
     yield [numpy_flat, new_data]
 
     os.remove(request.param)
+
+
+def test_full_data_has_expected_data(full_data):
+    assert full_data['v'][3] == 0.19246017603470056
 
 
 def test_read_data_matches_expected(return_parsed_data):

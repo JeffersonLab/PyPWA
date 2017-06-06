@@ -1,128 +1,129 @@
-#   PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Memory Caching
-
+--------------
 The objects in this file are dedicated to saving and writing chunks of
 memory to file for quick loading when the data is loaded into memory
 again.
+
+- _CacheInterface - A simple interface object to _WriteCache and _ReadCache
+
+- CacheBuilder - Builds the _CacheInterface using the other cache types
+  depending on the supplied booleans.
 """
 
 import logging
+from typing import Any
 
-from PyPWA import VERSION, LICENSE, STATUS
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data.cache import _basic_info
 from PyPWA.builtin_plugins.data.cache import _clear_cache
 from PyPWA.builtin_plugins.data.cache import _no_cache
 from PyPWA.builtin_plugins.data.cache import _standard_cache
 from PyPWA.builtin_plugins.data.cache import _template
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
 class _CacheInterface(object):
 
-    _read_cache = _template.ReadInterface
-    _write_cache = _template.WriteInterface
-
     def __init__(self, read_cache, write_cache):
-        """
-        A simple interface object to _WriteCache and _ReadCache.
-        """
-        self._read_cache = read_cache
-        self._write_cache = write_cache
+        # type: (_template.ReadInterface, _template.WriteInterface) -> None
+        self.__read_cache = read_cache
+        self.__write_cache = write_cache
 
     def write_cache(self, data):
-        self._write_cache.write_cache(data)
+        # type: (Any) -> None
+        self.__write_cache.write_cache(data)
 
-    @property
     def is_valid(self):
-        return self._read_cache.is_valid
+        return self.__read_cache.is_valid()
 
     def read_cache(self):
         """
-        Raises:
-            cache.CacheError: If the hash has changed, is corrupt, or
-                doesn't exist, this error will be raised.
+        :raises cache.CacheError: If the hash has changed, or is corrupt.
         """
-        return self._read_cache.get_cache()
+        return self.__read_cache.get_cache()
 
 
 class CacheBuilder(object):
-    _use_cache = True
-    _clear_cache = False
-    _info_object = _basic_info.FindBasicInfo
-    _selected_reader = _template.ReadInterface
-    _selected_writer = _template.WriteInterface
-    _logger = logging.getLogger(__name__)
+
+    __LOGGER = logging.getLogger(__name__ + ".CacheBuilder")
 
     def __init__(self, use_cache=True, clear_cache=False):
-        self._logger.addHandler(logging.NullHandler())
-        self._clear_cache = clear_cache
-        self._use_cache = use_cache
+        # type: (bool, bool) -> None
+        self.__clear_cache = clear_cache
+        self.__use_cache = use_cache
+        self.__info_object = None  # type: _basic_info.FindBasicInfo
+        self.__selected_reader = None  # type: _template.ReadInterface
+        self.__selected_writer = None  # type: _template.WriteInterface
 
     def get_cache_interface(self, file_location):
-        self._set_info_object(file_location)
-        self._find_reader()
-        self._find_writer()
-        return self._make_interface()
+        # type: (str) -> _CacheInterface
+        self.__set_info_object(file_location)
+        self.__find_reader()
+        self.__find_writer()
+        return self.__make_interface()
 
-    def _set_info_object(self, file_location):
+    def __set_info_object(self, file_location):
+        # type: (str) -> None
         try:
-            self._info_object = _basic_info.FindBasicInfo(file_location)
+            self.__info_object = _basic_info.FindBasicInfo(file_location)
         except (OSError, IOError):
-            self._logger.warning("No original file found!")
-            self._enable_cache_fallback()
+            self.__LOGGER.warning("No original file found!")
+            self.__enable_cache_fallback()
 
-    def _enable_cache_fallback(self):
-        self._logger.debug("Cache set to fallback!")
-        self._use_cache = False
+    def __enable_cache_fallback(self):
+        self.__LOGGER.debug("Cache set to fallback!")
+        self.__use_cache = False
 
-    def _find_reader(self):
-        if not self._use_cache:
-            self._logger.debug("No Read Cache selected.")
-            self._selected_reader = _no_cache.NoRead()
-        elif self._clear_cache:
-            self._logger.debug("Clear Cache selected.")
-            self._selected_reader = _clear_cache.ClearCache(self._info_object)
+    def __find_reader(self):
+        if not self.__use_cache:
+            self.__LOGGER.debug("No Read Cache selected.")
+            self.__selected_reader = _no_cache.NoRead()
+        elif self.__clear_cache:
+            self.__LOGGER.debug("Clear Cache selected.")
+            self.__selected_reader = _clear_cache.ClearCache(
+                self.__info_object
+            )
         else:
-            self._logger.debug("Read Cache selected.")
-            self._selected_reader = _standard_cache.ReadCache(
-                self._info_object
+            self.__LOGGER.debug("Read Cache selected.")
+            self.__selected_reader = _standard_cache.ReadCache(
+                self.__info_object
             )
 
-    def _find_writer(self):
-        if not self._use_cache:
-            self._logger.debug("No Write Cache selected.")
-            self._selected_writer = _no_cache.NoWrite()
+    def __find_writer(self):
+        if not self.__use_cache:
+            self.__LOGGER.debug("No Write Cache selected.")
+            self.__selected_writer = _no_cache.NoWrite()
         else:
-            self._logger.debug("Write Cache selected.")
-            self._selected_writer = _standard_cache.WriteCache(
-                self._info_object
+            self.__LOGGER.debug("Write Cache selected.")
+            self.__selected_writer = _standard_cache.WriteCache(
+                self.__info_object
             )
 
-    def _make_interface(self):
+    def __make_interface(self):
+        # type: () -> _CacheInterface
         return _CacheInterface(
-            self._selected_reader,
-            self._selected_writer
+            self.__selected_reader,
+            self.__selected_writer
         )

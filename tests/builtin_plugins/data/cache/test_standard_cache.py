@@ -29,13 +29,18 @@ from PyPWA.builtin_plugins.data.cache import _basic_info
 
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../builtin/test_docs/temporary_write_data"
+    os.path.dirname(__file__),
+    "../../../data/test_docs/temporary_write_data"
 )
 
 DATA = ";qjkxbmwvzpyfgcrl"
 
 
-class InfoA(_basic_info.BasicInfoInterface):
+class InfoA(_basic_info.FindBasicInfo):
+
+    def __init__(self):
+        # We don't actually want to run the init
+        pass
 
     @property
     def file_hash(self):
@@ -46,7 +51,12 @@ class InfoA(_basic_info.BasicInfoInterface):
         return TEMP_WRITE_LOCATION
 
 
-class InfoB(_basic_info.BasicInfoInterface):
+class InfoB(_basic_info.FindBasicInfo):
+
+    def __init__(self):
+        # We don't actually want to run the init
+        pass
+
     @property
     def file_hash(self):
         return "1234567890aoeuidhtns"
@@ -107,7 +117,7 @@ def induced_pickle_error(write_a, basic_info_a):
 
 
 def test_read_is_valid_true(wrapping_pass_read):
-    assert wrapping_pass_read.is_valid is True
+    assert wrapping_pass_read.is_valid() is True
 
 
 def test_get_cache_matches_read(wrapping_pass_read):
@@ -115,7 +125,7 @@ def test_get_cache_matches_read(wrapping_pass_read):
 
 
 def test_read_is_valid_false(wrapping_fail_read):
-    assert not wrapping_fail_read.is_valid
+    assert not wrapping_fail_read.is_valid()
 
 
 def test_get_cache_raises_error(wrapping_fail_read):
@@ -124,7 +134,7 @@ def test_get_cache_raises_error(wrapping_fail_read):
 
 
 def test_read_is_valid_false_with_bad_pickle(induced_pickle_error):
-    assert not induced_pickle_error.is_valid
+    assert not induced_pickle_error.is_valid()
 
 
 def test_get_cache_raises_error_with_bad_pickle(induced_pickle_error):
@@ -133,7 +143,7 @@ def test_get_cache_raises_error_with_bad_pickle(induced_pickle_error):
 
 
 def test_read_is_valid_false_with_no_cache(read_b):
-    assert not read_b.is_valid
+    assert not read_b.is_valid()
 
 
 def test_get_cache_raises_error_with_no_cache(read_b):

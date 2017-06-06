@@ -1,18 +1,20 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Handles EVIL to / from memory.
@@ -38,20 +40,16 @@ import logging
 
 import numpy
 
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
+from PyPWA.core.shared.interfaces import internals
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
-class EVILReader(interface_templates.ReaderInterfaceTemplate):
+class EVILReader(internals.Reader):
 
     def __init__(self, file_location):
         """
@@ -63,7 +61,7 @@ class EVILReader(interface_templates.ReaderInterfaceTemplate):
         self._logger = logging.getLogger(__name__)
         self._logger.addHandler(logging.NullHandler())
 
-        super(EVILReader, self).__init__(file_location)
+        self._the_file = file_location
         self._previous_event = None
         self._file = False  # type: io.TextIOBase
         self._parameters = False  # type: [str]
@@ -115,14 +113,7 @@ class EVILReader(interface_templates.ReaderInterfaceTemplate):
         validator.quick_test(self._the_file)
         self._file_data_type = validator.evil_type
 
-    def reset(self):
-        """
-        Wrapper for _start_input
-        """
-        self._start_input()
-
-    @property
-    def next_event(self):
+    def next(self):
         """
         Reads in a single line and parses the line into a GenericEvent.
 
@@ -138,10 +129,6 @@ class EVILReader(interface_templates.ReaderInterfaceTemplate):
 
         self._previous_event = values
         return self._previous_event
-
-    @property
-    def previous_event(self):
-        return self.previous_event
 
     def __read(self):
         """
@@ -216,7 +203,7 @@ class EVILReader(interface_templates.ReaderInterfaceTemplate):
         self._file.close()
 
 
-class EVILWriter(interface_templates.WriterInterfaceTemplate):
+class EVILWriter(internals.Writer):
 
     def __init__(self, file_location):
         """
@@ -227,7 +214,6 @@ class EVILWriter(interface_templates.WriterInterfaceTemplate):
         Args:
             file_location (str): Where to write the data.
         """
-        super(EVILWriter, self).__init__(file_location)
         self._file = io.open(file_location, "w")
 
     def write(self, data):
@@ -252,4 +238,3 @@ class EVILWriter(interface_templates.WriterInterfaceTemplate):
         Closes the file safely.
         """
         self._file.close()
-

@@ -2,9 +2,14 @@ import time
 
 import numpy
 import pytest
+import logging
 
 from PyPWA.builtin_plugins.process import foreman, _communication
-from PyPWA.core.templates import interface_templates
+from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared import initial_logging
+
+
+initial_logging.InternalLogger.set_level_to_global()
 
 
 def test_DuplexProcess_SumOfIntegers_Return50():
@@ -16,12 +21,13 @@ def test_DuplexProcess_SumOfIntegers_Return50():
     test_data = {"the_data": numpy.ones(50)}
 
     # Create a test process kernel
-    class TestKernel(interface_templates.AbstractKernel):
+    class TestKernel(internals.Kernel):
 
+        __logger = logging.getLogger("TEST")
         the_data = False  # type: numpy.ndarray
 
         def setup(self):
-            pass
+            self.__logger.debug("Test setup called!")
 
         def process(self, data=False):
             if data[0] == "go":  # data is a tuple.
@@ -33,8 +39,8 @@ def test_DuplexProcess_SumOfIntegers_Return50():
                 return "NO GO"
 
     # Create a test interface
-    class TestInterface(interface_templates.AbstractInterface):
-        is_duplex = True
+    class TestInterface(internals.KernelInterface):
+        IS_DUPLEX = True
 
         def run(self, communicator, arguments):
             for the_communicator in communicator:
@@ -73,7 +79,7 @@ def test_SimplexProcess_SumIntegers_Return50():
     test_data = {"the_data": numpy.ones(50)}
 
     # Create Kernel
-    class TestKernel(interface_templates.AbstractKernel):
+    class TestKernel(internals.Kernel):
         the_data = False  # type: numpy.ndarray
 
         def setup(self):
@@ -83,8 +89,8 @@ def test_SimplexProcess_SumIntegers_Return50():
             return numpy.sum(self.the_data)
 
     # Create Interface
-    class TestInterface(interface_templates.AbstractInterface):
-        is_duplex = False
+    class TestInterface(internals.KernelInterface):
+        IS_DUPLEX = False
 
         def run(self, communicator, args):
             value = numpy.zeros(len(communicator))
@@ -112,8 +118,8 @@ def test_Kernels_WillFail_RaiseNotImplemented():
     Check that Kernels will raise NotImplementedError if they are not
     overridden.
     """
-    kernel = interface_templates.AbstractKernel()
-    interface = interface_templates.AbstractInterface()
+    kernel = internals.Kernel()
+    interface = internals.KernelInterface()
 
     with pytest.raises(NotImplementedError):
         kernel.process()

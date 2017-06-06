@@ -14,51 +14,56 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from setuptools import setup, find_packages
 
-__author__ = "Mark Jones"
+__author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "2.0.0-rc5"
-__maintainer__ = "Mark Jones"
-__email__ = "maj@jlab.org"
-__status__ = "development"
+__version__ = "2.0.0"
+__email__ = "pypwa@jlab.org"
+__status__ = "production"
 
+
+requires = [
+    "iminuit<2.0",   # Default minimizer
+    "scipy",         # Needed for Nestle with multiple ellipsoids.
+    "nestle",        # New more advanced minimizer
+    "numpy>1,<2.0",  # Arrays and optimizations
+    "ruamel.yaml",   # Advanced YAML Parser
+    "tabulate",      # Great aesthetic tables
+    "appdirs",       # Attempts to find data locations
+    "fuzzywuzzy",    # Fuzzes the user input
+    "python-Levenshtein",
+    'enum34;python_version<"3.4"',
+    'typing;python_version<"3.5"'
+]
+
+configurator_entry = "PyPWA.entries.configurator"
+
+entry_points = {
+    "console_scripts": [
+        "PyFit = %s:py_fit" % configurator_entry,
+        "LikelihoodFit = %s:likelihood_fit" % configurator_entry,
+        "ChiSquaredFit = %s:chi_squared_fit" % configurator_entry,
+        "PySimulate = %s:py_simulate" % configurator_entry,
+        "GenerateIntensities = %s:generate_intensities" % configurator_entry,
+        "GenerateWeights = %s:generate_weights" % configurator_entry
+    ]
+}
 
 setup(
     name="PyPWA",
     version=__version__,
-    author="PyPWA Team",
-    author_email="maj@jlab.org",
+    author=__author__,
+    author_email=__email__,
     packages=find_packages(),
     url="http//pypwa.jlab.org",
     license=__license__,
     description="General Partial Wave Analysis",
     test_suite="tests",
-    entry_points={
-        "console_scripts": [
-            "PyFit = PyPWA.entries.shell:general_fitting",
-            "LikelihoodFit = PyPWA.entries.shell:likelihood_fitting",
-            "ChiSquaredFit = PyPWA.entries.shell:chi_squared",
-            "PySimulate = PyPWA.entries.shell:simulator",
-            "GenerateIntensities = PyPWA.entries.shell:intensities",
-            "GenerateWeights = PyPWA.entries.shell:rejection_method"
-        ]
-    },
+    entry_points=entry_points,
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
-    install_requires=[
-        "typing",       # Support for function typing
-        "iminuit<2.0",  # Default minimizer
-        "nestle",       # New more advanced minimizer
-        "numpy<2.0",    # Arrays and optimizations
-        "ruamel.yaml",  # Advanced YAML Parser
-        "tabulate",     # Great aesthetic tables
-        "appdirs",      # Attempts to find data locations
-        "fuzzywuzzy",   # Fuzzes the user input
-        "python-Levenshtein"
-    ],
-    extras_require={
-        'multinest': ["pymultinest"]
-    },
+    install_requires=requires,
     setup_requires=['pytest-runner'],
     tests_require=['pytest', "pytest-cov", "pytest-logging"],
     classifiers=[

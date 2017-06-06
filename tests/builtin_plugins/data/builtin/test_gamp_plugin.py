@@ -9,15 +9,15 @@ from PyPWA.builtin_plugins.data.builtin.gamp import g_memory
 from PyPWA.builtin_plugins.data.builtin.gamp import g_read_tests
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
 )
 
 GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/gamp_test_data.gamp"
+    os.path.dirname(__file__), "../../../data/test_docs/gamp_test_data.gamp"
 )
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../../../data/test_docs/temporary_write_data"
 )
 
 
@@ -70,10 +70,3 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
 def test_GAMPReader_ResetReader_NoFail():
     reader = g_iterator.GampReader(GAMP_TEST_DATA)
     reader.reset()
-
-
-def test_GAMPReader_PreviousEvent_MatchesNext():
-    reader = g_iterator.GampReader(GAMP_TEST_DATA)
-    old = reader.next_event
-
-    numpy.testing.assert_array_equal(old, reader.previous_event)

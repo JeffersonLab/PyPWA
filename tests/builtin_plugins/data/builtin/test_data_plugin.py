@@ -19,22 +19,22 @@ import os
 import pytest
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp
-from PyPWA.core.templates import interface_templates
+from PyPWA.core.shared.interfaces import internals
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../../../data/test_docs/temporary_write_data"
 )
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
 )
 
 GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/gamp_test_data.gamp"
+    os.path.dirname(__file__), "../../../data/test_docs/gamp_test_data.gamp"
 )
 
 EVIL_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/kv_test_data.txt"
+    os.path.dirname(__file__), "../../../data/test_docs/kv_test_data.txt"
 )
 
 @pytest.fixture(
@@ -103,7 +103,7 @@ def test_get_plugin_reader_returns_reader(setup_plugin_object):
     """
     assert isinstance(
         setup_plugin_object[0].get_plugin_reader(setup_plugin_object[1]),
-        interface_templates.ReaderInterfaceTemplate
+        internals.Reader
     )
 
 
@@ -114,5 +114,5 @@ def test_get_plugin_writer_returns_writer(setup_plugin_object):
     """
     assert isinstance(
         setup_plugin_object[0].get_plugin_writer(TEMP_WRITE_LOCATION),
-        interface_templates.WriterInterfaceTemplate
+        internals.Writer
     )

@@ -1,18 +1,20 @@
-#    PyPWA, a scientific analysis toolkit.
-#    Copyright (C) 2016  JLab
+#  coding=utf-8
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
 #
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 This is the main file for the process plugin. This plugin contains all
@@ -26,22 +28,19 @@ import logging
 import multiprocessing
 
 import numpy
-from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.templates import interface_templates
-from PyPWA.core.templates import plugin_templates
+
+from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process import _communication
 from PyPWA.builtin_plugins.process import _processing
+from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared.interfaces import plugins
 
-__author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
-__maintainer__ = ["Mark Jones"]
-__email__ = "maj@jlab.org"
-__status__ = STATUS
-__license__ = LICENSE
+__author__ = AUTHOR
 __version__ = VERSION
 
 
-class _ProcessInterface(interface_templates.InterfaceTemplate):
+class _ProcessInterface(internals.ProcessInterface):
 
     def __init__(self, interface_kernel, process_com, processes, duplex):
         """
@@ -59,7 +58,6 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
                 processing processes.
         """
         self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
 
         self._com = process_com
         self._interface_kernel = interface_kernel
@@ -135,7 +133,7 @@ class _ProcessInterface(interface_templates.InterfaceTemplate):
         return self._processes[0].is_alive()
 
 
-class CalculationForeman(plugin_templates.KernelProcessingTemplate):
+class CalculationForeman(plugins.KernelProcessing):
 
     def __init__(
             self, number_of_processes=multiprocessing.cpu_count() * 2,
@@ -158,7 +156,6 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
         self._interface_template = False
 
         self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
 
         self._number_of_processes = number_of_processes
 
@@ -188,7 +185,7 @@ class CalculationForeman(plugin_templates.KernelProcessingTemplate):
             process_template, process_data
         )
 
-        self._duplex = interface_template.is_duplex
+        self._duplex = interface_template.IS_DUPLEX
         self._interface_template = interface_template
 
         self._interface = self._build()

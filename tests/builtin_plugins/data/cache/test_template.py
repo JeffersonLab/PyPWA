@@ -35,7 +35,7 @@ def test_write_interface_write_cache(writer):
 
 def test_read_interface_is_valid(reader):
     with pytest.raises(NotImplementedError):
-        reader.is_valid
+        reader.is_valid()
 
 
 def test_read_interface_get_cache(reader):

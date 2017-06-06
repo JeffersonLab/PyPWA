@@ -20,7 +20,11 @@ from PyPWA.builtin_plugins.data.cache import _basic_info
 from PyPWA.builtin_plugins.data import exceptions
 
 
-class BasicTestInfo(_basic_info.BasicInfoInterface):
+class BasicTestInfo(_basic_info.FindBasicInfo):
+
+    def __init__(self):
+        # We don't actually want to run the init
+        pass
 
     @property
     def file_hash(self):
@@ -69,7 +73,7 @@ def clear_cache_without_success(setup_test_info, mock_os_remove_no_file):
 
 
 def test_is_valid_is_false(clear_cache_with_success):
-    assert not clear_cache_with_success.is_valid
+    assert not clear_cache_with_success.is_valid()
 
 
 def test_get_cache_raises_error(clear_cache_without_success):

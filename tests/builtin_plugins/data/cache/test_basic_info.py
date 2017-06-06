@@ -20,7 +20,7 @@ from PyPWA.builtin_plugins.data.cache import _basic_info
 
 
 DATA = os.path.join(
-    os.path.dirname(__file__), "../builtin/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
 )
 
 SIMPLE_STRING = "1234567890aoeuidhtns-"
@@ -30,22 +30,22 @@ FAKE_LOCATION = "narnia"
 
 @pytest.fixture
 def mock_hash(monkeypatch):
-    def returns_string(throw, stream):
+    def returns_string(file_name):
         return SIMPLE_STRING
 
     monkeypatch.setattr(
-        "PyPWA.core.tools.FileHashString.get_sha512_hash",
+        "PyPWA.core.shared.generate_hash.get_sha512_hash",
         returns_string
     )
 
 
 @pytest.fixture
 def mock_cache_uri(monkeypatch):
-    def returns_string(throw):
+    def returns_string():
         return FAKE_LOCATION
 
     monkeypatch.setattr(
-        "PyPWA.core.tools.DataLocation.get_cache_uri",
+        "PyPWA.core.shared.data_locator.get_cache_uri",
         returns_string
     )
 
@@ -58,11 +58,6 @@ def mocked_basic_info(mock_hash, mock_cache_uri):
 @pytest.fixture
 def standard_basic_info():
     return _basic_info.FindBasicInfo(DATA)
-
-
-@pytest.fixture
-def basic_info_interface():
-    return _basic_info.BasicInfoInterface()
 
 
 def test_basic_info_hash_is_string(standard_basic_info):
@@ -80,12 +75,3 @@ def test_mock_basic_info_equals_simple_string(mocked_basic_info):
 def test_mock_basic_info_equals_fake_location(mocked_basic_info):
     assert mocked_basic_info.cache_location \
            == FAKE_LOCATION + "/sv_test_data.pickle"
-
-def test_interface_file_hash_raises_error(basic_info_interface):
-    with pytest.raises(NotImplementedError):
-        basic_info_interface.file_hash
-
-
-def test_interface_cache_location_raises_error(basic_info_interface):
-    with pytest.raises(NotImplementedError):
-        basic_info_interface.cache_location

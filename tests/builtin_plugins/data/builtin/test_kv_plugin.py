@@ -41,27 +41,28 @@ from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 # the information needed to test the data loader and writer.
 
 KV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/kv_test_data.txt"
+    os.path.dirname(__file__), "../../../data/test_docs/kv_test_data.txt"
 )
 
 KV_FLOAT_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/kv_floats_test_data.txt"
+    os.path.dirname(__file__),
+    "../../../data/test_docs/kv_floats_test_data.txt"
 )
 
 KV_BOOL_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/kv_bool_test_data.txt"
+    os.path.dirname(__file__), "../../../data/test_docs/kv_bool_test_data.txt"
 )
 
 KV_WRITE_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/kv_write_test.txt"
+    os.path.dirname(__file__), "../../../data/test_docs/kv_write_test.txt"
 )
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
 )
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../../../data/test_docs/temporary_write_data"
 )
 
 
