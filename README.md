@@ -1,4 +1,4 @@
-PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=master)](https://travis-ci.org/JeffersonLab/PyPWA) [![Coverage Status](https://coveralls.io/repos/github/JeffersonLab/PyPWA/badge.svg?branch=development)](https://coveralls.io/github/JeffersonLab/PyPWA?branch=development)
+PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=master)](https://travis-ci.org/JeffersonLab/PyPWA) [![Coverage Status](https://coveralls.io/repos/github/JeffersonLab/PyPWA/badge.svg?branch=master)](https://coveralls.io/github/JeffersonLab/PyPWA?branch=master)
 =====
 
 A python based software framework designed to perform Partial Wave and 
@@ -20,9 +20,9 @@ Features
 
 Generic Fitting Tools
 - PyFit
- - Can fit to a log-likelihood, chi-square, or you can define your own
- - Supports Binned Data
- - Supports a quality factor per event
+  - Can fit to a log-likelihood, chi-square, or you can define your own
+  - Supports Binned Data
+  - Supports a quality factor per event
 - PySimulate
 - Easy to use Yaml based configuration
 - A configuration builder, to walk you through the initial creation of 
