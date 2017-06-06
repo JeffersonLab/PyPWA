@@ -1,4 +1,4 @@
-PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=master)](https://travis-ci.org/JeffersonLab/PyPWA) [![Coverage Status](https://coveralls.io/repos/github/JeffersonLab/PyPWA/badge.svg?branch=master)](https://coveralls.io/github/JeffersonLab/PyPWA?branch=master)
+PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=development)](https://travis-ci.org/JeffersonLab/PyPWA) [![Coverage Status](https://coveralls.io/repos/github/JeffersonLab/PyPWA/badge.svg?branch=development)](https://coveralls.io/github/JeffersonLab/PyPWA?branch=development)
 =====
 
 A python based software framework designed to perform Partial Wave and 

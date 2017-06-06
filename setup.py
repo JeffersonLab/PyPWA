@@ -19,7 +19,7 @@ from setuptools import setup, find_packages
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 __email__ = "pypwa@jlab.org"
 __status__ = "production"
 
