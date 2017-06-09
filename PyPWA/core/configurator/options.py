@@ -19,49 +19,53 @@
 """
 Required objects to define a plugin.
 ------------------------------------
-Here we have all the objects and interfaces that are necessary to define a 
+Here we have all the objects and interfaces that are necessary to define a
 plugin to be used with the configurator plugin.
 
 - Types - Enumeration of the supported plugin types.
-  - KERNEL_PROCESSING - A plugin that takes a kernel of code with data 
+  - KERNEL_PROCESSING - A plugin that takes a kernel of code with data
     then distributes that code and data across nodes.
   - OPTIMIZER - Minimizer or Maximizer.
-  - DATA_READER - this is a plugin that will iterate over events instead of 
+  - DATA_READER - this is a plugin that will iterate over events instead of
     parsing all the data into the memory.
-  - DATA_PARSER - this should interact with all data being stored inside the 
+  - DATA_PARSER - this should interact with all data being stored inside the
     memory.
   - SKIP - Shouldn't be loaded, skipped, used for debug.
 
-- Levels - Enumeration of the difficulty and necessity of an option. 
-  - Required - An option that has to be given to the plugin, and can not be 
+- Levels - Enumeration of the difficulty and necessity of an option.
+  - Required - An option that has to be given to the plugin, and can not be
     calculated in any way from the program.
-  - Optional - An option that doesn't require a deep understanding of the 
-    plugin in order to utilize, but isn't required to be provided if it can 
+  - Optional - An option that doesn't require a deep understanding of the
+    plugin in order to utilize, but isn't required to be provided if it can
     be calculated otherwise.
-  - Advanced - An option that can be calculated or determined internally, 
+  - Advanced - An option that can be calculated or determined internally,
     and required a deep understanding of the plugin.
-    
-- Setup - This is the object that would be nested inside your root plugin 
-  module. This should take a configuration CommandOptions, and use it to 
+
+- Setup - This is the object that would be nested inside your root plugin
+  module. This should take a configuration CommandOptions, and use it to
   setup the plugin to be used throughout the program.
   .. see also:
      PyPWA.core.configuration.option_tools.CommandOptions
-     
-- Base - This is the base object for all plugins and mains, though you 
-  shouldn't use this unless you know what you are doing. Instead you should 
+
+- Base - This is the base object for all plugins and mains, though you
+  shouldn't use this unless you know what you are doing. Instead you should
   use Plugin or Main.
-  
+
 - Plugin - The interface to define the metadata for Plugins.
 
 - Main - The interface to define the metadata for mains, this is essentially
   the beginning of a program.
-  
+
 - FileBuilder - This is the object that needs to be extended and filled out
   if your plugin needs a function to be defined for it to be usable.
 """
 
+from typing import Dict
+from typing import Union
+
 import enum
 
+from PyPWA.core.shared.interfaces import plugins
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
@@ -87,27 +91,19 @@ class Setup(object):
 
     def return_interface(self):
         """
-        This should return the initialized plugin or main using the 
+        This should return the initialized plugin or main using the
         CommandOptions that would be received via the __init__
-        
+
         :return: The initialized plugin or main.
         """
         raise NotImplementedError
 
 
-class Base(object):
-    plugin_name = "BASE"
-    # the options coupled with their default values
-    default_options = {}
+class Base(plugins.BasePlugin):
     # The options and their Levels.
-    option_difficulties = {}
-    # the option and their types. See official documentation.
-    option_types = {}
-    module_comment = "BASE"
-    # A short comment about each option.
-    option_comments = {}
+    option_difficulties = {}  # type: Dict[str,Levels]
     # The defined functions if needed.
-    defined_function = None
+    defined_function = None  # type: Union[None, FileBuilder]
     # The setup object
     setup = Setup  # type: Setup
 

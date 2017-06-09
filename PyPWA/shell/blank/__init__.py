@@ -24,18 +24,22 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.shell.blank import setup
 
+from PyPWA.core.arguments import arguments_options
+
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class BlankModule(options.Main):
+class BlankModule(options.Main, arguments_options.Main):
 
     plugin_name = "blank shell module"
     setup = setup.BlankSetup
     required_plugins = [
         options.Types.DATA_PARSER
+
     ]
+    requested_plugins = ["Builtin Parser"]
 
     default_options = {
         "Option 1": 1,
@@ -61,3 +65,4 @@ class BlankModule(options.Main):
         "Option 2": "If you see this in production something went wrong.",
         "Option 3": "If you see this in production something went wrong."
     }
+
