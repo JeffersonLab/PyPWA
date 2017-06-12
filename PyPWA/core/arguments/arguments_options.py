@@ -32,4 +32,4 @@ __version__ = VERSION
 
 class Main(plugins.BasePlugin):
 
-    requested_plugins = []   # type: List[plugins.Types]
+    requested_plugins = []   # type: List[str]
