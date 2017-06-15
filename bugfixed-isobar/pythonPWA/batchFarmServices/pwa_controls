@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2
+#! /u/apps/anaconda/2.4/bin/python2 
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
