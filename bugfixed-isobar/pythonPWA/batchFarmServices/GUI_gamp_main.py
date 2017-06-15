@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/2.4/bin/python2
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -69,13 +69,13 @@ for keyfile in keyfiles:
                     keyfile = os.path.join(keyfileDir,keyfile),
                     infile = os.path.join(path, filename))                    
                 cmd = '''\
-/group/clas/builds/centos65/bin/gamp {keyfile} < {infile} > {outfile}
+/group/clas/builds/centos7/trunk/build/bin/hgamp {keyfile} < {infile} > {outfile}
     '''.format(**cmd_opts)
                 auger_opts = dict(
                     project = cf[9],
                     track = 'analysis',
                     jobname = 'runGamp',
-                    os = 'centos65',
+                    os = 'centos7',
                     time = 360,
                     memory = '1000 MB',
                     cmd = cmd)

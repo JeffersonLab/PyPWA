@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/2.4/bin/python2  
 import matplotlib.pyplot as plt
 from multiprocessing import Process
 import subprocess as sp
@@ -87,10 +87,11 @@ class graphicPlotSim(object):
     
     def file_len(self,fname):
         with open(fname) as f:
-            g = f.readline(limit=1)
+#           g = f.readline(limit=1)
+            g = f.readline()
             for i, l in enumerate(f):
                 pass
-        return (i + 1)/g
+        return (i + 1)/int(g)
 
     def up_range(self):
         rang = []

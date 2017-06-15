@@ -28,6 +28,7 @@ class generateAlphas(object):
 
             Kwargs:
             mode (int):  8 = p pi+ pi- pi0, 22 = p p+ p-, 24 = p k+ k-, 42 = gamma p --> p Ks Ks (pi+ pi- pi+ pi-) 
+            41 = p pi0 eta
             indir (string): Full file path to directory of file
             gfile (string): File name without .gamp extension. 
         """
@@ -47,6 +48,8 @@ class generateAlphas(object):
             self.analyze8()
         if self.mode == "22":
             self.analyze22()
+        if self.mode == "41":
+            self.analyze41()
         if self.mode == "24" or self.mode == 24 :
             self.analyze24()
         if self.mode == "42":
@@ -125,20 +128,97 @@ class generateAlphas(object):
                                     float(particles.particleXMomentum),
                                     float(particles.particleYMomentum),
                                     float(particles.particleZMomentum))
-            #
+            
             pmeson = pip + pim
             pMeson = pmeson.p
             beam3 = bm.p
-            polarization = ThreeVector(1.,0.,0.)
-            Normal = beam3 * pMeson
             
-            cosAlpha = Normal.dot(polarization) / Normal.r()
+            PARA=1.
+            PERP=0.
+            
+            polarization = ThreeVector(PARA,PERP,0.)
+            Normal = beam3 * pMeson
+            hadplane = Normal * beam3   
+                     
+            cosAlpha = hadplane.dot(polarization)/hadplane.r()
             alpha = math.acos(cosAlpha)
-            if polarization.y == 1 and Normal.x > 0:
-                alpha= -alpha
-            if polarization.x == 1 and Normal.y < 0:
-                alpha= -alpha
+            
+            
+#            if polarization.x > 0  and hadplane.y > 0:
+#                alpha= -alpha
+#            if polarization.y > 0  and hadplane.x < 0:
+#                alpha= -alpha   
+                
+            if polarization.x > 0:
+                if hadplane.y > 0:
+                    alpha= -alpha
+                   
+            if polarization.y > 0:
+                if hadplane.x < 0:
+                    alpha= -alpha      
+                
+                
             self.alphalist.append(alpha)
+            
+    def analyze41(self):
+        '''
+            p p0 eta
+        '''
+        for i in range(int(self.gampList.shape[0])):
+            event = self.gampT.writeEvent(self.gampList[i,:,:])
+            for particles in event.particles:
+                if particles.particleID == 14.0: #proton
+                    pp = FourVector(float(particles.particleE), 
+                                    float(particles.particleXMomentum),
+                                    float(particles.particleYMomentum),
+                                    float(particles.particleZMomentum))
+                if particles.particleID == 1.0: #photon gamma
+                    bm = FourVector(float(particles.particleE), 
+                                    float(particles.particleXMomentum),
+                                    float(particles.particleYMomentum),
+                                    float(particles.particleZMomentum))
+                if particles.particleID == 7.0: #p0
+                    pim = FourVector(float(particles.particleE), 
+                                    float(particles.particleXMomentum),
+                                    float(particles.particleYMomentum),
+                                    float(particles.particleZMomentum))
+                if particles.particleID == 17.0: #eta
+                    pip = FourVector(float(particles.particleE), 
+                                    float(particles.particleXMomentum),
+                                    float(particles.particleYMomentum),
+                                    float(particles.particleZMomentum))
+            
+            pmeson = pip + pim
+            pMeson = pmeson.p
+            beam3 = bm.p
+            
+            PARA=1.
+            PERP=0.
+            
+            polarization = ThreeVector(PARA,PERP,0.)
+            Normal = beam3 * pMeson
+            hadplane = Normal * beam3   
+                     
+            cosAlpha = hadplane.dot(polarization)/hadplane.r()
+            alpha = math.acos(cosAlpha)
+            
+            
+#            if polarization.x > 0  and hadplane.y > 0:
+#                alpha= -alpha
+#            if polarization.y > 0  and hadplane.x < 0:
+#                alpha= -alpha   
+                
+            if polarization.x > 0:
+                if hadplane.y > 0:
+                    alpha= -alpha
+                   
+            if polarization.y > 0:
+                if hadplane.x < 0:
+                    alpha= -alpha      
+                
+                
+            self.alphalist.append(alpha)
+            
             
     
     def analyze24(self):

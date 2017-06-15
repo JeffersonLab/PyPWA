@@ -11,6 +11,8 @@ import numpy
 
 def spinDensity(beampolarization,alpha):
     """
+    SPIN DENSITY OF PHOTON IN HELICITY BASIS
+    
     SpinDensity matrix for specified beam polarization and angle alpha.
 
     Args:
@@ -19,7 +21,7 @@ def spinDensity(beampolarization,alpha):
 
     Returns:
     The entire spinDensity matrix for specified beam polarization and angle alpha.
-    Note that the spinDensity matrix is a 2x2 matrix indexed by the wave reflectivity (wave.epsilon).
+    Note that the spinDensity matrix is a 2x2 matrix indexed by the wave helicity (wave.epsilon).
     """
     #TODO: need to make this check the type of alpha, if its type is none then return [[.5,0.],[0.,.5]]
     complexrhomatrix=numpy.empty((2,2),dtype=numpy.complex)
