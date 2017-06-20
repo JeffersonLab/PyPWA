@@ -23,10 +23,10 @@ whatever data needs to be read/written.
 
 - PluginSearch - Searches for data plugins that can read or write the provided
   data.
-  
+
 - _FindReadPlugins - searches for a plugin that can read the provided data.
 
-- _FindWritePlugins - Searches for a plugin that can write the given data 
+- _FindWritePlugins - Searches for a plugin that can write the given data
   to the given file extension.
 """
 
@@ -96,7 +96,7 @@ class _FindReadPlugins(object):
     def __search_plugin_list(self, file_location):
         for plugin in self.__potential_plugins:
             if self.__plugin_can_read(plugin, file_location):
-                return plugin()
+                return plugin
 
         raise exceptions.UnknownData(
             "Unable to find a plugin that can load %s" % file_location
@@ -110,7 +110,7 @@ class _FindReadPlugins(object):
         except exceptions.IncompatibleData:
             self.__LOGGER.debug(
                 "Skipping %s for data %s, test failed." %
-                (plugin.__name__, file_location)
+                (plugin.plugin_name, file_location)
             )
             return False
         except Exception as Error:
@@ -121,10 +121,10 @@ class _FindReadPlugins(object):
 
     def __run_read_test(self, plugin, file_location):
         # type: (data_templates.TemplateDataPlugin, str) -> None
-        read_test = plugin().get_plugin_read_test()
+        read_test = plugin.get_plugin_read_test()
         read_test.quick_test(file_location)
         self.__LOGGER.info(
-            "Found '%s' will load '%s'" % (plugin.__name__, file_location)
+            "Found '%s' will load '%s'" % (plugin.plugin_name, file_location)
         )
 
 
@@ -174,10 +174,9 @@ class _FindWritePlugins(object):
     def __search_for_plugins(self):
         # type: () -> data_templates.TemplateDataPlugin
         for plugin in self.__potential_plugins:
-            the_plugin = plugin()
-            if self.__check_plugin(the_plugin):
-                self.__log_found_plugin(the_plugin)
-                return the_plugin
+            if self.__check_plugin(plugin):
+                self.__log_found_plugin(plugin)
+                return plugin
 
         raise exceptions.UnknownData
 

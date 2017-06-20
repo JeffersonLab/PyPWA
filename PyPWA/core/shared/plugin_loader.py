@@ -20,27 +20,27 @@
 The core plugin parser for functions and packages.
 --------------------------------------------------
 There are 5 objects here, _AppendPath, _Importer, _FilterBySubclass,
-_PluginStorage and the main PluginLoader object. If you wish to use the 
+_PluginStorage and the main PluginLoader object. If you wish to use the
 plugin storage module, you will need to call and use PluginLoader.
 
 .. note::
     This plugin will save all loaded plugins anywhere in the program. The
-    benefit to this is that all user plugins can be loaded once, then 
+    benefit to this is that all user plugins can be loaded once, then
 
 - _AppendPath - This object takes the path of modules that exist outside of
   the defined Python Path and imports their root directory into the System
   Path
-  
-- _Importer - This object actually imports the module, and all of its 
+
+- _Importer - This object actually imports the module, and all of its
   submodules, then returns those submodules.
-  
-- _FilterBySubclass - this object takes all the loaded objects from the 
-  PluginStorage then searches for all objects that are subclass-ed by the 
+
+- _FilterBySubclass - this object takes all the loaded objects from the
+  PluginStorage then searches for all objects that are subclass-ed by the
   provided class.
-  
-- _PluginStorage - This object actually stores everything that was imported 
+
+- _PluginStorage - This object actually stores everything that was imported
   from the provided locations.
-   
+
 - PluginLoader - The main object, returns objects and functions based on the
   provided search conditions.
 """
@@ -206,7 +206,7 @@ class _FilterBySubclass(object):
     def __process_attribute(self, attribute):
         # type: (type) -> None
         if issubclass(attribute, self.__template):
-            self.__found_classes.append(attribute)
+            self.__found_classes.append(attribute())
 
     def __log_plugin_search(self, plugins):
         # type: (List[type]) -> None
