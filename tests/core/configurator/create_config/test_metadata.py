@@ -26,10 +26,10 @@ def mock_input_for_nestle(monkeypatch):
 
 
 def test_metadata_storage_finds_builtin_parser(metadata_storage):
-    object = metadata_storage.search_plugin(
+    plugin = metadata_storage.search_plugin(
         "Builtin Parser", options.Types.DATA_PARSER
     )
-    assert issubclass(object, options.Plugin)
+    assert isinstance(plugin, options.Plugin)
 
 
 def test_metadata_storage_finds_optimizers(metadata_storage):
@@ -39,13 +39,22 @@ def test_metadata_storage_finds_optimizers(metadata_storage):
     assert len(object) == 2
 
 
+def check_plugin_in_list(template, plugin_list):
+    found = False
+    for plugin in plugin_list:
+        if isinstance(plugin, template):
+            found = True
+            break
+    assert found
+
+
 def test_plugin_list_finds_pysimulate_plugins(plugin_list):
     plugin_list.parse_plugins(pysimulate.ShellSimulation)
     assert plugin_list.shell == pysimulate.ShellSimulation
-    assert process.Processing in plugin_list.plugins
+    check_plugin_in_list(process.Processing, plugin_list.plugins)
 
 
 def test_plugin_list_finds_pyfit_plugins(plugin_list, mock_input_for_nestle):
     plugin_list.parse_plugins(pyfit.ShellFitting)
     assert plugin_list.shell == pyfit.ShellFitting
-    assert process.Processing in plugin_list.plugins
+    check_plugin_in_list(process.Processing, plugin_list.plugins)

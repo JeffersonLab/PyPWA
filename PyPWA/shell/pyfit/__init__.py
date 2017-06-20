@@ -19,7 +19,7 @@
 """
 PyFit, LikelihoodFitting, and ChiSquaredFitting
 -----------------------------------------------
-PyFit is a simple fitting tool that can use multiple processes depending on 
+PyFit is a simple fitting tool that can use multiple processes depending on
 the processing module that is picked.
 
 - likelihoods - the various builtin likelihoods the PyFit supports.
@@ -27,10 +27,10 @@ the processing module that is picked.
 - _processing_interface - PyFits interface with the processing package, also
   handles the output mechanism in a second thread.
 
-- interfaces - the interfaces that need to be extended to define a new 
+- interfaces - the interfaces that need to be extended to define a new
   likelihood function.
 
-- initial_setup - how the configurator package interfaces the PyFit 
+- initial_setup - how the configurator package interfaces the PyFit
   Main object.
 
 - pyfit - the main object and the likelihood loading object are contained.
