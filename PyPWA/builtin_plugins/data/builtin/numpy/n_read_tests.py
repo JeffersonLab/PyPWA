@@ -27,6 +27,7 @@ __version__ = VERSION
 
 
 class NumpyDataTest(data_templates.ReadTest):
+
     def __init__(self):
 
         self.__list_test = [
@@ -43,22 +44,24 @@ class NumpyDataTest(data_templates.ReadTest):
         numpy.loadtxt(file_location)
 
     def quick_test(self, file_location):
-        self.iterate_through_file_types(file_location)
+        self.__iterate_through_file_types(file_location)
 
     def full_test(self, file_location):
         self.quick_test(file_location)
 
-    def iterate_through_file_types(self, file_location):
+    def __iterate_through_file_types(self, file_location):
         result = []
         for file_type in self.__list_test:
             result.append(self.__run_test(file_type, file_location))
         if True not in result:
-            raise BaseException()
+            raise exceptions.IncompatibleData
 
     @staticmethod
     def __run_test(file_type, file_location):
         try:
             file_type(file_location)
             return True
-        except OSError:
+        except ValueError:
+            return False
+        except IOError:
             return False

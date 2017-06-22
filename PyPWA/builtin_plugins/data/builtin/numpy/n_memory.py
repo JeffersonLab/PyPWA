@@ -16,9 +16,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import numpy
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
+
+from typing import Dict, Union
 
 __credits__ = ["Christopher Banks"]
 __author__ = AUTHOR
@@ -43,16 +46,29 @@ class _NumpyParser(object):
     def return_read_data(self, file_path):
         return self.__parsing(file_path)
 
-    @staticmethod
-    def __parsing(file_path):
+    def __parsing(self, file_path):
         # type: (str) -> numpy.ndarray
+        ext = self.__get_extension(file_path)
+        self.__list_of_data = []
         try:
+            if ext == ".npz":
+                self.__multiple_arrays_defined(file_path)
+                return numpy.asarray(self.__list_of_data)
             data = numpy.load(file_path)
             return data
 
-        except OSError:
+        except Exception:
             data = numpy.loadtxt(file_path)
             return data
+
+    @staticmethod
+    def __get_extension(file_path):
+        return os.path.splitext(file_path)[1]
+
+    def __multiple_arrays_defined(self, file_path):
+        with numpy.load(file_path) as data:  # own method
+            for file in data.files:
+                self.__list_of_data.append(data[file])
 
 
 class _NumpyMemoryWriter(object):
@@ -61,17 +77,21 @@ class _NumpyMemoryWriter(object):
         self.__write_data(file_path, data)
 
     def __write_data(self, file_path, data):
-        # type: (str) -> numpy.ndarray
+        # type: (str, Union[numpy.ndarray, Dict[numpy.ndarray]]) -> None
         ext = self.__get_extension(file_path)
-        if ext == '.npy' or '.pf':
+        if ext == '.npy':
             numpy.save(file_path, data)
         elif ext == '.npz':
-            if data is dict:
-                numpy.savez(file_path, **data)
-            else:
-                numpy.savez(file_path, *data)
+            self.__for_several_arrays(file_path, data)
+        elif ext in (".pf", ".txt"):
+            numpy.savetxt(file_path, data, fmt="%d")
+        else:
+            numpy.save(file_path, data)
+
+    @staticmethod
+    def __for_several_arrays(file_path, data):
+            numpy.savez(file_path, *data)
 
     @staticmethod
     def __get_extension(file_path):
-        return file_path.split(".")[-1]
-
+        return os.path.splitext(file_path)[1]

@@ -27,6 +27,7 @@ __version__ = VERSION
 
 
 class NumPyDataPlugin(data_templates.TemplateDataPlugin):
+
     @property
     def plugin_name(self):
         return "NumPy Data Files"
@@ -35,17 +36,17 @@ class NumPyDataPlugin(data_templates.TemplateDataPlugin):
         return n_memory.NumpyMemory()
 
     def get_plugin_reader(self, file_location):
-        raise Exception("Numpy Iterator not available")
+        raise NotImplementedError("Numpy Iterator not available")
 
     def get_plugin_writer(self, file_location):
-        raise Exception("Numpy iterator not available")
+        raise NotImplementedError("Numpy iterator not available")
 
     def get_plugin_read_test(self):
         return n_read_tests.NumpyDataTest()
 
     @property
     def plugin_supported_extensions(self):
-        return [".npy", ".npz", ".txt"]
+        return [".npy", ".npz", ".pf", ".txt"]
 
     @property
     def plugin_supports_flat_data(self):
