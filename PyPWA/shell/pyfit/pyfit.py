@@ -20,7 +20,7 @@
 PyFit, a flexible python fitting utility.
 -----------------------------------------
 
-- _LikelihoodPackager - a simple object that searches the 'likehoods' 
+- _LikelihoodPackager - a simple object that searches the 'likehoods'
   package for the user's selected likelihood.
 
 - Fitting - defines the actual main logic for the program.
@@ -61,7 +61,7 @@ class LikelihoodPackager(object):
         # type: (List[type(interfaces.Setup)], str) -> interfaces.Setup
         for likelihood in potential_likelihoods:
             if likelihood.NAME == name:
-                return likelihood()
+                return likelihood
         self.__failed_to_find_likelihood(name)
 
     @staticmethod

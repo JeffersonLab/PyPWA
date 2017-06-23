@@ -32,7 +32,7 @@ def gen(directory,cmd):
                     project = 'gluex',
                     track = 'simulation',
                     jobname = 'runMC',
-                    os = 'centos62',
+                    os = 'centos7',
                     time = 2880,
             memory = '3000 MB',
             disk_space = '5000 MB',

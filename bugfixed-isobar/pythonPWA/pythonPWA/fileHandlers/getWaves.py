@@ -10,7 +10,9 @@ def getwaves(totalpath):
     This function finds and reads in all bamp files in the provided directory and returns
     a list of all waves of type pwawave.wave after populating the needed data members of
     each member.
-    """
+    
+   """
+
     wavelist=[]
     #filtering for bamp file types and populating bamplist
     regexp=re.compile(".*(.bamp).*")
@@ -20,7 +22,7 @@ def getwaves(totalpath):
             idex=files.find(".bamp")
             
             #seting the waves epsilon value
-            bufferepsilon=files[idex-4]
+            bufferepsilon=files[idex-4]        
             if bufferepsilon=="-":
                 epsilon=0
             if bufferepsilon=="+":

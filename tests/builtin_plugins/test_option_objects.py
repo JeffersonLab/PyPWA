@@ -13,7 +13,7 @@ def load_plugins():
 
 @pytest.fixture(params=load_plugins())
 def iterate_over_plugins(request):
-    return request.param()
+    return request.param
 
 
 def check_dict(the_dict):

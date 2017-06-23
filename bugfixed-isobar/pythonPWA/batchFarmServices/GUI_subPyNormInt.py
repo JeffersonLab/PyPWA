@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/2.4/bin/python2
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -54,13 +54,13 @@ for path, subdirs, files in os.walk(dataDir):
                 beamP = cf[1],
                 indir = indir            
                )                    
-            cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/run_normintFARM.py {dirc} {name} {beamP} {indir}
+            cmd = '''/u/apps/anaconda/2.4/bin/python2 {cwd}/run_normintFARM.py {dirc} {name} {beamP} {indir}
     '''.format(**cmd_opts)            
             auger_opts = dict(
                 project = cf[9],
                 track = 'analysis',
                 jobname = 'normINT',
-                os = 'centos65',
+                os = 'centos7',
                 memory = '3000 MB',
     	        time = 360,
                 cmd = cmd)

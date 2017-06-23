@@ -1,12 +1,13 @@
 # Changelog
 All changes important to the user will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/) 
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## "Unreleased"
 ### Added
 ### Changed
+ - Plugin Loader now returns initialized objects
 ### Fixed
 ### Security
 
