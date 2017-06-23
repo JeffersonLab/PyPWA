@@ -66,12 +66,12 @@ class _PluginStorage(object):
             self.__storage.append(main)
 
     def __load_option_plugins(self):
-        for option in self.__loader.get_by_class(plugins.BasePlugin):
+        for option in self.__loader.get_by_class(arguments_options.Plugin):
             self.__storage.append(option)
 
     @property
     def storage(self):
-        # type: () -> List[plugins.BasePlugin]
+        # type: () -> List[arguments_options.Base]
         return self.__storage
 
 
@@ -83,8 +83,8 @@ class RequestedFetcher(object):
         self.__storage = _PluginStorage()
 
     def get_plugin_by_name(self, name):
-        # type: (str) -> plugins.BasePlugin
+        # type: (str) -> arguments_options.Base
         for plugin in self.__storage.storage:
-            if plugin.plugin_name == name:
+            if plugin.get_name() == name:
                 return plugin
         raise ValueError("%s not found!" % name)

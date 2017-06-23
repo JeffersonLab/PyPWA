@@ -65,7 +65,12 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Optimizer(object):
+class BasePlugin(object):
+    # Simply here for inheritance.
+    pass
+
+
+class Optimizer(BasePlugin):
 
     def main_options(self, calc_function, fitting_type=None):
         # type: (Callable[[Any], Any], Opt[internals.LikelihoodTypes]) -> None
@@ -121,7 +126,7 @@ class Optimizer(object):
         raise NotImplementedError
 
 
-class KernelProcessing(object):
+class KernelProcessing(BasePlugin):
 
     def main_options(
             self,
@@ -162,7 +167,7 @@ class KernelProcessing(object):
         raise NotImplementedError
 
 
-class DataParser(object):
+class DataParser(BasePlugin):
 
     def parse(self, text_file):
         # type: (str) -> numpy.ndarray
@@ -186,7 +191,7 @@ class DataParser(object):
         raise NotImplementedError
 
 
-class DataIterator(object):
+class DataIterator(BasePlugin):
 
     def return_reader(self, text_file):
         # type: (str) -> internals.Reader
@@ -212,7 +217,7 @@ class DataIterator(object):
         raise NotImplementedError
 
 
-class Main(object):
+class Main(BasePlugin):
 
     def start(self):
         # type: () -> None
@@ -224,19 +229,8 @@ class Main(object):
         raise NotImplementedError
 
 
-class BasePlugin(object):
-
-    plugin_name = "BASE"  # type: str
-    # the options coupled with their default values
-    default_options = {}  # type: Dict[str, str]
-    # the option and their types. See official documentation.
-    option_types = {}  # type: Dict[str, Types]
-    module_comment = "BASE"  # type: str
-    # A short comment about each option.
-    option_comments = {}  # type: Dict[str, str]
-
-
 class Types(enum.Enum):
+
     KERNEL_PROCESSING = 1
     OPTIMIZER = 2
     DATA_READER = 3

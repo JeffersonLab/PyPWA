@@ -99,7 +99,16 @@ class Setup(object):
         raise NotImplementedError
 
 
-class Base(plugins.BasePlugin):
+class Base(object):
+
+    plugin_name = "BASE"  # type: str
+    # the options coupled with their default values
+    default_options = {}  # type: Dict[str, str]
+    # the option and their types. See official documentation.
+    option_types = {}  # type: Dict[str, Types]
+    module_comment = "BASE"  # type: str
+    # A short comment about each option.
+    option_comments = {}  # type: Dict[str, str]
     # The options and their Levels.
     option_difficulties = {}  # type: Dict[str,Levels]
     # The defined functions if needed.

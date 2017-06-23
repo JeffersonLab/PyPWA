@@ -20,11 +20,12 @@
 Provides a simple interface for Main Objects in the ArgumentParser
 """
 
-import argparse
-from typing import List
+from argparse import ArgumentParser, Namespace
+from typing import Dict, List
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -33,55 +34,39 @@ __version__ = VERSION
 
 class Base(object):
 
-    def get_name(self):
+    _NAME = NotImplemented  # type: str
+
+    def __init__(self):
+        self._parser = None  # type: ArgumentParser
+
+    def setup(self, parser):
+        # type: (ArgumentParser) -> None
+        self._parser = parser
+        self._add_arguments()
+
+    def _add_arguments(self):
         raise NotImplementedError
+
+    def get_name(self):
+        # type: () -> str
+        return self._NAME
 
 
 class Plugin(Base):
 
-    def __init__(self):
-        self._parser = None   # type: argparse.ArgumentParser
-        self.__name = None  # type: str
-
-    def setup(self, parser, name):
-        # type: (argparse.ArgumentParser, str) -> None
-        self._parser = parser.add_argument_group(name)
-        self.__name = name
-        self._add_arguments()
-
-    def _add_arguments(self):
+    def get_interface(self, namespace):
+        # type: (Namespace) -> plugins.BasePlugin
         raise NotImplementedError
-
-    def get_plugin(self, parsed_values):
-        # type: (dict) -> object
-        raise NotImplementedError
-
-    def get_name(self):
-        # type: () -> str
-        return self.__name
 
 
 class Main(Base):
 
-    def __init__(self):
-        self._parser = None  # type: argparse.ArgumentParser
-        self.__name = None  # type: str
-        self.__required = None  # type: Opt[List[str]]
-
-    def setup(self, parser, name, required=None):
-        # type: (argparse.ArgumentParser, str, Opt[List[str]]) -> None
-        self._parser = parser
-        self.__name = name
-        self.__required = required
-        self._add_arguments()
-
-    def _add_arguments(self):
-        raise NotImplementedError
-
-    def get_name(self):
-        # type: () -> str
-        return self.__name
+    _REQUIRED = None  # type: Opt[List[str]]
 
     def get_required(self):
         # type: () -> Opt[List[str]]
-        return self.__required
+        return self._REQUIRED
+
+    def get_interface(self, namespace, plugins):
+        # type: (Namespace, Dict[str, plugins.BasePlugin]) -> plugins.Main
+        raise NotImplementedError
