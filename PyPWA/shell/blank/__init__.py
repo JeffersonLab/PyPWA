@@ -76,7 +76,7 @@ class BlankArguments(arguments_options.Main):
     _REQUIRED = ["Builtin Parser"]
 
     def _add_arguments(self):
-        self._parser.add_argument("--option1", "-o1", type=int)
+        self._parser.add_argument("--option1", "-o1", type=int, required=True)
         self._parser.add_argument("--option2", "-o2", type=str)
         self._parser.add_argument("--option3", "-o3", type=str)
 

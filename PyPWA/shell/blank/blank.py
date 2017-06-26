@@ -22,7 +22,6 @@ A simple blank module that exists purely for testing.
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import memory
-from PyPWA.core.configurator import option_tools
 from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
