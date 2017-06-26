@@ -40,9 +40,7 @@ class Base(object):
         self._parser = None  # type: ArgumentParser
 
     def setup(self, parser):
-        # type: (ArgumentParser) -> None
-        self._parser = parser
-        self._add_arguments()
+        raise NotImplementedError
 
     def _add_arguments(self):
         raise NotImplementedError
@@ -54,6 +52,11 @@ class Base(object):
 
 class Plugin(Base):
 
+    def setup(self, parser):
+        # type: (ArgumentParser) -> None
+        self._parser = parser.add_argument_group(self.get_name())
+        self._add_arguments()
+
     def get_interface(self, namespace):
         # type: (Namespace) -> plugins.BasePlugin
         raise NotImplementedError
@@ -61,10 +64,15 @@ class Plugin(Base):
 
 class Main(Base):
 
-    _REQUIRED = None  # type: Opt[List[str]]
+    _REQUIRED = None  # type: List[Opt[str]]
+
+    def setup(self, parser):
+        # type: (ArgumentParser) -> None
+        self._parser = parser
+        self._add_arguments()
 
     def get_required(self):
-        # type: () -> Opt[List[str]]
+        # type: () -> List[Opt[str]]
         return self._REQUIRED
 
     def get_interface(self, namespace, plugins):
