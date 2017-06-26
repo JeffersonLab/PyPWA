@@ -123,12 +123,15 @@ class ArgDataParse(arguments_options.Plugin):
 
     def __add_enable_cache(self):
         self._parser.add_argument(
-            "--cache", action='store_true', default=False
+            "--cache", action='store_true', default=False,
+            help="Enable caching of interacted data. This will speed up "
+                 "future interaction with the same data."
         )
 
     def __add_clear_cache(self):
         self._parser.add_argument(
-            "--clearcache", action="store_true", default=False
+            "--clearcache", action="store_true", default=False,
+            help="Force cache for interacted files to be cleared."
         )
 
     def get_interface(self, namespace):
