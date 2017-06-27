@@ -20,6 +20,7 @@
 
 """
 
+import logging
 import warnings
 from typing import Optional as Opt
 
@@ -94,6 +95,8 @@ class _DataPackage(object):
 
 class Masking(plugins.Main):
 
+    __LOGGER = logging.getLogger(__name__ + ".Masking")
+
     def __init__(
             self,
             input_file,  # type: str
@@ -113,9 +116,11 @@ class Masking(plugins.Main):
         self.__mask()
 
     def __complain_to_user(self):
-        if not len(self.__data.reader) == len(self.__data.mask):
-            warnings.warn(
-                "The mask is a different length than the data!"
+        if len(self.__data.reader) < len(self.__data.mask):
+            warnings.warn("Mask is larger than data events.")
+        elif len(self.__data.reader) > len(self.__data.mask):
+            self.__LOGGER.critical(
+                "Mask is smaller than data events! Masker *will* crash!!"
             )
 
     def __mask(self):
