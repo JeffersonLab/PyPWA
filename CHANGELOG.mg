@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## "Unreleased"
 ### Added
+ - Argument Parser for simple programs where a configuration file would be
+   unneeded overhead for the user.
 ### Changed
  - Plugin Loader now returns initialized objects
 ### Fixed
