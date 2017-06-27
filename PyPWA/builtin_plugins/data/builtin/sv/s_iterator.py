@@ -30,7 +30,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-HEADER_SEARCH_BITS = 1024
+HEADER_SEARCH_BITS = 8192
 
 
 class SvReader(internals.Reader):
@@ -109,7 +109,7 @@ class SvWriter(internals.Writer):
 
     def __is_tab(self, file_location):
         # type: (str) -> bool
-        return self.__get_extension(file_location) == ".tsv"
+        return self.__get_extension(file_location) == "tsv"
 
     @staticmethod
     def __get_extension(file_location):
