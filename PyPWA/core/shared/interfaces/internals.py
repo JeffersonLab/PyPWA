@@ -19,32 +19,32 @@
 """
 Where the internal operation of the plugins are located.
 --------------------------------------------------------
-These interfaces reflect the internal design of the plugins, these should be 
-used when you are defining a portion of a plugin that will interact with 
+These interfaces reflect the internal design of the plugins, these should be
+used when you are defining a portion of a plugin that will interact with
 other plugins.
 
-- Reader - The reader object that is expected to be returned by the 
+- Reader - The reader object that is expected to be returned by the
   DataIterator.
 
-- Writer - The writer object that is expected to be returned by the 
+- Writer - The writer object that is expected to be returned by the
   DataIterator.
-  
-- ProcessInterface - This is the interface that is expected from 
-  KernelProcessing's fetch_interface method. This is the main interface 
+
+- ProcessInterface - This is the interface that is expected from
+  KernelProcessing's fetch_interface method. This is the main interface
   between the kernels and the executing program.
-  
-- Kernel - The kernel of code that is expected to be sent to the 
+
+- Kernel - The kernel of code that is expected to be sent to the
   Kernel Processing plugins.
 
-- KernelInterface - This defines how data returned by each of the kernels 
+- KernelInterface - This defines how data returned by each of the kernels
   should be processed.
-  
-- OptimizerOptionParser - This is to process the parameters by the 
-  optimizer to be sent to the user's kernel or code. This is to either 
-  package values in a easy to use dictionary and/or to remove extra 
+
+- OptimizerOptionParser - This is to process the parameters by the
+  optimizer to be sent to the user's kernel or code. This is to either
+  package values in a easy to use dictionary and/or to remove extra
   trailing information.
-  
-- LikelihoodTypes - An enumeration of the various likelihoods that are used 
+
+- LikelihoodTypes - An enumeration of the various likelihoods that are used
   internally. OTHER, LOG_LIKELIHOOD, and CHI_SQUARED.
 """
 
@@ -67,7 +67,7 @@ class Reader(object):
         # type: () -> numpy.ndarray
         """
         Called to get the next event from the reader.
-        
+
         :return: A single event.
         :rtype: numpy.ndarray
         """
@@ -81,6 +81,9 @@ class Reader(object):
 
     def __enter__(self):
         return self
+
+    def __len__(self):
+        return self.event_count()
 
     def __exit__(self, *args):
         self.close()
@@ -109,8 +112,8 @@ class Writer(object):
         # type: (numpy.ndarray) -> None
         """
         Should write the received event to the stream.
-        
-        :param numpy.ndarray data: The event data stored in a numpy array. 
+
+        :param numpy.ndarray data: The event data stored in a numpy array.
         """
         raise NotImplementedError()
 
@@ -135,7 +138,7 @@ class ProcessInterface(object):
         """
         This function will start the processing of the processes, whatever was
         passed through the kernel will be started with this method.
-        
+
         :param args: Anything that you want to pass to your kernel.
         :return: The value kernel interface.
         """
@@ -146,7 +149,7 @@ class ProcessInterface(object):
         # type: () -> Any
         """
         The previous value received from the kernel interface.
-        
+
         :return: Previous calculated value.
         """
         raise NotImplementedError
@@ -154,10 +157,10 @@ class ProcessInterface(object):
     def stop(self, force=False):
         # type: (Opt[bool]) -> None
         """
-        Should stop all process, threads, etc, that are being used to 
+        Should stop all process, threads, etc, that are being used to
         calculate.
-        
-        :param bool force: whether children should be stopped gently or 
+
+        :param bool force: whether children should be stopped gently or
         violently murdered.
         """
         raise NotImplementedError
@@ -166,9 +169,9 @@ class ProcessInterface(object):
     def is_alive(self):
         # type: () -> bool
         """
-        Should return whether the children are still alive or have been 
+        Should return whether the children are still alive or have been
         shutdown.
-        
+
         :return: The state of the processes.
         :rtype: bool
         """
@@ -183,7 +186,7 @@ class Kernel(object):
     def setup(self):
         # type: () -> None
         """
-        Anything that should be setup in the thread or process should be 
+        Anything that should be setup in the thread or process should be
         put here, this will be called only once before any calculation begins.
         """
         raise NotImplementedError()
@@ -191,11 +194,11 @@ class Kernel(object):
     def process(self, data=False):
         # type: (Opt[Any]) -> Any
         """
-        The actual calculation or function of the program, can optionally 
+        The actual calculation or function of the program, can optionally
         support values from the main thread / process.
-        
+
         :param data: Any data that you want to pass to the kernel.
-        :return: The final value or object that should be sent back to the 
+        :return: The final value or object that should be sent back to the
         main thread.
         """
         raise NotImplementedError()
@@ -214,10 +217,10 @@ class KernelInterface(object):
     def run(self, communicator, args):
         # type: (List[Any], Any) -> Any
         """
-        The method that will be called to begin the calculation. This is 
+        The method that will be called to begin the calculation. This is
         the interface between the kernels and the calling object.
-        
-        :param communicator: A list of objects that will be used to 
+
+        :param communicator: A list of objects that will be used to
         communicate with the kernels.
         :param args: Any values that are sent to the main interface.
         :return: Whatever value that is calculated locally from the kernels.
@@ -234,9 +237,9 @@ class OptimizerOptionParser(object):
     def convert(self, passed_value):
         # type: (Any) -> Any
         """
-        This should take any value sent by optimizer and clean up the value 
+        This should take any value sent by optimizer and clean up the value
         to something easier for the user to interact with if possible.
-        
+
         :param passed_value: The object sent by the optimizer.
         :return: The cleaned up value.
         """
