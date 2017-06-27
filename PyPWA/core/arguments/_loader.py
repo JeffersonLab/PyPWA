@@ -39,7 +39,6 @@ import PyPWA.shell
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.arguments import arguments_options
 from PyPWA.core.shared import plugin_loader
-from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

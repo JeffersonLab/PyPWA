@@ -17,7 +17,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Provides a simple interface for Main Objects in the ArgumentParser
+Interfaces for Argument Parser
+------------------------------
+Contains all the necessary interfaces to implement a plugin that can be
+used inside the argument parser.
+
+- Base - This is the root plugin interface for all arg parse plugins. You
+  really shouldn't implement this unless you know what you are doing. It's
+  setup for code shared between the two main plugin types, Main and Plugin.
+- Plugin - An interface that depends on Argument Groups.
+- Main - An interface for main plugins, this arguments are added straight to
+  the root of the plugin, and will appear as essential arguments.
 """
 
 from argparse import ArgumentParser, Namespace

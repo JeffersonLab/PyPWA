@@ -27,6 +27,8 @@ This is best for programs and plugins that have very few potential options.
 
 - _loader - this loads the plugins for the ArgumentParser
 - arguments_options - A simple interface for Main Plugins.
+- start - Main entry point for the Arg Parser, contains the chunk of code
+  that parses the provided options into a simple program.
 """
 
 from PyPWA import AUTHOR, VERSION
