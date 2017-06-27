@@ -17,28 +17,22 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Arguments, for simple command line programs
+-------------------------------------------
+This module attempts to do a lot of the same functionality as the
+Configurator, but instead of relying on a configuration file for the program
+to run, it instead gets all its arguments from the command line.
 
+This is best for programs and plugins that have very few potential options.
+
+- _loader - this loads the plugins for the ArgumentParser
+- arguments_options - A simple interface for Main Plugins.
+- start - Main entry point for the Arg Parser, contains the chunk of code
+  that parses the provided options into a simple program.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator import options
-from PyPWA.shell.blank import blank
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-class BlankSetup(options.Setup):
-
-    def __init__(self, options_object):
-        # type: (option_tools.CommandOptions) -> None
-        self.__options = options_object
-
-    def return_interface(self):
-        # type: () -> blank.Blank
-        return blank.Blank(
-            self.__options.data_parser, self.__options.option_1,
-            self.__options.option_2
-        )

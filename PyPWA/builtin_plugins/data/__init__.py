@@ -33,6 +33,8 @@ Examples:
         file.write(path_to_file, the_data)
 """
 
+from PyPWA.builtin_plugins.data import memory
+from PyPWA.core.arguments import arguments_options
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import _setups
 from PyPWA.core.configurator import options
@@ -109,3 +111,30 @@ class DataIterator(options.Plugin):
             "Directory that has potential plugins for the data parser in "
             "it. Read the docs for more information."
     }
+
+
+class ArgDataParse(arguments_options.Plugin):
+
+    _NAME = "Builtin Parser"
+
+    def _add_arguments(self):
+        self.__add_enable_cache()
+        self.__add_clear_cache()
+
+    def __add_enable_cache(self):
+        self._parser.add_argument(
+            "--cache", action='store_true', default=False,
+            help="Enable caching of interacted data. This will speed up "
+                 "future interaction with the same data."
+        )
+
+    def __add_clear_cache(self):
+        self._parser.add_argument(
+            "--clearcache", action="store_true", default=False,
+            help="Force cache for interacted files to be cleared."
+        )
+
+    def get_interface(self, namespace):
+        return memory.Memory(
+            enable_cache=namespace.cache, clear_cache=namespace.clearcache
+        )

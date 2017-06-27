@@ -17,11 +17,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+A reference implementation of metadata declaration.
 """
 
+from argparse import Namespace
+from PyPWA.builtin_plugins.data.memory import Memory
+from typing import Dict
+
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.arguments import arguments_options
 from PyPWA.core.configurator import options
+from PyPWA.shell.blank import blank
 from PyPWA.shell.blank import setup
 
 __credits__ = ["Mark Jones"]
@@ -35,6 +41,7 @@ class BlankModule(options.Main):
     setup = setup.BlankSetup
     required_plugins = [
         options.Types.DATA_PARSER
+
     ]
 
     default_options = {
@@ -61,3 +68,20 @@ class BlankModule(options.Main):
         "Option 2": "If you see this in production something went wrong.",
         "Option 3": "If you see this in production something went wrong."
     }
+
+
+class BlankArguments(arguments_options.Main):
+
+    _NAME = "blank shell module"
+    _REQUIRED = ["Builtin Parser"]
+
+    def _add_arguments(self):
+        self._parser.add_argument("--option1", "-o1", type=int, required=True)
+        self._parser.add_argument("--option2", "-o2", type=str)
+        self._parser.add_argument("--option3", "-o3", type=str)
+
+    def get_interface(self, namespace, plugins):
+        # type: (Namespace(), Dict[str, Memory]) -> blank.Blank
+        return blank.Blank(
+            plugins["Builtin Parser"], namespace.option1, namespace.option2
+        )
