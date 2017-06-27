@@ -25,6 +25,7 @@ __status__ = "production"
 
 
 requires = [
+    "tqdm",          # Progress Bars
     "iminuit<2.0",   # Default minimizer
     "scipy",         # Needed for Nestle with multiple ellipsoids.
     "nestle",        # New more advanced minimizer
@@ -49,7 +50,7 @@ entry_points = {
         "PySimulate = %s:py_simulate" % configurator_entry,
         "GenerateIntensities = %s:generate_intensities" % configurator_entry,
         "GenerateWeights = %s:generate_weights" % configurator_entry,
-        "PyMask = %s:masking_utility" % argument_entry
+        "pymask = %s:masking_utility" % argument_entry
     ]
 }
 
