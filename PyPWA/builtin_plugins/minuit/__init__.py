@@ -68,7 +68,7 @@ class MinuitOptions(options.Plugin):
         "parameters":
             "The parameters used inside your settings and your function",
         "settings":
-            "The settings for iMinuit's pyfit. See iMinuit documentation",
+            "The settings for iMinuit's fit. See iMinuit documentation",
         "strategy":
             "The strategy of Minuit. 0 for fast, 1 default, 2 for accurate",
         "number of calls":

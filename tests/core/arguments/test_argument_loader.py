@@ -4,7 +4,7 @@ import pytest
 
 from PyPWA.builtin_plugins import data
 from PyPWA.core.arguments import _loader
-from PyPWA.shell import blank
+from PyPWA.progs import blank
 
 PLUGIN_LOCATION = os.path.join(
     os.path.dirname(__file__), "../../data/source_files"
@@ -24,9 +24,9 @@ def test_loader_can_find_data_parser(loader):
 
 
 def test_loader_can_find_blank_module(loader):
-    main = loader.get_plugin_by_name("blank shell module")
+    main = loader.get_plugin_by_name("blank program module")
     assert isinstance(main, blank.BlankArguments)
-    assert main.get_name() == "blank shell module"
+    assert main.get_name() == "blank program module"
 
 
 def test_loader_raises_error_with_unknown(loader):

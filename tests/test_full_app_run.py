@@ -7,12 +7,12 @@ from PyPWA.core.shared import initial_logging
 from PyPWA.core.configurator.execute import start
 
 FIT_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "data/pyfit/rho/RHOfit"
+    os.path.dirname(__file__), "data/shell/rho/RHOfit"
 )
 
 
 SIM_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "data/pyfit/rho/RHOsim"
+    os.path.dirname(__file__), "data/shell/rho/RHOsim"
 )
 
 

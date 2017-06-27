@@ -20,4 +20,4 @@ def initializer(patch_args):
 
 
 def test_blank_module(initializer):
-    initializer.start('blank shell module', 'Quick Test')
+    initializer.start('blank program module', 'Quick Test')

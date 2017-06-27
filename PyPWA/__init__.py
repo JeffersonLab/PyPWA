@@ -67,7 +67,7 @@ Package purposes
   package are here, each function defined here is a starting point for 
   setuptools.
  
-- shell - This is where PySimulate and PyFit are defined.
+- progs - This is where PySimulate and PyFit are defined.
 
 For more information on how each module works, view their documentation
 respectively.
