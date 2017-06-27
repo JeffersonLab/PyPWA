@@ -23,6 +23,7 @@ import numpy
 from typing import Dict, List, Tuple
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared import file_libs
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -36,6 +37,7 @@ class SvReader(internals.Reader):
 
     def __init__(self, file_location):
         # type: (str) -> None
+        self.__particle_count = file_libs.get_file_length(file_location)
         self.__file = io.open(file_location)
         self.__previous_event = None  # type: numpy.ndarray
         self.__reader = False  # type: csv.DictReader
@@ -68,6 +70,9 @@ class SvReader(internals.Reader):
         self.__types = []
         for element in self.__elements:
             self.__types.append((element, "f8"))
+
+    def event_count(self):
+        return self.__particle_count
 
     def close(self):
         self.__file.close()

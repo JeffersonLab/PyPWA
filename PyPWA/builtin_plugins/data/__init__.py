@@ -34,6 +34,7 @@ Examples:
 """
 
 from PyPWA.builtin_plugins.data import memory
+from PyPWA.builtin_plugins.data import iterator
 from PyPWA.core.arguments import arguments_options
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import _setups
@@ -82,7 +83,7 @@ class DataParser(options.Plugin):
 
 class DataIterator(options.Plugin):
 
-    plugin_name = "Builtin Reader"
+    plugin_name = "Builtin Iterator"
     setup = _setups.SetupIterator
     provides = options.Types.DATA_READER
     defined_function = None
@@ -138,3 +139,14 @@ class ArgDataParse(arguments_options.Plugin):
         return memory.Memory(
             enable_cache=namespace.cache, clear_cache=namespace.clearcache
         )
+
+
+class ArgDataIterate(arguments_options.Plugin):
+
+    _NAME = "Builtin Iterator"
+
+    def _add_arguments(self):
+        pass
+
+    def get_interface(self, namespace):
+        return iterator.Iterator()

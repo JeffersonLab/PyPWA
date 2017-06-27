@@ -30,12 +30,32 @@ import io
 import numpy
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.core.shared import file_libs
 from PyPWA.core.shared.interfaces import internals
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
+
+class GampParticleCount(object):
+
+    def __init__(self):
+        self.__particle_count = 0
+
+    def get_particle_count(self, file_location):
+        particle_count = self.__get_particle_count(file_location)
+        file_length = file_libs.get_file_length(file_location)
+        self.__particle_count = int(file_length / particle_count)
+
+    @staticmethod
+    def __get_particle_count(file_location):
+        with open(file_location) as stream:
+            return int(stream.readline())
+
+    @property
+    def particle_count(self):
+        return self.__particle_count
 
 class GampReader(internals.Reader):
 
@@ -48,8 +68,11 @@ class GampReader(internals.Reader):
         Args:
             file_location (str): Name of the GAMP file, can be any size.
         """
+        self.__event_count = None
         self._previous_event = None  # type: numpy.ndarray
         self._the_file = file_location
+        self.__particle_count = GampParticleCount()
+        self.__particle_count.get_particle_count(file_location)
         self._start_input()
 
     def _start_input(self):
@@ -117,6 +140,9 @@ class GampReader(internals.Reader):
         particle[5] = numpy.float64(the_list[5])  # Particle Energy
 
         return particle
+
+    def event_count(self):
+        return self.__particle_count.particle_count
 
     def close(self):
         self._file.close()

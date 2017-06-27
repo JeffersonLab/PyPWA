@@ -85,6 +85,16 @@ class Reader(object):
     def __exit__(self, *args):
         self.close()
 
+    def event_count(self):
+        # type: () -> int
+        """
+        Called to get the total number of events in the file.
+
+        :return: Count of the events
+        :rtype: int
+        """
+        raise NotImplementedError()
+
     def close(self):
         # type: () -> None
         """
