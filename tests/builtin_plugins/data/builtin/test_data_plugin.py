@@ -18,7 +18,7 @@ import os
 
 import pytest
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp
+from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp, numpy
 from PyPWA.core.shared.interfaces import internals
 
 TEMP_WRITE_LOCATION = os.path.join(
@@ -37,12 +37,18 @@ EVIL_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "../../../data/test_docs/kv_test_data.txt"
 )
 
+NUMPY_TEST_DATA = os.path.join(
+    os.path.dirname(__file__), "../../../data/test_docs/numpy_test_data.npy"
+)
+
+
 @pytest.fixture(
     scope="module",
     params=[
         [sv.SvDataPlugin, CSV_TEST_DATA],
         [kv.EVILDataPlugin, EVIL_TEST_DATA],
-        [gamp.GampDataPlugin, GAMP_TEST_DATA]
+        [gamp.GampDataPlugin, GAMP_TEST_DATA],
+        [numpy.NumPyDataPlugin, NUMPY_TEST_DATA]
     ]
 )
 def setup_plugin_object(request):

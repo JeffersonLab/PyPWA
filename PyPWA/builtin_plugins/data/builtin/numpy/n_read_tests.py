@@ -29,7 +29,6 @@ __version__ = VERSION
 class NumpyDataTest(data_templates.ReadTest):
 
     def __init__(self):
-
         self.__list_test = [
             self.__binary_file_load,
             self.__text_file,
@@ -37,19 +36,24 @@ class NumpyDataTest(data_templates.ReadTest):
 
     @staticmethod
     def __binary_file_load(file_location):
+        # type: (str) -> None
         numpy.load(file_location)
 
     @staticmethod
     def __text_file(file_location):
+        # type: (str) -> None
         numpy.loadtxt(file_location)
 
-    def quick_test(self, file_location):
-        self.__iterate_through_file_types(file_location)
-
     def full_test(self, file_location):
+        # type: (str) -> None
         self.quick_test(file_location)
 
+    def quick_test(self, file_location):
+        # type: (str) -> None
+        self.__iterate_through_file_types(file_location)
+
     def __iterate_through_file_types(self, file_location):
+        # type: (str)-> None
         result = []
         for file_type in self.__list_test:
             result.append(self.__run_test(file_type, file_location))
@@ -58,6 +62,7 @@ class NumpyDataTest(data_templates.ReadTest):
 
     @staticmethod
     def __run_test(file_type, file_location):
+        # type: (str, str)-> bool
         try:
             file_type(file_location)
             return True
