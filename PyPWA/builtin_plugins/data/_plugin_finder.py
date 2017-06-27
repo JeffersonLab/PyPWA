@@ -150,7 +150,7 @@ class _FindWritePlugins(object):
         # type: (numpy.ndarray) -> None
         shape_count = len(data.shape)
 
-        if shape_count == 3:
+        if shape_count > 1:
             self.__LOGGER.debug("Found data type: GAMP")
             self.__data_is_gamp = True
         elif shape_count == 1:
