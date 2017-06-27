@@ -20,13 +20,15 @@
 
 """
 
+import warnings
 from typing import Optional as Opt
 
 import numpy
+import tqdm
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
 from PyPWA.core.shared.interfaces import internals
+from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -72,7 +74,7 @@ class _DataPackage(object):
         if masking_file:
             self.__mask = parser.parse(masking_file)
         else:
-            self.__mask = numpy.ones(self.__reader.event_count(), dtype=bool)
+            self.__mask = numpy.ones(len(self.__reader), dtype=bool)
 
     @property
     def reader(self):
@@ -107,9 +109,17 @@ class Masking(plugins.Main):
         self.__output_file = output_file
 
     def start(self):
+        self.__complain_to_user()
         self.__mask()
 
+    def __complain_to_user(self):
+        if not len(self.__data.reader) == len(self.__data.mask):
+            warnings.warn(
+                "The mask is a different length than the data!"
+            )
+
     def __mask(self):
-        for index, value in enumerate(self.__data.reader):
+        data_with_progress = tqdm.tqdm(self.__data.reader, unit="events")
+        for index, value in enumerate(data_with_progress):
             if self.__data.mask[index]:
                 self.__data.writer.write(value)
