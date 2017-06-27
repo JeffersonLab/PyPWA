@@ -37,7 +37,7 @@ class SvReader(internals.Reader):
 
     def __init__(self, file_location):
         # type: (str) -> None
-        self.__particle_count = file_libs.get_file_length(file_location)
+        self.__particle_count = file_libs.get_file_length(file_location) - 1
         self.__file = io.open(file_location)
         self.__previous_event = None  # type: numpy.ndarray
         self.__reader = False  # type: csv.DictReader
