@@ -89,8 +89,8 @@ class _BuildStorage(object):
         self.__process_plugins()
 
     def __process_main(self):
-        if self.__plugin_list.shell.defined_function:
-            self.__process_function(self.__plugin_list.shell)
+        if self.__plugin_list.program.defined_function:
+            self.__process_function(self.__plugin_list.program)
 
     def __process_plugins(self):
         for plugin in self.__plugin_list.plugins:

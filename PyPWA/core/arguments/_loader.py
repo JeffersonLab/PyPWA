@@ -35,7 +35,7 @@ from typing import List
 from typing import Optional as Opt
 
 import PyPWA.builtin_plugins
-import PyPWA.shell
+import PyPWA.progs
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.arguments import arguments_options
 from PyPWA.core.shared import plugin_loader
@@ -49,7 +49,7 @@ def _plugin_charger(optional_plugin_location):
     # type: (Opt[str]) -> None
     loader = plugin_loader.PluginLoader()
     loader.add_plugin_location(optional_plugin_location)
-    loader.add_plugin_location({PyPWA.shell, PyPWA.builtin_plugins})
+    loader.add_plugin_location({PyPWA.progs, PyPWA.builtin_plugins})
 
 
 class _PluginStorage(object):

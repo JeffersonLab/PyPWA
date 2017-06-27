@@ -1,10 +1,11 @@
-import pytest
 import sys
 
+import pytest
+
 from PyPWA.builtin_plugins import process
-from PyPWA.shell import pysimulate, pyfit
 from PyPWA.core.configurator import options
 from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.progs.shell import simulate, fit
 
 
 @pytest.fixture()
@@ -49,12 +50,12 @@ def check_plugin_in_list(template, plugin_list):
 
 
 def test_plugin_list_finds_pysimulate_plugins(plugin_list):
-    plugin_list.parse_plugins(pysimulate.ShellSimulation)
-    assert plugin_list.shell == pysimulate.ShellSimulation
+    plugin_list.parse_plugins(simulate.ShellSimulation)
+    assert plugin_list.program == simulate.ShellSimulation
     check_plugin_in_list(process.Processing, plugin_list.plugins)
 
 
 def test_plugin_list_finds_pyfit_plugins(plugin_list, mock_input_for_nestle):
-    plugin_list.parse_plugins(pyfit.ShellFitting)
-    assert plugin_list.shell == pyfit.ShellFitting
+    plugin_list.parse_plugins(fit.ShellFitting)
+    assert plugin_list.program == fit.ShellFitting
     check_plugin_in_list(process.Processing, plugin_list.plugins)

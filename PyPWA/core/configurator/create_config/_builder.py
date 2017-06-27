@@ -96,7 +96,7 @@ class BuildConfig(object):
 
     def __update_shell(self):
         self.__configuration.update(
-            self.__get_plugin_options(self.__plugin_list.shell)
+            self.__get_plugin_options(self.__plugin_list.program)
         )
 
     def __update_plugins(self):

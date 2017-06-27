@@ -32,7 +32,7 @@ from typing import Any, List
 
 import PyPWA.builtin_plugins
 import PyPWA.core
-import PyPWA.shell
+import PyPWA.progs
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.configurator import options
 from PyPWA.core.shared import plugin_loader
@@ -57,7 +57,7 @@ class Storage(object):
     def __init__(self):
         self.__loader = plugin_loader.PluginLoader()
         self.__loader.add_plugin_location(
-            {PyPWA.builtin_plugins, PyPWA.shell, PyPWA.core}
+            {PyPWA.builtin_plugins, PyPWA.progs, PyPWA.core}
         )
         self.__index = 0
         self._check_for_updates()

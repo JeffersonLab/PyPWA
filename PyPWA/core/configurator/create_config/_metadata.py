@@ -95,7 +95,7 @@ class MetadataStorage(storage.Storage):
         for plugin in self._get_shells():
             if plugin.plugin_name == name:
                 return plugin
-        raise ValueError("Unknown shell name '%s'" % name)
+        raise ValueError("Unknown program name '%s'" % name)
 
 
 class GetPluginList(object):
@@ -133,6 +133,6 @@ class GetPluginList(object):
         return self.__plugin_list
 
     @property
-    def shell(self):  # needed so that BuildConfig can know the shell plugin
+    def program(self):  # needed so that BuildConfig can know the program plugin
         # type: () -> options.Main
         return self.__main_plugin

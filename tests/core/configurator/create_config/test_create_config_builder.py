@@ -1,8 +1,9 @@
 import pytest
+
 from PyPWA.core.configurator.create_config import _builder
 from PyPWA.core.configurator.create_config import _metadata
 from PyPWA.core.configurator.create_config import _questions
-from PyPWA.shell import pysimulate
+from PyPWA.progs.shell import simulate
 
 PYSIM_CONFIG = {
         "main": "shell simulation",
@@ -17,7 +18,7 @@ PYSIM_CONFIG = {
 @pytest.fixture()
 def plugin_list():
     plugins = _metadata.GetPluginList()
-    plugins.parse_plugins(pysimulate.ShellSimulation)
+    plugins.parse_plugins(simulate.ShellSimulation)
     return plugins
 
 

@@ -30,7 +30,7 @@ CSV_TEST_DATA = os.path.join(
 )
 
 CSV_TEST_DATA_2 = os.path.join(
-    os.path.dirname(__file__), "../../../../data/pyfit/data/data.csv"
+    os.path.dirname(__file__), "../../../../data/shell/data/data.csv"
 )
 
 TSV_TEST_DATA = os.path.join(
