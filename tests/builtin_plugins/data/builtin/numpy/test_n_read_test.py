@@ -42,6 +42,7 @@ NOISE_TEST_DATA = os.path.join(
 def setup_test():
     return n_read_tests.NumpyDataTest()
 
+
 @pytest.fixture(
     scope="module",
     params=[
