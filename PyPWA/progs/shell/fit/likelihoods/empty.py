@@ -61,7 +61,7 @@ class EmptyLikelihood(interfaces.Setup):
 
     def __setup_likelihood(self, function_package):
         # type: (loaders.FunctionLoader) -> None
-        self._likelihood = Empty(
+        self.__likelihood = Empty(
             function_package.setup, function_package.process
         )
 
