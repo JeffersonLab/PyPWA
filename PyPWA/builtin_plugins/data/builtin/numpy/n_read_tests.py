@@ -21,7 +21,7 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
 
-__credits__ = ["Mark Jones"]
+__credits__ = ["Christopher Banks"]
 __author__ = AUTHOR
 __version__ = VERSION
 
