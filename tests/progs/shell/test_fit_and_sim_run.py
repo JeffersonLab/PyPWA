@@ -6,12 +6,12 @@ import pytest
 from PyPWA.entries import configurator
 
 FIT_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "data/shell/rho/RHOfit"
+    os.path.dirname(__file__), "../../data/shell/rho/RHOfit"
 )
 
 
 SIM_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "data/shell/rho/RHOsim"
+    os.path.dirname(__file__), "../../data/shell/rho/RHOsim"
 )
 
 
