@@ -17,7 +17,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Masking Utility
+---------------
+- _DataPackage - Loads the iterators and masks for the program.
+- Masking - Masks and/or translates the data.
 """
 
 import logging
@@ -109,7 +112,6 @@ class Masking(plugins.Main):
         self.__data = _DataPackage(
             input_file, masking_file, output_file, parser, iterator
         )
-        self.__output_file = output_file
 
     def start(self):
         self.__complain_to_user()

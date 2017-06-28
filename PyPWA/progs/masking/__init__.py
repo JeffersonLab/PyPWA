@@ -17,7 +17,11 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Simple masking utility for PyPWA.
+---------------------------------
+This is an argument based program that supports both masking of any defined
+data type, while also supporting converting of data from one data format to
+another.
 """
 
 from PyPWA import AUTHOR, VERSION
