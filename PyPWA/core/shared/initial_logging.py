@@ -17,12 +17,13 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-A simple function that sets the logging conditions for the entire program.
+Sets the logging conditions for the entire program.
 This controls the formatting off the logs, where the logs are located, and
 the level of verbosity of those logs.
 """
 
 import logging
+from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
 
@@ -37,7 +38,7 @@ class _LoggerData(object):
     filename = ""  # type: str
 
 
-class InternalLogger(object):
+class _InternalLogger(object):
 
     __LOGGER = logging.getLogger()
     __DATA = _LoggerData()
@@ -47,19 +48,18 @@ class InternalLogger(object):
     )
 
     @classmethod
-    def configure_root_logger(cls, level, file_name="", processor_id=""):
+    def configure_root_logger(cls, level, file_name=""):
         # type: (str, str, str) -> None
         cls.__DATA.level = level
         cls.__DATA.filename = file_name
-        cls.__setup_handlers(processor_id)
+        cls.__setup_handlers()
         cls.__set_level()
 
     @classmethod
-    def __setup_handlers(cls, processor_id):
+    def __setup_handlers(cls):
         # type: (str) -> None
         cls.__create_stream_handler()
         if cls.__DATA.filename:
-            cls.__compute_file_name(processor_id)
             cls.__create_file_handler()
 
     @classmethod
@@ -67,12 +67,6 @@ class InternalLogger(object):
         handler = logging.StreamHandler()
         handler.setFormatter(cls.__FORMATTER)
         cls.__LOGGER.addHandler(handler)
-
-    @classmethod
-    def __compute_file_name(cls, processor_id):
-        # type: (str) -> None
-        if processor_id:
-            cls.__DATA.filename = processor_id + "--" + cls.__DATA.filename
 
     @classmethod
     def __create_file_handler(cls):
@@ -84,14 +78,22 @@ class InternalLogger(object):
     def __set_level(cls):
         cls.__LOGGER.setLevel(cls.__DATA.level)
 
-    @classmethod
-    def get_level(cls):
-        return cls.__DATA.level
 
-    @classmethod
-    def get_filename(cls):
-        return cls.__DATA.filename
-
-    @classmethod
-    def set_level_to_global(cls):
-        cls.__DATA.level = cls.__LOGGER.getEffectiveLevel()
+def setup_logging(count, logfile=None):
+    # type: (int, Opt[str]) -> None
+    if count == 1:
+        _InternalLogger.configure_root_logger(
+            logging.WARNING, logfile
+        )
+    elif count == 2:
+        _InternalLogger.configure_root_logger(
+            logging.INFO, logfile
+        )
+    elif count >= 3:
+        _InternalLogger.configure_root_logger(
+            logging.DEBUG, logfile
+        )
+    else:
+        _InternalLogger.configure_root_logger(
+            logging.ERROR, logfile
+        )

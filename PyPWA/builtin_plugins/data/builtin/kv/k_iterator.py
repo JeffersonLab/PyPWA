@@ -42,6 +42,7 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
+from PyPWA.core.shared import file_libs
 from PyPWA.core.shared.interfaces import internals
 
 __credits__ = ["Mark Jones"]
@@ -59,8 +60,7 @@ class EVILReader(internals.Reader):
             file_location (str): The location of the EVIL file.
         """
         self._logger = logging.getLogger(__name__)
-        self._logger.addHandler(logging.NullHandler())
-
+        self.__particle_count = file_libs.get_file_length(file_location)
         self._the_file = file_location
         self._previous_event = None
         self._file = False  # type: io.TextIOBase
@@ -198,6 +198,9 @@ class EVILReader(internals.Reader):
             final[0][name] = value
 
         return final
+
+    def event_count(self):
+        return self.__particle_count
 
     def close(self):
         self._file.close()

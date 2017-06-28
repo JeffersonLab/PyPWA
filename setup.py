@@ -25,6 +25,7 @@ __status__ = "production"
 
 
 requires = [
+    "tqdm",          # Progress Bars
     "iminuit<2.0",   # Default minimizer
     "scipy",         # Needed for Nestle with multiple ellipsoids.
     "nestle",        # New more advanced minimizer
@@ -39,6 +40,7 @@ requires = [
 ]
 
 configurator_entry = "PyPWA.entries.configurator"
+argument_entry = "PyPWA.entries.arguments"
 
 entry_points = {
     "console_scripts": [
@@ -47,7 +49,8 @@ entry_points = {
         "ChiSquaredFit = %s:chi_squared_fit" % configurator_entry,
         "PySimulate = %s:py_simulate" % configurator_entry,
         "GenerateIntensities = %s:generate_intensities" % configurator_entry,
-        "GenerateWeights = %s:generate_weights" % configurator_entry
+        "GenerateWeights = %s:generate_weights" % configurator_entry,
+        "pymask = %s:masking_utility" % argument_entry
     ]
 }
 

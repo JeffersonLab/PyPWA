@@ -1,15 +1,11 @@
+import logging
 import time
 
 import numpy
 import pytest
-import logging
 
 from PyPWA.builtin_plugins.process import foreman, _communication
 from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared import initial_logging
-
-
-initial_logging.InternalLogger.set_level_to_global()
 
 
 def test_DuplexProcess_SumOfIntegers_Return50():

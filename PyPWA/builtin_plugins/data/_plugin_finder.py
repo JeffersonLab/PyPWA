@@ -148,17 +148,15 @@ class _FindWritePlugins(object):
 
     def __set_data_type(self, data):
         # type: (numpy.ndarray) -> None
-        shape_count = len(data.shape)
-
-        if shape_count == 3:
+        if  len(data.shape) in (2,3) and data.shape[-1] == 6:
             self.__LOGGER.debug("Found data type: GAMP")
             self.__data_is_gamp = True
-        elif shape_count == 1:
+        elif len(data.shape) == 1:
             self.__LOGGER.debug("Found data type: Flat")
             self.__data_is_flat = True
         else:
             self.__LOGGER.error(
-                "Found noise, data shape_count is: " + str(shape_count)
+                "Found noise, data shape is: " + str(data.shape)
             )
 
             raise exceptions.UnknownData

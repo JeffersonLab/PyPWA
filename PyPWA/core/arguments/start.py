@@ -42,9 +42,11 @@ from typing import Dict, List
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.arguments import _loader
 from PyPWA.core.arguments import arguments_options
+from PyPWA.core.shared import initial_logging
 from PyPWA.core.shared.interfaces import plugins
 
 __credits__ = ["Mark Jones"]
+
 __author__ = AUTHOR
 __version__ = VERSION
 
@@ -84,10 +86,48 @@ class _PluginLoader(object):
         return self.__main
 
 
+class _GlobalArguments(object):
+
+    def __init__(self):
+        self.__parser = None  # type: argparse.ArgumentParser
+
+    def setup_parser(self, parser):
+        # type: (argparse.ArgumentParser) -> None
+        self.__parser = parser
+        self.__add_arguments()
+
+    def __add_arguments(self):
+        self.__add_log_file_argument()
+        self.__add_verbose_argument()
+        self.__add_version_argument()
+
+    def __add_verbose_argument(self):
+        self.__parser.add_argument(
+            "-v", action="count", default=0,
+            help="Adds logging, defaults to errors, then setups up on "
+                 "from there. -v will include warning, -vv will show "
+                 "warnings and info, and -vvv will show info, warnings, "
+                 "debugging"
+        )
+
+    def __add_log_file_argument(self):
+        self.__parser.add_argument(
+            "--log-file", "-l", type=str, default="", nargs="?",
+            help="File to output captured log"
+        )
+
+    def __add_version_argument(self):
+        self.__parser.add_argument(
+            "--Version", "-V", action="version",
+            version="%(prog)s (version " + __version__ + ")"
+        )
+
+
 class _LoadArguments(object):
 
     def __init__(self):
         self.__arguments = sys.argv[1:]
+        self.__global = _GlobalArguments()
         self.__root_parser = None  # type: argparse.ArgumentParser
         self.__plugins = None  # type: _PluginLoader
         self.__namespace = None  # type: argparse.Namespace
@@ -98,6 +138,7 @@ class _LoadArguments(object):
         self.__setup_root_parser(description)
         self.__load_main_arguments()
         self.__load_children_arguments()
+        self.__load_global_options()
         self.__parse_arguments()
 
     def __setup_root_parser(self, description):
@@ -110,6 +151,9 @@ class _LoadArguments(object):
     def __load_children_arguments(self):
         for plugin in self.__plugins.plugins.values():
             plugin.setup(self.__root_parser)
+
+    def __load_global_options(self):
+        self.__global.setup_parser(self.__root_parser)
 
     def __parse_arguments(self):
         # type: (List[str]) -> None
@@ -166,5 +210,11 @@ class StartArguments(object):
         # type: (str, str) -> None
         self.__plugins.load(name)
         self.__arguments.load_arguments(self.__plugins, description)
+        self.__start_logging()
         self.__setup.create_main_program(self.__plugins, self.__arguments)
         self.__setup.main.start()
+
+    def __start_logging(self):
+        initial_logging.setup_logging(
+            self.__arguments.namespace.v, self.__arguments.namespace.log_file
+        )
