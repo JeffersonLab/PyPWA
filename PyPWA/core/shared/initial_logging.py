@@ -48,19 +48,18 @@ class _InternalLogger(object):
     )
 
     @classmethod
-    def configure_root_logger(cls, level, file_name="", processor_id=""):
+    def configure_root_logger(cls, level, file_name=""):
         # type: (str, str, str) -> None
         cls.__DATA.level = level
         cls.__DATA.filename = file_name
-        cls.__setup_handlers(processor_id)
+        cls.__setup_handlers()
         cls.__set_level()
 
     @classmethod
-    def __setup_handlers(cls, processor_id):
+    def __setup_handlers(cls):
         # type: (str) -> None
         cls.__create_stream_handler()
         if cls.__DATA.filename:
-            cls.__compute_file_name(processor_id)
             cls.__create_file_handler()
 
     @classmethod
@@ -68,12 +67,6 @@ class _InternalLogger(object):
         handler = logging.StreamHandler()
         handler.setFormatter(cls.__FORMATTER)
         cls.__LOGGER.addHandler(handler)
-
-    @classmethod
-    def __compute_file_name(cls, processor_id):
-        # type: (str) -> None
-        if processor_id:
-            cls.__DATA.filename = processor_id + "--" + cls.__DATA.filename
 
     @classmethod
     def __create_file_handler(cls):
