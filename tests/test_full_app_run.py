@@ -1,6 +1,9 @@
 import os
+import sys
 
-from PyPWA.core.configurator.execute import start
+import pytest
+
+from PyPWA.entries import configurator
 
 FIT_CONFIG_LOCATION = os.path.join(
     os.path.dirname(__file__), "data/shell/rho/RHOfit"
@@ -12,30 +15,31 @@ SIM_CONFIG_LOCATION = os.path.join(
 )
 
 
-PYFIT_CONFIG = {
-    "main": "shell fitting method",
-    "main name": "General Fitting",
-}
+@pytest.fixture()
+def patch_sys_argv(monkeypatch):
+    holding = sys.argv
+    yield
+    monkeypatch.setattr('sys.argv', holding)
 
 
-PYSIM_CONFIG = {
-    "main": "shell simulation",
-    "main name": "Simulator",
-    "main options": {
-        "the type": "full",
-        "max intensity": None
-    }
-}
-
-
-def test_full_pyfit_run():
-    executor = start.Execute()
-    executor.run(PYFIT_CONFIG, FIT_CONFIG_LOCATION)
+@pytest.fixture()
+def fit_args(monkeypatch, patch_sys_argv):
+    monkeypatch.setattr("sys.argv", ["PyFit", FIT_CONFIG_LOCATION])
+    yield
     os.remove("outputRHOFIT.npy")
     os.remove("outputRHOFIT.txt")
 
 
-def test_full_pysim_run():
-    executor = start.Execute()
-    executor.run(PYSIM_CONFIG, SIM_CONFIG_LOCATION)
+@pytest.fixture()
+def simulate_args(monkeypatch, patch_sys_argv):
+    monkeypatch.setattr("sys.argv", ["PySimulate", SIM_CONFIG_LOCATION])
+    yield
     os.remove("outputRHO_rejection.txt")
+
+
+def test_full_fit_run(fit_args):
+    configurator.py_fit()
+
+
+def test_full_sim_run(simulate_args):
+    configurator.py_simulate()
