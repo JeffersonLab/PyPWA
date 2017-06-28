@@ -55,15 +55,15 @@ class LogLikelihood(interfaces.Setup):
     ):
         # type: (...) -> None
         self.__setup_data(data_package)
-        self.__setup_likelihood(function_package)
         self.__extract_generated_length(extra_info)
+        self.__setup_likelihood(function_package)
 
     def __setup_data(self, data_package):
         # type: (loaders.DataLoading) -> None
         self.__data["data"] = data_package.data
         self.__data["qfactor"] = data_package.qfactor
         self.__data["binned"] = data_package.binned
-        if data_package.monte_carlo:
+        if isinstance(data_package.monte_carlo, numpy.ndarray):
             self.__data["monte_carlo"] = data_package.monte_carlo
 
     def __extract_generated_length(self, extra_info):
