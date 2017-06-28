@@ -48,6 +48,8 @@ def test_non_specified_file_case(writer_and_parser, gen_noisy_single_array):
 
 @pytest.fixture()
 def write_multiple_array_data(writer_and_parser):
+    numpy.asarray(gen_noisy_single_array)
+    numpy.asarray(gen_boolean_data)
     array_tuple = (gen_noisy_single_array, gen_boolean_data)
     writer_and_parser.write(NUMPY_TEST_DATA_2, array_tuple)  # own test
     yield array_tuple
