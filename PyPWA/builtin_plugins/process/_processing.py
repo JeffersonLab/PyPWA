@@ -26,7 +26,6 @@ import multiprocessing
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process._communication import CommunicationFactory
-from PyPWA.core.shared import initial_logging
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -40,7 +39,7 @@ class _DuplexProcess(multiprocessing.Process):
     __logging_file = None
     __logger = None
 
-    def __init__(self, index, kernel, communicator, level, file):
+    def __init__(self, index, kernel, communicator):
         """
         Main object for duplex processes. These processes are worker
         processes and as such will continue to run indefinitely until
@@ -56,8 +55,6 @@ class _DuplexProcess(multiprocessing.Process):
                 children and vice versa.
         """
         super(_DuplexProcess, self).__init__()
-        self.__logging_level = level
-        self.__logging_file = file
         self._kernel = kernel
         self._kernel.PROCESS_ID = index
         self._communicator = communicator
@@ -70,7 +67,6 @@ class _DuplexProcess(multiprocessing.Process):
         Returns:
             0: When the process is closed cleanly.
         """
-        self.__setup_logger()
         self.__set_logger()
         self.__logger.debug(
             "Starting logging in proc index %d" % self._kernel.PROCESS_ID
@@ -87,11 +83,6 @@ class _DuplexProcess(multiprocessing.Process):
                 self._communicator.send(self._kernel.process(value))
         return 0
 
-    def __setup_logger(self):
-        initial_logging.InternalLogger.configure_root_logger(
-            self.__logging_level, self.__logging_file
-        )
-
     def __set_logger(self):
         self.__logger = logging.getLogger(__name__ + "._DuplexProcess")
 
@@ -103,7 +94,7 @@ class _SimplexProcess(multiprocessing.Process):
     __logging_file = None
     __logger = None
 
-    def __init__(self, index, single_kernel, communicator, level, file):
+    def __init__(self, index, single_kernel, communicator):
         """
         The simplex process is the simple offload process, anything
         passed to here will be ran immediately then send to the result
@@ -118,8 +109,6 @@ class _SimplexProcess(multiprocessing.Process):
                 processed.
         """
         super(_SimplexProcess, self).__init__()
-        self.__logging_level = level
-        self.__logging_file = file
         self._kernel = single_kernel
         self._kernel.PROCESS_ID = index
         self._communicator = communicator
@@ -170,11 +159,9 @@ class CalculationFactory(object):
         sends, receives = CommunicationFactory.simplex_build(count)
 
         for index, internals in enumerate(zip(process_kernels, sends)):
-            processes.append(_SimplexProcess(
-                index, internals[0], internals[1],
-                initial_logging.InternalLogger.get_level(),
-                initial_logging.InternalLogger.get_filename()
-            ))
+            processes.append(
+                _SimplexProcess(index, internals[0], internals[1])
+            )
 
         return [processes, receives]
 
@@ -196,10 +183,8 @@ class CalculationFactory(object):
         main_com, process_com = CommunicationFactory.duplex_build(count)
 
         for index, internals in enumerate(zip(process_kernels, process_com)):
-            processes.append(_DuplexProcess(
-                index, internals[0], internals[1],
-                initial_logging.InternalLogger.get_level(),
-                initial_logging.InternalLogger.get_filename()
-            ))
+            processes.append(
+                _DuplexProcess(index, internals[0], internals[1])
+            )
 
         return [processes, main_com]

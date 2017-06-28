@@ -36,7 +36,6 @@ to a lesser extent.
 """
 
 import argparse
-import logging
 import sys
 from typing import Dict, List
 
@@ -50,26 +49,6 @@ __credits__ = ["Mark Jones"]
 
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-def setup_logging(namespace):
-    # type: (argparse.Namespace) -> None
-    if namespace.v == 1:
-        initial_logging.InternalLogger.configure_root_logger(
-            logging.WARNING, namespace.log_file
-        )
-    elif namespace.v == 2:
-        initial_logging.InternalLogger.configure_root_logger(
-            logging.INFO, namespace.log_file
-        )
-    elif namespace.v >= 3:
-        initial_logging.InternalLogger.configure_root_logger(
-            logging.DEBUG, namespace.log_file
-        )
-    else:
-        initial_logging.InternalLogger.configure_root_logger(
-            logging.ERROR, namespace.log_file
-        )
 
 
 class _PluginLoader(object):
@@ -231,6 +210,11 @@ class StartArguments(object):
         # type: (str, str) -> None
         self.__plugins.load(name)
         self.__arguments.load_arguments(self.__plugins, description)
-        setup_logging(self.__arguments.namespace)
+        self.__start_logging()
         self.__setup.create_main_program(self.__plugins, self.__arguments)
         self.__setup.main.start()
+
+    def __start_logging(self):
+        initial_logging.setup_logging(
+            self.__arguments.namespace.v, self.__arguments.namespace.log_file
+        )
