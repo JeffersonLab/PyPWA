@@ -8,6 +8,7 @@
  - Josh Pond <https://github.com/JTPond>
  - Mark Jones <markjonestx@live.com> <https://github.com/Markjonestx>
  - LaRay Hare <https://github.com/lmhare>
+ - Christopher Banks <https://github.com/cjbanks>
 
 High School Interns:
 
