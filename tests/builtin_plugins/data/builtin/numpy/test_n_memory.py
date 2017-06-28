@@ -13,13 +13,13 @@ PF_TEST_DATA = "numpy_test_data.pf"
 TEST_DATA = "numpy_unspec_data"
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def gen_noisy_single_array():
     data = numpy.arange(0, 10)
     return data
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def gen_boolean_data():
     data = numpy.random.choice([True, False], 10)
     return data
@@ -45,20 +45,6 @@ def test_normal_read_data(writer_and_parser, write_noise_data):
 def test_non_specified_file_case(writer_and_parser, gen_noisy_single_array):
     writer_and_parser.write(TEST_DATA, gen_noisy_single_array)
     os.remove("numpy_unspec_data.npy")
-
-@pytest.fixture()
-def write_multiple_array_data(writer_and_parser):
-    numpy.asarray(gen_noisy_single_array)
-    numpy.asarray(gen_boolean_data)
-    array_tuple = (gen_noisy_single_array, gen_boolean_data)
-    writer_and_parser.write(NUMPY_TEST_DATA_2, array_tuple)  # own test
-    yield array_tuple
-    os.remove(NUMPY_TEST_DATA_2)
-
-
-def test_multiple_array_data(writer_and_parser, write_multiple_array_data):
-    new_data_2 = writer_and_parser.parse(NUMPY_TEST_DATA_2)
-    numpy.testing.assert_equal(new_data_2, write_multiple_array_data)
 
 
 @pytest.fixture()

@@ -42,23 +42,12 @@ class _NumpyParser(object):
 
     def __try_parsing_arrays(self, file_path):
         ext = self.__get_extension(file_path)
-        if ext == ".npz":
-            return self.__multiple_arrays_defined(file_path)
         return self.__single_array_defined(file_path)
 
     @staticmethod
     def __get_extension(file_path):
         # type: (str) -> file_path
         return os.path.splitext(file_path)[1]
-
-    @staticmethod
-    def __multiple_arrays_defined(file_path):
-        # type: (Union[str, numpy.ndarray])-> list_of_data
-        list_of_data = []
-        with numpy.load(file_path) as data:
-            for file in data.files:
-                list_of_data.append(data[file])
-        return numpy.asarray(list_of_data)
 
     @staticmethod
     def __single_array_defined(file_path):
@@ -86,8 +75,6 @@ class _NumpyMemoryWriter(object):
         ext = self.__get_extension(file_path)
         if ext == '.npy':
             numpy.save(file_path, data)
-        elif ext == '.npz':
-            self.__for_several_arrays(file_path, data)
         elif ext == ".pf":
             numpy.savetxt(file_path, data, fmt="%d")
         elif ext == ".txt":
@@ -99,11 +86,6 @@ class _NumpyMemoryWriter(object):
     def __get_extension(file_path):
         # type: (str) -> file_path
         return os.path.splitext(file_path)[1]
-
-    @staticmethod
-    def __for_several_arrays(file_path, data):
-        # type: (str, numpy.ndarray) -> None
-        numpy.savez(file_path, *data)
 
 
 class NumpyMemory(data_templates.TemplateMemory):
