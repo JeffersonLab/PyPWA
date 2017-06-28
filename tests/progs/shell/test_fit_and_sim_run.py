@@ -30,15 +30,15 @@ def fit_args(monkeypatch, patch_sys_argv):
     os.remove("outputRHOFIT.txt")
 
 
+def test_full_fit_run(fit_args):
+    configurator.py_fit()
+
+
 @pytest.fixture()
 def simulate_args(monkeypatch, patch_sys_argv):
     monkeypatch.setattr("sys.argv", ["PySimulate", SIM_CONFIG_LOCATION])
     yield
     os.remove("outputRHO_rejection.txt")
-
-
-def test_full_fit_run(fit_args):
-    configurator.py_fit()
 
 
 def test_full_sim_run(simulate_args):
