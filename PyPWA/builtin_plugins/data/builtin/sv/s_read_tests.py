@@ -37,12 +37,7 @@ class SvDataTest(data_templates.ReadTest):
     def __init__(self):
         self.__stream = None  # type: io.FileIO
 
-    def quick_test(self, file_location):
-        # type: (str) -> None
-        self.__set_stream(file_location)
-        self.__header_test()
-
-    def full_test(self, file_location):
+    def test(self, file_location):
         # type: (str) -> None
         self.__set_stream(file_location)
         self.__header_test()

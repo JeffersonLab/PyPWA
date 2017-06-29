@@ -62,12 +62,17 @@ class TemplateDataPlugin(object):
         raise NotImplementedError()
 
     @property
-    def plugin_supports_flat_data(self):
+    def plugin_supports_columned_data(self):
         # type: () -> bool
         raise NotImplementedError()
 
     @property
-    def plugin_supports_gamp_data(self):
+    def plugin_supports_single_array(self):
+        # type: () -> bool
+        raise NotImplementedError
+
+    @property
+    def plugin_supports_tree_data(self):
         # type: () -> bool
         raise NotImplementedError()
 
@@ -85,16 +90,7 @@ class TemplateMemory(object):
 
 class ReadTest(object):
 
-    def quick_test(self, file_location):
-        # type: (str) -> None
-        """
-        Raises:
-            PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised
-                when data  failed to test properly for the file.
-        """
-        raise NotImplementedError()
-
-    def full_test(self, file_location):
+    def test(self, file_location):
         # type: (str) -> None
         """
         Raises:

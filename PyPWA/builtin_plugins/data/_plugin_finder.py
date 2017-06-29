@@ -116,13 +116,13 @@ class _FindReadPlugins(object):
         except Exception as Error:
             # We don't want a plugin to halt execution, but we do want to know
             # that a plugin failed to load and why.
-            self.__LOGGER.debug(Error)
+            self.__LOGGER.debug(repr(Error))
             return False
 
     def __run_read_test(self, plugin, file_location):
         # type: (data_templates.TemplateDataPlugin, str) -> None
         read_test = plugin.get_plugin_read_test()
-        read_test.quick_test(file_location)
+        read_test.test(file_location)
         self.__LOGGER.info(
             "Found '%s' will load '%s'" % (plugin.plugin_name, file_location)
         )
@@ -135,8 +135,9 @@ class _FindWritePlugins(object):
     def __init__(self, potential_plugins):
         # type: (List[data_templates.TemplateDataPlugin]) -> None
         self.__potential_plugins = potential_plugins
-        self.__data_is_gamp = False
-        self.__data_is_flat = False
+        self.__data_is_tree = False
+        self.__data_is_columned = False
+        self.__data_is_single_array = False
         self.__file_extension = ""
         self.__file_name = ""
 
@@ -149,17 +150,20 @@ class _FindWritePlugins(object):
     def __set_data_type(self, data):
         # type: (numpy.ndarray) -> None
         if  len(data.shape) in (2,3) and data.shape[-1] == 6:
-            self.__LOGGER.debug("Found data type: GAMP")
-            self.__data_is_gamp = True
-        elif len(data.shape) == 1:
-            self.__LOGGER.debug("Found data type: Flat")
-            self.__data_is_flat = True
-        else:
+            self.__LOGGER.debug("Found data type: Tree")
+            self.__data_is_tree = True
+        elif len(data.shape) != 1:
             self.__LOGGER.error(
                 "Found noise, data shape is: " + str(data.shape)
             )
 
-            raise exceptions.UnknownData
+            raise exceptions.UnknownData("Array Type is Unknown!")
+        elif data.dtype.names:
+            self.__LOGGER.debug("Found data type: Structured Array")
+            self.__data_is_columned = True
+        else:
+            self.__LOGGER.debug("Found data type: Array")
+            self.__data_is_single_array = True
 
     def __set_data_extension(self, file_location):
         # type: (str) -> None
@@ -176,7 +180,10 @@ class _FindWritePlugins(object):
                 self.__log_found_plugin(plugin)
                 return plugin
 
-        raise exceptions.UnknownData
+        raise exceptions.UnknownData(
+            "No plugin reports supporting %s! Check your extension." %
+            self.__file_name
+        )
 
     def __check_plugin(self, the_plugin):
         # type: (data_templates.TemplateDataPlugin) -> bool
@@ -189,10 +196,12 @@ class _FindWritePlugins(object):
 
     def __supports_data_type(self, plugin):
         # type: (data_templates.TemplateDataPlugin) -> bool
-        if self.__data_is_flat:
-            return plugin.plugin_supports_flat_data
-        elif self.__data_is_gamp:
-            return plugin.plugin_supports_gamp_data
+        if self.__data_is_columned:
+            return plugin.plugin_supports_columned_data
+        elif self.__data_is_single_array:
+            return plugin.plugin_supports_single_array
+        elif self.__data_is_tree:
+            return plugin.plugin_supports_tree_data
 
     def __supports_file_extension(self, extensions):
         # type: (List[str]) -> bool

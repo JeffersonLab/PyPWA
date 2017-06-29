@@ -44,11 +44,7 @@ class NumpyDataTest(data_templates.ReadTest):
         # type: (str) -> None
         numpy.loadtxt(file_location)
 
-    def full_test(self, file_location):
-        # type: (str) -> None
-        self.quick_test(file_location)
-
-    def quick_test(self, file_location):
+    def test(self, file_location):
         # type: (str) -> None
         self.__iterate_through_file_types(file_location)
 
