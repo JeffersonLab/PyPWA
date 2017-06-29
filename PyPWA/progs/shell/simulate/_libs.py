@@ -35,7 +35,6 @@ works. All here is the true main logic of the program.
   randomly throws out events.
 """
 
-import io
 import random
 import time
 from typing import Dict
@@ -72,7 +71,7 @@ class DataHandler(loaders.DataLoading):
     def __write_max_intensity(self, max_intensity):
         # type: (float) -> None
         save_location = self.__save_location + "_max.txt"
-        with io.open(save_location, "w") as stream:
+        with open(save_location, "w") as stream:
             stream.write(str(max_intensity))
 
     def write_rejection_list(self, rejection_list):
