@@ -70,6 +70,7 @@ def binned():
 Test UnExtended Likelihood
 """
 
+
 @pytest.fixture()
 def un_extended_loader():
     likelihood_loader = log_likelihood.LogLikelihood()
@@ -144,10 +145,11 @@ def extended_value(extended_loader, data, monte_carlo, qfactor):
     likelihood.qfactor = qfactor
     return likelihood.process(1)
 
+
 def test_extended_matches_expected(
         extended_value, data, monte_carlo, qfactor
 ):
     data = numpy.sum(qfactor * numpy.log(data + 1))
-    mc = 1/1000000 * numpy.sum(monte_carlo + 1)
+    mc = 1/1000000. * numpy.sum(monte_carlo + 1)
     expected = data + mc
     assert expected == extended_value.sum()
