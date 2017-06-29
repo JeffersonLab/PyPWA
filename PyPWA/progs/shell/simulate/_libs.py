@@ -77,7 +77,7 @@ class DataHandler(loaders.DataLoading):
 
     def write_rejection_list(self, rejection_list):
         # type: (numpy.ndarray) -> None
-        rejection_list_name = self.__save_location + "_rejection.txt"
+        rejection_list_name = self.__save_location + "_rejection.pf"
         self.write(rejection_list_name, rejection_list)
 
 
