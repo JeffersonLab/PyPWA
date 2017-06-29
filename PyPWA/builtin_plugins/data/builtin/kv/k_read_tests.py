@@ -35,8 +35,6 @@ trying to learn the nature of data within PyPWA, you should move your
 attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
-import io
-
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
@@ -47,45 +45,20 @@ __version__ = VERSION
 
 
 class EVILDataTest(data_templates.ReadTest):
-    _evil_type = str
 
-    def _check_data_type(self, file_location):
-        """
-        Performs a really simple test to see if its a support format.
+    def __check_data_type(self, file_location):
+        # type: (str) -> None
+        with open(file_location) as stream:
+            first_line = stream.readline()
+            if not self.__is_evil(first_line):
+                raise exceptions.IncompatibleData
 
-        Raises:
-            PyPWA.libs.data.exceptions.IncompatibleData:
-                Raised when the test fails to find a supported format.
-        """
-        the_file = io.open(file_location)
-        test_data = the_file.readline().strip("\n")
-        if "=" in test_data:
-            self._evil_type = "DictOfArrays"
-        elif "." in test_data and len(test_data) > 1:
-            self._evil_type = "ListOfFloats"
-        elif len(test_data) == 1:
-            self._evil_type = "ListOfBools"
-        else:
-            raise exceptions.IncompatibleData("Failed to find a data")
+    def __is_evil(self, line):
+        # type: (str) -> bool
+        equal_count = line.count("=")
+        comma_count = line.count(",") + 1
+        return equal_count == comma_count and equal_count
 
-    def quick_test(self, file_location):
-        """
-        Runs the various tests included tests.
-        """
-        self._check_data_type(file_location)
-
-    def full_test(self, file_location):
-        self.quick_test(file_location)
-
-    @property
-    def evil_type(self):
-        """
-        Property that returns the data type that was detected.
-
-        Returns:
-            str: The type of data the validator detected during its tests.
-        """
-        try:
-            return self._evil_type
-        except AttributeError:
-            return False
+    def test(self, file_location):
+        # type: (str) -> None
+        self.__check_data_type(file_location)

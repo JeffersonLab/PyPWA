@@ -56,7 +56,7 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
         return "EVIL"
 
     def get_plugin_memory_parser(self):
-        return k_memory.SomewhatIntelligentSelector()
+        return k_memory.EVILMemory()
 
     def get_plugin_reader(self, file_location):
         return k_iterator.EVILReader(file_location)
@@ -69,12 +69,16 @@ class EVILDataPlugin(data_templates.TemplateDataPlugin):
 
     @property
     def plugin_supported_extensions(self):
-        return [".txt"]
+        return [".txt", ".kvars"]
 
     @property
-    def plugin_supports_flat_data(self):
+    def plugin_supports_columned_data(self):
         return True
 
     @property
-    def plugin_supports_gamp_data(self):
+    def plugin_supports_single_array(self):
+        return False
+
+    @property
+    def plugin_supports_tree_data(self):
         return False
