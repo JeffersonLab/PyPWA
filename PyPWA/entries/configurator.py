@@ -110,7 +110,7 @@ def generate_weights():
         "main": "shell simulation",
         "main name": "Rejection Method",
         "main options": {
-            "the type": "rejection",
+            "the type": "weighting",
             "parameters": None,
             "setup name": None,
             "processing name": None,
