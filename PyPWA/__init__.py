@@ -80,7 +80,7 @@ __version__ = "2.1.0"
 
 EMAIL = "pypwa@jlab.org"
 LICENSE = "GPLv3"
-STATUS = "development"
+STATUS = "stable"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__

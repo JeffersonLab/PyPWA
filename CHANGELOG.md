@@ -4,7 +4,7 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
-## "Unreleased"
+## [2.1.0] - 2017-6-30
 ### Added
  - Argument Parser for simple programs where a configuration file would be
    unneeded overhead for the user.
@@ -24,7 +24,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Split flat data into Columned data and standard arrays
 ### Fixed
  - ChiSquare and Empty likelihoods are now actually usable
-### Security
 
 ## [2.0.0] - 2017-6-5
 ### Added
@@ -44,4 +43,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - PySim plugin
  - Packaging
 
+[2.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v1.1...v2.0.0
+

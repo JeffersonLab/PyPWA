@@ -21,7 +21,7 @@ __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
 __version__ = "2.1.0"
 __email__ = "pypwa@jlab.org"
-__status__ = "production"
+__status__ = "stable"
 
 
 requires = [
@@ -70,7 +70,7 @@ setup(
     setup_requires=['pytest-runner'],
     tests_require=['pytest', "pytest-cov", "pytest-logging"],
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
