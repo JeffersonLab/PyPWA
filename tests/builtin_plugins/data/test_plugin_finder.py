@@ -142,7 +142,7 @@ def test_plugin_write_search_finds_something_with_no_extension(
         TEMP_WRITE_LOCATION, random_numpy_flat_data
     )
 
-    assert found.plugin_supports_flat_data
+    assert found.plugin_supports_columned_data
 
 
 def test_plugin_write_search_finds_noise(plugin_search, random_numpy_noise):

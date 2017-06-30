@@ -126,7 +126,6 @@ class _GlobalArguments(object):
 class _LoadArguments(object):
 
     def __init__(self):
-        self.__arguments = sys.argv[1:]
         self.__global = _GlobalArguments()
         self.__root_parser = None  # type: argparse.ArgumentParser
         self.__plugins = None  # type: _PluginLoader
@@ -157,7 +156,7 @@ class _LoadArguments(object):
 
     def __parse_arguments(self):
         # type: (List[str]) -> None
-        self.__namespace = self.__root_parser.parse_args(self.__arguments)
+        self.__namespace = self.__root_parser.parse_args()
 
     @property
     def namespace(self):

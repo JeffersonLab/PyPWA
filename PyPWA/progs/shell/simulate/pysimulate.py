@@ -30,6 +30,7 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.core.shared.interfaces import plugins
+from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.simulate import _libs
 
 __credits__ = ["Mark Jones"]
@@ -70,7 +71,7 @@ class Simulator(plugins.Main):
         elif self.__program_type == "weighting":
             self.__rejection_program()
         else:
-            self.__raise_program_type_error()
+            raise ValueError("Unknown type %s" % self.__program_type)
 
     def __full_program_run(self):
         self.__setup_intensity_calc()
@@ -119,9 +120,3 @@ class Simulator(plugins.Main):
             self.__intensity_calc.max_intensity
         )
 
-    def __raise_program_type_error(self):
-        error = "The type is not set correctly! Found: %s but expected " \
-                "either full, intensities, or weighting." % \
-                repr(self.__program_type)
-
-        raise ValueError(error)

@@ -115,9 +115,6 @@ class GampDataTest(data_templates.ReadTest):
                     " where it wasn't expected."
                 )
 
-    def quick_test(self, text_file):
+    def test(self, text_file):
         self._test_length(text_file)
         self._check_events(text_file)
-
-    def full_test(self, text_file):
-        self.quick_test(text_file)

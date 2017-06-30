@@ -35,13 +35,11 @@ trying to learn the nature of data within PyPWA, you should move your
 attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
-import io
 import logging
 
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.data.builtin.kv import k_read_tests
 from PyPWA.core.shared import file_libs
 from PyPWA.core.shared.interfaces import internals
 
@@ -52,192 +50,94 @@ __version__ = VERSION
 
 class EVILReader(internals.Reader):
 
+    __LOGGER = logging.getLogger(__name__ + ".EVILReader")
+
     def __init__(self, file_location):
-        """
-        Reads in the EVIL Type one event at a time.
+        self.__event_count = file_libs.get_file_length(file_location)
+        self.__file = open(file_location)
+        self.__column_names = None
+        self.__numpy_type = None
+        self.__setup_static_information()
 
-        Args:
-            file_location (str): The location of the EVIL file.
-        """
-        self._logger = logging.getLogger(__name__)
-        self.__particle_count = file_libs.get_file_length(file_location)
-        self._the_file = file_location
-        self._previous_event = None
-        self._file = False  # type: io.TextIOBase
-        self._parameters = False  # type: [str]
-        self._file_data_type = False  # type: str
+    def __setup_static_information(self):
+        columns = self.__get_columns()
+        self.__column_names = self.__get_names(columns)
+        self.__numpy_type = self.__get_numpy_type()
+        self.__file.seek(0)
 
-        self._start_input()
-
-    def _start_input(self):
-        """
-        This file completely resets the the file handler if it exists and
-        creates it otherwise.
-        """
-        if self._file:
-            self._file.close()
-
-        self._file = io.open(self._the_file, "rt")
-
-        if not isinstance(self._file_data_type, str):
-            self._set_data_type()
-        if not isinstance(self._parameters, list):
-            self._build_params()
-
-    def _build_params(self):
-        """
-        Searches for the parameters in the file then sets them to
-        self._parameters.
-        """
-        first_line = self._file.readline()
-
-        if self._file_data_type == "DictOfArrays":
-            self._parameters = []
-            for parameter in first_line.split(","):
-                self._parameters.append(parameter.split("=")[0])
-
-        elif self._file_data_type == "ListOfBools":
-            self._parameters = ["bools"]
-
-        elif self._file_data_type == "ListOfFloats":
-            self._parameters = ["floats"]
-
-        self._file.seek(0)
-
-    def _set_data_type(self):
-        """
-        Sets self._file_data_type using the validator object. Mostly
-        Accurate.
-        """
-        validator = k_read_tests.EVILDataTest()
-        validator.quick_test(self._the_file)
-        self._file_data_type = validator.evil_type
-
-    def next(self):
-        """
-        Reads in a single line and parses the line into a GenericEvent.
-
-        Returns:
-            numpy.ndarray: The values of the array.
-        """
-        if self._file_data_type == "DictOfArrays":
-            values = self._read_dict()
-        elif self._file_data_type == "ListOfBools":
-            values = self._read_bool()
-        else:
-            values = self._read_float()
-
-        self._previous_event = values
-        return self._previous_event
-
-    def __read(self):
-        """
-        Reads a single line from the file and removes the spaces and
-        newline.
-
-        Raises:
-            StopIteration: Raised when there is no data left in the file.
-
-        Returns:
-            str: The read in line without spaces and newlines.
-        """
-        string = self._file.readline().strip("\n").strip(" ")
+    def __get_columns(self):
+        string = self.__file.readline().strip("\n").strip(" ")
         if string == "":
             raise StopIteration
-        return string
+        return string.split(",")
 
-    def _read_bool(self):
-        """
-        Reads a single line and returns the bool value from that line.
-
-        Returns:
-            numpy.ndarray: True or False depending on the value of the
-                line that was read.
-        """
-        x = numpy.zeros(1, bool)
-        x[0] = bool(self.__read())
-        return x
-
-    def _read_float(self):
-        """
-        Reads a single line and returns the float value from the line.
-
-        Returns:
-            numpy.ndarray: The value read in from the file.
-        """
-        x = numpy.zeros(1, "f8")
-        x[0] = numpy.float64(self.__read())
-        return x
-
-    def _read_dict(self):
-        """
-        Reads a single line and returns the list of the values rendered
-        from the file.
-
-        Returns:
-            numpy.ndarray: The values read in from the file.
-        """
-        the_line = self.__read()
-        self._logger.debug("Found: " + the_line)
-
+    def __get_names(self, columns):
         names = []
-        for variable in the_line.split(","):
-            names.append(variable.split("=")[0])
+        for column in columns:
+            names.append(column.split("=")[0])
+        return names
 
+    def __get_numpy_type(self, ):
         types = []
-        for name in names:
+        for name in self.__column_names:
             types.append((str(name), "f8"))
+        return types
 
-        self._logger.debug("Numpy Types = " + repr(types))
+    def next(self):
+        columns = self.__get_columns()
+        final = self.__get_numpy_array()
+        return self.__process_row(final, columns)
 
-        final = numpy.zeros(1, types)
+    def __get_numpy_array(self):
+        return numpy.zeros(1, dtype=self.__numpy_type)
 
-        for variable in the_line.split(","):
-            value = numpy.float64(variable.split("=")[1])
-            name = variable.split("=")[0]
-            final[0][name] = value
-
+    def __process_row(self, final, columns):
+        for column in columns:
+            value = numpy.float64(column.split("=")[1])
+            name = column.split("=")[0]
+            final[name] = value
         return final
 
-    def event_count(self):
-        return self.__particle_count
+    def get_event_count(self):
+        return self.__event_count
 
     def close(self):
-        self._file.close()
+        self.__file.close()
 
 
 class EVILWriter(internals.Writer):
 
     def __init__(self, file_location):
-        """
-        Single event writer for EVIL data types. Writes a single event at
-        a time and leaves the file handle open until its explicitly closed
-        by the developer or user.
-
-        Args:
-            file_location (str): Where to write the data.
-        """
-        self._file = io.open(file_location, "w")
+        self.__file = open(file_location, "w")
+        self.__line = None
+        self.__column_names = None
 
     def write(self, data):
-        """
-        Writes a single event to file at a time.
+        self.__line = ""
+        self.__setup_writer(data)
+        self.__process_row(data)
+        self.__line += "\n"
+        self.__file.write(self.__line)
 
-        Args:
-            data (numpy.ndarray): The array that contains the data to be
-                writen to the file.
-        """
-        string = u""
-        for index, key in enumerate(list(data.dtype.names)):
-            if not index == 0:
-                string += u","
-            string += str(key) + u"=" + repr(data[0][key])
-        string += u"\n"
+    def __setup_writer(self, data):
+        if not self.__column_names:
+            self.__column_names = data.dtype.names
 
-        self._file.write(string)
+    def __process_row(self, data):
+        # type: (int) -> None
+        for column_index, column in enumerate(self.__column_names):
+            self.__append_comma(column_index)
+            self.__append_column(column, data)
+
+    def __append_comma(self, column_index):
+        # type: (int) -> None
+        if column_index > 0:
+            self.__line += ","
+
+    def __append_column(self, column_name, data):
+        # type: (str, int) -> None
+        string_data = repr(numpy.float64(data[column_name]))
+        self.__line += "%s=%s" % (column_name, string_data)
 
     def close(self):
-        """
-        Closes the file safely.
-        """
-        self._file.close()
+        self.__file.close()

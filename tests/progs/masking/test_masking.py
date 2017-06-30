@@ -1,9 +1,9 @@
-import sys
 import os
+import sys
 
 import pytest
 
-from PyPWA.core.arguments import start
+from PyPWA.entries import arguments
 
 """
 Masking Data
@@ -52,13 +52,8 @@ def patch_args_clean(monkeypatch, request, correct_argv, cleanup_temp):
     monkeypatch.setattr("sys.argv", request.param)
 
 
-@pytest.fixture()
-def start_args(patch_args_clean):
-    return start.StartArguments()
-
-
-def test_masking_utility(start_args):
-    start_args.start('masking utility', 'basic masking utility')
+def test_masking_utility(patch_args_clean):
+    arguments.masking_utility()
 
 
 """
@@ -74,14 +69,9 @@ def patch_args_warning(monkeypatch, correct_argv, cleanup_temp):
     )
 
 
-@pytest.fixture()
-def start_args_long(patch_args_warning):
-    return start.StartArguments()
-
-
-def test_masking_warning(start_args_long):
+def test_masking_warning(patch_args_warning):
     with pytest.warns(UserWarning):
-        start_args_long.start('masking utility', 'basic masking utility')
+        arguments.masking_utility()
 
 
 """
@@ -97,11 +87,6 @@ def patch_args_critical(monkeypatch, correct_argv, cleanup_temp):
     )
 
 
-@pytest.fixture()
-def start_args_short(patch_args_critical):
-    return start.StartArguments()
-
-
-def test_masking_crash(start_args_short):
+def test_masking_crash(patch_args_critical):
     with pytest.raises(IndexError):
-        start_args_short.start('masking utility', 'basic masking utility')
+        arguments.masking_utility()

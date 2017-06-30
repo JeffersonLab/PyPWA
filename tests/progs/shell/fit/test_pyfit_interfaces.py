@@ -38,3 +38,13 @@ def test_process_raises_not_implemented_error(likelihood):
 def test_setup_interface_raises_not_implemented_error(setup):
     with pytest.raises(NotImplementedError):
         setup.setup_likelihood("data", "functions")
+
+
+def test_get_likelihood_raises_not_implemented_error(setup):
+    with pytest.raises(NotImplementedError):
+        setup.setup_likelihood("data", "functions")
+
+
+def test_get_data_raises_not_implemented_error(setup):
+    with pytest.raises(NotImplementedError):
+        setup.setup_likelihood("data", "functions")

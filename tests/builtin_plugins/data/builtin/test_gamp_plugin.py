@@ -26,7 +26,7 @@ def test_Validator_CheckGAMPValid_TestPass():
     Checks that the validator correctly identifies a GAMP file.
     """
     validator = g_read_tests.GampDataTest()
-    validator.quick_test(GAMP_TEST_DATA)
+    validator.test(GAMP_TEST_DATA)
 
 
 def test_Validator_CheckCSVValid_TestFail():
@@ -37,7 +37,7 @@ def test_Validator_CheckCSVValid_TestFail():
     validator = g_read_tests.GampDataTest()
 
     with pytest.raises(exceptions.IncompatibleData):
-        validator.quick_test(CSV_TEST_DATA)
+        validator.test(CSV_TEST_DATA)
 
 
 def test_GAMPMemory_ParseKnownData_DataMatches():

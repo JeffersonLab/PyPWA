@@ -65,24 +65,29 @@ class ChiLikelihood(interfaces.Setup):
 
     def __setup_likelihood(self, function_package):
         # type: (loaders.FunctionLoader) -> None
-        if not numpy.all(self.__data.binned == 1):
+        if not numpy.all(self.__data['binned'] == 1):
             self.__setup_chi(function_package)
-        elif self.__data["event errors"] and self.__data["expected values"]:
+        elif self.__event_and_error_data_exists():
             self.__setup_unbinned_chi(function_package)
         else:
             raise ValueError(
                 "Given UnBinned data without expected value and error"
             )
 
+    def __event_and_error_data_exists(self):
+        expected = not numpy.all(self.__data['event errors'] == 1)
+        errors = not numpy.all(self.__data['expected values'] == 1)
+        return expected and errors
+
     def __setup_chi(self, function_package):
         # type: (loaders.FunctionLoader) -> None
-        self._likelihood = Chi(
+        self.__likelihood = Chi(
             function_package.setup, function_package.process
         )
 
     def __setup_unbinned_chi(self, function_package):
         # type: (loaders.FunctionLoader) -> None
-        self._likelihood = UnBinnedChi(
+        self.__likelihood = UnBinnedChi(
             function_package.setup, function_package.process
         )
 

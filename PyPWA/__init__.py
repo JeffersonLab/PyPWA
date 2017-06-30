@@ -84,3 +84,7 @@ STATUS = "development"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
+
+
+from PyPWA.builtin_plugins.data.iterator import Iterator
+from PyPWA.builtin_plugins.data.memory import Memory

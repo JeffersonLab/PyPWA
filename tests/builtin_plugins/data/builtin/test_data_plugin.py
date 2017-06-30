@@ -86,12 +86,24 @@ def test_supported_extensions_is_list_of_str(setup_plugin_object):
         assert isinstance(extension, str)
 
 
-def test_supports_flat_is_bool(setup_plugin_object):
+def test_supports_columned_data_is_bool(setup_plugin_object):
     """
     Args:
         setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
     """
-    assert isinstance(setup_plugin_object[0].plugin_supports_flat_data, bool)
+    assert isinstance(
+        setup_plugin_object[0].plugin_supports_columned_data, bool
+    )
+
+
+def test_supports_single_array_is_bool(setup_plugin_object):
+    """
+    Args:
+        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
+    """
+    assert isinstance(
+        setup_plugin_object[0].plugin_supports_single_array, bool
+    )
 
 
 def test_supports_gamp_is_bool(setup_plugin_object):
@@ -99,7 +111,7 @@ def test_supports_gamp_is_bool(setup_plugin_object):
     Args:
         setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
     """
-    assert isinstance(setup_plugin_object[0].plugin_supports_gamp_data, bool)
+    assert isinstance(setup_plugin_object[0].plugin_supports_tree_data, bool)
 
 
 def test_get_plugin_reader_returns_reader(setup_plugin_object):

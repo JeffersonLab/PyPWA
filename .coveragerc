@@ -4,3 +4,6 @@ omit =
     */site-packages/nose/*
     */tests/*
     *.pyi
+
+exclude_lines =
+    raise NotImplementedError

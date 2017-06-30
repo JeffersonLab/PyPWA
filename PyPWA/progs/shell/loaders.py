@@ -115,7 +115,7 @@ class DataLoading(object):
 
     def __extract_data(self, column):
         # type: (str) -> ndarray
-        names = list(self.__data.dtype.names)
+        names = self.__get_type_names()
         if column in names:
             self.__LOGGER.info("Extracting '%s' from data." % column)
             names.remove(column)
@@ -125,6 +125,13 @@ class DataLoading(object):
             data = numpy.ones(len(self.__data))
 
         return data
+
+    def __get_type_names(self):
+        # type: () -> List[str]
+        try:
+            return list(self.__data.dtype.names)
+        except TypeError:
+            return []
 
     def __parse_qfactor_file(self):
         if self.__is_file(self._qfactor_file):

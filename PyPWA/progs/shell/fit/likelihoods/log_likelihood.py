@@ -26,7 +26,7 @@ The Log-Likelihood Extended and UnExtended are defined here:
 import logging
 from typing import Any, Dict
 from typing import Optional as Opt
-
+import warnings
 import numpy
 
 from PyPWA import AUTHOR, VERSION
@@ -128,19 +128,9 @@ class ExtendedLikelihoodAmplitude(interfaces.Likelihood):
 
     def __likelihood(self, data, monte_carlo):
         # type: (numpy.ndarray, numpy.ndarray) -> float
-        self.__check_data_for_zeros(data)
         data_result = self.__process_log_likelihood(data)
         monte_carlo_result = self.__process_monte_carlo(monte_carlo)
         return data_result + monte_carlo_result
-
-    def __check_data_for_zeros(self, data):
-        # type: (numpy.ndarray) -> None
-        if numpy.count_nonzero(data == 0):
-            self.__LOGGER.warning(
-                "WARNING, Found Zeros! " + repr(
-                    numpy.count_nonzero(data == 0)
-                )
-            )
 
     def __process_log_likelihood(self, data):
         # type: (numpy.ndarray) -> float

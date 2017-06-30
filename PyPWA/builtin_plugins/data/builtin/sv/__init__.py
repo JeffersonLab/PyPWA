@@ -50,9 +50,13 @@ class SvDataPlugin(data_templates.TemplateDataPlugin):
         return [".tsv", ".csv"]
 
     @property
-    def plugin_supports_flat_data(self):
+    def plugin_supports_columned_data(self):
         return True
 
     @property
-    def plugin_supports_gamp_data(self):
+    def plugin_supports_tree_data(self):
+        return False
+
+    @property
+    def plugin_supports_single_array(self):
         return False
