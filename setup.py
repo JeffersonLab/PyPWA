@@ -66,8 +66,8 @@ python_version = sys.version_info[0:2]
 setuptools_version = int(setuptools.__version__.split(".", 1)[0])
 
 if setuptools_version > 20:
-    requires.append("enum34;python_version<'3.4")
-    requires.append("typing;python_version<'3.5")
+    requires.append("enum34;python_version<'3.4'")
+    requires.append("typing;python_version<'3.5'")
 elif setuptools_version < 20 and setuptools_version > 18:
     extras[':python_version<"3.4"'] = ["enum34"]
     extras[':python_version<"3.5"'] = ["typing"]
