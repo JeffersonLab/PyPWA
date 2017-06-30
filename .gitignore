@@ -78,6 +78,7 @@ target/
 virt/
 virt3/
 venv/
+venv2/
 
 # PyCharm
 .idea/
