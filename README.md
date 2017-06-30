@@ -38,10 +38,14 @@ development branch
 
      $ git clone https://github.com/JeffersonLab/PyPWA
 
-Then install the package to your system, run this from inside the PyPWA 
-folder:
+Setup and activate a virtualenv:
 
-     $ pip install -e . --user
+     $ virtualenv --system-site-packages venv
+     $ source venv/bin/activate
+
+Install the package inside the virtualenv:
+
+     $ pip install .
 
 
 Using PyFit and PySimulate
