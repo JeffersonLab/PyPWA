@@ -30,8 +30,8 @@ Generic Fitting Tools
 - Supports using all the threads on the machine
 
 
-Installation from GitHub
-------------------------
+Using from GitHub
+-----------------
 
 Clone the master branch onto your computer, or if you are daring clone the 
 development branch
@@ -41,7 +41,7 @@ development branch
 Then install the package to your system, run this from inside the PyPWA 
 folder:
 
-     $ sudo python setup.py install
+     $ pip install -e . --user
 
 
 Using PyFit and PySimulate
