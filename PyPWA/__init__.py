@@ -73,9 +73,6 @@ For more information on how each module works, view their documentation
 respectively.
 """
 
-from PyPWA.builtin_plugins.data.iterator import Iterator
-from PyPWA.builtin_plugins.data.memory import Memory
-
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
 __version__ = "2.1.0"
@@ -87,3 +84,7 @@ STATUS = "development"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
+
+
+from PyPWA.builtin_plugins.data.iterator import Iterator
+from PyPWA.builtin_plugins.data.memory import Memory
