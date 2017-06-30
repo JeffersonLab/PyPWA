@@ -4,7 +4,7 @@ from PyPWA.core.configurator.execute import _plugin_data
 
 
 config = {
-    "blank shell module": {
+    "blank program module": {
         "option 1": 123,
         "optn 2": "A collection of words",
         "Optional 3": "prest 2"

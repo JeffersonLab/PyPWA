@@ -33,7 +33,6 @@ program.
 """
 
 import argparse
-import logging
 import sys
 from typing import Dict
 
@@ -191,22 +190,9 @@ Built in Jefferson Lab.
 """
 
     def __setup_logger(self):
-        if self.__arguments.verbose == 1:
-            initial_logging.InternalLogger.configure_root_logger(
-                logging.WARNING, self.__arguments.log_file
-            )
-        elif self.__arguments.verbose == 2:
-            initial_logging.InternalLogger.configure_root_logger(
-                logging.INFO, self.__arguments.log_file
-            )
-        elif self.__arguments.verbose >= 3:
-            initial_logging.InternalLogger.configure_root_logger(
-                logging.DEBUG, self.__arguments.log_file
-            )
-        else:
-            initial_logging.InternalLogger.configure_root_logger(
-                logging.ERROR, self.__arguments.log_file
-            )
+        initial_logging.setup_logging(
+            self.__arguments.verbose, self.__arguments.log_file
+        )
 
     def __process_arguments(self):
         if self.__arguments.write_config:

@@ -19,7 +19,7 @@
 """
 Where the program really starts.
 --------------------------------
-This is a shell object to connect the two major halves of execute together,
+This is a progs object to connect the two major halves of execute together,
 _settings that loads the settings into something usable, and _plugins that
 takes those settings to package together a little runnable program.
 """

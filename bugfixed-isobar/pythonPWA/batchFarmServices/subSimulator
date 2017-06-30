@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/2.4/bin/python2 
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -52,7 +52,7 @@ def gen(directory,cmd):
                     project = Control[9],
                     track = 'analysis',
                     jobname = 'simulator',
-                    os = 'centos65',
+                    os = 'centos7',
                     memory = '1000 MB',
                     time = 30,
 		    cmd = cmd)
@@ -83,7 +83,7 @@ def parseDir(Bin):
     Returns:
     cmd (string): The full command to be used in the jsub file.
     """
-    cmd = "/u/apps/anaconda/anaconda-2.0.1/bin/python2 "+os.path.join(indir,"scripts","simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
+    cmd = "/u/apps/anaconda/2.4/bin/python2  "+os.path.join(indir,"scripts","simulatorMain.py")+" "+str(Bin)+" "+indir+" "+sys.argv[1]
 
     return cmd
 

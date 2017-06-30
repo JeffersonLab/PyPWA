@@ -24,29 +24,38 @@ def plugin_loader_with_plugins():
     return loader.get_by_class(options.Plugin)
 
 
+def check_template_is_in_list(template, plugin_list):
+    found = False
+    for plugin in plugin_list:
+        if isinstance(plugin, template):
+            found = True
+            break
+    assert found
+
+
 def test_plugin_loader_with_sets():
     loader = plugin_loader.PluginLoader()
     loader.add_plugin_location({builtin_plugins})
 
 
 def test_data_iterator_is_found(plugin_loader_with_plugins):
-    assert data.DataIterator in plugin_loader_with_plugins
+    check_template_is_in_list(data.DataIterator, plugin_loader_with_plugins)
 
 
 def test_data_parser_is_found(plugin_loader_with_plugins):
-    assert data.DataParser in plugin_loader_with_plugins
+    check_template_is_in_list(data.DataParser, plugin_loader_with_plugins)
 
 
 def test_processing_is_found(plugin_loader_with_plugins):
-    assert process.Processing in plugin_loader_with_plugins
+    check_template_is_in_list(process.Processing, plugin_loader_with_plugins)
 
 
 def test_minuit_is_found(plugin_loader_with_plugins):
-    assert minuit.MinuitOptions in plugin_loader_with_plugins
+    check_template_is_in_list(minuit.MinuitOptions, plugin_loader_with_plugins)
 
 
 def test_nestle_is_found(plugin_loader_with_plugins):
-    assert nestle.NestleOptions in plugin_loader_with_plugins
+    check_template_is_in_list(nestle.NestleOptions, plugin_loader_with_plugins)
 
 
 @pytest.mark.xfail(

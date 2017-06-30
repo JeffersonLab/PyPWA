@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/2.4/bin/python2 
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -47,7 +47,7 @@ def gen(directory,cmd):
                     project = Control[9],
                     track = 'analysis',
                     jobname = 'fitLike',
-                    os = 'centos65',
+                    os = 'centos7',
                     memory = "3000 MB",
                     time = 60,
 		    cmd = cmd)

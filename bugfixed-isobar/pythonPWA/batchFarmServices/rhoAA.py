@@ -48,5 +48,6 @@ class rhoAA(object):
                 for j,jwave in enumerate(self.waves):
                     Ai = iwave.complexamplitudes[n]                    
                     Aj = jwave.complexamplitudes[n]                  
-                    self.rhoAA[i,j,n] = spinDensity(self.beamPolarization,self.alphaList[n])[iwave.epsilon,jwave.epsilon] * Ai * np.conjugate(Aj)                 
+#                    self.rhoAA[i,j,n] = spinDensity(self.beamPolarization,self.alphaList[n])[iwave.epsilon,jwave.epsilon] * Ai * np.conjugate(Aj) 
+                    self.rhoAA[i,j,n] = spinDensity(self.beamPolarization,self.alphaList[n])[iwave.epsilon,jwave.epsilon] * Aj * np.conjugate(Ai)                
         return self.rhoAA

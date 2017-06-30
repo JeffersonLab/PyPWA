@@ -67,7 +67,7 @@ Package purposes
   package are here, each function defined here is a starting point for 
   setuptools.
  
-- shell - This is where PySimulate and PyFit are defined.
+- progs - This is where PySimulate and PyFit are defined.
 
 For more information on how each module works, view their documentation
 respectively.
@@ -75,12 +75,16 @@ respectively.
 
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 
 
 EMAIL = "pypwa@jlab.org"
 LICENSE = "GPLv3"
-STATUS = "development"
+STATUS = "stable"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
+
+
+from PyPWA.builtin_plugins.data.iterator import Iterator
+from PyPWA.builtin_plugins.data.memory import Memory

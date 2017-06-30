@@ -2,10 +2,9 @@ import os
 
 import pytest
 
-from PyPWA.shell import pysimulate
-
 from PyPWA.core.configurator.create_config import _function_builder
 from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.progs.shell import simulate
 
 
 @pytest.fixture()
@@ -16,7 +15,7 @@ def function_handler():
 @pytest.fixture()
 def plugin_list():
     plugins = _metadata.GetPluginList()
-    plugins.parse_plugins(pysimulate.ShellSimulation)
+    plugins.parse_plugins(simulate.ShellSimulation)
     return plugins
 
 

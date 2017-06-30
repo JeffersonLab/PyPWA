@@ -1,4 +1,4 @@
-#! /u/apps/anaconda/anaconda-2.0.1/bin/python2 
+#! /u/apps/anaconda/2.4/bin/python2
 """
 .. module:: batchFarmServices
    :platform: Unix, Windows, OSX
@@ -66,13 +66,13 @@ if __name__ == '__main__':
                     filen = filen,
                     direct = filename+'/',
                     mode = M)                    
-                cmd = '''/u/apps/anaconda/anaconda-2.0.1/bin/python2 {cwd}/generateAlphaNPY.py {mode} {direct} {filen} {indir}
+                cmd = '''/u/apps/anaconda/2.4/bin/python2 {cwd}/generateAlphaNPY.py {mode} {direct} {filen} {indir}
         '''.format(**cmd_opts)
                 auger_opts = dict(
                     project = cf[9],
                     track = 'analysis',
                     jobname = 'AlphaGen',
-                    os = 'centos65',
+                    os = 'centos7',
                     memory = '3000 MB',
         	        time = 300,
                     cmd = cmd)

@@ -1,7 +1,7 @@
 import pytest
 
 from PyPWA.core.configurator import storage
-from PyPWA.shell import pyfit
+from PyPWA.progs.shell import fit
 
 
 @pytest.fixture()
@@ -14,7 +14,12 @@ def test_module_finds_shells(module_storage):
 
 
 def test_module_finds_fitter(module_storage):
-    assert pyfit.ShellFitting in module_storage._get_shells()
+    found = False
+    for plugin in module_storage._get_shells():
+        if isinstance(plugin, fit.ShellFitting):
+            found = True
+            break
+    assert found
 
 
 def test_module_finds_options(module_storage):

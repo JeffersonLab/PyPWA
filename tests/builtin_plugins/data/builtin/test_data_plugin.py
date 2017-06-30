@@ -18,7 +18,7 @@ import os
 
 import pytest
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp
+from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp, numpy
 from PyPWA.core.shared.interfaces import internals
 
 TEMP_WRITE_LOCATION = os.path.join(
@@ -37,12 +37,18 @@ EVIL_TEST_DATA = os.path.join(
     os.path.dirname(__file__), "../../../data/test_docs/kv_test_data.txt"
 )
 
+NUMPY_TEST_DATA = os.path.join(
+    os.path.dirname(__file__), "../../../data/test_docs/numpy_test_data.npy"
+)
+
+
 @pytest.fixture(
     scope="module",
     params=[
         [sv.SvDataPlugin, CSV_TEST_DATA],
         [kv.EVILDataPlugin, EVIL_TEST_DATA],
-        [gamp.GampDataPlugin, GAMP_TEST_DATA]
+        [gamp.GampDataPlugin, GAMP_TEST_DATA],
+        [numpy.NumPyDataPlugin, NUMPY_TEST_DATA]
     ]
 )
 def setup_plugin_object(request):
@@ -80,12 +86,24 @@ def test_supported_extensions_is_list_of_str(setup_plugin_object):
         assert isinstance(extension, str)
 
 
-def test_supports_flat_is_bool(setup_plugin_object):
+def test_supports_columned_data_is_bool(setup_plugin_object):
     """
     Args:
         setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
     """
-    assert isinstance(setup_plugin_object[0].plugin_supports_flat_data, bool)
+    assert isinstance(
+        setup_plugin_object[0].plugin_supports_columned_data, bool
+    )
+
+
+def test_supports_single_array_is_bool(setup_plugin_object):
+    """
+    Args:
+        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
+    """
+    assert isinstance(
+        setup_plugin_object[0].plugin_supports_single_array, bool
+    )
 
 
 def test_supports_gamp_is_bool(setup_plugin_object):
@@ -93,7 +111,7 @@ def test_supports_gamp_is_bool(setup_plugin_object):
     Args:
         setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
     """
-    assert isinstance(setup_plugin_object[0].plugin_supports_gamp_data, bool)
+    assert isinstance(setup_plugin_object[0].plugin_supports_tree_data, bool)
 
 
 def test_get_plugin_reader_returns_reader(setup_plugin_object):
