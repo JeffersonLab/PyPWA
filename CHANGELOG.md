@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Split flat data into Columned data and standard arrays
 ### Fixed
  - ChiSquare and Empty likelihoods are now actually usable
+ - Setup.py would fail on setuptools versions < 20
 
 ## [2.0.0] - 2017-6-5
 ### Added
