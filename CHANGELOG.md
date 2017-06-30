@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    unneeded overhead for the user.
  - Numpy Data support for single arrays and pass fail files.
  - Data Plugin now has two array types, Single Array and Columned Array
+ - Memory and Iterator objects now imported into PyPWA
+ - Iterators report length now
+ - Masking utility 'PyMask' to mask and translate data
 ### Changed
  - Plugin Loader now returns initialized objects
  - Renamed shell to progs
@@ -18,6 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Renamed 'blank shell module' to 'blank program module'
  - Removed support for boolean and float arrays from EVIL Parser
  - Renamed internal GAMP type to Tree type
+ - Split flat data into Columned data and standard arrays
 ### Fixed
  - ChiSquare and Empty likelihoods are now actually usable
 ### Security
