@@ -98,7 +98,7 @@ class EVILReader(internals.Reader):
             final[name] = value
         return final
 
-    def event_count(self):
+    def get_event_count(self):
         return self.__event_count
 
     def close(self):

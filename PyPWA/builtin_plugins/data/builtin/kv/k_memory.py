@@ -52,20 +52,17 @@ __version__ = VERSION
 class _CreateEmptyArray(object):
 
     def __init__(self):
-        self.__file_location = None
         self.__split = None
 
-    def create_empty_array(self, file_location):
+    def create_empty_array(self, file_location, array_length):
         # type: (str) -> numpy.ndarray
-        self.__file_location = file_location
-        length = file_libs.get_file_length(file_location)
-        self.__get_split_of_first_line()
+        self.__get_split_of_first_line(file_location)
         names = self.__get_column_names()
         types = self.__create_numpy_type(names)
-        return self.__create_array(length, types)
+        return self.__create_array(array_length, types)
 
-    def __get_split_of_first_line(self):
-        with open(self.__file_location) as stream:
+    def __get_split_of_first_line(self, file):
+        with open(file) as stream:
             self.__split = stream.readline().split(",")
 
     def __get_column_names(self):
@@ -95,22 +92,24 @@ class _EVILParser(object):
 
     def parse(self, file_location):
         # type: (str) -> numpy.ndarray
-        self.__set_empty_array(file_location)
         self.__process_file(file_location)
         return self.__array
-
-    def __set_empty_array(self, file_location):
-        # type: (str) -> None
-        self.__array = self.__create_empty_array.create_empty_array(
-            file_location
-        )
 
     def __process_file(self, file_location):
         # type: (str) -> None
         with k_iterator.EVILReader(file_location) as iterator:
-            for index, event in enumerate(iterator):
-                self.__array[index] = event
+            self.__set_empty_array(file_location, len(iterator))
+            self.__load_array(iterator)
 
+    def __set_empty_array(self, file_location, event_count):
+        # type: (str) -> None
+        self.__array = self.__create_empty_array.create_empty_array(
+            file_location, event_count
+        )
+
+    def __load_array(self, iterator):
+        for index, event in enumerate(iterator):
+            self.__array[index] = event
 
 class _EVILWriter(object):
 

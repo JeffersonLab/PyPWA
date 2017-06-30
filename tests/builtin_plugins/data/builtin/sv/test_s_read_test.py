@@ -57,7 +57,7 @@ def tests_passes(request):
     return request.param
 
 
-def test_full_test_fails_with_bad_files(setup_test, tests_fails):
+def test_test_fails_with_bad_files(setup_test, tests_fails):
     """
     Args:
         setup_test (data_templates.ReadTest)
@@ -67,7 +67,7 @@ def test_full_test_fails_with_bad_files(setup_test, tests_fails):
         setup_test.test(tests_fails)
 
 
-def test_full_test_passes_with_good_files(setup_test, tests_passes):
+def test_test_passes_with_good_files(setup_test, tests_passes):
     """
     Args:
         setup_test (data_templates.ReadTest)

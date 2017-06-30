@@ -44,16 +44,16 @@ def tests_pass(request):
     return request.param
 
 
-def test_full_test_fails_with_bad_files(setup_test):
+def test_test_fails_with_bad_files(setup_test):
     with pytest.raises(exceptions.IncompatibleData):
         setup_test.test(NOISE_TEST_DATA)
 
 
-def test_full_test_fails_with_csv_files(setup_test):
+def test_test_fails_with_csv_files(setup_test):
     with pytest.raises(exceptions.IncompatibleData):
         setup_test.test(NOISE_TEST_DATA)
 
 
-def test_quick_test_passes_with_good_files(setup_test, tests_pass):
+def test_test_passes_with_good_files(setup_test, tests_pass):
     setup_test.test(tests_pass)
 

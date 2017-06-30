@@ -141,7 +141,7 @@ class GampReader(internals.Reader):
 
         return particle
 
-    def event_count(self):
+    def get_event_count(self):
         return self.__particle_count.particle_count
 
     def close(self):

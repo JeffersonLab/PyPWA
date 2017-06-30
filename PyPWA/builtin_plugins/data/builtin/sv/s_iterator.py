@@ -71,7 +71,7 @@ class SvReader(internals.Reader):
         for element in self.__elements:
             self.__types.append((element, "f8"))
 
-    def event_count(self):
+    def get_event_count(self):
         return self.__particle_count
 
     def close(self):
