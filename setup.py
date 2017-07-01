@@ -19,9 +19,9 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "2.1.0"
+__version__ = "2.2.0-dev"
 __email__ = "pypwa@jlab.org"
-__status__ = "stable"
+__status__ = "development"
 
 
 configurator_entry = "PyPWA.entries.configurator"
@@ -68,7 +68,7 @@ setuptools_version = int(setuptools.__version__.split(".", 1)[0])
 if setuptools_version > 20:
     requires.append("enum34;python_version<'3.4'")
     requires.append("typing;python_version<'3.5'")
-elif setuptools_version < 20 and setuptools_version > 18:
+elif 18 < setuptools_version < 20:
     extras[':python_version<"3.4"'] = ["enum34"]
     extras[':python_version<"3.5"'] = ["typing"]
 else:
@@ -99,7 +99,7 @@ setuptools.setup(
     keywords="PyPWA GeneralFitting Partial Wave Analysis Minimization",
     install_requires=requires,
     tests_require=tests,
-    extras_require = extras,
+    extras_require=extras,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
