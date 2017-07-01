@@ -75,7 +75,7 @@ respectively.
 
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
-__version__ = "2.1.0"
+__version__ = "2.2.0-dev"
 
 
 EMAIL = "pypwa@jlab.org"
