@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ### Added
 ### Changed
 ### Fixed
+ - PyFit will now shutdown correctly when killed with Ctrl-C or other
+   interrupt.
 ### Security
 
 
