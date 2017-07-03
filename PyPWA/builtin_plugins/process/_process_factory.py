@@ -21,53 +21,84 @@ The processes and their factories are defined here. The current supported
 methods are Duplex for worker processes and Simplex for offload processes.
 """
 
+from multiprocessing.connection import Connection
+from typing import List, Tuple
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process.communication import factory
+from PyPWA.builtin_plugins.process import _connection_factory
 from PyPWA.builtin_plugins.process import _processes
+from PyPWA.core.shared.interfaces import internals
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-def simplex_build(process_kernels):
+abstract_return = Tuple(List[_processes._AbstractProcess], List[Connection])
+simplex_return = Tuple(List[_processes.Simplex], List[Connection])
+duplex_return = Tuple(List[_processes.Duplex], List[Connection])
 
-    count = len(process_kernels)
-    processes = []
 
-    sends, receives = factory.simplex_build(count)
+class _ProcessFactory(object):
 
-    for index, internals in enumerate(zip(process_kernels, sends)):
+    def __init__(
+            self,
+            process,  # type: _processes._AbstractProcess()
+            connections  # type: _connection_factory.factory_type
+    ):
+        # type: (...) -> None
+        self.__process_template = process
+        self.__connection_factory = connections
+        self.__count = 0
+        self.__kernels = None  # type: List[internals.Kernel]
+        self.__sends = None  # type: List[Connection]
+        self.__receives = None  # type: List[Connection]
+        self.__processes = None  # type: List[_processes._AbstractProcess]
 
-        __set_process_id(internals[0], index)
+    def build(self, kernels):
+        # type: (List[internals.Kernel]) -> abstract_return
+        self.__set_basic_details(kernels)
+        self.__get_connections()
+        self.__prime_process_list()
+        self.__setup_processes()
+        return self.__processes, self.__receives
 
-        processes.append(
-            _processes.Simplex(
-                internals[0], internals[1]
+    def __set_basic_details(self, kernels):
+        # type: (List[internals.Kernel]) -> None
+        self.__count = len(kernels)
+        self.__kernels = kernels
+
+    def __get_connections(self):
+        child, main = self.__connection_factory(self.__count)
+        self.__sends = child
+        self.__receives = main
+
+    def __prime_process_list(self):
+        self.__processes = [0] * self.__count
+
+    def  __setup_processes(self):
+        for index, kernel, send_pipe in self.__process_iterator():
+            kernel.name = index
+            self.__processes[index] = self.__process_template(
+                kernel, send_pipe
             )
-        )
 
-    return [processes, receives]
+    def __process_iterator(self):
+        # type: () -> zip
+        return zip(range(self.__count), self.__kernels, self.__sends)
+
+
+def simplex_build(process_kernels):
+    # type: (List[internals.Kernel]) -> simplex_return
+    factory = _ProcessFactory(
+        _processes.Simplex, _connection_factory.simplex_build
+    )
+    return factory.build(process_kernels)
 
 
 def duplex_build(process_kernels):
-    count = len(process_kernels)
-    processes = []
-    main_com, process_com = factory.duplex_build(count)
-
-    for index, internals in enumerate(zip(process_kernels, process_com)):
-
-        __set_process_id(internals[0], index)
-
-        processes.append(
-            _processes.Duplex(
-                internals[0], internals[1]
-            )
-        )
-
-    return [processes, main_com]
-
-
-def __set_process_id(process, the_id):
-    process.name = the_id
+    # type: (List[internals.Kernel]) -> duplex_return
+    factory = _ProcessFactory(
+        _processes.Duplex, _connection_factory.duplex_build
+    )
+    return factory.build(process_kernels)
