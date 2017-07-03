@@ -23,6 +23,8 @@ is all done by extending the kernels with your needed information then
 passing those kernels back to the Foreman.
 """
 
+from typing import List
+from multiprocessing.connection import Connection
 import copy
 import logging
 import multiprocessing
@@ -30,7 +32,7 @@ import multiprocessing
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process import _processing
+from PyPWA.builtin_plugins.process import _processes
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 
@@ -41,67 +43,60 @@ __version__ = VERSION
 
 class _ProcessInterface(internals.ProcessInterface):
 
-    def __init__(self, interface_kernel, process_com, processes, duplex):
-        self._logger = logging.getLogger(__name__)
+    __LOGGER = logging.getLogger(__name__ + "._ProcessInterface")
 
-        self._com = process_com
-        self._interface_kernel = interface_kernel
-        self._processes = processes
-        self._held_value = False
-        self._duplex = duplex
+    def __init__(
+            self,
+            interface_kernel,  # type: internals.KernelInterface
+            process_com,  # type: List[Connection]
+            processes,  # type: List[multiprocessing.Process]
+            duplex  # type: bool
+    ):
+        # type: (...) -> None
+        self.__connections = process_com
+        self.__interface = interface_kernel
+        self.__processes = processes
+        self.__duplex = duplex
 
     def run(self, *args):
-        self._held_value = self._interface_kernel.run(self._com, args)
-        return self._held_value
-
-    @property
-    def previous_value(self):
-        return self._held_value
+        return self.__interface.run(self.__connections, args)
 
     def stop(self, force=False):
-        if self._duplex and not force:
-            self._ask_processes_to_stop()
+        if self.__duplex and not force:
+            self.__ask_processes_to_stop()
         else:
-            if force:
-                self._terminate_processes()
-            else:
-                self._logger.warn(
-                    "The communication object is Simplex, can not shut "
-                    "down processes. You must execute the processes and "
-                    "fetch the value from the interface before simplex "
-                    "functions will shutdown, or force the thread to die "
-                    "[EXPERIMENTAL]"
-                )
+            self.__terminate_processes()
 
-    def _ask_processes_to_stop(self):
-        for pipe in self._com:
-            self._logger.debug("Attempting to kill processes.")
-            pipe.send("DIE")
 
-    def _terminate_processes(self):
-        self._logger.warn(
-            "KILLING PROCESSES, THIS IS !EXPERIMENTAL! AND WILL "
-            "PROBABLY BREAK THINGS."
-        )
+    def __ask_processes_to_stop(self):
+        for connection in self.__connections:
+            self.__LOGGER.debug("Attempting to kill processes.")
+            connection.send(_processes.ProcessCodes.SHUTDOWN)
 
-        for process in self._processes:
+    def __terminate_processes(self):
+        self.__LOGGER.debug("Terminating Processes is Risky!")
+        for process in self.__processes:
             process.terminate()
 
     @property
     def is_alive(self):
-        return self._processes[0].is_alive()
+        return self.__processes[0].is_alive()
 
 
 class CalculationForeman(plugins.KernelProcessing):
 
+    __LOGGER = logging.getLogger(__name__ + ".CalculationForeman")
+
     def __init__(
-            self, number_of_processes=multiprocessing.cpu_count() * 2,):
+            self, number_of_processes=multiprocessing.cpu_count() * 2,
+    ):
+        # type: (int) -> None
         self._process_kernels = False
         self._duplex = False
         self._interface = False
         self._interface_template = False
 
-        self._logger = logging.getLogger(__name__)
+        self.__LOGGER = logging.getLogger(__name__)
 
         self._number_of_processes = number_of_processes
 
@@ -121,13 +116,13 @@ class CalculationForeman(plugins.KernelProcessing):
 
     def _make_process(self):
         if self._duplex:
-            self._logger.debug("Building Duplex Processes.")
+            self.__LOGGER.debug("Building Duplex Processes.")
             return _processing.CalculationFactory.duplex_build(
                 self._process_kernels
             )
 
         else:
-            self._logger.debug("Building Simplex Processes.")
+            self.__LOGGER.debug("Building Simplex Processes.")
             return _processing.CalculationFactory.simplex_build(
                 self._process_kernels
             )
@@ -137,7 +132,7 @@ class CalculationForeman(plugins.KernelProcessing):
         for process in processes:
             process.start()
 
-        self._logger.debug("I have {0} processes!".format(len(processes)))
+        self.__LOGGER.debug("I have {0} processes!".format(len(processes)))
 
         return _ProcessInterface(
             self._interface_template, com, processes, self._duplex

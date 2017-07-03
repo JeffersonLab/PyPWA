@@ -145,16 +145,6 @@ class ProcessInterface(object):
         """
         raise NotImplementedError
 
-    @property
-    def previous_value(self):
-        # type: () -> Any
-        """
-        The previous value received from the kernel interface.
-
-        :return: Previous calculated value.
-        """
-        raise NotImplementedError
-
     def stop(self, force=False):
         # type: (Opt[bool]) -> None
         """
