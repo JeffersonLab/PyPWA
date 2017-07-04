@@ -78,7 +78,7 @@ class _ProcessFactory(object):
 
     def  __setup_processes(self):
         for index, kernel, send_pipe in self.__process_iterator():
-            kernel.name = index
+            kernel.PROCESS_ID = index
             self.__processes[index] = self.__process_template(
                 kernel, send_pipe
             )
