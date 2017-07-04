@@ -34,9 +34,9 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-abstract_return = Tuple(List[_processes._AbstractProcess], List[Connection])
-simplex_return = Tuple(List[_processes.Simplex], List[Connection])
-duplex_return = Tuple(List[_processes.Duplex], List[Connection])
+abstract_return = Tuple[List[_processes._AbstractProcess], List[Connection]]
+simplex_return = Tuple[List[_processes.Simplex], List[Connection]]
+duplex_return = Tuple[List[_processes.Duplex], List[Connection]]
 
 
 class _ProcessFactory(object):
