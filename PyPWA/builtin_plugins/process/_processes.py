@@ -15,13 +15,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+This are where the actual processes are defined
+-----------------------------------------------
+- _AbstractProcess - The abstract process that the other processes subclass,
+  this defines both the interface for the subclasses, and sets daemon mode to
+  true so that processes will shutdown with the main process.
+- Duplex - The duplex process, this process will take information received
+  from the main process and calculate over it.
+- Simplex - The Simplex process, this process will calculate over whatever
+  is in its kernel the moment it starts, then return the calculated value
+  over its pipe.
 """
 
-import enum
 import logging
 import multiprocessing
 from multiprocessing import connection
+from typing import Any
 
 from PyPWA import VERSION, AUTHOR
 from PyPWA.core.shared.interfaces import internals
@@ -31,15 +40,9 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class ProcessCodes(enum.Enum):
-
-    SHUTDOWN = 1
-    ERROR = 2
-
-
 class _AbstractProcess(multiprocessing.Process):
 
-    def __init__(self, kernel, connect):
+    def __init__(self):
         # type: (internals.Kernel, connection.Connection) -> None
         super(_AbstractProcess, self).__init__()
         self.daemon = True  # When true, processes will die with main
@@ -66,7 +69,7 @@ class Duplex(_AbstractProcess):
     def __loop(self):
         while True:
             self.__get_value()
-            if self.__received_value == ProcessCodes.SHUTDOWN:
+            if self.__received_value == internals.ProcessCodes.SHUTDOWN:
                 self.__LOGGER.debug("Gracefully shutting down process.")
                 break
             self.__process()
@@ -83,10 +86,12 @@ class Duplex(_AbstractProcess):
             self.__connection.send(value)
 
     def __run_kernel(self):
+        # type: () -> Any
         return self.__kernel.process(self.__received_value)
 
     def __handle_error(self, error):
-        self.__connection.send(ProcessCodes.ERROR)
+        # type: (Exception) -> None
+        self.__connection.send(internals.ProcessCodes.ERROR)
         self.__LOGGER.exception(error)
         self.__LOGGER.critical(
             "Child process in critical state! The program will crash!"
@@ -110,5 +115,5 @@ class Simplex(_AbstractProcess):
         try:
             self.__connection.send(self.__kernel.process())
         except Exception as error:
-            self.__connection.send(ProcessCodes.ERROR)
+            self.__connection.send(internals.ProcessCodes.ERROR)
             raise error

@@ -198,8 +198,8 @@ class Kernel(object):
 class KernelInterface(object):
 
     # is_duplex controls whether the kernel will shutdown after its first
-    # run or if the kernel will wait for more information. If this is true
-    # the kernel will only be able to receive data and will shutdown after
+    # run or if the kernel will wait for more information. If this is false
+    # the kernel will only be able to send data and will shutdown after
     # its first run; however, if this is true then the kernel will stay
     # running and waiting for a value from the interface indefinitely until
     # they are shutdown manually.
@@ -241,3 +241,9 @@ class LikelihoodTypes(enum.Enum):
     OTHER = 1
     CHI_SQUARED = 2
     LOG_LIKELIHOOD = 3
+
+
+class ProcessCodes(enum.Enum):
+
+    SHUTDOWN = 1
+    ERROR = 2
