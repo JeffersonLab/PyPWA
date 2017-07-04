@@ -27,7 +27,6 @@ Kernel Based Processing
 
 import logging
 import multiprocessing
-from multiprocessing.connection import Connection
 from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
@@ -49,7 +48,7 @@ class _ProcessInterface(internals.ProcessInterface):
     def __init__(
             self,
             interface_kernel,  # type: internals.KernelInterface
-            process_com,  # type: List[Connection]
+            process_com,  # type: List[multiprocessing.Pipe]
             processes  # type: List[multiprocessing.Process]
     ):
         # type: (...) -> None
@@ -92,7 +91,7 @@ class CalculationForeman(plugins.KernelProcessing):
         self.__splitter = _data_split.SetupData(number_of_processes)
         self.__kernel_setup = _kernel_setup.SetupKernels()
         self.__processes = None  # type: List[multiprocessing.Process]
-        self.__connections = None  # type: List[Connection]
+        self.__connections = None  # type: List[multiprocessing.Pipe]
         self.__interface = None  # type: _ProcessInterface
 
     def main_options(

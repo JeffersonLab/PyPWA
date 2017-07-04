@@ -29,7 +29,6 @@ This are where the actual processes are defined
 
 import logging
 import multiprocessing
-from multiprocessing import connection
 from typing import Any
 
 from PyPWA import VERSION, AUTHOR
@@ -43,7 +42,7 @@ __version__ = VERSION
 class _AbstractProcess(multiprocessing.Process):
 
     def __init__(self):
-        # type: (internals.Kernel, connection.Connection) -> None
+        # type: (internals.Kernel, multiprocessing.Pipe) -> None
         super(_AbstractProcess, self).__init__()
         self.daemon = True  # When true, processes will die with main
 
@@ -56,7 +55,7 @@ class Duplex(_AbstractProcess):
     __LOGGER = logging.getLogger(__name__ + ".Duplex")
 
     def __init__(self, kernel, connect):
-        # type: (internals.Kernel, connection.Connection) -> None
+        # type: (internals.Kernel, multiprocessing.Pipe) -> None
         super(Duplex, self).__init__()
         self.__kernel = kernel
         self.__connection = connect
@@ -104,7 +103,7 @@ class Simplex(_AbstractProcess):
     __LOGGER = logging.getLogger(__name__ + ".Simplex")
 
     def __init__(self, single_kernel, connect):
-        # type: (internals.Kernel, connection.Connection) -> None
+        # type: (internals.Kernel, multiprocessing.Pipe) -> None
         super(Simplex, self).__init__()
         self.__kernel = single_kernel
         self.__connection = connect

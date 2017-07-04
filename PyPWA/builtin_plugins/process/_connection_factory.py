@@ -19,7 +19,6 @@ The factory for the communication object.
 """
 
 import multiprocessing
-from multiprocessing.connection import Connection
 from typing import Callable, List, Tuple
 
 from PyPWA import VERSION, AUTHOR
@@ -29,7 +28,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-factory_return = Tuple[List[Connection], List[Connection]]
+factory_return = Tuple[List[multiprocessing.Pipe], List[multiprocessing.Pipe]]
 factory_type = Callable[[int], factory_return]
 
 

@@ -21,7 +21,7 @@ The processes and their factories are defined here. The current supported
 methods are Duplex for worker processes and Simplex for offload processes.
 """
 
-from multiprocessing.connection import Connection
+from multiprocessing import Pipe
 from typing import List, Tuple
 
 from PyPWA import AUTHOR, VERSION
@@ -34,9 +34,9 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-abstract_return = Tuple[List[_processes._AbstractProcess], List[Connection]]
-simplex_return = Tuple[List[_processes.Simplex], List[Connection]]
-duplex_return = Tuple[List[_processes.Duplex], List[Connection]]
+abstract_return = Tuple[List[_processes._AbstractProcess], List[Pipe]]
+simplex_return = Tuple[List[_processes.Simplex], List[Pipe]]
+duplex_return = Tuple[List[_processes.Duplex], List[Pipe]]
 
 
 class _ProcessFactory(object):
@@ -51,8 +51,8 @@ class _ProcessFactory(object):
         self.__connection_factory = connections
         self.__count = 0
         self.__kernels = None  # type: List[internals.Kernel]
-        self.__sends = None  # type: List[Connection]
-        self.__receives = None  # type: List[Connection]
+        self.__sends = None  # type: List[Pipe]
+        self.__receives = None  # type: List[Pipe]
         self.__processes = None  # type: List[_processes._AbstractProcess]
 
     def build(self, kernels):
