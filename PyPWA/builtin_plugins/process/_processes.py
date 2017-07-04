@@ -101,6 +101,8 @@ class Duplex(_AbstractProcess):
 
 class Simplex(_AbstractProcess):
 
+    __LOGGER = logging.getLogger(__name__ + ".Simplex")
+
     def __init__(self, single_kernel, connect):
         # type: (internals.Kernel, connection.Connection) -> None
         super(Simplex, self).__init__()
@@ -110,10 +112,12 @@ class Simplex(_AbstractProcess):
     def run(self):
         self.__kernel.setup()
         self.__process()
+        self.__LOGGER.debug("Shutting Down.")
 
     def __process(self):
         try:
             self.__connection.send(self.__kernel.process())
         except Exception as error:
             self.__connection.send(internals.ProcessCodes.ERROR)
+            self.__LOGGER.exception(error)
             raise error
