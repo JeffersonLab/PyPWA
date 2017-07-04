@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ### Changed
  - Removed previous_event from Process Interface
  - Duplex Pipes are used over Simplex Pipes for Duplex Processes
+ - Changes get_file_length to using a binary buffered search.
 ### Fixed
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.
