@@ -17,22 +17,23 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is the main file for the process plugin. This plugin contains all
-the logic needed to generate offload processes and worker processes, this
-is all done by extending the kernels with your needed information then
-passing those kernels back to the Foreman.
+Kernel Based Processing
+-----------------------
+ - _ProcessingInterface - Interface between the processes and the requesting
+   plugins.
+ - CalculationForeman - Walks through the process of creating the processes
+   using the provided kernel and data.
 """
 
-from typing import List
-from multiprocessing.connection import Connection
-import copy
 import logging
 import multiprocessing
-
-import numpy
+from multiprocessing.connection import Connection
+from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process import _processes
+from PyPWA.builtin_plugins.process import _data_split
+from PyPWA.builtin_plugins.process import _kernel_setup
+from PyPWA.builtin_plugins.process import _process_factory
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 
@@ -49,29 +50,26 @@ class _ProcessInterface(internals.ProcessInterface):
             self,
             interface_kernel,  # type: internals.KernelInterface
             process_com,  # type: List[Connection]
-            processes,  # type: List[multiprocessing.Process]
-            duplex  # type: bool
+            processes  # type: List[multiprocessing.Process]
     ):
         # type: (...) -> None
         self.__connections = process_com
         self.__interface = interface_kernel
         self.__processes = processes
-        self.__duplex = duplex
 
     def run(self, *args):
         return self.__interface.run(self.__connections, args)
 
     def stop(self, force=False):
-        if self.__duplex and not force:
+        if self.__interface.IS_DUPLEX and not force:
             self.__ask_processes_to_stop()
         else:
             self.__terminate_processes()
 
-
     def __ask_processes_to_stop(self):
         for connection in self.__connections:
             self.__LOGGER.debug("Attempting to kill processes.")
-            connection.send(_processes.ProcessCodes.SHUTDOWN)
+            connection.send(internals.ProcessCodes.SHUTDOWN)
 
     def __terminate_processes(self):
         self.__LOGGER.debug("Terminating Processes is Risky!")
@@ -91,82 +89,50 @@ class CalculationForeman(plugins.KernelProcessing):
             self, number_of_processes=multiprocessing.cpu_count() * 2,
     ):
         # type: (int) -> None
-        self._process_kernels = False
-        self._duplex = False
-        self._interface = False
-        self._interface_template = False
+        self.__splitter = _data_split.SetupData(number_of_processes)
+        self.__kernel_setup = _kernel_setup.SetupKernels()
+        self.__processes = None  # type: List[multiprocessing.Process]
+        self.__connections = None  # type: List[Connection]
+        self.__interface = None  # type: _ProcessInterface
 
-        self.__LOGGER = logging.getLogger(__name__)
+    def main_options(
+            self,
+            data,  # type: Dict[str, Any]
+            kernel,  # type: internals.Kernel
+            internal_interface  # type: internals.KernelInterface
+    ):
+        # type: (...) -> None
+        kernels = self.__setup_kernels(data, kernel)
+        self.__make_processes(kernels, internal_interface.IS_DUPLEX)
+        self.__start_processes()
+        self.__build_interface(internal_interface)
 
-        self._number_of_processes = number_of_processes
+    def __setup_kernels(self, data, kernel):
+        # type: (Dict[str, Any], internals.Kernel) -> List[internals.Kernel]
+        process_data = self.__splitter.split(data)
+        kernels = self.__kernel_setup.setup_kernels(kernel, process_data)
+        return kernels
 
-    def main_options(self, data, process_template, interface_template):
-        process_data = self.__split_data(
-            data, self._number_of_processes
-        )
-
-        self._process_kernels = self.__create_objects(
-            process_template, process_data
-        )
-
-        self._duplex = interface_template.IS_DUPLEX
-        self._interface_template = interface_template
-
-        self._interface = self._build()
-
-    def _make_process(self):
-        if self._duplex:
+    def __make_processes(self, kernels, duplex):
+        # type: (List[internals.Kernel], bool) -> None
+        if duplex:
             self.__LOGGER.debug("Building Duplex Processes.")
-            return _processing.CalculationFactory.duplex_build(
-                self._process_kernels
-            )
-
+            processes, connections = _process_factory.duplex_build(kernels)
         else:
             self.__LOGGER.debug("Building Simplex Processes.")
-            return _processing.CalculationFactory.simplex_build(
-                self._process_kernels
-            )
+            processes, connections = _process_factory.simplex_build(kernels)
+        self.__processes, self.__connections = (processes, connections)
 
-    def _build(self):
-        processes, com = self._make_process()
-        for process in processes:
+    def __start_processes(self):
+        self.__LOGGER.debug("Starting Processes!")
+        for process in self.__processes:
             process.start()
 
-        self.__LOGGER.debug("I have {0} processes!".format(len(processes)))
-
-        return _ProcessInterface(
-            self._interface_template, com, processes, self._duplex
+    def __build_interface(self, internal_interface):
+        self.__interface = _ProcessInterface(
+            internal_interface, self.__connections, self.__processes
         )
 
     def fetch_interface(self):
-        return self._interface
-
-    @staticmethod
-    def __create_objects(kernel_template, data_chunks):
-        processes = []
-        for chunk in data_chunks:
-            temp_kernel = copy.deepcopy(kernel_template)
-            for key in chunk.keys():
-                setattr(temp_kernel, key, chunk[key])
-            processes.append(temp_kernel)
-
-        return processes
-
-    @staticmethod
-    def __split_data(events_dict, number_of_process):
-        event_keys = events_dict.keys()
-        data_chunks = []
-
-        for chunk in range(number_of_process):
-            temp_dict = {}
-            for key in event_keys:
-                temp_dict[key] = 0
-            data_chunks.append(temp_dict)
-
-        for key in event_keys:
-            for index, events in enumerate(
-                    numpy.array_split(events_dict[key], number_of_process)
-            ):
-                data_chunks[index][key] = events
-
-        return data_chunks
+        # type: () -> _ProcessInterface
+        return self.__interface
