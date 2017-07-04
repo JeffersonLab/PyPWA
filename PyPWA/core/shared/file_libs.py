@@ -17,8 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Miscellaneous File Libraries
+----------------------------
+- _FileLength - An object that searches files in binary to quickly determine
+  the length of a file.
+- get_file_length - The function wrapping _FileLength
 """
+
+import io
 
 from PyPWA import AUTHOR, VERSION
 
@@ -26,8 +32,41 @@ __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
+
+class _FileLength(object):
+
+    __BUFFER_SIZE = 1024*1024
+
+    def __init__(self):
+        self.__lines = 0  # type: int
+        self.__buffer = b''  # type: bytes
+
+    def get_length(self, file_location):
+        # type: (str) -> int
+        with io.open(file_location, 'rb') as binary_stream:
+            self.__iterate_over_file(binary_stream)
+        return self.__lines
+
+    def __iterate_over_file(self, stream):
+        # type: (io.FileIO) -> None
+        self.__read_new_buffer(stream)
+        while self.__buffer:
+            self.__lines += self.__buffer.count(b'\n')
+            self.__read_new_buffer(stream)
+
+    def __read_new_buffer(self, stream):
+        # type: (io.FileIO) -> None
+        buffer = stream.raw.read(self.__BUFFER_SIZE)
+        self.__check_old_buffer_for_missing_newline(buffer)
+        self.__buffer = buffer
+
+    def __check_old_buffer_for_missing_newline(self, buffer):
+        # type: (bytes) -> None
+        if not buffer and not self.__buffer.endswith(b'\n'):
+            self.__lines += 1
+
+
 def get_file_length(file_location):
-    with open(file_location) as stream:
-        for index, line in enumerate(stream):
-            pass
-        return index + 1
+    # type: (str) -> int
+    counter = _FileLength()
+    return counter.get_length(file_location)
