@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 ### Added
+ - Process Plugin support for List Data
+ - Adds Exception handling to Processes
 ### Changed
+ - Removed previous_event from Process Interface
+ - Duplex Pipes are used over Simplex Pipes for Duplex Processes
 ### Fixed
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.

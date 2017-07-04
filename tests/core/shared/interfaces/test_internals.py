@@ -65,11 +65,6 @@ def test_process_interface_run(process_interface):
         process_interface.run()
 
 
-def test_process_interface_previous_value(process_interface):
-    with pytest.raises(NotImplementedError):
-        process_interface.previous_value
-
-
 def test_process_interface_stop(process_interface):
     with pytest.raises(NotImplementedError):
         process_interface.stop()

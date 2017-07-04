@@ -17,21 +17,22 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This is the main file for the process plugin. This plugin contains all
-the logic needed to generate offload processes and worker processes, this
-is all done by extending the kernels with your needed information then
-passing those kernels back to the Foreman.
+Kernel Based Processing
+-----------------------
+ - _ProcessingInterface - Interface between the processes and the requesting
+   plugins.
+ - CalculationForeman - Walks through the process of creating the processes
+   using the provided kernel and data.
 """
 
-import copy
 import logging
 import multiprocessing
-
-import numpy
+from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process import _communication
-from PyPWA.builtin_plugins.process import _processing
+from PyPWA.builtin_plugins.process import _data_split
+from PyPWA.builtin_plugins.process import _kernel_setup
+from PyPWA.builtin_plugins.process import _process_factory
 from PyPWA.core.shared.interfaces import internals
 from PyPWA.core.shared.interfaces import plugins
 
@@ -42,245 +43,95 @@ __version__ = VERSION
 
 class _ProcessInterface(internals.ProcessInterface):
 
-    def __init__(self, interface_kernel, process_com, processes, duplex):
-        """
-        This object provides all the functions necessary to determine the
-        state of the processes and to pass information to the processes.
-        This is the main object that the program and users will use to
-        access the processes.
+    __LOGGER = logging.getLogger(__name__ + "._ProcessInterface")
 
-        Args:
-            interface_kernel: Object with a run method to be used to
-                handle returned data.
-            process_com (list[_communication._CommunicationInterface]):
-                Objects needed to exchange data with the processes.
-            processes (list[multiprocessing.Process]): List of the
-                processing processes.
-        """
-        self._logger = logging.getLogger(__name__)
-
-        self._com = process_com
-        self._interface_kernel = interface_kernel
-        self._processes = processes
-        self._held_value = False
-        self._duplex = duplex
+    def __init__(
+            self,
+            interface_kernel,  # type: internals.KernelInterface
+            process_com,  # type: List[multiprocessing.Pipe]
+            processes  # type: List[multiprocessing.Process]
+    ):
+        # type: (...) -> None
+        self.__connections = process_com
+        self.__interface = interface_kernel
+        self.__processes = processes
 
     def run(self, *args):
-        """
-        Passes received arguments to the interface kernel and returns the
-        result.
-
-        Args:
-            *args: The arguments received through the run interface.
-        Returns:
-            The returned value from the process kernel.
-        """
-        self._held_value = self._interface_kernel.run(self._com, args)
-        return self._held_value
-
-    @property
-    def previous_value(self):
-        """
-        Returns previous found value.
-        """
-        return self._held_value
+        return self.__interface.run(self.__connections, args)
 
     def stop(self, force=False):
-        """
-        Stops processes.
-
-        Args:
-            force (Optional[bool]): Set to true if you want to force the
-                processes to stop.
-        """
-        if self._duplex and not force:
-            self._ask_processes_to_stop()
+        if self.__interface.IS_DUPLEX and not force:
+            self.__ask_processes_to_stop()
         else:
-            if force:
-                self._terminate_processes()
-            else:
-                self._logger.warn(
-                    "The communication object is Simplex, can not shut "
-                    "down processes. You must execute the processes and "
-                    "fetch the value from the interface before simplex "
-                    "functions will shutdown, or force the thread to die "
-                    "[EXPERIMENTAL]"
-                )
+            self.__terminate_processes()
 
-    def _ask_processes_to_stop(self):
-        for pipe in self._com:
-            self._logger.debug("Attempting to kill processes.")
-            pipe.send("DIE")
+    def __ask_processes_to_stop(self):
+        for connection in self.__connections:
+            self.__LOGGER.debug("Attempting to kill processes.")
+            connection.send(internals.ProcessCodes.SHUTDOWN)
 
-    def _terminate_processes(self):
-        self._logger.warn(
-            "KILLING PROCESSES, THIS IS !EXPERIMENTAL! AND WILL "
-            "PROBABLY BREAK THINGS."
-        )
-
-        for process in self._processes:
+    def __terminate_processes(self):
+        self.__LOGGER.debug("Terminating Processes is Risky!")
+        for process in self.__processes:
             process.terminate()
 
     @property
     def is_alive(self):
-        """
-        Method to check the status of the process.
-
-        Returns:
-            bool: True if the processes are still spawned, False if they
-                have terminated.
-        """
-        return self._processes[0].is_alive()
+        return self.__processes[0].is_alive()
 
 
 class CalculationForeman(plugins.KernelProcessing):
 
+    __LOGGER = logging.getLogger(__name__ + ".CalculationForeman")
+
     def __init__(
             self, number_of_processes=multiprocessing.cpu_count() * 2,
-            **options
     ):
-        """
-        This is the main object for the Process Plugin. All this object
-        needs is an appropriately set up interface kernel and process
-        kernel in order to function.
+        # type: (int) -> None
+        self.__splitter = _data_split.SetupData(number_of_processes)
+        self.__kernel_setup = _kernel_setup.SetupKernels()
+        self.__processes = None  # type: List[multiprocessing.Process]
+        self.__connections = None  # type: List[multiprocessing.Pipe]
+        self.__interface = None  # type: _ProcessInterface
 
-        Args:
-            number_of_processes (Optional[int]): Number of processes to
-                use, defaults to twice the available cpus.
-            options (Optional[dict]): The options dictionary rendered by
-                the configurator. Optional.
-        """
-        self._process_kernels = False
-        self._duplex = False
-        self._interface = False
-        self._interface_template = False
+    def main_options(
+            self,
+            data,  # type: Dict[str, Any]
+            kernel,  # type: internals.Kernel
+            internal_interface  # type: internals.KernelInterface
+    ):
+        # type: (...) -> None
+        kernels = self.__setup_kernels(data, kernel)
+        self.__make_processes(kernels, internal_interface.IS_DUPLEX)
+        self.__start_processes()
+        self.__build_interface(internal_interface)
 
-        self._logger = logging.getLogger(__name__)
+    def __setup_kernels(self, data, kernel):
+        # type: (Dict[str, Any], internals.Kernel) -> List[internals.Kernel]
+        process_data = self.__splitter.split(data)
+        kernels = self.__kernel_setup.setup_kernels(kernel, process_data)
+        return kernels
 
-        self._number_of_processes = number_of_processes
-
-        if options:
-            super(CalculationForeman, self).__init__(options)
-
-    def main_options(self, data, process_template, interface_template):
-        """
-        The options that need to be passed to it from the main object. The
-        data that is needed for processing to occur.
-
-        Args:
-            data (dict):  The dictionary containing the data that needs to
-                be nested into the process.
-            process_template (kernels.AbstractKernel): The kernel that
-                has been extended with the needed information for the
-                process.
-            interface_template (kernels.AbstractInterface): The interface
-                that has been extended to process the information to be
-                passed and from the processes.
-        """
-        process_data = self.__split_data(
-            data, self._number_of_processes
-        )
-
-        self._process_kernels = self.__create_objects(
-            process_template, process_data
-        )
-
-        self._duplex = interface_template.IS_DUPLEX
-        self._interface_template = interface_template
-
-        self._interface = self._build()
-
-    def _make_process(self):
-        """
-        Calls the factory objects to generate the processes
-
-        Returns:
-            list[list[_communication._CommunicationInterface],list[process_calculation.Process]]
-        """
-        if self._duplex:
-            self._logger.debug("Building Duplex Processes.")
-            return _processing.CalculationFactory.duplex_build(
-                self._process_kernels
-            )
-
+    def __make_processes(self, kernels, duplex):
+        # type: (List[internals.Kernel], bool) -> None
+        if duplex:
+            self.__LOGGER.debug("Building Duplex Processes.")
+            processes, connections = _process_factory.duplex_build(kernels)
         else:
-            self._logger.debug("Building Simplex Processes.")
-            return _processing.CalculationFactory.simplex_build(
-                self._process_kernels
-            )
+            self.__LOGGER.debug("Building Simplex Processes.")
+            processes, connections = _process_factory.simplex_build(kernels)
+        self.__processes, self.__connections = (processes, connections)
 
-    def _build(self):
-        """
-        Simple method that sets up and builds all the processes needed.
-        """
-        processes, com = self._make_process()
-        for process in processes:
+    def __start_processes(self):
+        self.__LOGGER.debug("Starting Processes!")
+        for process in self.__processes:
             process.start()
 
-        self._logger.debug("I have {0} processes!".format(len(processes)))
-
-        return _ProcessInterface(
-            self._interface_template, com, processes, self._duplex
+    def __build_interface(self, internal_interface):
+        self.__interface = _ProcessInterface(
+            internal_interface, self.__connections, self.__processes
         )
 
     def fetch_interface(self):
-        """
-        Returns the built Process Interface
-
-        Returns:
-             _ProcessInterface: The interface to the processes.
-        """
-        return self._interface
-
-    @staticmethod
-    def __create_objects(kernel_template, data_chunks):
-        """
-        Creates the objects to be nested into the processes.
-
-        Args:
-            kernel_template: The template to use that has all the
-                processing logic.
-            data_chunks list[dict]: A list of the data chunks to be nested
-                into the processes.
-
-        Returns:
-            list
-        """
-        processes = []
-        for chunk in data_chunks:
-            temp_kernel = copy.deepcopy(kernel_template)
-            for key in chunk.keys():
-                setattr(temp_kernel, key, chunk[key])
-            processes.append(temp_kernel)
-
-        return processes
-
-    @staticmethod
-    def __split_data(events_dict, number_of_process):
-        """
-        Takes a dictionary of numpy arrays and splits them into chunks.
-
-        Args:
-            events_dict (dict): The data that needs to be divided into
-                chunks.
-            number_of_process (int): The number of processes.
-
-        Returns:
-            list[dict]: The chunks of data.
-        """
-        event_keys = events_dict.keys()
-        data_chunks = []
-
-        for chunk in range(number_of_process):
-            temp_dict = {}
-            for key in event_keys:
-                temp_dict[key] = 0
-            data_chunks.append(temp_dict)
-
-        for key in event_keys:
-            for index, events in enumerate(
-                    numpy.array_split(events_dict[key], number_of_process)
-            ):
-                data_chunks[index][key] = events
-
-        return data_chunks
+        # type: () -> _ProcessInterface
+        return self.__interface

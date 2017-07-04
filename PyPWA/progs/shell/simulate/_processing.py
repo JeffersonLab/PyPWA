@@ -52,7 +52,7 @@ class IntensityInterface(internals.KernelInterface):
         list_of_data = list(range(len(communicator)))
 
         for communication in communicator:
-            data = communication.receive()
+            data = communication.recv()
             self.__LOGGER.debug("Received data: " + repr(data))
             list_of_data[data[0]] = data[1]
 
