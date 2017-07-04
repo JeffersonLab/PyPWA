@@ -202,7 +202,7 @@ class FittingInterface(internals.KernelInterface):
     def __get_final_value(self, communication):
         values = numpy.zeros(shape=len(communication))
         for index, pipe in enumerate(communication):
-            values[index] = pipe.recev()
+            values[index] = pipe.recv()
         final_value = numpy.sum(values)
         self.__last_value = self.__parameter_parser.MULTIPLIER * final_value
 
