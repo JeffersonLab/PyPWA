@@ -95,7 +95,12 @@ class ShellFitting(options.Main):
         "setup name": str,
         "qfactor location": str,
         "data location": str,
-        "internal data": dict,
+        "internal data": {
+            "quality factor": str,
+            "binned data": str,
+            "event errors": str,
+            "expected values": str
+        },
         "accepted monte carlo location": str,
         "save name": str
     }
