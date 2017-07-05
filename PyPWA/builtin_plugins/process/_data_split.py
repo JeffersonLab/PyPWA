@@ -95,7 +95,7 @@ class _MainSplitter(object):
         elif isinstance(data, list):
             return self.__list_split(data)
         else:
-            raise ValueError("Unknown data type: %s!")
+            raise ValueError("Unknown data type: %s!" % type(data))
 
 
 class SetupData(object):

@@ -51,11 +51,15 @@ def test_processing_is_found(plugin_loader_with_plugins):
 
 
 def test_minuit_is_found(plugin_loader_with_plugins):
-    check_template_is_in_list(minuit.MinuitOptions, plugin_loader_with_plugins)
+    check_template_is_in_list(
+        minuit.MinuitOptions, plugin_loader_with_plugins
+    )
 
 
 def test_nestle_is_found(plugin_loader_with_plugins):
-    check_template_is_in_list(nestle.NestleOptions, plugin_loader_with_plugins)
+    check_template_is_in_list(
+        nestle.NestleOptions, plugin_loader_with_plugins
+    )
 
 
 @pytest.mark.xfail(
@@ -79,12 +83,7 @@ def test_finds_meaning(python_sheet_loader):
 
 def test_cant_find_nothing(python_sheet_loader):
     with pytest.raises(ImportError):
-        fun = python_sheet_loader.get_by_name("nothing", True)
-
-
-def test_returns_empty(python_sheet_loader):
-    fun = python_sheet_loader.get_by_name("nothing", False)
-    assert isinstance(fun(), type(None))
+        fun = python_sheet_loader.get_by_name("nothing")
 
 
 def test_can_load_non_existant_file():

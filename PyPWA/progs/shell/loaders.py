@@ -21,10 +21,10 @@ Shared logic between PyFit and PySimulate
 -----------------------------------------
 
 - DataLoading - takes a data parsing object and use it to load data
-  for the two programs in a way that the data can be easily repacked into 
+  for the two programs in a way that the data can be easily repacked into
   processes.
 
-- FunctionLoader - used to load the setup and processing functions in a 
+- FunctionLoader - used to load the setup and processing functions in a
   predictable way.
 """
 
@@ -107,11 +107,15 @@ class DataLoading(object):
             self.__event_errors = self.__extract_data(
                 self.__internal_names["event errors"]
             )
+        else:
+            self.__event_errors = numpy.ones(len(self.__data))
 
         if "expected values" in self.__internal_names:
             self.__expected_values = self.__extract_data(
                 self.__internal_names["expected values"]
             )
+        else:
+            self.__expected_values = numpy.ones(len(self.__data))
 
     def __extract_data(self, column):
         # type: (str) -> ndarray
@@ -190,49 +194,102 @@ class DataLoading(object):
         return self.__expected_values
 
 
+class _ProcessFunctionLoader(object):
+
+    __LOGGER = logging.getLogger(__name__ + "._ProcessingLoader")
+
+    def __init__(self, loader, name):
+        # type: (plugin_loader.PluginLoader, str) -> None
+        self.__loader = loader
+        self.__process_name = name
+        self.__function = None  # type: shell_types.users_processing
+        self.__try_to_load_processing_function()
+
+    def __try_to_load_processing_function(self):
+        try:
+            self.__load_processing_function()
+        except Exception as error:
+            self.__handle_processing_error(error)
+
+    def __load_processing_function(self):
+        self.__function = self.__loader.get_by_name(self.__process_name)
+
+    def __handle_processing_error(self, error):
+        self.__LOGGER.critical("Failed to load %s!" % self.__process_name)
+        raise error
+
+    @property
+    def process(self):
+        # type: () -> shell_types.users_processing
+        return self.__function
+
+
+class _SetupFunctionLoader(object):
+
+    __LOGGER = logging.getLogger(__name__ + "._SetupFunctionLoader")
+
+    def __init__(self, loader, name):
+        # type: (plugin_loader.PluginLoader, str) -> None
+        self.__loader = loader
+        self.__function = None  # type: shell_types.users_setup
+        self.__process_setup_name(name)
+
+    def __process_setup_name(self, name):
+        # type: (Opt[str]) -> None
+        if isinstance(name, str):
+            self.__try_to_load_setup_function(name)
+        else:
+            self.__set_setup_to_empty()
+
+    def __try_to_load_setup_function(self, name):
+        # type: (str) -> None
+        try:
+            self.__load_setup_function(name)
+        except Exception as error:
+            self.__handle_setup_error(name, error)
+
+    def __load_setup_function(self, name):
+        # type: (str) -> None
+        self.__function = self.__loader.get_by_name(name)
+
+    def __handle_setup_error(self, name, error):
+        # type: (str, Exception) -> None
+        self.__LOGGER.critical("%s failed to load!" % name)
+        self.__LOGGER.exception(error)
+        self.__set_setup_to_empty()
+
+    def __set_setup_to_empty(self):
+        self.__LOGGER.info("No setup function found, settings to empty.")
+        self.__function = self.__empty_function
+
+    @staticmethod
+    def __empty_function():
+        # type: () -> None
+        pass
+
+    @property
+    def setup(self):
+        # type: () -> shell_types.users_setup
+        return self.__function
+
+
 class FunctionLoader(object):
 
     __LOGGER = logging.getLogger(__name__ + ".FunctionLoader")
 
     def __init__(self, location, process_name, setup_name=None):
         # type: (str, str, Opt[str]) -> None
-        self.__loader = plugin_loader.PluginLoader()
-        self.__loader.add_plugin_location(location)
-        self.__process_name = process_name
-        self.__setup_name = setup_name
-        self.__process = None  # type: shell_types.users_processing
-        self.__setup = None  # type: shell_types.users_setup
-        self.__load_functions()
-
-    def __load_functions(self):
-        self.__load_process()
-        self.__load_setup()
-
-    def __load_process(self):
-        self.__process = self.__loader.get_by_name(self.__process_name)
-
-    def __load_setup(self):
-        if isinstance(self.__setup_name, str):
-            self.__setup = self.__loader.get_by_name(self.__setup_name, False)
-            self.__LOGGER.debug("Found setup type %s" % repr(self.__setup))
-        self.__set_none_to_empty()
-
-    def __set_none_to_empty(self):
-        if self.__setup is None:
-            self.__LOGGER.info("No setup function found, settings to empty.")
-            self.__setup = self.__empty
-
-    @staticmethod
-    def __empty():
-        # type: () -> None
-        pass
+        loader = plugin_loader.PluginLoader()
+        loader.add_plugin_location(location)
+        self.__process_loader = _ProcessFunctionLoader(loader, process_name)
+        self.__setup_loader = _SetupFunctionLoader(loader, setup_name)
 
     @property
     def process(self):
         # type: () -> shell_types.users_processing
-        return self.__process
+        return self.__process_loader.process
 
     @property
     def setup(self):
         # type: () -> shell_types.users_setup
-        return self.__setup
+        return self.__setup_loader.setup

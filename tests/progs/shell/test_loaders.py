@@ -99,8 +99,10 @@ def test_binned_sum_with_internal_names(data_with_internal_names):
 
 
 def test_error_sum_with_internal_names(data_with_internal_names):
-    assert numpy.sum(data_with_internal_names.event_errors) == \
-           4.2857024214064667
+    numpy.testing.assert_approx_equal(
+        numpy.sum(data_with_internal_names.event_errors),
+        4.2857024214064667
+    )
 
 
 def test_expected_sum_with_internal_names(data_with_internal_names):
