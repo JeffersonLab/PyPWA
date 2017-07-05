@@ -95,7 +95,7 @@ class _Importer(object):
         self.__path_handler = _AppendPath()
 
     def fetch_modules(self, package):
-        # type: (Union[str, types.ModuleType]) -> object
+        # type: (Union[str, types.ModuleType]) -> List[object]
         found_module = self.__load_module(package)
         return self.__process_module(found_module)
 
@@ -128,7 +128,7 @@ class _Importer(object):
 
     def __process_module_error(self, error):
         # type: (Exception) -> None
-        self.__LOGGER.exception(error)
+        self.__LOGGER.warning(error)
 
     def __process_module(self, potential_module):
         # type: (types.ModuleType) -> List[types.ModuleType]
@@ -264,7 +264,7 @@ class PluginLoader(object):
             self.__process_single_module(location)
 
     def __process_multiple_modules(self, locations):
-        # type: (Union[List[str, Set[str]]]) -> None
+        # type: (Union[List[str], Set[str]]) -> None
         for location in locations:
             self.__process_single_module(location)
 
@@ -282,26 +282,18 @@ class PluginLoader(object):
             )
 
     def __append_modules(self, modules):
-        # type: (List[type]) -> None
+        # type: (List[object]) -> None
         for the_module in modules:
             self.__STORAGE.PLUGINS.append(the_module)
 
-    def get_by_name(self, name, fail=True):
+    def get_by_name(self, name):
         # type: (str, bool) -> Callable[Any, Any]
         for plugin in self.__STORAGE.PLUGINS:
             if hasattr(plugin, name):
                 possible_answer = getattr(plugin, name)
                 if callable(possible_answer):
                     return possible_answer
-        if fail:
-            raise ImportError
-        else:
-            return self.__empty_function
-
-    @staticmethod
-    def __empty_function(*args, **kwargs):
-        # type: (Any, Any) -> None
-        pass
+        raise ImportError("Failed to find %s!" % name)
 
     def get_by_class(self, template):
         # type: (type) -> List[type]
