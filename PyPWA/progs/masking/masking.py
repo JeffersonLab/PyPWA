@@ -25,6 +25,7 @@ Masking Utility
 
 import logging
 import warnings
+from typing import List
 from typing import Optional as Opt
 
 import numpy
@@ -60,7 +61,7 @@ class _DataPackage(object):
         # type: (str, str, Opt[str], plugins.DataParser) -> None
         self.__load_writer(input_file, output_file)
         self.__load_reader(input_file)
-        self.__setup_masking_file(masking_file, parser)
+        self.__setup_mask_array(masking_file, parser)
 
     def __load_writer(self, input_file, output_file):
         # type: (str, str) -> None
@@ -73,12 +74,22 @@ class _DataPackage(object):
         # type: (str) -> None
         self.__reader = self.__iterator.return_reader(input_file)
 
-    def __setup_masking_file(self, masking_file, parser):
-        # type: (Opt[str],  plugins.DataParser) -> None
+    def __setup_mask_array(self, masking_file, parser):
+        # type: (Opt[List[str]],  plugins.DataParser) -> None
         if masking_file:
-            self.__mask = parser.parse(masking_file)
+            self.__mask = self.__load_masking_files(masking_file, parser)
         else:
             self.__mask = numpy.ones(len(self.__reader), dtype=bool)
+
+    def __load_masking_files(self, masking_files, parser):
+        # type: (List[str],  plugins.DataParser) -> numpy.ndarray
+        mask = None  # type: numpy.ndarray
+        for file in masking_files:
+            if isinstance(mask, type(None)):
+                mask = parser.parse(file)
+            else:
+                mask += parser.parse(file)
+        return mask
 
     @property
     def reader(self):

@@ -50,7 +50,7 @@ class MaskingArguments(arguments_options.Main):
 
     def __add_masking_argument(self):
         self._parser.add_argument(
-            "--mask", "-m", type=str,help="Masking file"
+            "--mask", "-m", type=str, action="append", help="Masking file"
         )
 
     def __add_output_file(self):
