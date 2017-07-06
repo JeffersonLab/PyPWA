@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ### Added
  - Process Plugin support for List Data
  - Adds Exception handling to Processes
+ - PyMask support for multiple masking files.
 ### Changed
  - Removed previous_event from Process Interface
  - Duplex Pipes are used over Simplex Pipes for Duplex Processes
