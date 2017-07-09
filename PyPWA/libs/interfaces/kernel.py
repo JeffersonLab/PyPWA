@@ -5,7 +5,7 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import common
+from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
