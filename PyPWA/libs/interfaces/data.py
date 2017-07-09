@@ -8,7 +8,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class PluginParser(common.BasePlugin):
+class ParserPlugin(common.BasePlugin):
 
     def parse(self, text_file):
         # type: (str) -> numpy.ndarray
@@ -32,7 +32,7 @@ class PluginParser(common.BasePlugin):
         raise NotImplementedError
 
 
-class PluginIterator(common.BasePlugin):
+class IteratorPlugin(common.BasePlugin):
 
     def return_reader(self, text_file):
         # type: (str) -> Reader
