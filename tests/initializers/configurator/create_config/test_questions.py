@@ -3,8 +3,8 @@ import sys
 import pytest
 
 
-from PyPWA.core.configurator.create_config import _questions
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator.create_config import _questions
+from PyPWA.initializers.configurator import options
 
 
 @pytest.fixture(params=["required", "optional", "advanced"])

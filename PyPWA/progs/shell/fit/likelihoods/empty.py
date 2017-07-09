@@ -29,6 +29,7 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.progs.shell import loaders
+from PyPWA.progs.shell import shell_types
 from PyPWA.progs.shell.fit import interfaces
 
 __credits__ = ["Mark Jones"]

@@ -40,7 +40,7 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import builtin
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.core.shared import plugin_loader
+from PyPWA.libs import plugin_loader
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

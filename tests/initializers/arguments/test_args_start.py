@@ -2,7 +2,7 @@ import sys
 
 import pytest
 
-from PyPWA.core.arguments import start
+from PyPWA.initializers.arguments import start
 
 
 @pytest.fixture()

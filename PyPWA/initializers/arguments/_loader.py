@@ -37,8 +37,8 @@ from typing import Optional as Opt
 import PyPWA.builtin_plugins
 import PyPWA.progs
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.arguments import arguments_options
-from PyPWA.core.shared import plugin_loader
+from PyPWA.initializers.arguments import arguments_options
+from PyPWA.libs import plugin_loader
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

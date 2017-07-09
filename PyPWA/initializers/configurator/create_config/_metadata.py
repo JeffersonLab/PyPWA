@@ -27,9 +27,9 @@ Handles direct interaction with plugins
 import logging
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator import storage
-from PyPWA.core.configurator.create_config import _questions
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator import storage
+from PyPWA.initializers.configurator.create_config import _questions
 from typing import Any, Dict, Union, List
 
 __credits__ = ["Mark Jones"]

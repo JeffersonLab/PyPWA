@@ -3,8 +3,8 @@ import sys
 import pytest
 
 from PyPWA.builtin_plugins import process
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator.create_config import _metadata
 from PyPWA.progs.shell import simulate, fit
 
 

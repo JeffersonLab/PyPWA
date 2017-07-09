@@ -40,10 +40,10 @@ import sys
 from typing import Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.arguments import _loader
-from PyPWA.core.arguments import arguments_options
-from PyPWA.core.shared import initial_logging
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.initializers.arguments import _loader
+from PyPWA.initializers.arguments import arguments_options
+from PyPWA.libs import initial_logging
+from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 
@@ -168,8 +168,8 @@ class _SetupPlugins(object):
     def __init__(self):
         self.__plugins = None  # type: _PluginLoader
         self.__arguments = None  # type: _LoadArguments
-        self.__child_interfaces = {}  # type: Dict[str, plugins.BasePlugin]
-        self.__main_interface = None  # type: plugins.Main
+        self.__child_interfaces = {}  # type: Dict[str, common.BasePlugin]
+        self.__main_interface = None  # type: common.Main
 
     def create_main_program(self, plugin_storage, arguments):
         # type: (_PluginLoader, _LoadArguments) -> None
@@ -194,7 +194,7 @@ class _SetupPlugins(object):
 
     @property
     def main(self):
-        # type: () -> plugins.Main
+        # type: () -> common.Main
         return self.__main_interface
 
 

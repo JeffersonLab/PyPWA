@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from PyPWA.core.configurator.create_config import _writer
+from PyPWA.initializers.configurator.create_config import _writer
 
 
 CONFIGURATION = {

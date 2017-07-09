@@ -21,7 +21,7 @@ Simply defines the user's functions that are shared between PyFit, PySimulate,
 and their derivative programs.
 """
 
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]

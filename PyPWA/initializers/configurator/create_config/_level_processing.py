@@ -35,7 +35,7 @@ from typing import List
 from ruamel.yaml import comments
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

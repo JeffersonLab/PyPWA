@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator import storage
+from PyPWA.initializers.configurator import storage
 from PyPWA.progs.shell import fit
 
 

@@ -41,7 +41,6 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
-from PyPWA.core.shared import file_libs
 from PyPWA.builtin_plugins.data.builtin.kv import k_iterator
 
 __credits__ = ["Mark Jones"]

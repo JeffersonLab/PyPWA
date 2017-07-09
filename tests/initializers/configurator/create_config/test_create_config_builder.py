@@ -1,8 +1,8 @@
 import pytest
 
-from PyPWA.core.configurator.create_config import _builder
-from PyPWA.core.configurator.create_config import _metadata
-from PyPWA.core.configurator.create_config import _questions
+from PyPWA.initializers.configurator.create_config import _builder
+from PyPWA.initializers.configurator.create_config import _metadata
+from PyPWA.initializers.configurator.create_config import _questions
 from PyPWA.progs.shell import simulate
 
 PYSIM_CONFIG = {

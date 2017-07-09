@@ -36,9 +36,9 @@ from typing import List
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator.create_config import _input_loop
+from PyPWA.initializers.configurator import option_tools
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator.create_config import _input_loop
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

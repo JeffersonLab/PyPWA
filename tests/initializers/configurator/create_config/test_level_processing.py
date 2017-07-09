@@ -3,8 +3,8 @@ import sys
 
 import pytest
 
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator.create_config import _level_processing
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator.create_config import _level_processing
 
 sys.path.append(os.path.join(
     os.path.dirname(__file__), "../../../data/source_files"

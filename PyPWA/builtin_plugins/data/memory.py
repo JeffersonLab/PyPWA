@@ -26,17 +26,17 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import _plugin_finder
+from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data import exceptions
 from PyPWA.builtin_plugins.data.cache import builder
-from PyPWA.core.shared.interfaces import plugins
-from PyPWA.builtin_plugins.data import data_templates
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Memory(plugins.DataParser):
+class Memory(data_loaders.ParserPlugin):
 
     __LOGGER = logging.getLogger(__name__ + ".Memory")
 

@@ -1,7 +1,7 @@
 import pytest
 
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator import option_tools
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator import option_tools
 
 
 configuration = {

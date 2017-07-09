@@ -24,8 +24,8 @@ iterator and an parser, it has two plugin interfaces.
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import iterator
 from PyPWA.builtin_plugins.data import memory
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import option_tools
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

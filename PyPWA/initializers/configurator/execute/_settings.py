@@ -45,9 +45,9 @@ import logging
 from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import storage
-from PyPWA.core.configurator.execute import _correct_configuration
-from PyPWA.core.configurator.execute import _reader
+from PyPWA.initializers.configurator import storage
+from PyPWA.initializers.configurator.execute import _correct_configuration
+from PyPWA.initializers.configurator.execute import _reader
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

@@ -37,7 +37,7 @@ import fuzzywuzzy.process
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator.execute import _storage_data
+from PyPWA.initializers.configurator.execute import _storage_data
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

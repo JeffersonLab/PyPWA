@@ -37,9 +37,9 @@ import sys
 from typing import Dict
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator.create_config import create
-from PyPWA.core.configurator.execute import start
-from PyPWA.core.shared import initial_logging
+from PyPWA.initializers.configurator.create_config import create
+from PyPWA.initializers.configurator.execute import start
+from PyPWA.libs import initial_logging
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

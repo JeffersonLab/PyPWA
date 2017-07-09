@@ -42,7 +42,8 @@ from typing import Dict
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import data_loaders
+from PyPWA.libs.interfaces import kernel
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.simulate import _processing
 
@@ -54,7 +55,7 @@ __version__ = VERSION
 class DataHandler(loaders.DataLoading):
 
     def __init__(self, data_parser, data_location, save_name):
-        # type: (plugins.DataParser, str, str) -> None
+        # type: (data_loaders.ParserPlugin, str, str) -> None
         super(DataHandler, self).__init__(data_parser, data_location)
         self.__save_location = save_name
 
@@ -86,12 +87,12 @@ class Intensities(object):
             self,
             data_loader,  # type: DataHandler
             function_loader,  # type: loaders.FunctionLoader
-            processing,  # type: plugins.KernelProcessing
+            kernel_processing,  # type: kernel.KernelProcessing
             parameters  # type: Dict[str, float]
     ):
         self.__data_loader = data_loader
         self.__function_loader = function_loader
-        self.__processing = processing
+        self.__processing = kernel_processing
         self.__parameters = parameters
 
         self.__found_intensities = None  # type: numpy.ndarray

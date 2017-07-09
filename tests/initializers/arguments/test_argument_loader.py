@@ -3,7 +3,7 @@ import os
 import pytest
 
 from PyPWA.builtin_plugins import data
-from PyPWA.core.arguments import _loader
+from PyPWA.initializers.arguments import _loader
 from PyPWA.progs import blank
 
 PLUGIN_LOCATION = os.path.join(

@@ -30,8 +30,8 @@ Execute Tools, general libs needed to build the program.
 import logging
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import storage
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import storage
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

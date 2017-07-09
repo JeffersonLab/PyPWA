@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator.create_config import _override
+from PyPWA.initializers.configurator.create_config import _override
 
 
 def get_config():

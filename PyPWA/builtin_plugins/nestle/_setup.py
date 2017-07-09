@@ -28,8 +28,8 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import nested
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import option_tools
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

@@ -1,7 +1,7 @@
 import pytest
 
 import os
-from PyPWA.core.configurator.execute import _settings
+from PyPWA.initializers.configurator.execute import _settings
 
 
 CONFIGURATION_FILE = os.path.join(

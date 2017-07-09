@@ -1,6 +1,6 @@
 import os
 
-from PyPWA.core.shared import file_libs
+from PyPWA.libs.files import line_count
 
 
 CSV_TEST_DATA = os.path.join(
@@ -17,12 +17,12 @@ KV_TEST_DATA = os.path.join(
 
 
 def test_csv_data_length():
-    assert file_libs.get_file_length(CSV_TEST_DATA) == 5
+    assert line_count.get_file_length(CSV_TEST_DATA) == 5
 
 
 def test_gamp_data_length():
-    assert file_libs.get_file_length(GAMP_TEST_DATA) == 36
+    assert line_count.get_file_length(GAMP_TEST_DATA) == 36
 
 
 def test_kv_data_length():
-    assert file_libs.get_file_length(KV_TEST_DATA) == 10
+    assert line_count.get_file_length(KV_TEST_DATA) == 10

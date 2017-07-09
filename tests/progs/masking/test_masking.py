@@ -4,7 +4,7 @@ import sys
 import pytest
 
 from PyPWA.entries import arguments
-from PyPWA.core.shared import file_libs
+from PyPWA.libs.files import line_count
 
 """
 Masking Data
@@ -79,7 +79,7 @@ def patch_args_double_mask(monkeypatch, request, correct_argv, cleanup_temp):
 
 
 def test_masking_utility_has_correct_number_of_lines(patch_args_double_mask):
-    assert file_libs.get_file_length("testfile.txt") == 1
+    assert line_count.get_file_length("testfile.txt") == 1
 
 
 """

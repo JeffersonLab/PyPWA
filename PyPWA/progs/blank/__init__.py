@@ -25,8 +25,8 @@ from PyPWA.builtin_plugins.data.memory import Memory
 from typing import Dict
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.arguments import arguments_options
-from PyPWA.core.configurator import options
+from PyPWA.initializers.arguments import arguments_options
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.blank import blank
 from PyPWA.progs.blank import setup
 

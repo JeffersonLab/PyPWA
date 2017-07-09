@@ -1,7 +1,7 @@
 import pytest
 import enum
 
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 
 @pytest.fixture

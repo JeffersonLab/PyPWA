@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]

@@ -38,22 +38,21 @@ import nestle
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _graph_data
 from PyPWA.builtin_plugins.nestle import _save_results
-from PyPWA.core.shared import plugin_loader
-from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs import plugin_loader
+from PyPWA.libs.interfaces import optimizers
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _NestleParserObject(internals.OptimizerOptionParser):
+class _NestleParserObject(optimizers.OptimizerOptionParser):
 
     def convert(self, *args):
         return args[0][0][0]
 
 
-class NestledSampling(plugins.Optimizer):
+class NestledSampling(optimizers.Optimizer):
 
     __logger = logging.getLogger(__name__)
     __callback_object = None  # type: _graph_data.SaveData

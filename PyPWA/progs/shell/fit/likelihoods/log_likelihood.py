@@ -26,11 +26,12 @@ The Log-Likelihood Extended and UnExtended are defined here:
 import logging
 from typing import Any, Dict
 from typing import Optional as Opt
-import warnings
+
 import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.progs.shell import loaders
+from PyPWA.progs.shell import shell_types
 from PyPWA.progs.shell.fit import interfaces
 
 __credits__ = ["Mark Jones"]

@@ -43,8 +43,8 @@ import os
 
 from typing import List
 
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator.create_config import _metadata
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]

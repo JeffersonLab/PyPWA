@@ -35,7 +35,7 @@ plane of data provided by the user.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import pyshell_functions
 from PyPWA.progs.shell.simulate import initial_setup
 

@@ -25,8 +25,8 @@ takes those settings to package together a little runnable program.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator.execute import _plugin_data
-from PyPWA.core.configurator.execute import _settings
+from PyPWA.initializers.configurator.execute import _plugin_data
+from PyPWA.initializers.configurator.execute import _settings
 
 from typing import Dict
 

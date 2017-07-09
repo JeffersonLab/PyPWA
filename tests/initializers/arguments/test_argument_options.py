@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.arguments import arguments_options
+from PyPWA.initializers.arguments import arguments_options
 
 
 @pytest.fixture()

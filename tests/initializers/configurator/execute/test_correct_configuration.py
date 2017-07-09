@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator.execute import _correct_configuration
+from PyPWA.initializers.configurator.execute import _correct_configuration
 
 template_1 = {
     "predetermined value": ["this", "that", "other"],

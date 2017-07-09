@@ -19,7 +19,7 @@ import os
 import pytest
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data.builtin import sv, kv, gamp, numpy
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import data_loaders
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__), "../../../data/test_docs/temporary_write_data"
@@ -121,7 +121,7 @@ def test_get_plugin_reader_returns_reader(setup_plugin_object):
     """
     assert isinstance(
         setup_plugin_object[0].get_plugin_reader(setup_plugin_object[1]),
-        internals.Reader
+        data_loaders.Reader
     )
 
 
@@ -132,5 +132,5 @@ def test_get_plugin_writer_returns_writer(setup_plugin_object):
     """
     assert isinstance(
         setup_plugin_object[0].get_plugin_writer(TEMP_WRITE_LOCATION),
-        internals.Writer
+        data_loaders.Writer
     )

@@ -25,7 +25,7 @@ import copy
 from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces.internals import Kernel
+from PyPWA.libs.interfaces import kernel
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -35,18 +35,18 @@ __version__ = VERSION
 class SetupKernels(object):
 
     def __init__(self):
-        self.__kernel = None  # type: Kernel
-        self.__packed_kernels = None  # type: List[Kernel]
+        self.__kernel = None  # type: kernel.Kernel
+        self.__packed_kernels = None  # type: List[kernel.Kernel]
 
-    def setup_kernels(self, kernel, packets):
-        # type: (Kernel, List[Dict[str, Any]]) -> List[Kernel]
-        self.__setup_kernel_details(kernel)
+    def setup_kernels(self, process_kernel, packets):
+        # type: (kernel.Kernel, List[Dict[str, Any]]) -> List[kernel.Kernel]
+        self.__setup_kernel_details(process_kernel)
         self.__iterate_over_packets(packets)
         return self.__packed_kernels
 
-    def __setup_kernel_details(self, kernel):
-        # type: (Kernel) -> None
-        self.__kernel = kernel
+    def __setup_kernel_details(self, process_kernel):
+        # type: (kernel.Kernel) -> None
+        self.__kernel = process_kernel
         self.__packed_kernels = []
 
     def __iterate_over_packets(self, packets):
@@ -61,10 +61,10 @@ class SetupKernels(object):
         self.__packed_kernels.append(kernel)
 
     def __get_kernel_copy(self):
-        # type: () -> Kernel
+        # type: () -> kernel.Kernel
         return copy.deepcopy(self.__kernel)
 
-    def __load_data_into_kernel(self, kernel, packet):
-        # type: (Kernel, Dict[str, Any]) -> None
+    def __load_data_into_kernel(self, process_kernel, packet):
+        # type: (kernel.Kernel, Dict[str, Any]) -> None
         for key in packet.keys():
-            setattr(kernel, key, packet[key])
+            setattr(process_kernel, key, packet[key])

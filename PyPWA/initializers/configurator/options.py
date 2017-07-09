@@ -65,7 +65,6 @@ from typing import Union
 
 import enum
 
-from PyPWA.core.shared.interfaces import plugins
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]

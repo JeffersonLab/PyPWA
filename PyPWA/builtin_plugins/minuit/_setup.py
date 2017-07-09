@@ -22,7 +22,7 @@ The padding between config file and optimizer object.
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.minuit import minimization
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

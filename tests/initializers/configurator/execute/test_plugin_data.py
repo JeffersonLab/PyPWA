@@ -1,6 +1,6 @@
 import pytest
 
-from PyPWA.core.configurator.execute import _plugin_data
+from PyPWA.initializers.configurator.execute import _plugin_data
 
 
 config = {

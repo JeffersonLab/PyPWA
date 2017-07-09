@@ -27,7 +27,7 @@ from typing import List, Tuple
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process import _connection_factory
 from PyPWA.builtin_plugins.process import _processes
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import kernel
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -50,13 +50,13 @@ class _ProcessFactory(object):
         self.__process_template = process
         self.__connection_factory = connections
         self.__count = 0
-        self.__kernels = None  # type: List[internals.Kernel]
+        self.__kernels = None  # type: List[kernel.Kernel]
         self.__sends = None  # type: List[Pipe]
         self.__receives = None  # type: List[Pipe]
         self.__processes = None  # type: List[_processes._AbstractProcess]
 
     def build(self, kernels):
-        # type: (List[internals.Kernel]) -> abstract_return
+        # type: (List[kernel.Kernel]) -> abstract_return
         self.__set_basic_details(kernels)
         self.__get_connections()
         self.__prime_process_list()
@@ -64,7 +64,7 @@ class _ProcessFactory(object):
         return self.__processes, self.__receives
 
     def __set_basic_details(self, kernels):
-        # type: (List[internals.Kernel]) -> None
+        # type: (List[kernel.Kernel]) -> None
         self.__count = len(kernels)
         self.__kernels = kernels
 
@@ -89,7 +89,7 @@ class _ProcessFactory(object):
 
 
 def simplex_build(process_kernels):
-    # type: (List[internals.Kernel]) -> simplex_return
+    # type: (List[kernel.Kernel]) -> simplex_return
     factory = _ProcessFactory(
         _processes.Simplex, _connection_factory.simplex_build
     )
@@ -97,7 +97,7 @@ def simplex_build(process_kernels):
 
 
 def duplex_build(process_kernels):
-    # type: (List[internals.Kernel]) -> duplex_return
+    # type: (List[kernel.Kernel]) -> duplex_return
     factory = _ProcessFactory(
         _processes.Duplex, _connection_factory.duplex_build
     )

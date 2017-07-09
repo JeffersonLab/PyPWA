@@ -30,8 +30,8 @@ import io
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared import file_libs
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.files import line_count
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -45,7 +45,7 @@ class GampParticleCount(object):
 
     def get_particle_count(self, file_location):
         particle_count = self.__get_particle_count(file_location)
-        file_length = file_libs.get_file_length(file_location)
+        file_length = line_count.get_file_length(file_location)
         self.__particle_count = int(file_length / particle_count)
 
     @staticmethod
@@ -57,7 +57,7 @@ class GampParticleCount(object):
     def particle_count(self):
         return self.__particle_count
 
-class GampReader(internals.Reader):
+class GampReader(data_loaders.Reader):
 
     def __init__(self, file_location):
         """
@@ -148,7 +148,7 @@ class GampReader(internals.Reader):
         self._file.close()
 
 
-class GampWriter(internals.Writer):
+class GampWriter(data_loaders.Writer):
 
     def __init__(self, file_location):
         """

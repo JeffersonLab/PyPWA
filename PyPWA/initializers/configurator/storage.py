@@ -31,11 +31,11 @@ import logging
 from typing import Any, List
 
 import PyPWA.builtin_plugins
-import PyPWA.core
+import PyPWA.initializers
 import PyPWA.progs
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
-from PyPWA.core.shared import plugin_loader
+from PyPWA.initializers.configurator import options
+from PyPWA.libs import plugin_loader
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -57,7 +57,7 @@ class Storage(object):
     def __init__(self):
         self.__loader = plugin_loader.PluginLoader()
         self.__loader.add_plugin_location(
-            {PyPWA.builtin_plugins, PyPWA.progs, PyPWA.core}
+            {PyPWA.builtin_plugins, PyPWA.progs, PyPWA.initializers}
         )
         self.__index = 0
         self._check_for_updates()

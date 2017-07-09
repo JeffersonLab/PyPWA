@@ -47,11 +47,11 @@ from typing import Any, Dict, List
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator import options as opts
-from PyPWA.core.configurator.execute import _settings
-from PyPWA.core.configurator.execute import _storage_data
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.initializers.configurator import option_tools
+from PyPWA.initializers.configurator import options as opts
+from PyPWA.initializers.configurator.execute import _settings
+from PyPWA.initializers.configurator.execute import _storage_data
+from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -176,7 +176,7 @@ class _SetupMain(object):
         self.__selected_modules = loaded_modules
         self.__plugins = loaded_plugins
         self.__name = loaded_modules.loaded_main_metadata.plugin_name
-        self.__main = None  # type: plugins.Main
+        self.__main = None  # type: common.Main
         self.__setup_main()
 
     def __setup_main(self):
@@ -192,7 +192,7 @@ class _SetupMain(object):
 
     @property
     def main_program(self):
-        # type: () -> plugins.Main
+        # type: () -> common.Main
         return self.__main
 
 

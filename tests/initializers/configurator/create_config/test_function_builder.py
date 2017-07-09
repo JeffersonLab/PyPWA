@@ -2,8 +2,8 @@ import os
 
 import pytest
 
-from PyPWA.core.configurator.create_config import _function_builder
-from PyPWA.core.configurator.create_config import _metadata
+from PyPWA.initializers.configurator.create_config import _function_builder
+from PyPWA.initializers.configurator.create_config import _metadata
 from PyPWA.progs.shell import simulate
 
 

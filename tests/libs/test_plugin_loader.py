@@ -5,8 +5,8 @@ import pytest
 
 from PyPWA import builtin_plugins
 from PyPWA.builtin_plugins import data, process, minuit, nestle
-from PyPWA.core.shared import plugin_loader
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
+from PyPWA.libs import plugin_loader
 
 EXAMPLE_SHEET = os.path.join(
     os.path.dirname(__file__), "example_python_sheet.py"

@@ -39,7 +39,7 @@ the processing module that is picked.
 from PyPWA.progs.shell.fit import intial_setup
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import pyshell_functions
 from PyPWA.progs.shell.fit import pyfit
 

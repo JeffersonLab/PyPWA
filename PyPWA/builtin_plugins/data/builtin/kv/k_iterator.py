@@ -40,20 +40,20 @@ import logging
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared import file_libs
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import data_loaders
+from PyPWA.libs.files import line_count
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class EVILReader(internals.Reader):
+class EVILReader(data_loaders.Reader):
 
     __LOGGER = logging.getLogger(__name__ + ".EVILReader")
 
     def __init__(self, file_location):
-        self.__event_count = file_libs.get_file_length(file_location)
+        self.__event_count = line_count.get_file_length(file_location)
         self.__file = open(file_location)
         self.__column_names = None
         self.__numpy_type = None
@@ -105,7 +105,7 @@ class EVILReader(internals.Reader):
         self.__file.close()
 
 
-class EVILWriter(internals.Writer):
+class EVILWriter(data_loaders.Writer):
 
     def __init__(self, file_location):
         self.__file = open(file_location, "w")
@@ -113,6 +113,7 @@ class EVILWriter(internals.Writer):
         self.__column_names = None
 
     def write(self, data):
+        # type: (numpy.ndarray) -> None
         self.__line = ""
         self.__setup_writer(data)
         self.__process_row(data)
@@ -120,11 +121,12 @@ class EVILWriter(internals.Writer):
         self.__file.write(self.__line)
 
     def __setup_writer(self, data):
+        # type: (numpy.ndarray) -> None
         if not self.__column_names:
             self.__column_names = data.dtype.names
 
     def __process_row(self, data):
-        # type: (int) -> None
+        # type: (numpy.ndarray) -> None
         for column_index, column in enumerate(self.__column_names):
             self.__append_comma(column_index)
             self.__append_column(column, data)
@@ -135,7 +137,7 @@ class EVILWriter(internals.Writer):
             self.__line += ","
 
     def __append_column(self, column_name, data):
-        # type: (str, int) -> None
+        # type: (str, numpy.ndarray) -> None
         string_data = repr(numpy.float64(data[column_name]))
         self.__line += "%s=%s" % (column_name, string_data)
 

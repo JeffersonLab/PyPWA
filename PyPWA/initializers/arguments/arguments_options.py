@@ -35,7 +35,7 @@ from typing import Dict, List
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -68,7 +68,7 @@ class Plugin(Base):
         self._add_arguments()
 
     def get_interface(self, namespace):
-        # type: (Namespace) -> plugins.BasePlugin
+        # type: (Namespace) -> common.BasePlugin
         raise NotImplementedError
 
 
@@ -86,5 +86,5 @@ class Main(Base):
         return self._REQUIRED
 
     def get_interface(self, namespace, plugins):
-        # type: (Namespace, Dict[str, plugins.BasePlugin]) -> plugins.Main
+        # type: (Namespace, Dict[str, common.BasePlugin]) -> common.Main
         raise NotImplementedError

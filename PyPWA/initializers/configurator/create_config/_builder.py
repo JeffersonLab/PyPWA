@@ -29,11 +29,11 @@ from typing import Any, Dict
 import ruamel.yaml.comments
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
-from PyPWA.core.configurator.create_config import _level_processing
-from PyPWA.core.configurator.create_config import _metadata
-from PyPWA.core.configurator.create_config import _override
-from PyPWA.core.configurator.create_config import _questions
+from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator.create_config import _level_processing
+from PyPWA.initializers.configurator.create_config import _metadata
+from PyPWA.initializers.configurator.create_config import _override
+from PyPWA.initializers.configurator.create_config import _questions
 
 __credits__ = ["Mark Jones", "Ryan Wright"]
 __author__ = AUTHOR

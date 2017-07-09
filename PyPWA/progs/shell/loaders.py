@@ -31,14 +31,14 @@ Shared logic between PyFit and PySimulate
 import logging
 import os
 from typing import Optional as Opt
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 import numpy
 from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared import plugin_loader
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs import plugin_loader
+from PyPWA.libs.interfaces import data_loaders
 from PyPWA.progs.shell import shell_types
 
 __credits__ = ["Mark Jones"]
@@ -52,15 +52,15 @@ class DataLoading(object):
 
     def __init__(
             self,
-            parser,  # type: plugins.DataParser
-            data,  # type: str
+            parser,  # type: data_loaders.ParserPlugin
+            file_data,  # type: str
             internal_data=None,  # type: Opt[Dict[str, str]]
             qfactor=None,  # type: Opt[str]
             monte_carlo=None  # type: Opt[str]
     ):
         # type: (...) -> None
         self._parser = parser
-        self._data_file = data
+        self._data_file = file_data
         self._qfactor_file = qfactor
         self._monte_carlo_file = monte_carlo
         if internal_data:
