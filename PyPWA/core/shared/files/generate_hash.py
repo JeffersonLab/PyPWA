@@ -32,60 +32,27 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
+class _HashUtility(object):
+
+    def get_stream_hash(self, file_location, file_hash):
+        # type: (str, hashlib._hashlib.HASH) -> str
+        with open(file_location, 'rb') as stream:
+            self.__update_hash_with_file_contents(stream, file_hash)
+        return self.__convert_hash_to_string(file_hash)
+
+    @staticmethod
+    def __update_hash_with_file_contents(stream, file_hash):
+        # type: (io.FileIO, hashlib._hashlib.HASH) -> None
+        for chunk in iter(lambda: stream.read(4096), b""):
+            file_hash.update(chunk)
+
+    @staticmethod
+    def __convert_hash_to_string(file_hash):
+        # type: (hashlib._hashlib.HASH) -> str
+        return file_hash.hexdigest()
+
+
 def get_sha512_hash(file_location):
     # type: (str) -> str
-    return __get_stream_hash(file_location, hashlib.sha512())
-
-
-def get_sha384_hash(file_location):
-    # type: (str) -> str
-    return __get_stream_hash(file_location, hashlib.sha384())
-
-
-def get_sha256_hash(file_location):
-    # type: (str) -> str
-    return __get_stream_hash(file_location, hashlib.sha256())
-
-
-def get_sha224_hash(file_location):
-    # type: (str) -> str
-    return __get_stream_hash(file_location, hashlib.sha224())
-
-
-def get_sha1_hash(file_location):
-    # type: (str) -> str
-    return __get_stream_hash(file_location, hashlib.sha1())
-
-
-def get_md5_hash(file_location):
-    # type: (str) -> str
-    return __get_stream_hash(file_location, hashlib.md5())
-
-
-def __get_stream_hash(file_location, file_hash):
-    # type: (str, hashlib._hashlib.HASH) -> str
-    stream = __open_stream(file_location)
-    __update_hash(stream, file_hash)
-    __close_stream(stream)
-    return __get_string_from_hash(file_hash)
-
-
-def __open_stream(file_location):
-    # type: (str) -> io.FileIO
-    return open(file_location, "rb")
-
-
-def __update_hash(stream, file_hash):
-    # type: (io.FileIO, hashlib._hashlib.HASH) -> None
-    for chunk in iter(lambda: stream.read(4096), b""):
-        file_hash.update(chunk)
-
-
-def __close_stream(stream):
-    # type: (io.FileIO) -> None
-    stream.close()
-
-
-def __get_string_from_hash(file_hash):
-    # type: (hashlib._hashlib.HASH) -> str
-    return file_hash.hexdigest()
+    hash_utility = _HashUtility()
+    return hash_utility.get_stream_hash(file_location, hashlib.sha512())
