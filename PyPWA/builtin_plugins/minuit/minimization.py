@@ -35,15 +35,14 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.minuit import _save_data
-from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import optimizers
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _ParserObject(internals.OptimizerOptionParser):
+class _ParserObject(optimizers.OptimizerOptionParser):
 
     MULTIPLIER = -1
 
@@ -58,7 +57,7 @@ class _ParserObject(internals.OptimizerOptionParser):
         return parameters_with_values
 
 
-class Minuit(plugins.Optimizer):
+class Minuit(optimizers.Optimizer):
 
     __logger = logging.getLogger(__name__ + ".Minuit")
     __save_data = _save_data.SaveData()

@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Removed previous_event from Process Interface
  - Duplex Pipes are used over Simplex Pipes for Duplex Processes
  - Changes get_file_length to using a binary buffered search.
+ - Moved PyPWA.core.shared to PyPWA.libs
+ - Split interface's plugins and internals to their own separate file based
+   on the interfaces purpose.
 ### Fixed
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.

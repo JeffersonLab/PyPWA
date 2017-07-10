@@ -26,7 +26,7 @@ from typing import List
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -45,11 +45,11 @@ class TemplateDataPlugin(object):
         raise NotImplementedError()
 
     def get_plugin_reader(self, file_location):
-        # type: (str) -> internals.Reader
+        # type: (str) -> data_loaders.Reader
         raise NotImplementedError()
 
     def get_plugin_writer(self, file_location):
-        # type: (str) -> internals.Writer
+        # type: (str) -> data_loaders.Writer
         raise NotImplementedError()
 
     def get_plugin_read_test(self):

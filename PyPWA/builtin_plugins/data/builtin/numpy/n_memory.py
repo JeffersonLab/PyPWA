@@ -17,9 +17,9 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+
 import numpy
 
-from typing import Union
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 

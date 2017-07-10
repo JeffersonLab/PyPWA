@@ -55,19 +55,23 @@ plugins internally.
 Package purposes
 ----------------
 
-- builtin_plugins - This is where each internal plugin is defined, 
-  the optimizers, the processing module, and the builtin parser and reader are
+- builtin_plugins - This is where each included plugins are defined, the
+  optimizers, the processing module, the builtin parser, and iterators are
   all defined here.
 
-- core - The true main of the program, this is where all the interfaces are
-  defined, the plugin loaders, plugin storage modules, and the main execution
-  logic that takes a simple YML file and translates it into executing code.
-
-- entries - The various entry points for each program contained in this 
-  package are here, each function defined here is a starting point for 
+- entries - The various entry points for each program contained in this
+  package are here, each function defined here is a starting point for
   setuptools.
- 
-- progs - This is where PySimulate and PyFit are defined.
+
+- initializers - This is where the loaders for the programs are defined, this
+  either processes and setups the arguments or a configuration file to load
+  and send the needed plugins to the main objects.
+
+- libs - The main libraries for the program. Core file libs, interfaces,
+  and mathematics are defined here.
+
+- progs - This is where the various programs are defined that are provided by
+  PyPWA.
 
 For more information on how each module works, view their documentation
 respectively.

@@ -1,4 +1,4 @@
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 
 class SimpleOptions(options.Plugin):

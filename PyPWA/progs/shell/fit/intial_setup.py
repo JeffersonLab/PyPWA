@@ -21,7 +21,7 @@ Defines how the configurator will interact with PyFit.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.fit import pyfit
 

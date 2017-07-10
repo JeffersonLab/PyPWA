@@ -38,14 +38,14 @@ try:
 except ImportError:
     from Queue import Queue
 
-import numpy
 import logging
-import time
 import threading
+import time
 
-from PyPWA.core.shared.interfaces import internals
+import numpy
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.libs.interfaces import kernel
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -175,7 +175,7 @@ class _OutputThread(threading.Thread):
         self.__send_queue.put(self.__get_current_runtime())
 
 
-class FittingInterface(internals.KernelInterface):
+class FittingInterface(kernel.KernelInterface):
 
     IS_DUPLEX = True
     __LOGGER = logging.getLogger(__name__ + ".FittingInterfaceKernel")

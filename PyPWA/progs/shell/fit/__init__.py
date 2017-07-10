@@ -33,13 +33,13 @@ the processing module that is picked.
 - initial_setup - how the configurator package interfaces the PyFit
   Main object.
 
-- fit - the main object and the likelihood loading object are contained.
+- pyfit - the main object and the likelihood loading object are contained.
 """
 
 from PyPWA.progs.shell.fit import intial_setup
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import pyshell_functions
 from PyPWA.progs.shell.fit import pyfit
 

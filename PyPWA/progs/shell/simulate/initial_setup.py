@@ -24,8 +24,8 @@ can be used by the Simulation package and its various objects.
 from PyPWA.progs.shell.simulate import _libs
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import option_tools
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import option_tools
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.simulate import pysimulate
 

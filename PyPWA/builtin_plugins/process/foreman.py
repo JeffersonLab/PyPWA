@@ -33,21 +33,20 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process import _data_split
 from PyPWA.builtin_plugins.process import _kernel_setup
 from PyPWA.builtin_plugins.process import _process_factory
-from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import kernel
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _ProcessInterface(internals.ProcessInterface):
+class _ProcessInterface(kernel.ProcessInterface):
 
     __LOGGER = logging.getLogger(__name__ + "._ProcessInterface")
 
     def __init__(
             self,
-            interface_kernel,  # type: internals.KernelInterface
+            interface_kernel,  # type: kernel.KernelInterface
             process_com,  # type: List[multiprocessing.Pipe]
             processes  # type: List[multiprocessing.Process]
     ):
@@ -68,7 +67,7 @@ class _ProcessInterface(internals.ProcessInterface):
     def __ask_processes_to_stop(self):
         for connection in self.__connections:
             self.__LOGGER.debug("Attempting to kill processes.")
-            connection.send(internals.ProcessCodes.SHUTDOWN)
+            connection.send(kernel.ProcessCodes.SHUTDOWN)
 
     def __terminate_processes(self):
         self.__LOGGER.debug("Terminating Processes is Risky!")
@@ -80,7 +79,7 @@ class _ProcessInterface(internals.ProcessInterface):
         return self.__processes[0].is_alive()
 
 
-class CalculationForeman(plugins.KernelProcessing):
+class CalculationForeman(kernel.KernelProcessing):
 
     __LOGGER = logging.getLogger(__name__ + ".CalculationForeman")
 
@@ -97,23 +96,25 @@ class CalculationForeman(plugins.KernelProcessing):
     def main_options(
             self,
             data,  # type: Dict[str, Any]
-            kernel,  # type: internals.Kernel
-            internal_interface  # type: internals.KernelInterface
+            process_kernel,  # type: kernel.Kernel
+            internal_interface  # type: kernel.KernelInterface
     ):
         # type: (...) -> None
-        kernels = self.__setup_kernels(data, kernel)
+        kernels = self.__setup_kernels(data, process_kernel)
         self.__make_processes(kernels, internal_interface.IS_DUPLEX)
         self.__start_processes()
         self.__build_interface(internal_interface)
 
-    def __setup_kernels(self, data, kernel):
-        # type: (Dict[str, Any], internals.Kernel) -> List[internals.Kernel]
+    def __setup_kernels(self, data, process_kernel):
+        # type: (Dict[str, Any], kernel.Kernel) -> List[kernel.Kernel]
         process_data = self.__splitter.split(data)
-        kernels = self.__kernel_setup.setup_kernels(kernel, process_data)
+        kernels = self.__kernel_setup.setup_kernels(
+            process_kernel, process_data
+        )
         return kernels
 
     def __make_processes(self, kernels, duplex):
-        # type: (List[internals.Kernel], bool) -> None
+        # type: (List[kernel.Kernel], bool) -> None
         if duplex:
             self.__LOGGER.debug("Building Duplex Processes.")
             processes, connections = _process_factory.duplex_build(kernels)

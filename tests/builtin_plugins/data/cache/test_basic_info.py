@@ -34,7 +34,7 @@ def mock_hash(monkeypatch):
         return SIMPLE_STRING
 
     monkeypatch.setattr(
-        "PyPWA.core.shared.generate_hash.get_sha512_hash",
+        "PyPWA.libs.files.generate_hash.get_sha512_hash",
         returns_string
     )
 
@@ -45,7 +45,7 @@ def mock_cache_uri(monkeypatch):
         return FAKE_LOCATION
 
     monkeypatch.setattr(
-        "PyPWA.core.shared.data_locator.get_cache_uri",
+        "PyPWA.libs.files.data_locator.get_cache_uri",
         returns_string
     )
 

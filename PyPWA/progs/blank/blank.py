@@ -22,14 +22,14 @@ A simple blank module that exists purely for testing.
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import memory
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Blank(plugins.Main):
+class Blank(common.Main):
 
     def __init__(self, data_parser, option1, option2):
         # type: (memory.Memory, int, str) -> None

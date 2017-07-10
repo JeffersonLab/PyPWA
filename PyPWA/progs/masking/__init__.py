@@ -25,7 +25,7 @@ another.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.arguments import arguments_options
+from PyPWA.initializers.arguments import arguments_options
 from PyPWA.progs.masking import masking
 
 __credits__ = ["Mark Jones"]

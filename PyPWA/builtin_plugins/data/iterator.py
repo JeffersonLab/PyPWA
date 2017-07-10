@@ -26,15 +26,14 @@ import numpy
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import _plugin_finder
 from PyPWA.builtin_plugins.data import exceptions
-from PyPWA.core.shared.interfaces import plugins
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Iterator(plugins.DataIterator):
+class Iterator(data_loaders.IteratorPlugin):
 
     __LOGGER = logging.getLogger(__name__ + ".Iterator")
 
@@ -44,26 +43,26 @@ class Iterator(plugins.DataIterator):
         self.__plugin_fetcher = _plugin_finder.PluginSearch(user_plugin)
 
     def return_reader(self, file_location):
-        # type: (str) -> internals.Reader
+        # type: (str) -> data_loaders.Reader
         try:
             return self.__get_reader_plugin(file_location)
         except exceptions.UnknownData as Error:
             self.__error_management(Error)
 
     def __get_reader_plugin(self, file_location):
-        # type: (str) -> internals.Reader
+        # type: (str) -> data_loaders.Reader
         plugin = self.__plugin_fetcher.get_read_plugin(file_location)
         return plugin.get_plugin_reader(file_location)
 
     def return_writer(self, file_location, data):
-        # type: (str, numpy.ndarray) -> internals.Writer
+        # type: (str, numpy.ndarray) -> data_loaders.Writer
         try:
             return self.__get_writer_plugin(file_location, data)
         except exceptions.UnknownData as Error:
             self.__error_management(Error)
 
     def __get_writer_plugin(self, file_location, data):
-        # type: (str, numpy.ndarray) -> internals.Writer
+        # type: (str, numpy.ndarray) -> data_loaders.Writer
         plugin = self.__plugin_fetcher.get_write_plugin(file_location, data)
         return plugin.get_plugin_writer(file_location)
 

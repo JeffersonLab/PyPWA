@@ -32,15 +32,16 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import internals
 from PyPWA.progs.shell import shell_types
+from PyPWA.progs.shell import loaders
+from PyPWA.libs.interfaces import kernel
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Likelihood(internals.Kernel):
+class Likelihood(kernel.Kernel):
 
     def __init__(self, setup_function=None):
         # type: (shell_types.users_setup) -> None

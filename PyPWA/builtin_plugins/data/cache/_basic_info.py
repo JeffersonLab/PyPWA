@@ -24,8 +24,8 @@ import logging
 import os
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared import data_locator
-from PyPWA.core.shared import generate_hash
+from PyPWA.libs.files import data_locator
+from PyPWA.libs.files import generate_hash
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
