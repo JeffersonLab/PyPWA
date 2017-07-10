@@ -17,24 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-============
-Main Objects
-============
-
-This is where the main logic of the programs is defined. Each folder here
-represents a core program and contains the main logic required for the
-program to function.
-
-Each of the programs act as a plugin, and their metadata is stored in each
-of their __init__.py files.
-
-- blank - This is a test module to verify that the entry parsers are
-  operating as expected
-- shell - This contains the PyFit and PySimulate programs, along with shared
-  logic between the two programs.
-
-For data loading, optimizers, and multiprocessing, look in
-PyPWA.builtin_plugins
+PyFit, PySimulate, and shared libraries
+---------------------------------------
+- fit - The package that contains PyFit
+- simulate - The package that contains PySimulate
+- loaders - Module that loads the data and functions for both programs
+- pyshell_functions - Contains the example functions for PyFit and PySimulate
+- shell types - The static typing information for the expected user's
+  functions.
 """
 
 from PyPWA import AUTHOR, VERSION

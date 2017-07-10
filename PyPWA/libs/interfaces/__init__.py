@@ -27,11 +27,15 @@ the plugins should interact with the initializer.
     Information and the needed interfaces to interact with an 
     initializer should be stated inside the respective initializer.
 
-- internals - This contains how the internal objects and information passed 
-  around by the main objects should be defined.
-  
-- plugins - This contains information on the methods that are expected to 
-  exist inside the plugin objects.
+- common - Contains the Plugins Enumeration, Base Plugin Interface, and Main
+  interface.
+
+- data_loaders - Contains the Reader, Writer, Parser, and Iterator interfaces.
+
+- Kernel - Contains the Kernels, interfaces, and enumerations for kernel
+  based processing
+
+- optimizers - Contains the interfaces for defining a new optimizer.
 """
 
 from PyPWA import AUTHOR, VERSION

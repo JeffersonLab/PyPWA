@@ -17,14 +17,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-All core logic is located here. 
---------------------------------------------
+Initializers for PyPWA's Programs
+---------------------------------
 
-- shared - shared is where the universal interfaces and libs are located, 
-  the plugin loader, the core interfaces that define how plugins should 
-  operate, logging, hash generation, and data location api are all located 
-  here.
-  
+- Arguments - An initializer and plugin setup entry package that uses
+  arguments to setup and run the program.
+
 - configurator - This is the package that takes all the plugin's data and 
   converts it to YML format, then on run takes that YML file and converts it
   to executing code.

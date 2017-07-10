@@ -17,8 +17,8 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Miscellaneous File Libraries
-----------------------------
+Line Count Utility
+------------------
 - _FileLength - An object that searches files in binary to quickly determine
   the length of a file.
 - get_file_length - The function wrapping _FileLength

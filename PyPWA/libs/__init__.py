@@ -29,8 +29,9 @@ data location, and such.
   the program. These interfaces actually define how the objects should 
   interact with each other instead.
    
-- data_locator - A simple module that searches for a location for data. 
-  Supports data, cache, logging, and configuration.
+- files - A package containing a collection of modules whose focus is handling
+  file data for the package. This includes hashing, locations, and file
+  length.
   
 - initial_logging - Controls how logging works in PyPWA. Currently is 
   limited to string logging.

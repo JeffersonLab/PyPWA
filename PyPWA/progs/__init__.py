@@ -17,19 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Shell Modules
--------------
-Here is where PyFit and PySimulate are defined for PyPWA, along with any
-programs that build off of those two modules.
+Program modules
+---------------
+All programs, GUI, scripts, or otherwise, are defined somewhere in this
+package.
 
-- fit - the package that dictates how PyFit, PyLikelihood,
-  and PyChiSquared operate
-- simulate - defines how PySimulate, PyIntensities, and PyWeighting operate.
-- pyshell_functions - Defines the output functions for PyShell applications.
-- loaders - Loads the data and functions for PyShell programs in a way that
-  should work with either program.
-- shell_types - Defines some static typing information for more complicated
-  data types inside the shell programs.
+- blank - An empty program for testing initializers.
+- masking - The masking and data translation utility
+- shell - Where PyFit and PySimulate are defined.
 """
 
 from PyPWA import AUTHOR, VERSION
