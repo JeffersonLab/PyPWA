@@ -47,7 +47,10 @@ def data_with_qfactor():
 
 @pytest.fixture
 def data_without_qfactor():
-    loader = loaders.DataLoading(PARSER, DATA, monte_carlo=MONTE_CARLO)
+    loader = loaders.DataLoading(
+        PARSER, DATA, monte_carlo=MONTE_CARLO,
+        internal_data={'quality factor': 'qfactor'}
+    )
     return loader
 
 
