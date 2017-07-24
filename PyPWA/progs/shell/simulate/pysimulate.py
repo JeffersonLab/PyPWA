@@ -18,7 +18,7 @@
 
 """
 The Simulation program, this object simply routes the data around depending
-on the type of program execution passed to it, the actual logic for the 
+on the type of program execution passed to it, the actual logic for the
 program exists in _libs.py
 """
 
@@ -110,7 +110,7 @@ class Simulator(common.Main):
         self.__write_intensity_data()
 
     def __rejection_program(self):
-        self.__intensity_array = self.__data_loader.data
+        self.__intensity_array = self.__data_loader.single_array
         self.__setup_rejection_calc()
         self.__rejection_calc.rejection_method()
         self.__write_rejection_data()

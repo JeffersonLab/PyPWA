@@ -17,19 +17,20 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-PyFit, PySimulate, and shared libraries
----------------------------------------
-- fit - The package that contains PyFit
-- simulate - The package that contains PySimulate
-- loaders - Package that loads the data and functions for both programs
-- pyshell_functions - Contains the example functions for PyFit and PySimulate
-- shell types - The static typing information for the expected user's
-  functions.
+Data Loading for PyShell
+------------------------
+This package loads and filters data for the PyShell.
+
+- _bin_filter - This filters all needed data types to remove events that are
+  associated with a Bin of zero
+- _dataset_storage - A simple data structure object that stores all of the
+  loaded data for the loader
+- _file_handling - This actually parses the files for the Data Loader
+- _setup_dataset - This moves around the loaded data to its correct place.
+- load - The main entry point for the data_loader.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.progs.shell.fit import ShellFitting
-from PyPWA.progs.shell.simulate import ShellSimulation
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

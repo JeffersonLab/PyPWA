@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Process Plugin support for List Data
  - Adds Exception handling to Processes
  - PyMask support for multiple masking files.
+ - PyFit will now filter out events if the Bin value is 0
 ### Changed
  - Removed previous_event from Process Interface
  - Duplex Pipes are used over Simplex Pipes for Duplex Processes
@@ -17,6 +18,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Moved PyPWA.core.shared to PyPWA.libs
  - Split interface's plugins and internals to their own separate file based
    on the interfaces purpose.
+ - PyFit no longer assumes bins are named 'BinN' you must specify Bin names 
+   in 'internal data'.
 ### Fixed
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.
