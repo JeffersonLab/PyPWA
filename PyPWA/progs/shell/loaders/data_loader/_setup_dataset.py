@@ -17,7 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Moves the data in the dataset to its correct positions.
+-------------------------------------------------------
+- _InternalDataExtractor - Takes the data and extracts columns from it,
+  all while remove those columns from the original data.
+- _QFactorSetup - Sets up the QFactor data using either the source data
+  file or a separate data file.
+- LoadData - Main entry point, extracts and loads all the data into the
+  dateset object and returns that object.
 """
 
 import logging
@@ -104,12 +111,14 @@ class _QFactorSetup(object):
         self.__extractor = extraction
 
     def load_data(self):
+        # type: () -> numpy.ndarray
         if isinstance(self.__data_loader.qfactor, numpy.ndarray):
             return self.__data_loader.qfactor
         else:
             return self.__extracted_data()
 
     def __extracted_data(self):
+        # type: () -> numpy.ndarray
         return self.__extractor.extract("quality factor")
 
 
@@ -138,6 +147,7 @@ class LoadData(object):
         self.__storage = _dataset_storage.DataStorage()
 
     def load(self):
+        # type: () -> _dataset_storage.DataStorage
         if isinstance(self.__data_handler.data, numpy.ndarray):
             self.__process_columns()
         self.__process_data()

@@ -17,7 +17,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Loads functions for PyShell
+---------------------------
+- _ProcessFunctionLoader - Loads the users processing function
+- _SetupFunctionLoader - Loads the users setup function
+- FunctionLoader - Calls the Process and Setup Function Loaders and exposes
+  their results.
 """
 
 import logging

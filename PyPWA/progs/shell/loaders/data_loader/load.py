@@ -17,7 +17,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Data Loading, the main place to load data for the Shell
+-------------------------------------------------------
+Loads all the data from setup_dataset and filters it with _bin_filter,
+then exposes that through it's properties.
 """
 
 import logging

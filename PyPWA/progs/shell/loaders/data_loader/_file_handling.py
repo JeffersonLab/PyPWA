@@ -17,7 +17,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Loads files for the Data Loader
+-------------------------------
+- _FileLoader - Actually parses the files if a filename is provided.
+- DataHandler - Takes all loaded data and exposes it through its properties.
 """
 
 import logging
@@ -38,6 +41,7 @@ class _FileLoader(object):
     __LOGGER = logging.getLogger(__name__ +"._FileLoader")
 
     def __init__(self, data_parser):
+        # type: (data_loaders.ParserPlugin) -> None
         self.__data_parser = data_parser
 
     def load_file(self, file):
@@ -72,6 +76,7 @@ class DataHandler(object):
         self.__qfactor = self.__file_loader.load_file(qfactor)
 
     def write(self, file, array):
+        # type: (str, numpy.ndarray) -> None
         self.__data_parser.write(file, array)
 
     @property

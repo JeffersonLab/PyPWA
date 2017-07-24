@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+A simple dataset to store the loaded data types.
 """
 
 from PyPWA import AUTHOR, VERSION

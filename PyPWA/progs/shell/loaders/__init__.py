@@ -17,7 +17,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Data and Function Loading for the PyShell
+-----------------------------------------
+- data_loader - Loads in all data for PyShell
+- function_loading - loads in the users functions.
 """
 
 from PyPWA import AUTHOR, VERSION

@@ -17,7 +17,17 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Data Loading for PyShell
+------------------------
+This package loads and filters data for the PyShell.
 
+- _bin_filter - This filters all needed data types to remove events that are
+  associated with a Bin of zero
+- _dataset_storage - A simple data structure object that stores all of the
+  loaded data for the loader
+- _file_handling - This actually parses the files for the Data Loader
+- _setup_dataset - This moves around the loaded data to its correct place.
+- load - The main entry point for the data_loader.
 """
 
 from PyPWA import AUTHOR, VERSION

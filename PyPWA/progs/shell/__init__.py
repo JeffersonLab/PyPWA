@@ -21,7 +21,7 @@ PyFit, PySimulate, and shared libraries
 ---------------------------------------
 - fit - The package that contains PyFit
 - simulate - The package that contains PySimulate
-- loaders - Module that loads the data and functions for both programs
+- loaders - Package that loads the data and functions for both programs
 - pyshell_functions - Contains the example functions for PyFit and PySimulate
 - shell types - The static typing information for the expected user's
   functions.

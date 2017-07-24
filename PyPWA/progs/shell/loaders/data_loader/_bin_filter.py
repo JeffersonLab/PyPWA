@@ -17,7 +17,13 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+Logic for filtering out events by impossible bins
+-------------------------------------------------
 
+- _FilterData - Does the actual filtering of the dataset.
+- BinFilter - Quickly searches the dataset for bins of zeros and passes the
+  dataset to the Filter object if it finds any, otherwise just passes the
+  dataset along.
 """
 
 import warnings
@@ -34,7 +40,7 @@ __version__ = VERSION
 class _FilterDataset(object):
 
     __DATASET_FILTER_NAMES = [
-        'data', 'binned', 'qfactor', 'expected values', 'event errors'
+        'data', 'binned', 'qfactor', 'expected_values', 'event_errors'
     ]
 
     def __init__(self):
@@ -95,7 +101,7 @@ class BinFilter(object):
         # type: (_dataset_storage.DataStorage) -> None
         number_of_zero_bins = len(dataset.binned[dataset.binned == 0.])
         warnings.warn(
-            "Removing %f events from dataset where bin value is zero." %
+            "Removing %d event(s) from dataset where bin value is zero." %
             number_of_zero_bins
         )
 
