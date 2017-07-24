@@ -25,10 +25,9 @@ from typing import Dict
 from typing import Optional as Opt
 
 import numpy
-from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import data_loaders
 from PyPWA.progs.shell.loaders.data_loader import _dataset_storage
 from PyPWA.progs.shell.loaders.data_loader import _file_handling
 
@@ -55,7 +54,7 @@ class _InternalDataExtractor(object):
         return isinstance(self.__source_array, numpy.ndarray)
 
     def extract(self, name):
-        # type: (str) -> ndarray
+        # type: (str) -> numpy.ndarray
         if name in self.__internal_names and self.__array_exists():
             return self.__process_column_name(self.__internal_names[name])
         else:
@@ -73,13 +72,13 @@ class _InternalDataExtractor(object):
         return column in self.__column_names
 
     def __extract_column_from_array(self, column):
-        # type: (str) -> ndarray
+        # type: (str) -> numpy.ndarray
         extracted_data = self.__extract_array_from_source_array(column)
         self.__trim_extracted_column_from_source_array()
         return extracted_data
 
     def __extract_array_from_source_array(self, column):
-        # type: (str) -> ndarray
+        # type: (str) -> numpy.ndarray
         self.__column_names.remove(column)
         return self.__source_array[column]
 
@@ -87,13 +86,13 @@ class _InternalDataExtractor(object):
         self.__source_array = self.__source_array[self.__column_names]
 
     def __empty_array(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         empty_array = numpy.ones(len(self.__source_array))
         return empty_array
 
     @property
     def trimmed_array(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__source_array
 
 
@@ -120,7 +119,7 @@ class LoadData(object):
 
     def __init__(
             self,
-            parser,  # type: plugins.DataParser
+            parser,  # type: data_loaders.ParserPlugin
             data,  # type: str
             internal_data,  # type: Dict[str, str]
             qfactor=None,  # type: Opt[str]

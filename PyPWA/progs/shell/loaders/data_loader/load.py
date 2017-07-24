@@ -24,10 +24,10 @@ import logging
 from typing import Dict, Union
 from typing import Optional as Opt
 
-from numpy import ndarray
+import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import data_loaders
 from PyPWA.progs.shell.loaders.data_loader import _bin_filter
 from PyPWA.progs.shell.loaders.data_loader import _setup_dataset
 from PyPWA.progs.shell.loaders.data_loader import _dataset_storage
@@ -43,7 +43,7 @@ class DataLoading(object):
 
     def __init__(
             self,
-            parser,  # type: plugins.DataParser
+            parser,  # type: data_loaders.ParserPlugin
             data,  # type: str
             internal_data=None,  # type: Opt[Dict[str, str]]
             qfactor=None,  # type: Opt[str]
@@ -66,40 +66,40 @@ class DataLoading(object):
         self.__storage = self.__filter(storage)
 
     def write(self, file_location, data):
-        # type: (str, ndarray) -> None
+        # type: (str, numpy.ndarray) -> None
         self.__loader.write(file_location, data)
 
     @property
     def data(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__storage.data
 
     @property
     def qfactor(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__storage.qfactor
 
     @property
     def monte_carlo(self):
-        # type: () -> Union[ndarray, None]
+        # type: () -> Union[numpy.ndarray, None]
         return self.__storage.monte_carlo
 
     @property
     def binned(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__storage.binned
 
     @property
     def event_errors(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__storage.event_errors
 
     @property
     def expected_values(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__storage.expected_values
 
     @property
     def single_array(self):
-        # type: () -> ndarray
+        # type: () -> numpy.ndarray
         return self.__storage.single_array

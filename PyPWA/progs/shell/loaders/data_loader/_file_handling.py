@@ -23,10 +23,10 @@
 import logging
 from typing import Optional as Opt
 
-from numpy import ndarray
+import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -41,12 +41,12 @@ class _FileLoader(object):
         self.__data_parser = data_parser
 
     def load_file(self, file):
-        # type: (Opt[str]) -> Opt[ndarray]
+        # type: (Opt[str]) -> Opt[numpy.ndarray]
         if file:
             return self.__try_to_load_file(file)
 
     def __try_to_load_file(self, file):
-        # type: (str) -> Opt[ndarray]
+        # type: (str) -> Opt[numpy.ndarray]
         try:
             return self.__data_parser.parse(file)
         except Exception as error:
@@ -57,8 +57,14 @@ class DataHandler(object):
 
     __LOGGER = logging.getLogger(__name__ + "._DataFileLoader")
 
-    def __init__(self, data_parser, data, monte_carlo, qfactor):
-        # type: (plugins.DataParser, Opt[str], Opt[str], Opt[str]) -> None
+    def __init__(
+            self,
+            data_parser,  # type: data_loaders.ParserPlugin
+            data,  # type: Opt[str]
+            monte_carlo,  # type: Opt[str]
+            qfactor  # type: Opt[str]
+    ):
+        # type: (...) -> None
         self.__data_parser = data_parser
         self.__file_loader = _FileLoader(data_parser)
         self.__data = self.__file_loader.load_file(data)
@@ -70,7 +76,7 @@ class DataHandler(object):
 
     @property
     def data(self):
-        # type: () -> Opt[ndarray]
+        # type: () -> Opt[numpy.ndarray]
         if self.__data_is_columned():
             return self.__data
 
@@ -80,16 +86,16 @@ class DataHandler(object):
 
     @property
     def monte_carlo(self):
-        # type: () -> Opt[ndarray]
+        # type: () -> Opt[numpy.ndarray]
         return self.__monte_carlo
 
     @property
     def qfactor(self):
-        # type: () -> Opt[ndarray]
+        # type: () -> Opt[numpy.ndarray]
         return self.__qfactor
 
     @property
     def single_array(self):
-        # type: () -> Opt[ndarray]
+        # type: () -> Opt[numpy.ndarray]
         if not self.__data_is_columned():
             return self.__data

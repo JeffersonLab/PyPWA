@@ -17,22 +17,14 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Shared logic between PyFit and PySimulate
------------------------------------------
 
-- DataLoading - takes a data parsing object and use it to load data
-  for the two programs in a way that the data can be easily repacked into
-  processes.
-
-- FunctionLoader - used to load the setup and processing functions in a
-  predictable way.
 """
 
 import logging
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared import plugin_loader
+from PyPWA.libs import plugin_loader
 from PyPWA.progs.shell import shell_types
 
 __credits__ = ["Mark Jones"]
