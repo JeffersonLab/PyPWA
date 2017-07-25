@@ -116,7 +116,8 @@ def data_with_internal_names():
 
 
 def test_qfactor_sum_with_internal_names(data_with_internal_names):
-    assert numpy.sum(data_with_internal_names.qfactor) == 3.5613567269141941
+    qfactor_sum = numpy.sum(data_with_internal_names.qfactor)
+    numpy.testing.assert_approx_equal(qfactor_sum, 3.5613567269141941)
 
 
 def test_binned_sum_with_internal_names(data_with_internal_names):
@@ -124,10 +125,8 @@ def test_binned_sum_with_internal_names(data_with_internal_names):
 
 
 def test_error_sum_with_internal_names(data_with_internal_names):
-    numpy.testing.assert_approx_equal(
-        numpy.sum(data_with_internal_names.event_errors),
-        4.088662060902655
-    )
+    error_sum = numpy.sum(data_with_internal_names.event_errors)
+    numpy.testing.assert_approx_equal(error_sum, 4.088662060902655)
 
 
 def test_expected_sum_with_internal_names(data_with_internal_names):
