@@ -3,7 +3,7 @@ import pytest
 
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.fit.likelihoods import chi_squared
-
+from PyPWA.libs.interfaces import optimizers
 
 class Functions(loaders.FunctionLoader):
 
@@ -75,7 +75,9 @@ def binned():
 @pytest.fixture()
 def binned_loader():
     likelihood_loader = chi_squared.ChiLikelihood()
-    likelihood_loader.setup_likelihood(BinnedData(), Functions())
+    likelihood_loader.setup_likelihood(
+        BinnedData(), Functions(), optimizers.OptimizerTypes.MINIMIZER
+    )
     return likelihood_loader
 
 
@@ -127,7 +129,9 @@ def errors():
 @pytest.fixture()
 def un_binned_loader():
     likelihood_loader = chi_squared.ChiLikelihood()
-    likelihood_loader.setup_likelihood(UnBinnedData(), Functions())
+    likelihood_loader.setup_likelihood(
+        UnBinnedData(), Functions(), optimizers.OptimizerTypes.MAXIMIZER
+    )
     return likelihood_loader
 
 
@@ -151,7 +155,7 @@ def un_binned_chi_value(un_binned_loader, data, expected, errors):
 def test_un_binned_value_matches_expected(
         un_binned_chi_value, data, expected, errors
 ):
-    value = numpy.sum(((data + 1) - expected)**2 / errors)
+    value = -1. * numpy.sum(((data + 1) - expected)**2 / errors)
     assert value == un_binned_chi_value
 
 
@@ -162,4 +166,6 @@ Test No Likelihood Found
 def test_no_binned_or_errors():
     likelihood_loader = chi_squared.ChiLikelihood()
     with pytest.raises(ValueError):
-        likelihood_loader.setup_likelihood(BaseData(), Functions())
+        likelihood_loader.setup_likelihood(
+            BaseData(), Functions(), optimizers.OptimizerTypes.MAXIMIZER
+        )

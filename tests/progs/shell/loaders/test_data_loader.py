@@ -25,7 +25,6 @@ MONTE_CARLO = os.path.join(
 )
 
 # Data with embedded internal names
-
 INTERNAL_NAMES = os.path.join(
     os.path.dirname(__file__), "../../../data/shell/data/internal_names.csv"
 )

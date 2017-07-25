@@ -62,7 +62,7 @@ class ShellFitting(options.Main):
     ]
 
     default_options = {
-        "likelihood type": "likelihood",
+        "likelihood type": "log-likelihood",
         "generated length": 10000,
         "function's location": "/path/to/the/function.py",
         "processing name": "processing_function",
