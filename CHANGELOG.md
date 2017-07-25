@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.
  - The ChiSquared will no longer be multiplied by -1 when being minimized.
+ - Data Parser's Cache would crash on very large files.
 ### Security
 
 

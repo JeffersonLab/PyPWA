@@ -87,7 +87,10 @@ class DataHandler(object):
 
     def __data_is_columned(self):
         # type: () -> bool
-        return bool(self.__data.dtype.names)
+        if isinstance(self.__data, numpy.ndarray):
+            return bool(self.__data.dtype.names)
+        else:
+            return False
 
     @property
     def monte_carlo(self):
