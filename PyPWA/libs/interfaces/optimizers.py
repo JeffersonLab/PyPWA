@@ -20,6 +20,7 @@
 Optimizers for PyPWA
 --------------------
 - LikelihoodTypes - Enumeration of the different likelihood types.
+- OptimizerTypes - Enumeration of the different optimizer types.
 - Optimizer - Main Plugin for Optimizers
 - OptimizerOptionParser - Takes the parameters sent via the optimizer and
   converts it to something more ingestible by the user's functions.
@@ -43,7 +44,16 @@ class LikelihoodTypes(enum.Enum):
     LOG_LIKELIHOOD = 3
 
 
+class OptimizerTypes(enum.Enum):
+    MINIMIZER = 1
+    MAXIMIZER = 2
+
+
 class Optimizer(common.BasePlugin):
+
+    # Optimizer Type needs to be set so the likelihoods can adapt to the
+    # sort of calculation being done.
+    OPTIMIZER_TYPE = None  # type: OptimizerTypes
 
     def main_options(self, calc_function, fitting_type=None):
         # type: (Callable[[Any], Any], Opt[LikelihoodTypes]) -> None
@@ -101,9 +111,6 @@ class Optimizer(common.BasePlugin):
 
 class OptimizerOptionParser(object):
 
-    # A simple multiplier that will be multiplied to the final result of
-    # every run call.
-    MULTIPLIER = 1
 
     def convert(self, passed_value):
         # type: (Any) -> Any

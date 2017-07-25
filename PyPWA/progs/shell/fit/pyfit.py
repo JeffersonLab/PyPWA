@@ -19,10 +19,8 @@
 """
 PyFit, a flexible python fitting utility.
 -----------------------------------------
-
-- _LikelihoodPackager - a simple object that searches the 'likehoods'
+- _LikelihoodPackager - a simple object that searches the 'likelihoods'
   package for the user's selected likelihood.
-
 - Fitting - defines the actual main logic for the program.
 """
 
@@ -123,6 +121,7 @@ class Fitting(common.Main):
 
         self.__likelihood.setup_likelihood(
             self.__data_loader, self.__function_loader,
+            self.__optimizer.OPTIMIZER_TYPE,
             {"generated length": self.__generated_length}
         )
 
@@ -137,7 +136,7 @@ class Fitting(common.Main):
 
     def __start_optimizer(self):
         self.__optimizer.main_options(
-            self.__interface.run, self.__likelihood_type
+            self.__interface.run, self.__likelihood.LIKELIHOOD_TYPE
         )
         self.__optimizer.start()
 

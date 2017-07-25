@@ -19,15 +19,15 @@
 """
 Processing and Output
 ---------------------
-This is where the processing interface is defined along with the automated 
+This is where the processing interface is defined along with the automated
 output from the the parallel thread.
 
 - _ThreadInterface - The object between the main thread and the output thread.
 
 - _OutputThread - The actual output thread, its started with each call to the
   likelihood. Has a 1hz output rate.
-  
-- FittingInterface - The interface between the Likelihood Kernels and the 
+
+- FittingInterface - The interface between the Likelihood Kernels and the
   optimizer module.
 """
 
@@ -203,8 +203,7 @@ class FittingInterface(kernel.KernelInterface):
         values = numpy.zeros(shape=len(communication))
         for index, pipe in enumerate(communication):
             values[index] = pipe.recv()
-        final_value = numpy.sum(values)
-        self.__last_value = self.__parameter_parser.MULTIPLIER * final_value
+        self.__last_value = numpy.sum(values)
 
     def __log_final_value(self):
         self.__LOGGER.info("Final Value is: %f15" % self.__last_value)
