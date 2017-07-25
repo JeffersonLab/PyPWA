@@ -111,7 +111,7 @@ class WriteCache(_template.WriteInterface):
     def write_cache(self, data):
         # type: (Any) -> None
         self.__set_packaged_data(data)
-        self.__write_cache_data()
+        self.__try_to_write_cache()
 
     def __set_packaged_data(self, data):
         # type: (Any) -> None
