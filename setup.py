@@ -19,9 +19,9 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "2.2.0-dev"
+__version__ = "2.2.0"
 __email__ = "pypwa@jlab.org"
-__status__ = "development"
+__status__ = "stable"
 
 
 configurator_entry = "PyPWA.entries.configurator"
