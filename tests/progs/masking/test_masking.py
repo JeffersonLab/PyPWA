@@ -90,7 +90,7 @@ def patch_args_double_mask(monkeypatch, request, correct_argv, cleanup_temp):
 
 
 def test_masking_utility_has_correct_number_of_lines(patch_args_double_mask):
-    assert line_count.get_file_length(TEMP_FILE) == 3
+    assert line_count.get_file_length(TEMP_FILE) == 1
 
 
 """
@@ -114,7 +114,7 @@ def patch_args_double_mask_or(
 
 
 def test_masking_or(patch_args_double_mask_or):
-    assert line_count.get_file_length(TEMP_FILE) == 1
+    assert line_count.get_file_length(TEMP_FILE) == 3
 
 
 """

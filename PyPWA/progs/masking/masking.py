@@ -159,6 +159,6 @@ class Masking(common.Main):
     def __mask(self):
         data_with_progress = tqdm.tqdm(self.__data.reader, unit="events")
         for index, value in enumerate(data_with_progress):
-            if not self.__data.mask[index]:
+            if self.__data.mask[index]:
                 self.__data.writer.write(value)
         self.__data.writer.close()
