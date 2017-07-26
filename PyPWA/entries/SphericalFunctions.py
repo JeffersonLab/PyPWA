@@ -2,7 +2,6 @@ import spherical_functions
 import numpy
 import re
 
-
 class _BreakupData(object):
 
     def __init__(self, data):
@@ -53,8 +52,3 @@ class SphericalHarmonics(object):
 
     def get_results(self):
         return self.__results_sum
-
-if __name__ == "__main__":
-    spherical_harmonics_calculation = SphericalHarmonics(0, 0, 'angles.txt')
-    print(spherical_harmonics_calculation.get_results())
-
