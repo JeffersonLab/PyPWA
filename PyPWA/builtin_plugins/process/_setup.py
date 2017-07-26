@@ -18,7 +18,7 @@
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.process import foreman
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

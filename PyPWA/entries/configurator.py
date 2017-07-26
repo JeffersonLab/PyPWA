@@ -22,7 +22,7 @@ package. Each function is a program.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator.start import StartProgram
+from PyPWA.initializers.configurator.start import StartProgram
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

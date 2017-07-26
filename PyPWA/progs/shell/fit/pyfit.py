@@ -19,23 +19,22 @@
 """
 PyFit, a flexible python fitting utility.
 -----------------------------------------
-
-- _LikelihoodPackager - a simple object that searches the 'likehoods'
+- _LikelihoodPackager - a simple object that searches the 'likelihoods'
   package for the user's selected likelihood.
-
 - Fitting - defines the actual main logic for the program.
 """
 
 from typing import List
 
-from PyPWA.progs.shell.fit import interfaces
-from PyPWA.progs.shell.fit._process_interface import FittingInterface
-
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared import plugin_loader
-from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs import plugin_loader
+from PyPWA.libs.interfaces import common
+from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.interfaces import optimizers
+from PyPWA.progs.shell import loaders
+from PyPWA.progs.shell.fit import interfaces
 from PyPWA.progs.shell.fit import likelihoods
+from PyPWA.progs.shell.fit._process_interface import FittingInterface
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -77,12 +76,12 @@ class LikelihoodPackager(object):
         return names
 
 
-class Fitting(plugins.Main):
+class Fitting(common.Main):
 
     def __init__(
             self,
-            optimizer,  # type: plugins.Optimizer
-            kernel_processing,  # type: plugins.KernelProcessing
+            optimizer,  # type: optimizers.Optimizer
+            processing,  # type: kernel.KernelProcessing
             data_loader,  # type: loaders.DataLoading
             function_loader,  # type: loaders.FunctionLoader
             likelihood_type,  # type: str
@@ -90,7 +89,7 @@ class Fitting(plugins.Main):
             save_name  # type: str
     ):
         self.__optimizer = optimizer
-        self.__processing = kernel_processing
+        self.__processing = processing
         self.__data_loader = data_loader
         self.__function_loader = function_loader
         self.__likelihood_type = likelihood_type
@@ -100,7 +99,7 @@ class Fitting(plugins.Main):
         self.__likelihood_loader = LikelihoodPackager()
         self.__process_interface = None  # type: FittingInterface
         self.__likelihood = None  # type: interfaces.Setup
-        self.__interface = None  # type: internals.ProcessInterface
+        self.__interface = None  # type: kernel.ProcessInterface
 
     def start(self):
         self.__setup_interface()
@@ -122,6 +121,7 @@ class Fitting(plugins.Main):
 
         self.__likelihood.setup_likelihood(
             self.__data_loader, self.__function_loader,
+            self.__optimizer.OPTIMIZER_TYPE,
             {"generated length": self.__generated_length}
         )
 
@@ -136,7 +136,7 @@ class Fitting(plugins.Main):
 
     def __start_optimizer(self):
         self.__optimizer.main_options(
-            self.__interface.run, self.__likelihood_type
+            self.__interface.run, self.__likelihood.LIKELIHOOD_TYPE
         )
         self.__optimizer.start()
 

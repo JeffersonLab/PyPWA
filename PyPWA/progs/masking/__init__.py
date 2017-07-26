@@ -25,7 +25,7 @@ another.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.arguments import arguments_options
+from PyPWA.initializers.arguments import arguments_options
 from PyPWA.progs.masking import masking
 
 __credits__ = ["Mark Jones"]
@@ -41,6 +41,9 @@ class MaskingArguments(arguments_options.Main):
     def _add_arguments(self):
         self.__add_input_argument()
         self.__add_masking_argument()
+        self.__add_and_argument()
+        self.__add_or_argument()
+        self.__add_xor_argument()
         self.__add_output_file()
 
     def __add_input_argument(self):
@@ -50,7 +53,25 @@ class MaskingArguments(arguments_options.Main):
 
     def __add_masking_argument(self):
         self._parser.add_argument(
-            "--mask", "-m", type=str,help="Masking file"
+            "--mask", "-m", type=str, action="append", help="Masking file"
+        )
+
+    def __add_and_argument(self):
+        self._parser.add_argument(
+            "--and-masks", action="store_true", default=True,
+            help="AND mask files together (DEFAULT)"
+        )
+
+    def __add_or_argument(self):
+        self._parser.add_argument(
+            "--or-masks", action="store_true", default=False,
+            help="OR mask files together."
+        )
+
+    def __add_xor_argument(self):
+        self._parser.add_argument(
+            "--xor-masks", action="store_true", default=False,
+            help="XOR mask files together."
         )
 
     def __add_output_file(self):
@@ -59,7 +80,19 @@ class MaskingArguments(arguments_options.Main):
         )
 
     def get_interface(self, namespace, plugins):
+        mask_type = self.__setup_mask_type(namespace)
         return masking.Masking(
             namespace.input, namespace.output, plugins['Builtin Parser'],
-            plugins['Builtin Iterator'], namespace.mask
+            plugins['Builtin Iterator'], namespace.mask, mask_type
         )
+
+    @staticmethod
+    def __setup_mask_type(namespace):
+        if namespace.xor_masks and namespace.or_masks:
+            raise ValueError("Can't use XOR and OR!")
+        elif namespace.xor_masks:
+            return masking.MaskType.XOR
+        elif namespace.or_masks:
+            return masking.MaskType.OR
+        else:
+            return masking.MaskType.AND

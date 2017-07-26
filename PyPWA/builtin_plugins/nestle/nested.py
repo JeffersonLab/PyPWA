@@ -19,65 +19,62 @@
 """
 Multinest maximization
 ----------------------
-A very accurate but slow optimizer that will try to find the maximas inside 
+A very accurate but slow optimizer that will try to find the maximas inside
 your parameter space for provided function.
 
 - _NestleParserObject - Removes any extra information from the prior before
   its passed to the kernels.
-
 - NestedSampling - The actual optimizer object.
-
 - LoadPrior - Loads the prior for the optimizer.
 """
 
 import logging
-import typing
+from typing import Any, Callable, Tuple
+from typing import Optional as Opt
 
 import nestle
+import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _graph_data
 from PyPWA.builtin_plugins.nestle import _save_results
-from PyPWA.core.shared import plugin_loader
-from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs import plugin_loader
+from PyPWA.libs.interfaces import optimizers
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _NestleParserObject(internals.OptimizerOptionParser):
+class _NestleParserObject(optimizers.OptimizerOptionParser):
 
     def convert(self, *args):
+        # type: (Tuple[Tuple[Tuple[numpy.ndarray]]]) -> numpy.ndarray
         return args[0][0][0]
 
 
-class NestledSampling(plugins.Optimizer):
+class NestledSampling(optimizers.Optimizer):
 
-    __logger = logging.getLogger(__name__)
-    __callback_object = None  # type: _graph_data.SaveData
-    __results = None  # type: nestle.Result
+    OPTIMIZER_TYPE = optimizers.OptimizerTypes.MAXIMIZER
 
-    __calc_function = None  # type: typing.Any
-    __prior = None  # type: typing.Any
-    __npdim = None  # type: int
-    __ndim = None  # type: int
-    __npoints = None  # type: int
-    __method = None  # type: str
-    __update_interval = None  # type: int
-    __maxiter = None  # type: int
-    __maxcall = None  # type: int
-    __dlogz = None  # type: float
-    __decline_factor = None  # type: float
-    __folder_location = False  # type: str
-    __save_data = _save_results.SaveData()
+    __LOGGER = logging.getLogger(__name__ + ".NestledSampling")
 
     def __init__(
-            self, prior, ndim, npoints=100, method="single",
-            update_interval=None, npdim=None, maxiter=None, maxcall=None,
-            dlogz=None, decline_factor=None, folder_location=False
+            self,
+            prior,  # type: Callable[[numpy.ndarray], numpy.ndarray]
+            ndim,  # type: int
+            npoints=100,   # type: int
+            method="single",  # type: str
+            update_interval=None,   # type: Opt[int]
+            npdim=None,   # type: Opt[int]
+            maxiter=None,  # type: Opt[int]
+            maxcall=None,  # type: Opt[int]
+            dlogz=None,   # type: Opt[float]
+            decline_factor=None,  # type: Opt[float]
+            folder_location=False  # type: Opt[str]
     ):
+        # type: (...) -> None
+        self.__save_data = _save_results.SaveData()
         self.__prior = prior
         self.__ndim = ndim
         self.__npoints = npoints
@@ -89,8 +86,12 @@ class NestledSampling(plugins.Optimizer):
         self.__dlogz = dlogz
         self.__decline_factor = decline_factor
         self.__folder_location = folder_location
+        self.__calc_function = None  # type: Callable[[Any], float]
+        self.__callback_object = None  # type: _graph_data.SaveData
+        self.__results = None  # type: nestle.Result
 
     def main_options(self, calc_function, fitting_type=False):
+        # type: (Callable[[Any], float], optimizers.LikelihoodTypes) -> None
         self.__calc_function = calc_function
 
     def start(self):
@@ -98,7 +99,7 @@ class NestledSampling(plugins.Optimizer):
 
     def __setup_callback(self):
         if self.__folder_location:
-            self.__logger.info("Writing nestle's data to disk.")
+            self.__LOGGER.info("Writing nestle's data to disk.")
             callback = _graph_data.SaveData(self.__folder_location)
             self.__callback_object = callback.process_callback
 
@@ -119,6 +120,7 @@ class NestledSampling(plugins.Optimizer):
         )
 
     def return_parser(self):
+        # type: () -> _NestleParserObject
         return _NestleParserObject()
 
     def save_extra(self, save_name):
@@ -127,20 +129,27 @@ class NestledSampling(plugins.Optimizer):
 
 class LoadPrior(object):
 
-    __logger = logging.getLogger("_LoadPrior." + __name__)
-    __plugin_storage = plugin_loader.PluginLoader()
-    __found_prior = None  # type: typing.Any
+    __LOGGER = logging.getLogger("_LoadPrior." + __name__)
+
+    def __init__(self):
+        self.__plugin_storage = plugin_loader.PluginLoader()
+        self.__found_prior = None  # type: Any
+
 
     def load_prior(self, prior_location, prior_name):
+        # type: (str, str) -> None
         self.__add_prior_location(prior_location)
         self.__set_prior(prior_name)
 
     def __add_prior_location(self, location):
+        # type: (str) -> None
         self.__plugin_storage.add_plugin_location(location)
 
     def __set_prior(self, name):
+        # type: (str) -> None
         self.__found_prior = self.__plugin_storage.get_by_name(name)
 
     @property
     def prior(self):
+        # type: () -> Callable[[numpy.ndarray], numpy.ndarray]
         return self.__found_prior

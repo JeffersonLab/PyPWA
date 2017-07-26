@@ -1,8 +1,8 @@
 import pytest
-from PyPWA.core.configurator import options
-from PyPWA.core.shared import plugin_loader
+from PyPWA.initializers.configurator import options
+from PyPWA.libs import plugin_loader
 from PyPWA import builtin_plugins
-from PyPWA.core import configurator
+from PyPWA.initializers import configurator
 
 
 def load_plugins():

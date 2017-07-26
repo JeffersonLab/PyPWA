@@ -33,12 +33,12 @@ Examples:
         file.write(path_to_file, the_data)
 """
 
-from PyPWA.builtin_plugins.data import memory
-from PyPWA.builtin_plugins.data import iterator
-from PyPWA.core.arguments import arguments_options
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import _setups
-from PyPWA.core.configurator import options
+from PyPWA.builtin_plugins.data import iterator
+from PyPWA.builtin_plugins.data import memory
+from PyPWA.initializers.arguments import arguments_options
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -119,25 +119,26 @@ class ArgDataParse(arguments_options.Plugin):
     _NAME = "Builtin Parser"
 
     def _add_arguments(self):
-        self.__add_enable_cache()
+        self.__add_disable_cache()
         self.__add_clear_cache()
 
-    def __add_enable_cache(self):
+    def __add_disable_cache(self):
         self._parser.add_argument(
-            "--cache", action='store_true', default=False,
+            "--disable-cache", action='store_false', default=True,
             help="Enable caching of interacted data. This will speed up "
                  "future interaction with the same data."
         )
 
     def __add_clear_cache(self):
         self._parser.add_argument(
-            "--clearcache", action="store_true", default=False,
+            "--clear-cache", action="store_true", default=False,
             help="Force cache for interacted files to be cleared."
         )
 
     def get_interface(self, namespace):
         return memory.Memory(
-            enable_cache=namespace.cache, clear_cache=namespace.clearcache
+            enable_cache=namespace.disable_cache,
+            clear_cache=namespace.clear_cache
         )
 
 

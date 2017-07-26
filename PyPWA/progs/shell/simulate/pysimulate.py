@@ -18,7 +18,7 @@
 
 """
 The Simulation program, this object simply routes the data around depending
-on the type of program execution passed to it, the actual logic for the 
+on the type of program execution passed to it, the actual logic for the
 program exists in _libs.py
 """
 
@@ -29,7 +29,8 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import plugins
+from PyPWA.libs.interfaces import common
+from PyPWA.libs.interfaces import kernel
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.simulate import _libs
 
@@ -38,7 +39,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Simulator(plugins.Main):
+class Simulator(common.Main):
 
     __LOGGER = logging.getLogger(__name__ + ".Simulator")
 
@@ -46,7 +47,7 @@ class Simulator(plugins.Main):
             self,
             data_loader,  # type: _libs.DataHandler
             the_type,   # type: Union["full", "intensities", "weighting"]
-            kernel_processing=None,  # type: Opt[plugins.KernelProcessing]
+            kernel_processing=None,  # type: Opt[kernel.KernelProcessing]
             function_loader=None,  # type: Opt[loaders.FunctionLoader]
             parameters=None,  # type: Opt[Dict[str, numpy.float64]]
             max_intensity=None  # type: Opt[numpy.float64]
@@ -109,7 +110,7 @@ class Simulator(plugins.Main):
         self.__write_intensity_data()
 
     def __rejection_program(self):
-        self.__intensity_array = self.__data_loader.data
+        self.__intensity_array = self.__data_loader.single_array
         self.__setup_rejection_calc()
         self.__rejection_calc.rejection_method()
         self.__write_rejection_data()

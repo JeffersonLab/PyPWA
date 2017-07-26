@@ -1,153 +1,155 @@
-import logging
 import time
 
 import numpy
 import pytest
 
-from PyPWA.builtin_plugins.process import foreman, _communication
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.builtin_plugins.process import foreman
+from PyPWA.libs.interfaces import kernel
+
+TEST_DATA = {"data": numpy.random.rand(100)}
 
 
-def test_DuplexProcess_SumOfIntegers_Return50():
-    """
-    Tests that an array with 50 ones sent to a duplex process when summed
-    returns a value of 50.
-    """
-    # Generate test data
-    test_data = {"the_data": numpy.ones(50)}
+"""
+Test Duplex
+"""
 
-    # Create a test process kernel
-    class TestKernel(internals.Kernel):
+class DuplexKernel(kernel.Kernel):
 
-        __logger = logging.getLogger("TEST")
-        the_data = False  # type: numpy.ndarray
+    def __init__(self):
+        self.data = None  # type: numpy.ndarray
 
-        def setup(self):
-            self.__logger.debug("Test setup called!")
+    def setup(self):
+        pass
 
-        def process(self, data=False):
-            if data[0] == "go":  # data is a tuple.
-                if isinstance(self.the_data, numpy.ndarray):
-                    return numpy.sum(self.the_data)
-                else:
-                    return "FAILED"
-            else:
-                return "NO GO"
+    def process(self, data=False):
+        # type: (str) -> numpy.ndarray
+        return numpy.sum(self.data)
 
-    # Create a test interface
-    class TestInterface(internals.KernelInterface):
-        IS_DUPLEX = True
 
-        def run(self, communicator, arguments):
-            for the_communicator in communicator:
-                the_communicator.send(arguments)
+class DuplexInterface(kernel.KernelInterface):
+    IS_DUPLEX = True
 
-            value = numpy.zeros(len(communicator))
-            for index, the_communicator in enumerate(communicator):
-                value[index] = the_communicator.receive()
+    def run(self, connections, arguments):
+        for connection in connections:
+            connection.send(arguments[0])
 
-            return numpy.sum(value)
+        value = numpy.zeros(len(connections))
+        for index, connection in enumerate(connections):
+            value[index] = connection.recv()
 
-    # Initialize the Foreman
+        return numpy.sum(value)
+
+
+@pytest.fixture(params=[True, False])
+def duplex_interface(request):
     process_builder = foreman.CalculationForeman(3)
-    process_builder.main_options(test_data, TestKernel(), TestInterface())
-
-    # Attach to interface
+    process_builder.main_options(TEST_DATA, DuplexKernel(), DuplexInterface())
     interface = process_builder.fetch_interface()
-
-    final_value = interface.run("go")
-    if interface.is_alive:
-        interface.stop()
-
-        time.sleep(3)
-        if interface.is_alive:
-            interface.stop(True)
-
-    assert final_value == 50
+    yield interface
+    interface.stop(request.param)
 
 
-def test_SimplexProcess_SumIntegers_Return50():
-    """
-    Tests that an array filled with 50 ones when summed in the simplex
-    processes will return a value of 50.
-    """
-    # Test data
-    test_data = {"the_data": numpy.ones(50)}
+def test_duplex_calculated_matches_expected(duplex_interface):
+    final_value = duplex_interface.run("go")
+    numpy.testing.assert_approx_equal(
+        final_value, numpy.sum(TEST_DATA['data'])
+    )
 
-    # Create Kernel
-    class TestKernel(internals.Kernel):
-        the_data = False  # type: numpy.ndarray
 
-        def setup(self):
-            pass
+def test_duplex_reports_is_alive(duplex_interface):
+    assert duplex_interface.is_alive == True
 
-        def process(self, data=False):
-            return numpy.sum(self.the_data)
 
-    # Create Interface
-    class TestInterface(internals.KernelInterface):
-        IS_DUPLEX = False
+"""
+Test Simplex
+"""
 
-        def run(self, communicator, args):
-            value = numpy.zeros(len(communicator))
-            for index, the_communicator in enumerate(communicator):
-                value[index] = the_communicator.receive()
+class SimplexKernel(kernel.Kernel):
 
-            return numpy.sum(value)
+    def __init__(self):
+        self.data = False  # type: numpy.ndarray
 
-    # Setup Foreman
+    def setup(self):
+        pass
+
+    def process(self, data=False):
+        return numpy.sum(self.data)
+
+
+class SimplexInterface(kernel.KernelInterface):
+    IS_DUPLEX = False
+
+    def run(self, connections, args):
+        value = numpy.zeros(len(connections))
+        for index, connection in enumerate(connections):
+            value[index] = connection.recv()
+
+        return numpy.sum(value)
+
+
+@pytest.fixture(params=[True, False])
+def simplex_interface(request):
     process_builder = foreman.CalculationForeman(3)
-    process_builder.main_options(test_data, TestKernel(), TestInterface())
-
-    # Fetch interface
+    process_builder.main_options(
+        TEST_DATA, SimplexKernel(), SimplexInterface()
+    )
     interface = process_builder.fetch_interface()
+    yield interface
+    interface.stop(request.param)
 
-    final_value = interface.run()
+
+def test_simplex_sum_matches_expected(simplex_interface):
+    sum = simplex_interface.run()
+    numpy.testing.assert_approx_equal(sum, numpy.sum(TEST_DATA['data']))
+
+"""
+Test Errors
+"""
+
+class KernelError(kernel.Kernel):
+
+    def __init__(self):
+        self.data = False  # type: numpy.ndarray
+
+    def setup(self):
+        pass
+
+    def process(self, data=False):
+        raise RuntimeError
+
+
+class InterfaceError(kernel.KernelInterface):
+
+    IS_DUPLEX = False
+
+    def run(self, connections, args):
+        if self.IS_DUPLEX:
+            for connection in connections:
+                connection.send("go")
+
+        returned = [0] * len(connections)
+        for index, connection in enumerate(connections):
+            returned[index] = connection.recv()
+
+        return returned
+
+
+@pytest.fixture(params=[False, True])
+def broken_interface(request):
+    internal_interface = InterfaceError()
+    internal_interface.IS_DUPLEX = request.param
+    return internal_interface
+
+
+@pytest.fixture()
+def interface_with_errors(broken_interface):
+    process_builder = foreman.CalculationForeman(3)
+    process_builder.main_options(TEST_DATA, KernelError(), broken_interface)
+    interface = process_builder.fetch_interface()
+    yield interface
     interface.stop()
 
-    assert final_value == 50
-    assert interface.previous_value == 50
 
-
-def test_Kernels_WillFail_RaiseNotImplemented():
-    """
-    Check that Kernels will raise NotImplementedError if they are not
-    overridden.
-    """
-    kernel = internals.Kernel()
-    interface = internals.KernelInterface()
-
-    with pytest.raises(NotImplementedError):
-        kernel.process()
-
-    with pytest.raises(NotImplementedError):
-        kernel.setup()
-
-    with pytest.raises(NotImplementedError):
-        # We don't need the values to be correct, this is only a test.
-        interface.run("something", "else")
-
-
-def test_Communication_UnimplementedMethods_RaiseNotImplemented():
-    """
-    Check that if the wrong Communication object is used it will raise an
-    error.
-    """
-    # The values don't need to be pipes since they should actually
-    # never be called. Also these object should never be access
-    # directly by the user.
-    receive = _communication._SimplexReceive("send")
-    send = _communication._SimplexSend("receive")
-    interface = _communication._CommunicationInterface()
-
-    with pytest.raises(_communication.SimplexError):
-        receive.send("something")
-
-    with pytest.raises(_communication.SimplexError):
-        send.receive()
-
-    with pytest.raises(NotImplementedError):
-        interface.send("something")
-
-    with pytest.raises(NotImplementedError):
-        interface.receive()
+def test_error_was_handled(interface_with_errors):
+    values = interface_with_errors.run()
+    assert kernel.ProcessCodes.ERROR in values

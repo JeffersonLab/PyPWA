@@ -39,7 +39,7 @@ the documentation inside nestle.
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.nestle import _setup
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

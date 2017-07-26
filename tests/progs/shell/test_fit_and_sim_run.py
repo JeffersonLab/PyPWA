@@ -25,7 +25,7 @@ SIM_CONFIG_LOCATION = os.path.join(
 @pytest.fixture()
 def patch_logging(monkeypatch):
     monkeypatch.setattr(
-        "PyPWA.core.shared.initial_logging.setup_logging",
+        "PyPWA.libs.initial_logging.setup_logging",
         lambda count, file=None: None
     )
 

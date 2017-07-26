@@ -19,10 +19,8 @@
 """
 These are the interfaces needed to define a new likelihood.
 -----------------------------------------------------------
-
 - Likelihood - used for the actual algorithm to calculate the likelihood.
-
-- Setup - used to define how to interact with the likelihood and the name of 
+- Setup - used to define how to interact with the likelihood and the name of
   the likelihood.
 """
 
@@ -32,7 +30,9 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.interfaces import optimizers
+from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell import shell_types
 
 __credits__ = ["Mark Jones"]
@@ -40,7 +40,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Likelihood(internals.Kernel):
+class Likelihood(kernel.Kernel):
 
     def __init__(self, setup_function=None):
         # type: (shell_types.users_setup) -> None
@@ -58,12 +58,14 @@ class Likelihood(internals.Kernel):
 
 class Setup(object):
 
-    NAME = NotImplemented
+    NAME = None  # type: str
+    LIKELIHOOD_TYPE = None  # type: optimizers.LikelihoodTypes
 
     def setup_likelihood(
             self,
             data_package,  # type: loaders.DataLoading
-            function_package,  # type: loaders.FunctionLoader
+            function_package,  # type: loaders.FunctionLoader,
+            optimizer_type, # type: optimizers.OptimizerTypes
             extra_info=None  # type: Opt[Dict[str, Any]]
     ):
         # type: (...) -> None

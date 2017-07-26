@@ -26,11 +26,13 @@ The Log-Likelihood Extended and UnExtended are defined here:
 import logging
 from typing import Any, Dict
 from typing import Optional as Opt
-import warnings
+
 import numpy
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.libs.interfaces import optimizers
 from PyPWA.progs.shell import loaders
+from PyPWA.progs.shell import shell_types
 from PyPWA.progs.shell.fit import interfaces
 
 __credits__ = ["Mark Jones"]
@@ -40,23 +42,34 @@ __version__ = VERSION
 
 class LogLikelihood(interfaces.Setup):
 
-    NAME = "likelihood"
+    NAME = "log-likelihood"
+    LIKELIHOOD_TYPE = optimizers.LikelihoodTypes.LOG_LIKELIHOOD
 
     def __init__(self):
         self.__data = dict()  # type: Dict[str, numpy.ndarray]
         self.__generated_length = None  # type: float
         self.__likelihood = None  # type: interfaces.Likelihood
+        self.__multiplier = None  # type: float
 
     def setup_likelihood(
             self,
             data_package,  # type: loaders.DataLoading
-            function_package,  # type: loaders.FunctionLoader
+            function_package,  # type: loaders.FunctionLoader,
+            optimizer_type, # type: optimizers.OptimizerTypes
             extra_info=None  # type: Opt[Dict[str, Any]]
     ):
         # type: (...) -> None
+        self.__setup_multiplier(optimizer_type)
         self.__setup_data(data_package)
         self.__extract_generated_length(extra_info)
         self.__setup_likelihood(function_package)
+
+    def __setup_multiplier(self, optimizer_type):
+        # type: (optimizers.OptimizerTypes) -> None
+        if optimizer_type is optimizers.OptimizerTypes.MINIMIZER:
+            self.__multiplier = -1
+        else:
+            self.__multiplier = 1
 
     def __setup_data(self, data_package):
         # type: (loaders.DataLoading) -> None
@@ -82,13 +95,14 @@ class LogLikelihood(interfaces.Setup):
         # type: (loaders.FunctionLoader) -> None
         self.__likelihood = ExtendedLikelihoodAmplitude(
             function_package.setup, function_package.process,
-            self.__generated_length
+            self.__multiplier, self.__generated_length
         )
 
     def __setup_standard_likelihood(self, function_package):
         # type: (loaders.FunctionLoader) -> None
         self.__likelihood = UnExtendedLikelihoodAmplitude(
-            function_package.setup, function_package.process
+            function_package.setup, function_package.process,
+            self.__multiplier
         )
 
     def get_data(self):
@@ -108,11 +122,13 @@ class ExtendedLikelihoodAmplitude(interfaces.Likelihood):
             self,
             setup_function,  # type: shell_types.users_setup
             processing_function,  # type: shell_types.users_processing
+            multiplier, # type: int
             generated_length  # type: float
     ):
         # type: (...) -> None
         super(ExtendedLikelihoodAmplitude, self).__init__(setup_function)
         self.__processing_function = processing_function
+        self.__multiplier = multiplier
         self.__processed = 1.0 / generated_length
         self.data = None  # type: numpy.ndarray
         self.monte_carlo = None  # type: numpy.ndarray
@@ -130,7 +146,7 @@ class ExtendedLikelihoodAmplitude(interfaces.Likelihood):
         # type: (numpy.ndarray, numpy.ndarray) -> float
         data_result = self.__process_log_likelihood(data)
         monte_carlo_result = self.__process_monte_carlo(monte_carlo)
-        return data_result + monte_carlo_result
+        return self.__multiplier * (data_result + monte_carlo_result)
 
     def __process_log_likelihood(self, data):
         # type: (numpy.ndarray) -> float
@@ -146,11 +162,13 @@ class UnExtendedLikelihoodAmplitude(interfaces.Likelihood):
     def __init__(
             self,
             setup_function,  # type: shell_types.users_setup
-            processing_function  # type: shell_types.users_processing
+            processing_function,  # type: shell_types.users_processing
+            multiplier  # type: int
     ):
         # type: (...) -> None
         super(UnExtendedLikelihoodAmplitude, self).__init__(setup_function)
         self.__processing_function = processing_function
+        self.__multiplier = multiplier
         self.data = None  # type: numpy.ndarray
         self.qfactor = 1  # type: numpy.ndarray
         self.binned = 1  # type: numpy.ndarray
@@ -158,7 +176,8 @@ class UnExtendedLikelihoodAmplitude(interfaces.Likelihood):
     def process(self, data=False):
         # type: (Dict[str, float]) -> float
         processed_data = self.__processing_function(self.data, data)
-        return self.__likelihood(processed_data)
+        likelihood = self.__likelihood(processed_data)
+        return self.__multiplier * likelihood
 
     def __likelihood(self, data):
         # type: (numpy.ndarray) -> float

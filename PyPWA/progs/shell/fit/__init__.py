@@ -33,13 +33,13 @@ the processing module that is picked.
 - initial_setup - how the configurator package interfaces the PyFit
   Main object.
 
-- fit - the main object and the likelihood loading object are contained.
+- pyfit - the main object and the likelihood loading object are contained.
 """
 
 from PyPWA.progs.shell.fit import intial_setup
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.configurator import options
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import pyshell_functions
 from PyPWA.progs.shell.fit import pyfit
 
@@ -62,7 +62,7 @@ class ShellFitting(options.Main):
     ]
 
     default_options = {
-        "likelihood type": "likelihood",
+        "likelihood type": "log-likelihood",
         "generated length": 10000,
         "function's location": "/path/to/the/function.py",
         "processing name": "processing_function",
@@ -95,7 +95,12 @@ class ShellFitting(options.Main):
         "setup name": str,
         "qfactor location": str,
         "data location": str,
-        "internal data": dict,
+        "internal data": {
+            "quality factor": str,
+            "binned data": str,
+            "event errors": str,
+            "expected values": str
+        },
         "accepted monte carlo location": str,
         "save name": str
     }

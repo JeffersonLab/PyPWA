@@ -20,7 +20,7 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.data import data_templates
 from PyPWA.builtin_plugins.data.builtin.numpy import n_memory
 from PyPWA.builtin_plugins.data.builtin.numpy import n_read_tests
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Christopher Banks"]
 __author__ = AUTHOR
@@ -37,10 +37,10 @@ class NumPyDataPlugin(data_templates.TemplateDataPlugin):
         return n_memory.NumpyMemory()
 
     def get_plugin_reader(self, file_location):
-        return internals.Reader()
+        return data_loaders.Reader()
 
     def get_plugin_writer(self, file_location):
-        return internals.Writer()
+        return data_loaders.Writer()
 
     def get_plugin_read_test(self):
         return n_read_tests.NumpyDataTest()

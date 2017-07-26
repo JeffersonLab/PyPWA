@@ -3,7 +3,7 @@ import os
 import pytest
 
 from PyPWA.builtin_plugins import nestle
-from PyPWA.core.configurator import option_tools
+from PyPWA.initializers.configurator import option_tools
 
 SIMPLE_PRIOR = os.path.join(
     os.path.dirname(__file__), "../../data/source_files/simple_prior.py"

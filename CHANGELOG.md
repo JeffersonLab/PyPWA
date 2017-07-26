@@ -4,6 +4,33 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+
+## [2.2.0] - 2017-7-26
+### Added
+ - Process Plugin support for List Data
+ - Adds Exception handling to Processes
+ - PyMask support for multiple masking files.
+ - PyFit will now filter out events if the Bin value is 0
+ - The user can AND, OR, or XOR masks together with PyMask
+### Changed
+ - Removed previous_event from Process Interface
+ - Duplex Pipes are used over Simplex Pipes for Duplex Processes
+ - Changes get_file_length to using a binary buffered search.
+ - Moved PyPWA.core.shared to PyPWA.libs
+ - Split interface's plugins and internals to their own separate file based
+   on the interfaces purpose.
+ - PyFit no longer assumes bins are named 'BinN' you must specify Bin names 
+   in 'internal data'.
+ - Multipler effect for the Miminzers has been moved to the individual
+   likelihoods.
+ - PyMask defaults to AND operations instead of or now.
+### Fixed
+ - PyFit will now shutdown correctly when killed with Ctrl-C or other
+   interrupt.
+ - The ChiSquared will no longer be multiplied by -1 when being minimized.
+ - Data Parser's Cache would crash on very large files.
+
+
 ## [2.1.0] - 2017-6-30
 ### Added
  - Argument Parser for simple programs where a configuration file would be
@@ -44,6 +71,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - PySim plugin
  - Packaging
 
+
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...development
+[2.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v1.1...v2.0.0
-

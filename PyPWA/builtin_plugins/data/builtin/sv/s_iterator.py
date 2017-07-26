@@ -22,8 +22,8 @@ import io
 import numpy
 from typing import Dict, List, Tuple
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import internals
-from PyPWA.core.shared import file_libs
+from PyPWA.libs.interfaces import data_loaders
+from PyPWA.libs.files import line_count
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -33,11 +33,11 @@ __version__ = VERSION
 HEADER_SEARCH_BITS = 8192
 
 
-class SvReader(internals.Reader):
+class SvReader(data_loaders.Reader):
 
     def __init__(self, file_location):
         # type: (str) -> None
-        self.__particle_count = file_libs.get_file_length(file_location) - 1
+        self.__particle_count = line_count.get_file_length(file_location) - 1
         self.__file = io.open(file_location)
         self.__previous_event = None  # type: numpy.ndarray
         self.__reader = False  # type: csv.DictReader
@@ -90,7 +90,7 @@ class SvReader(internals.Reader):
         return self.__previous_event
 
 
-class SvWriter(internals.Writer):
+class SvWriter(data_loaders.Writer):
 
     def __init__(self, file_location):
         # type: (str) ->  None

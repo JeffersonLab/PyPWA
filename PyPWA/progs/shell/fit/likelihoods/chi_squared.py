@@ -20,6 +20,7 @@
 The ChiSquared Likelihood is defined here:
 ------------------------------------------
 - Σ(((I°(D) - B)^2) / B)
+- Σ(((I°(D) - M)^2) / E^2)
 """
 
 from typing import Any, Dict
@@ -28,7 +29,9 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.libs.interfaces import optimizers
 from PyPWA.progs.shell import loaders
+from PyPWA.progs.shell import shell_types
 from PyPWA.progs.shell.fit import interfaces
 
 __credits__ = ["Mark Jones"]
@@ -39,21 +42,32 @@ __version__ = VERSION
 class ChiLikelihood(interfaces.Setup):
 
     NAME = "chi-squared"
+    LIKELIHOOD_TYPE = optimizers.LikelihoodTypes.CHI_SQUARED
 
     def __init__(self):
         super(ChiLikelihood, self).__init__()
         self.__data = dict()  # type: Dict[str, numpy.ndarray]
         self.__likelihood = None  # type: interfaces.Likelihood
+        self.__multiplier = None  # type: float
 
     def setup_likelihood(
             self,
             data_package,  # type: loaders.DataLoading
             function_package,  # type: loaders.FunctionLoader
+            optimizer_type, # type: optimizers.OptimizerTypes
             extra_info=None  # type: Opt[Dict[str, Any]]
     ):
         # type: (...) -> None
+        self.__setup_multiplier(optimizer_type)
         self.__setup_data(data_package)
         self.__setup_likelihood(function_package)
+
+    def __setup_multiplier(self, optimizer_type):
+        # type: (optimizers.OptimizerTypes) -> None
+        if optimizer_type is optimizers.OptimizerTypes.MAXIMIZER:
+            self.__multiplier = -1.
+        else:
+            self.__multiplier = 1.
 
     def __setup_data(self, data_package):
         # type: (loaders.DataLoading) -> None
@@ -75,6 +89,7 @@ class ChiLikelihood(interfaces.Setup):
             )
 
     def __event_and_error_data_exists(self):
+        # type: () -> bool
         expected = not numpy.all(self.__data['event errors'] == 1)
         errors = not numpy.all(self.__data['expected values'] == 1)
         return expected and errors
@@ -82,13 +97,15 @@ class ChiLikelihood(interfaces.Setup):
     def __setup_chi(self, function_package):
         # type: (loaders.FunctionLoader) -> None
         self.__likelihood = Chi(
-            function_package.setup, function_package.process
+            function_package.setup, function_package.process,
+            self.__multiplier
         )
 
     def __setup_unbinned_chi(self, function_package):
         # type: (loaders.FunctionLoader) -> None
         self.__likelihood = UnBinnedChi(
-            function_package.setup, function_package.process
+            function_package.setup, function_package.process,
+            self.__multiplier
         )
 
     def get_data(self):
@@ -105,18 +122,21 @@ class Chi(interfaces.Likelihood):
     def __init__(
             self,
             setup_function,  # type: shell_types.users_setup
-            processing_function  # type: shell_types.users_processing
+            processing_function,  # type: shell_types.users_processing
+            multiplier  # type: float
     ):
         # type: (...) -> None
         super(Chi, self).__init__(setup_function)
         self.__processing_function = processing_function
+        self.__multiplier = multiplier
         self.data = None  # type: numpy.ndarray
         self.binned = None  # type: numpy.ndarray
 
     def process(self, data=False):
         # type: (Dict[str, float]) -> float
-        processed_data = self.__processing_function(self.data, data)
-        return self.__likelihood(processed_data)
+        intensity = self.__processing_function(self.data, data)
+        likelihood = self.__likelihood(intensity)
+        return self.__multiplier * likelihood
 
     def __likelihood(self, data):
         # type: (numpy.ndarray) -> float
@@ -128,19 +148,22 @@ class UnBinnedChi(interfaces.Likelihood):
     def __init__(
             self,
             setup_function,  # type: shell_types.users_setup
-            processing_function  # type: shell_types.users_processing
+            processing_function,  # type: shell_types.users_processing,
+            multiplier  # type: float
     ):
         # type: (...) -> None
         super(UnBinnedChi, self).__init__(setup_function)
         self.__processing_function = processing_function
+        self.__multiplier = multiplier
         self.data = None  # type: numpy.ndarray
         self.expected = None  # type: numpy.ndarray
         self.error = None  # type: numpy.ndarray
 
     def process(self, data=False):
         # type: (Dict[str, float]) -> float
-        processed_data = self.__processing_function(self.data, data)
-        return self.__likelihood(processed_data)
+        intensity = self.__processing_function(self.data, data)
+        likelihood = self.__likelihood(intensity)
+        return self.__multiplier * likelihood
 
     def __likelihood(self, data):
         # type: (numpy.ndarray) -> float

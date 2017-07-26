@@ -3,7 +3,7 @@ import os
 import pytest
 
 from PyPWA.builtin_plugins import data
-from PyPWA.core.configurator import option_tools
+from PyPWA.initializers.configurator import option_tools
 
 
 EXAMPLE_DATA = os.path.join(

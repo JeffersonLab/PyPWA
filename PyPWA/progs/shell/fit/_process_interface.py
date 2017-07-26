@@ -19,15 +19,15 @@
 """
 Processing and Output
 ---------------------
-This is where the processing interface is defined along with the automated 
+This is where the processing interface is defined along with the automated
 output from the the parallel thread.
 
 - _ThreadInterface - The object between the main thread and the output thread.
 
 - _OutputThread - The actual output thread, its started with each call to the
   likelihood. Has a 1hz output rate.
-  
-- FittingInterface - The interface between the Likelihood Kernels and the 
+
+- FittingInterface - The interface between the Likelihood Kernels and the
   optimizer module.
 """
 
@@ -38,14 +38,14 @@ try:
 except ImportError:
     from Queue import Queue
 
-import numpy
 import logging
-import time
 import threading
+import time
 
-from PyPWA.core.shared.interfaces import internals
+import numpy
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.libs.interfaces import kernel
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -54,21 +54,20 @@ __version__ = VERSION
 
 class _ThreadInterface(object):
 
-    __logger = logging.getLogger(__name__ + "_ThreadInterface")
-    __root_logger = logging.getLogger()
-    __send_queue = Queue()
-    __receive_queue = Queue()
-    __times = []
-    __initial_time = None
-    __enabled = False
+    __LOGGER = logging.getLogger(__name__ + "_ThreadInterface")
 
     def __init__(self):
+        self.__root_logger = logging.getLogger()
+        self.__send_queue = Queue()
+        self.__receive_queue = Queue()
+        self.__times = []
         self.__initial_time = time.time()
 
         if not self.__root_logger.isEnabledFor(logging.INFO):
             self.__enabled = True
         else:
-            self.__logger.info(
+            self.__enabled = False
+            self.__LOGGER.info(
                 "Processor Output is disabled while info logging is enabled"
             )
 
@@ -102,28 +101,27 @@ class _ThreadInterface(object):
 
 class _OutputThread(threading.Thread):
 
-    __output_pulse = "-"
-    __send_queue = None  # type: Queue
-    __receive_queue = None  # type: Queue
-    __last_value = None  # type: numpy.float64
-    __last_time = None  # type: float
-    __average_time = None  # type: float
-    __initial_time = None  # type: float
-    __start_time = None
-    __index = None
-
     def __init__(
-            self, send_queue, receive_queue, last_value,
-            last_time, average_time, start_time
+            self,
+            send_queue,  # type: Queue
+            receive_queue, # type: Queue
+            last_value,  # type: numpy.float64
+            last_time,  # type: float
+            average_time,  # type: float
+            start_time
     ):
+        # type: (...) -> None
+        super(_OutputThread, self).__init__()
         self.__send_queue = send_queue
         self.__receive_queue = receive_queue
         self.__last_value = last_value
         self.__last_time = last_time
         self.__average_time = average_time
         self.__start_time = start_time
+        self.__output_pulse = "-"
+        self.__index = None
         self.__initial_time = time.time()
-        super(_OutputThread, self).__init__()
+        self.daemon = True
 
     def run(self):
         while True:
@@ -177,17 +175,15 @@ class _OutputThread(threading.Thread):
         self.__send_queue.put(self.__get_current_runtime())
 
 
-class FittingInterface(internals.KernelInterface):
+class FittingInterface(kernel.KernelInterface):
 
     IS_DUPLEX = True
-    __logger = logging.getLogger(__name__ + ".FittingInterfaceKernel")
-    __parameter_parser = None  # type: internals.OptimizerOptionParser
-    __last_value = None  # type: numpy.float64
-    __thread_interface = None
+    __LOGGER = logging.getLogger(__name__ + ".FittingInterfaceKernel")
 
     def __init__(self, minimizer_function):
         self.__parameter_parser = minimizer_function
         self.__thread_interface = _ThreadInterface()
+        self.__last_value = None  # type: numpy.float64
 
     def run(self, communication, *args):
         self.__send_arguments(communication, args)
@@ -206,9 +202,8 @@ class FittingInterface(internals.KernelInterface):
     def __get_final_value(self, communication):
         values = numpy.zeros(shape=len(communication))
         for index, pipe in enumerate(communication):
-            values[index] = pipe.receive()
-        final_value = numpy.sum(values)
-        self.__last_value = self.__parameter_parser.MULTIPLIER * final_value
+            values[index] = pipe.recv()
+        self.__last_value = numpy.sum(values)
 
     def __log_final_value(self):
-        self.__logger.info("Final Value is: %f15" % self.__last_value)
+        self.__LOGGER.info("Final Value is: %f15" % self.__last_value)

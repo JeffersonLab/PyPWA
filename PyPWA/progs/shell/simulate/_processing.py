@@ -30,14 +30,15 @@ import numpy
 from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.core.shared.interfaces import internals
+from PyPWA.libs.interfaces import kernel
+from PyPWA.progs.shell import shell_types
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class IntensityInterface(internals.KernelInterface):
+class IntensityInterface(kernel.KernelInterface):
 
     IS_DUPLEX = False
     __LOGGER = logging.getLogger(__name__ + "IntensityInterface")
@@ -52,7 +53,7 @@ class IntensityInterface(internals.KernelInterface):
         list_of_data = list(range(len(communicator)))
 
         for communication in communicator:
-            data = communication.receive()
+            data = communication.recv()
             self.__LOGGER.debug("Received data: " + repr(data))
             list_of_data[data[0]] = data[1]
 
@@ -74,7 +75,7 @@ class IntensityInterface(internals.KernelInterface):
         self.__LOGGER.info("Intensities Mean: %f" % array.mean())
 
 
-class IntensityKernel(internals.Kernel):
+class IntensityKernel(kernel.Kernel):
 
     __LOGGER = logging.getLogger(__name__ + ".IntensityKernel")
 
