@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Adds Exception handling to Processes
  - PyMask support for multiple masking files.
  - PyFit will now filter out events if the Bin value is 0
+ - The user can AND, OR, or XOR masks together with PyMask
 ### Changed
  - Removed previous_event from Process Interface
  - Duplex Pipes are used over Simplex Pipes for Duplex Processes
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    in 'internal data'.
  - Multipler effect for the Miminzers has been moved to the individual
    likelihoods.
+ - PyMask defaults to AND operations instead of or now.
 ### Fixed
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.
