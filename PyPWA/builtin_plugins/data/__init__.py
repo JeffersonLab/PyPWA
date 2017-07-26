@@ -119,25 +119,26 @@ class ArgDataParse(arguments_options.Plugin):
     _NAME = "Builtin Parser"
 
     def _add_arguments(self):
-        self.__add_enable_cache()
+        self.__add_disable_cache()
         self.__add_clear_cache()
 
-    def __add_enable_cache(self):
+    def __add_disable_cache(self):
         self._parser.add_argument(
-            "--cache", action='store_true', default=False,
+            "--disable-cache", action='store_false', default=True,
             help="Enable caching of interacted data. This will speed up "
                  "future interaction with the same data."
         )
 
     def __add_clear_cache(self):
         self._parser.add_argument(
-            "--clearcache", action="store_true", default=False,
+            "--clear-cache", action="store_true", default=False,
             help="Force cache for interacted files to be cleared."
         )
 
     def get_interface(self, namespace):
         return memory.Memory(
-            enable_cache=namespace.cache, clear_cache=namespace.clearcache
+            enable_cache=namespace.disable_cache,
+            clear_cache=namespace.clear_cache
         )
 
 
