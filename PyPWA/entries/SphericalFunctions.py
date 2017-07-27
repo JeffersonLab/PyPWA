@@ -2,6 +2,7 @@ import spherical_functions
 import numpy
 import re
 
+
 class _BreakupData(object):
 
     def __init__(self, data):
@@ -35,16 +36,16 @@ class SphericalHarmonics(object):
         self.__calculate_harmonics(gamma, ell, mp, m)
 
     def __calculate_harmonics(self, gamma, ell, mp, m):
-        sph = []
+        spherical_funcs = []
         events = self.__find_angles.events
         theta_list = self.__find_angles.theta()
         phi_list = self.__find_angles.phi()
 
         for i in range(0, events):
-            sph.append(spherical_functions.Wigner_D_element(phi_list[i],
+            spherical_funcs.append(spherical_functions.Wigner_D_element(phi_list[i],
                                                        theta_list[i],
                                                        gamma, ell, mp, m))
-        self.__create_numpy_array(sph)
+        self.__create_numpy_array(spherical_funcs)
 
     def __create_numpy_array(self, result):
         result_numpy = numpy.array(result)
