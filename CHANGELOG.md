@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
 
+## [Unreleased]
+### Added
+### Changed
+### Fixed
+### Security
+
 ## [2.2.0] - 2017-7-26
 ### Added
  - Process Plugin support for List Data
