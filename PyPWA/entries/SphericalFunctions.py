@@ -42,9 +42,10 @@ class SphericalHarmonics(object):
         phi_list = self.__find_angles.phi()
 
         for i in range(0, events):
-            spherical_funcs.append(spherical_functions.Wigner_D_element(phi_list[i],
-                                                       theta_list[i],
-                                                       gamma, ell, mp, m))
+            spherical_funcs.append(spherical_functions.Wigner_D_element(
+                                                        phi_list[i],
+                                                        theta_list[i],
+                                                        gamma, ell, mp, m))
         self.__create_numpy_array(spherical_funcs)
 
     def __create_numpy_array(self, result):

@@ -4,6 +4,8 @@ import re
 import numpy
 import spherical_functions
 from PyPWA.entries import SphericalFunctions
+
+
 ANGLE_TEST_DATA = os.path.join(os.path.dirname(__file__),
                                "../data/test_docs/angles.txt")
 
@@ -24,6 +26,7 @@ def data_splitter():
             phi_list.append(float(temp_list[1]))
 
     yield theta_list, phi_list
+
 
 def test_reading(file_parser, data_splitter):
     assert file_parser.theta() == data_splitter[0]
