@@ -111,12 +111,19 @@ class WriteCache(_template.WriteInterface):
     def write_cache(self, data):
         # type: (Any) -> None
         self.__set_packaged_data(data)
-        self.__write_cache_data()
+        self.__try_to_write_cache()
 
     def __set_packaged_data(self, data):
         # type: (Any) -> None
         self.__packaged_data["hash"] = self.__info_object.file_hash
         self.__packaged_data["data"] = data
+
+    def __try_to_write_cache(self):
+        try:
+            self.__write_cache_data()
+        except Exception as error:
+            self.__LOGGER.debug("Cache write failed!")
+            self.__LOGGER.debug(error, exc_info=True)
 
     def __write_cache_data(self):
         location = self.__info_object.cache_location

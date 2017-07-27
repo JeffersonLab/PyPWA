@@ -23,6 +23,7 @@ Masking Utility
 - Masking - Masks and/or translates the data.
 """
 
+import enum
 import logging
 import warnings
 from typing import List
@@ -32,13 +33,18 @@ import numpy
 import tqdm
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import data_loaders
 from PyPWA.libs.interfaces import common
-
+from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
+
+
+class MaskType(enum.Enum):
+    AND = 1
+    OR = 2
+    XOR = 3
 
 
 class _DataPackage(object):
@@ -49,12 +55,14 @@ class _DataPackage(object):
             masking_file,   # type: Opt[str]
             output_file,  # type: str
             parser,  # type: data_loaders.ParserPlugin
-            iterator  # type: data_loaders.IteratorPlugin
+            iterator,  # type: data_loaders.IteratorPlugin
+            mask_type=MaskType.AND  # type: MaskType
     ):
         # type: (...) -> None
         self.__mask = None
         self.__writer = None
         self.__reader = None
+        self.__operation_type = mask_type
         self.__iterator = iterator
         self.__setup_data(input_file, output_file, masking_file, parser)
 
@@ -89,8 +97,18 @@ class _DataPackage(object):
             if isinstance(mask, type(None)):
                 mask = parser.parse(file)
             else:
-                mask += parser.parse(file)
+                new_mask = parser.parse(file)
+                mask = self.__combine_mask_files(mask, new_mask)
         return mask
+
+    def __combine_mask_files(self, current_mask, new_mask):
+        # type: (numpy.ndarray, numpy.ndarray) -> numpy.ndarray
+        if self.__operation_type == MaskType.OR:
+            return numpy.logical_or(current_mask, new_mask)
+        elif self.__operation_type == MaskType.XOR:
+            return numpy.logical_xor(current_mask, new_mask)
+        else:
+            return numpy.logical_and(current_mask, new_mask)
 
     @property
     def reader(self):
@@ -118,11 +136,12 @@ class Masking(common.Main):
             output_file,  # type: str
             parser,  # type: data_loaders.ParserPlugin
             iterator,  # type: data_loaders.IteratorPlugin
-            masking_file=None  # type: Opt[str]
+            masking_file=None,  # type: Opt[str]
+            mask_type=MaskType.AND  # type: MaskType
     ):
         # type: (...) -> None
         self.__data = _DataPackage(
-            input_file, masking_file, output_file, parser, iterator
+            input_file, masking_file, output_file, parser, iterator, mask_type
         )
 
     def start(self):
@@ -142,3 +161,4 @@ class Masking(common.Main):
         for index, value in enumerate(data_with_progress):
             if self.__data.mask[index]:
                 self.__data.writer.write(value)
+        self.__data.writer.close()

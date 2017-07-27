@@ -51,7 +51,7 @@ class GampDataTest(data_templates.ReadTest):
         count = 0
         while True:
             # Limit how much of the file is tested
-            if count == 3:
+            if count == 100:
                 break
             number = the_file.readline().strip("\n").strip()
 

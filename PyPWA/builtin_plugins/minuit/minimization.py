@@ -28,6 +28,7 @@ documentation online.
 """
 
 import logging
+from typing import Any, Callable, Dict, List, Tuple
 
 import iminuit
 import numpy

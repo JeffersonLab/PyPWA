@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 ### Added
+### Changed
+### Fixed
+### Security
+
+## [2.2.0] - 2017-7-26
+### Added
  - Process Plugin support for List Data
  - Adds Exception handling to Processes
  - PyMask support for multiple masking files.
  - PyFit will now filter out events if the Bin value is 0
+ - The user can AND, OR, or XOR masks together with PyMask
 ### Changed
  - Removed previous_event from Process Interface
  - Duplex Pipes are used over Simplex Pipes for Duplex Processes
@@ -22,11 +29,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    in 'internal data'.
  - Multipler effect for the Miminzers has been moved to the individual
    likelihoods.
+ - PyMask defaults to AND operations instead of or now.
 ### Fixed
  - PyFit will now shutdown correctly when killed with Ctrl-C or other
    interrupt.
  - The ChiSquared will no longer be multiplied by -1 when being minimized.
-### Security
+ - Data Parser's Cache would crash on very large files.
 
 
 ## [2.1.0] - 2017-6-30
@@ -70,6 +78,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Packaging
 
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v2.1.0...development
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...development
+[2.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v1.1...v2.0.0
