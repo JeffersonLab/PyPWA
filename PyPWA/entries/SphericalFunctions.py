@@ -1,29 +1,24 @@
-import spherical_functions
-import numpy
 import re
+import os
+
+import numpy
+import spherical_functions
 
 
 class _BreakupData(object):
 
     def __init__(self, data):
-        self.__theta_list = []
-        self.__phi_list = []
-        self.events = 0
-        with open(data, 'r') as file:
-            self.__split_data(file)
+        self.__split_data(data)
 
     def __split_data(self, file):
-        for line in file:
-            temp_list = re.split('\s', line)
-            self.__theta_list.append(float(temp_list[0]))
-            self.__phi_list.append(float(temp_list[1]))
-            self.events += 1
+        self.__theta_array = numpy.loadtxt(file, usecols=0)
+        self.__phi_array = numpy.loadtxt(file, usecols=1)
 
     def theta(self):
-        return self.__theta_list
+        return self.__theta_array
 
     def phi(self):
-        return self.__phi_list
+        return self.__phi_array
 
 
 class SphericalHarmonics(object):
@@ -37,15 +32,16 @@ class SphericalHarmonics(object):
 
     def __calculate_harmonics(self, gamma, ell, mp, m):
         spherical_funcs = []
-        events = self.__find_angles.events
-        theta_list = self.__find_angles.theta()
-        phi_list = self.__find_angles.phi()
+        theta_array = self.__find_angles.theta()
+        phi_array = self.__find_angles.phi()
+        events = len(phi_array)
 
         for i in range(0, events):
-            spherical_funcs.append(spherical_functions.Wigner_D_element(
-                                                        phi_list[i],
-                                                        theta_list[i],
-                                                        gamma, ell, mp, m))
+            spherical_funcs.append(
+                spherical_functions.Wigner_D_element(
+                    phi_array[i], theta_array[i], gamma, ell, mp, m
+                )
+            )
         self.__create_numpy_array(spherical_funcs)
 
     def __create_numpy_array(self, result):
