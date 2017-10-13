@@ -18,3 +18,9 @@ Hardware:
    - 4 Gb of RAM
    - 5 Gb of Disk Space
    - An internet connection
+
+Software:
+  - Python 2.7, 3.4, 3.5, 3.6+
+  - SciPy
+  - Numpy
+  - 

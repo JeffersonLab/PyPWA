@@ -9,7 +9,7 @@ ready to be worked on.
 
 The three different ways to install a development environment on your machine:
    A. The Virtualenv instructions uses your systems packages to create a
-      virtual environment that supports both BASH and CSH.
+      virtual environment that supports both Bash and CSH.
    B. The Anaconda instructions will have you installing Anaconda or
       Miniconda onto your system, then using the Conda environment for your
       development.
@@ -17,9 +17,16 @@ The three different ways to install a development environment on your machine:
       on a JLab Machine, this method blends both the Anaconda and
       Virtualenv methods.
 
+.. note::
+  Your shell determines which method you can use. You can tell what your
+  shell is by opening a terminal and running ``echo $SHELL`` which should
+  give you a path to your current shell. Most Linuxes default to Bash, 
+  but JLab and BSD default to TCSH instead.
+
+
 .. toctree::
    :maxdepth: 2
 
-   env-virt
-   env-conda
-   env-jlab
+   virt
+   conda
+   jlab
