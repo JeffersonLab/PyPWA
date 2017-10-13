@@ -8,7 +8,6 @@ extensions = ['sphinx.ext.mathjax', 'sphinx.ext.todo']
 
 
 # Basic file information
-templates_path = ['_templates']
 source_suffix = '.rst'
 master_doc = 'index'
 
@@ -31,7 +30,6 @@ todo_include_todos = False
 # HTML settings
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-html_static_path = ['_static']
 htmlhelp_basename = 'PyPWAdoc'
 
 
@@ -55,6 +53,3 @@ texinfo_documents = [
         'Scientific Studies'
     ),
 ]
-
-
-
