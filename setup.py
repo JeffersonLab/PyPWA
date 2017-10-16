@@ -45,7 +45,7 @@ requires = [
     "scipy",         # Needed for Nestle with multiple ellipsoids.
     "nestle",        # New more advanced minimizer
     "numpy>1,<2.0",  # Arrays and optimizations
-    "ruamel.yaml",   # Advanced YAML Parser
+    "ruamel.yaml<0.15",   # Advanced YAML Parser
     "tabulate",      # Great aesthetic tables
     "appdirs",       # Attempts to find data locations
     "fuzzywuzzy",    # Fuzzes the user input
