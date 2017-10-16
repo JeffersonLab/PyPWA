@@ -14,8 +14,8 @@ master_doc = 'index'
 
 # Project information
 project = 'PyPWA'
-copyright = '2017, Mark Jones, Carlos Salgado, Will Phelps'
-author = 'Mark Jones, Carlos Salgado, Will Phelps'
+copyright = '2017, PyPWA Team'
+author = 'PyPWA Team'
 version = '2.3'
 release = '2.3.0'
 
@@ -34,10 +34,11 @@ htmlhelp_basename = 'PyPWAdoc'
 
 
 # LaTeX settings
-latex_elements = {}
+latex_elements = {
+   'classoptions': ',openany,oneside'
+}
 latex_documents = [
-    (master_doc, 'PyPWA.tex', 'PyPWA Documentation',
-     'Mark Jones, Carlos Salgado, Will Phelps', 'manual'),
+    (master_doc, 'PyPWA.tex', 'PyPWA Documentation', 'PyPWA Team', 'manual'),
 ]
 
 
