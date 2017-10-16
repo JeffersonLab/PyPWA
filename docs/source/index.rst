@@ -15,6 +15,7 @@ PyPWA is constantly tested to work with Python Versions 2.7, 3.4, 3.5, and 3.6.
    :caption: User Documentation
 
    user/requirements
+   user/installing
 
 .. toctree::
   :maxdepth: 2
