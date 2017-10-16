@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
 
+## [2.2.1] - 2017-10-16
+### Fixed
+ - Setup would pull in unstable Yaml parser
+
+
 ## [2.2.0] - 2017-7-26
 ### Added
  - Process Plugin support for List Data
@@ -73,6 +78,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 
 [Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...development
+[2.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v1.1...v2.0.0
