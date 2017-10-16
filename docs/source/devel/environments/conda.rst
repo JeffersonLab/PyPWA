@@ -4,7 +4,7 @@ Anaconda
 ********
 Anaconda
 
-.. note::
+.. caution::
    Anaconda only works with Bash, Fish, and ZSH. If you are using a CSH you
    should change shells or use Virtualenv instead.
 
