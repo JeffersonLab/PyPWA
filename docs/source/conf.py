@@ -36,7 +36,7 @@ htmlhelp_basename = 'PyPWAdoc'
 # LaTeX settings
 latex_elements = {
     'papersize': 'letterpaper',
-    'pointsize': '12pt',
+    'pointsize': '11pt',
     'preamble': r'''
         \usepackage{charter}
         \usepackage[defaultsans]{lato}
