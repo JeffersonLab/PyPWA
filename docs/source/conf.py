@@ -35,7 +35,13 @@ htmlhelp_basename = 'PyPWAdoc'
 
 # LaTeX settings
 latex_elements = {
-   'classoptions': ',openany,oneside'
+    'papersize': 'letterpaper',
+    'pointsize': '12pt',
+    'preamble': r'''
+        \usepackage{charter}
+        \usepackage[defaultsans]{lato}
+        \usepackage{inconsolata}
+    ''',
 }
 latex_documents = [
     (master_doc, 'PyPWA.tex', 'PyPWA Documentation', 'PyPWA Team', 'manual'),
