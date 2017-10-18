@@ -10,15 +10,15 @@ Anaconda
 
 Getting Anaconda
 ================
-There are two version available of Anaconda, the full Anaconda installation
-that is 10+ Gb in size, or an alternitive smaller Miniconda. PyPWA will work
-with either installation. We recommend that you pick the Python 3 varient.
+There are two versions available of Anaconda, the full Anaconda installation
+that is 10+ Gb in size, or an alternative smaller Miniconda. PyPWA will work
+with either installation. We recommend that you pick the Python 3 variant.
 
 `Anaconda Download <https://www.anaconda.com/download/#linux>`_
 
 `Miniconda Download <https://conda.io/miniconda.html>`_
 
-After you download anaconda, mark the binary as executable, then run
+After you download Anaconda, mark the binary as executable, then run
 the resulting file. You should be greeted with an installer. Follow the on
 screen instructions.
 
@@ -38,7 +38,7 @@ directory, then run:
 This should give you a working Anaconda Virtual Environment with PyPWA
 inside it.
 
-To use activate the environment all you have to do is:
+To activate the environment all you have to do is:
 
 .. code-block:: sh
 

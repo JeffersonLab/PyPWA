@@ -2,13 +2,13 @@
 ##########
 Virtualenv
 ##########
-Virtualenv will create a folder inside a specified directory, symlink python,
+Virtualenv will create a folder inside a specified directory, symlink Python,
 and the site packages into that folder to be used for the specific folder.
 It is the best way to test that the package will work on a specific Unix system
 without Anaconda and without installing the package to the system directly.
 
 .. caution::
-   ``sudo`` access is required to install virtualenv and PyPWA's dependencies,
+   ``sudo`` access is required to install Virtualenv and PyPWA's dependencies,
    however it is not needed to create the environment itself.
 
 
@@ -51,7 +51,7 @@ Python 3.4+ for PyPWA to work correctly.
    sudo dnf install gcc-gfortran python3-virtualenv
 
 
-Creating a virtualenv environment
+Creating a Virtualenv environment
 #################################
 I am going to use ``venv`` as the name for the environment in this example
 because some editors default to searching for a ``venv`` environment directory,
@@ -82,7 +82,7 @@ CSH Family:
 **Update setuptools:**
 
 .. code-block:: sh
-   
+
    pip install --upgrade setuptools
 
 
@@ -91,4 +91,3 @@ CSH Family:
 .. code-block:: sh
 
    pip install -e $PROJECT/PyPWA/.
-

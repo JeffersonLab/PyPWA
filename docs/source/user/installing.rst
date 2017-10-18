@@ -2,9 +2,9 @@
 ############
 Installation
 ############
-PyPWA doesn't have distrobution specific packages yet, so for the time
+PyPWA doesn't have distribution specific packages yet, so for the time
 being you will have to rely on pip. These steps will walk you through how to
-install python to your machine using pip.
+install Python to your machine using Pip.
 
 
 Installing Dependencies
@@ -19,7 +19,7 @@ You need some packages installed to your machine in order to use PyPWA.
 
 .. code-block:: sh
 
-   sudo pacman -S base-devel python-virtualenv python-scipy python-numpy 
+   sudo pacman -S base-devel python-virtualenv python-scipy python-numpy
 
 
 **Debian 8+ / Ubuntu 14.04 LTS+:**
@@ -43,27 +43,27 @@ You need some packages installed to your machine in order to use PyPWA.
 .. code-block:: sh
 
    sudo dnf group install "Development Tools"
-   sudo dnf install python3-virtualenv python3-scipy python3-numpy 
+   sudo dnf install python3-virtualenv python3-scipy python3-numpy
 
 
 Install PyPWA
 #############
 It is not recommended to install PyPWA systemwide, please wait until we are in
 a position to start producing PKGBUILD, .debs, and .rpms to distribute the
-package. 
+package.
 
 To install, choose between:
    A. your home directory:
-   
+
       .. warning::
          If there is a quota on your home directory, this could overflow it.
 
       .. code-block:: sh
 
          pip install --user git+https://github.com/JeffersonLab/PyPWA.git
-   
+
    B. anywhere with a virtual environment:
- 
+
       .. tip::
          If you are using TCSH, you need to ``source venv/bin/activate.csh``
          instead.
@@ -73,4 +73,3 @@ To install, choose between:
          virtualenv --system-site-packages venv
          source venv/bin/activate
          pip install git+https://github.com/JeffersonLab/PyPWA.git
-
