@@ -5,7 +5,7 @@ import uuid
 import pytest
 
 from PyPWA.entries import arguments
-from PyPWA.libs.files import line_count
+from PyPWA.libs import misc_file_libs
 
 
 """
@@ -90,7 +90,7 @@ def patch_args_double_mask(monkeypatch, request, correct_argv, cleanup_temp):
 
 
 def test_masking_utility_has_correct_number_of_lines(patch_args_double_mask):
-    assert line_count.get_file_length(TEMP_FILE) == 1
+    assert misc_file_libs.get_file_length(TEMP_FILE) == 1
 
 
 """
@@ -114,7 +114,7 @@ def patch_args_double_mask_or(
 
 
 def test_masking_or(patch_args_double_mask_or):
-    assert line_count.get_file_length(TEMP_FILE) == 3
+    assert misc_file_libs.get_file_length(TEMP_FILE) == 3
 
 
 """
@@ -138,7 +138,7 @@ def patch_args_double_mask_xor(
 
 
 def test_masking_xor(patch_args_double_mask_xor):
-    assert line_count.get_file_length(TEMP_FILE) == 2
+    assert misc_file_libs.get_file_length(TEMP_FILE) == 2
 
 
 """
