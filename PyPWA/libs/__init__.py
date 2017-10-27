@@ -24,6 +24,9 @@ function as a plugin, are located here. This means anything whose internal
 function shouldn't really change should be here, such as hash generation,
 data location, and such.
 
+- data_handler - Handles the data parsing and iteration for the entire
+  package.
+
 - interfaces - The interfaces to the program, while the configurator and
   other initializing packages may offer their own interfaces to load into
   the program. These interfaces actually define how the objects should

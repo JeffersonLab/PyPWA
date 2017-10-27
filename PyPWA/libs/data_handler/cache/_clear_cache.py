@@ -17,23 +17,42 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-All the plugins that come packaged with PyPWA by default.
----------------------------------------------------------
 
-- gamp - The GAMP data plugin
-- kv - The EVIL data plugin
-- minuit - A python / cython minimizer based on ROOT's PyPWA.
-- nestle - A python maximizer based off of Multinest.
-- numpy - The Numpy data plugin
-- sv - The CSV/TSV Data Plugin
-
-For more information about how these plugins work, see their documentation
-as well.
 """
 
+import logging
+import os
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.data_handler.cache import _basic_info
+from PyPWA.libs.data_handler.cache import _template
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
+
+
+class ClearCache(_template.ReadInterface):
+
+    __LOGGER = logging.getLogger(__name__ + ".ClearCache")
+
+    def __init__(self, basic_info):
+        # type: (_basic_info.FindBasicInfo) -> None
+        self.__info = basic_info
+        self.__attempt_to_remove_cache()
+
+    def is_valid(self):
+        return False
+
+    def get_cache(self):
+        raise exceptions.CacheError
+
+    def __attempt_to_remove_cache(self):
+        try:
+            self.__remove_cache()
+        except OSError:
+            self.__LOGGER.debug("No cache to delete.")
+
+    def __remove_cache(self):
+        os.remove(self.__info.cache_location)
