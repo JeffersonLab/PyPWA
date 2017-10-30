@@ -1,0 +1,189 @@
+#!/bin/env python
+#
+#  coding=utf-8
+#
+#  PyPWA, a scientific analysis toolkit.
+#  Copyright (C) 2016 JLab
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+
+__credits__ = ["Mark Jones"]
+__version__ = "0.0.1"
+
+
+class _HelperArguments(object):
+
+    def __init__(self):
+        self.__parser = None
+        self.__arguments = None
+
+    def parse_arguments(self):
+        self.__set_arguments()
+        self.__parse_arguments()
+        self.__quit_if_no_arguments()
+
+    def __set_arguments(self):
+        self.__set_parser()
+        self.__add_clean_argument()
+        self.__add_version_argument()
+
+    def __set_parser(self):
+        self.__parser = argparse.ArgumentParser(
+            description="A helper utility for developers of PyPWA."
+        )
+
+    def __add_clean_argument(self):
+        self.__parser.add_argument(
+            "--clean", "-c", action="store_true",
+            help="Clean the development folder of build and cache files."
+        )
+
+    def __add_version_argument(self):
+        self.__parser.add_argument(
+            "--version", action="version",
+            version="%(prog)s (version " + __version__ +")"
+        )
+
+    def __parse_arguments(self):
+        self.__arguments = self.__parser.parse_args()
+
+    def __quit_if_no_arguments(self):
+        if not self.clean:
+            self.__parser.print_help()
+            sys.exit()
+
+    @property
+    def clean(self):
+        return self.__arguments.clean
+
+
+class _ProjectRoot(object):
+
+    def root(self):
+        # type: () -> str
+        out, error = self.__git_command()
+        self.__check_error(error)
+        return out.decode().strip()
+
+    def __git_command(self):
+        # type: () -> Tuple[bytes, bytes]
+        git = subprocess.Popen(
+            "git rev-parse --show-toplevel", shell=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+
+        return git.communicate()
+
+    def __check_error(self, error):
+        # type: (bytes) -> None
+        if error.decode():
+            raise RuntimeError(error)
+
+
+class _CleanProject(object):
+
+    __CLEAN_FILES = [
+        ".coverage", "build", "dist", "lib", ".cache", "docs/_build", "docs/build"
+    ]
+
+    def clean(self, root_dir):
+        self.__clean_files()
+        self.__clean_pypwa_cache(root_dir)
+        self.__clean_tests_cache(root_dir)
+
+    def __clean_files(self):
+        for item in self.__CLEAN_FILES:
+            self.__try_to_remove_item(item)
+
+    def __try_to_remove_item(self, item):
+        try:
+            shutil.rmtree(item)
+        except OSError:
+            pass
+
+    def __clean_pypwa_cache(self, root_dir):
+        for root, directories, items in os.walk(root_dir + "/PyPWA"):
+            self.__sanitize(root, directories, items)
+
+    def __clean_tests_cache(self, root_dir):
+        for root, directories, items in os.walk(root_dir + "/tests"):
+            self.__sanitize(root, directories, items)
+
+    def __sanitize(self, root, directories, items):
+        self.__sanitize_directories(root, directories)
+        self.__sanitize_items(root, items)
+
+    def __sanitize_directories(self, root, directories):
+        if "__pycache__" in directories:
+            shutil.rmtree(root + "/__pycache__")
+
+    def __sanitize_items(self, root, items):
+        for item in items:
+            if ".pyc" in item:
+                os.remove(root + "/" + item)
+
+
+class _GitStatus(object):
+
+    def status(self):
+        # type: () -> bool
+        out, error = self.__git_command()
+        self.__check_error(error)
+        return self.__check_cleanliness(out)
+
+    def __git_command(self):
+        # type: () -> Tuple[bytes, bytes]
+        git = subprocess.Popen(
+            "git status --porcelain", shell=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+
+        return git.communicate()
+
+    def __check_error(self, error):
+        # type: (bytes) -> None
+        if error.decode():
+            raise RuntimeError(error)
+
+    def __check_cleanliness(self, results):
+        if len(results) == 0:
+            return True
+        else:
+            return False
+
+
+class HelperUtil(object):
+
+    def __init__(self):
+        self.__arguments = _HelperArguments()
+        self.__root = _ProjectRoot()
+        self.__cleaner = _CleanProject()
+
+    def run(self):
+        self.__arguments.parse_arguments()
+        if self.__arguments.clean:
+            self.__clean_program()
+
+    def __clean_program(self):
+        self.__cleaner.clean(self.__root.root())
+
+if __name__ == "__main__":
+    program = HelperUtil()
+    program.run()
