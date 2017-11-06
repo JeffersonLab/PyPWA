@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ## [Unreleased]
 ### Added
  - Adds a helper script to clean the project directory of caches.
+ - Adds initial documentation for PyPWA.
 ### Changed
 ### Fixed
 ### Security
