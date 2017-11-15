@@ -60,19 +60,19 @@ class Base(object):
         return self._NAME
 
 
-class Plugin(Base):
+class Component(Base):
 
     def setup(self, parser):
         # type: (ArgumentParser) -> None
         self._parser = parser.add_argument_group(self.get_name())
         self._add_arguments()
 
-    def get_interface(self, namespace):
-        # type: (Namespace) -> common.BasePlugin
+    def setup_db(self, namespace):
+        # type: (Namespace) -> None
         raise NotImplementedError
 
 
-class Main(Base):
+class Program(Base):
 
     _REQUIRED = None  # type: List[Opt[str]]
 
@@ -85,6 +85,10 @@ class Main(Base):
         # type: () -> List[Opt[str]]
         return self._REQUIRED
 
-    def get_interface(self, namespace, plugins):
+    def setup_db(self, namespace):
         # type: (Namespace, Dict[str, common.BasePlugin]) -> common.Main
+        raise NotImplementedError
+
+    def start(self):
+        # type: () -> None
         raise NotImplementedError

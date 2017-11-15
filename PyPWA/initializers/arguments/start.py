@@ -36,12 +36,10 @@ to a lesser extent.
 """
 
 import argparse
-import sys
 from typing import Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers.arguments import _loader
-from PyPWA.initializers.arguments import arguments_options
+from PyPWA.initializers.arguments import _loader, arguments_options
 from PyPWA.libs import initial_logging
 from PyPWA.libs.interfaces import common
 
@@ -54,36 +52,36 @@ __version__ = VERSION
 class _PluginLoader(object):
 
     def __init__(self):
-        self.__main = None  # type: arguments_options.Main
-        self.__children = {}  # type: Dict[str, arguments_options.Plugin]
+        self.__program = None  # type: arguments_options.Program
+        self.__components = {}  # type: Dict[str, arguments_options.Component]
         self.__loader = _loader.RequestedFetcher()
 
     def load(self, name):
         # type: (str) -> None
-        self.__load_main_plugin(name)
+        self.__load_program(name)
         self.__iterate_over_requested()
 
-    def __load_main_plugin(self, name):
+    def __load_program(self, name):
         # type: (str) -> None
-        self.__main = self.__loader.get_plugin_by_name(name)
+        self.__program = self.__loader.get_plugin_by_name(name)
 
     def __iterate_over_requested(self):
-        for requested in self.__main.get_required():
-            self.__load_child_plugin(requested)
+        for requested in self.__program.get_required():
+            self.__load_component(requested)
 
-    def __load_child_plugin(self, name):
+    def __load_component(self, name):
         # type: (str) -> None
-        self.__children[name] = self.__loader.get_plugin_by_name(name)
+        self.__components[name] = self.__loader.get_plugin_by_name(name)
 
     @property
-    def plugins(self):
+    def components(self):
         # type: () -> Dict[str, arguments_options.Plugin]
-        return self.__children
+        return self.__components
 
     @property
-    def main(self):
+    def program(self):
         # type: () -> arguments_options.Main
-        return self.__main
+        return self.__program
 
 
 class _GlobalArguments(object):
@@ -145,11 +143,11 @@ class _LoadArguments(object):
         self.__root_parser = argparse.ArgumentParser(description)
 
     def __load_main_arguments(self):
-        self.__plugins.main.setup(self.__root_parser)
+        self.__plugins.program.setup(self.__root_parser)
 
     def __load_children_arguments(self):
-        for plugin in self.__plugins.plugins.values():
-            plugin.setup(self.__root_parser)
+        for component in self.__plugins.components.values():
+            component.setup(self.__root_parser)
 
     def __load_global_options(self):
         self.__global.setup_parser(self.__root_parser)
@@ -175,27 +173,22 @@ class _SetupPlugins(object):
         # type: (_PluginLoader, _LoadArguments) -> None
         self.__plugins = plugin_storage
         self.__arguments = arguments
-        self.__iterate_over_children()
-        self.__setup_main_plugin()
+        self.__iterate_over_components()
+        self.__setup_program()
 
-    def __iterate_over_children(self):
-        for name, plugin in self.__plugins.plugins.items():
-            self.__setup_child_plugin(name, plugin)
+    def __iterate_over_components(self):
+        for name, component in self.__plugins.components.items():
+            self.__setup_component(name, component)
 
-    def __setup_child_plugin(self, name, plugin):
+    def __setup_component(self, name, component):
         # type: (str, arguments_options.Plugin) -> None
-        interface = plugin.get_interface(self.__arguments.namespace)
-        self.__child_interfaces[name] = interface
+        component.setup_db(self.__arguments.namespace)
 
-    def __setup_main_plugin(self):
-        self.__main_interface = self.__plugins.main.get_interface(
-            self.__arguments.namespace, self.__child_interfaces
-        )
+    def __setup_program(self):
+        self.__plugins.program.setup_db(self.__arguments.namespace)
 
-    @property
-    def main(self):
-        # type: () -> common.Main
-        return self.__main_interface
+    def start(self):
+        self.__plugins.program.start()
 
 
 class StartArguments(object):
@@ -211,9 +204,18 @@ class StartArguments(object):
         self.__arguments.load_arguments(self.__plugins, description)
         self.__start_logging()
         self.__setup.create_main_program(self.__plugins, self.__arguments)
-        self.__setup.main.start()
+        self.__execute_program()
 
     def __start_logging(self):
         initial_logging.setup_logging(
             self.__arguments.namespace.v, self.__arguments.namespace.log_file
         )
+
+    def __execute_program(self):
+        try:
+            self.__setup.start()
+        except Exception:
+            self.__crash_report()
+
+    def __crash_report(self):
+        pass
