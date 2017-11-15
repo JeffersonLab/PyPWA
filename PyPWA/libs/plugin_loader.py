@@ -124,11 +124,11 @@ class _Importer(object):
         try:
             return importlib.import_module(package)
         except Exception as Error:
-            self.__process_module_error(Error)
+            self.__process_module_error(Error, package)
 
-    def __process_module_error(self, error):
+    def __process_module_error(self, error, package):
         # type: (Exception) -> None
-        self.__LOGGER.warning(error)
+        self.__LOGGER.warning(str(error) + " from: " + str(package))
 
     def __process_module(self, potential_module):
         # type: (types.ModuleType) -> List[types.ModuleType]
