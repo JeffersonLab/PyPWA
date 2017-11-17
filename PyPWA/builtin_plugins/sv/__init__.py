@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import data_templates
+from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.builtin_plugins.sv import s_iterator
 from PyPWA.builtin_plugins.sv import s_memory
 from PyPWA.builtin_plugins.sv import s_read_tests

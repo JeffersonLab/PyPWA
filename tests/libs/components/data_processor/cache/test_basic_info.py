@@ -16,11 +16,11 @@
 
 import os
 import pytest
-from PyPWA.libs.data_handler.cache import _basic_info
+from PyPWA.libs.components.data_processor.cache import _basic_info
 
 
 DATA = os.path.join(
-    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../../data/test_docs/sv_test_data.csv"
 )
 
 SIMPLE_STRING = "1234567890aoeuidhtns-"

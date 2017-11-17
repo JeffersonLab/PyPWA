@@ -90,5 +90,5 @@ AUTHOR = __author__
 VERSION = __version__
 
 
-from PyPWA.libs.data_handler.iterator import Iterator
-from PyPWA.libs.data_handler.memory import Memory
+from PyPWA.libs.components.data_processor.shell_interface import \
+    ShellDataProcessor

@@ -15,9 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
-from PyPWA.libs.data_handler.cache import _clear_cache
-from PyPWA.libs.data_handler.cache import _basic_info
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor.cache import _clear_cache
+from PyPWA.libs.components.data_processor.cache import _basic_info
+from PyPWA.libs.components.data_processor import exceptions
 
 
 class BasicTestInfo(_basic_info.FindBasicInfo):

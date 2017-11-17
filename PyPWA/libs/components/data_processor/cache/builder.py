@@ -33,11 +33,12 @@ import logging
 from typing import Any
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler.cache import _basic_info
-from PyPWA.libs.data_handler.cache import _clear_cache
-from PyPWA.libs.data_handler.cache import _no_cache
-from PyPWA.libs.data_handler.cache import _standard_cache
-from PyPWA.libs.data_handler.cache import _template
+from PyPWA.initializers import configuration_db
+from PyPWA.libs.components.data_processor.cache import _basic_info
+from PyPWA.libs.components.data_processor.cache import _clear_cache
+from PyPWA.libs.components.data_processor.cache import _no_cache
+from PyPWA.libs.components.data_processor.cache import _standard_cache
+from PyPWA.libs.components.data_processor.cache import _template
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -69,10 +70,11 @@ class CacheBuilder(object):
 
     __LOGGER = logging.getLogger(__name__ + ".CacheBuilder")
 
-    def __init__(self, use_cache=True, clear_cache=False):
+    def __init__(self):
         # type: (bool, bool) -> None
-        self.__clear_cache = clear_cache
-        self.__use_cache = use_cache
+        settings = configuration_db.Connector()
+        self.__clear_cache = settings.read("Data", "clear cache")
+        self.__use_cache = settings.read("Data", "use cache")
         self.__info_object = None  # type: _basic_info.FindBasicInfo
         self.__selected_reader = None  # type: _template.ReadInterface
         self.__selected_writer = None  # type: _template.WriteInterface

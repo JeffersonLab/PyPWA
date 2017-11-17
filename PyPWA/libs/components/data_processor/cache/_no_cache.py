@@ -22,8 +22,8 @@
 from typing import Any
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import exceptions
-from PyPWA.libs.data_handler.cache import _template
+from PyPWA.libs.components.data_processor import exceptions
+from PyPWA.libs.components.data_processor.cache import _template
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

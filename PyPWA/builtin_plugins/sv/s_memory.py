@@ -26,7 +26,7 @@ from typing import List, Tuple, Iterable, Dict
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import data_templates
+from PyPWA.libs.components.data_processor import data_templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

@@ -28,8 +28,8 @@ will not be saved in memory by these object.
 import io
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import data_templates
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor import data_templates
+from PyPWA.libs.components.data_processor import exceptions
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

@@ -34,22 +34,19 @@ Examples:
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import _setups
-from PyPWA.libs.data_handler import iterator
-from PyPWA.libs.data_handler import memory
 from PyPWA.initializers.arguments import arguments_options
 from PyPWA.initializers.configurator import options
+from PyPWA.libs.components.data_processor import settings
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class DataParser(options.Plugin):
+class DataParser(options.Component):
 
     plugin_name = "Builtin Parser"
-    setup = _setups.SetupParser
-    provides = options.Types.DATA_PARSER
+    provides = options.ComponentSelect.DATA
     defined_function = None
     module_comment = "Parses TSV, CSV, Kvs, and GAMP data."
 
@@ -60,9 +57,9 @@ class DataParser(options.Plugin):
     }
 
     option_difficulties = {
-        "enable cache": options.Levels.OPTIONAL,
-        "clear cache": options.Levels.ADVANCED,
-        "user plugin": options.Levels.ADVANCED
+        "enable cache": options.Level.OPTIONAL,
+        "clear cache": options.Level.ADVANCED,
+        "user plugin": options.Level.ADVANCED
     }
 
     option_types = {
@@ -81,11 +78,10 @@ class DataParser(options.Plugin):
     }
 
 
-class DataIterator(options.Plugin):
+class DataIterator(options.Component):
 
     plugin_name = "Builtin Iterator"
-    setup = _setups.SetupIterator
-    provides = options.Types.DATA_READER
+    provides = options.ComponentSelect.DATA
     defined_function = None
     module_comment = "Iterates over TSV, CSV, Kvs, and GAMP data."
 
@@ -95,8 +91,8 @@ class DataIterator(options.Plugin):
     }
 
     option_difficulties = {
-        "fail": options.Levels.ADVANCED,
-        "user plugin": options.Levels.ADVANCED
+        "fail": options.Level.ADVANCED,
+        "user plugin": options.Level.ADVANCED
     }
 
     option_types = {
@@ -114,17 +110,21 @@ class DataIterator(options.Plugin):
     }
 
 
-class ArgDataParse(arguments_options.Plugin):
+class ArgData(arguments_options.Component):
 
-    _NAME = "Builtin Parser"
+    _NAME = "Data"
+
+    def __init__(self):
+        self.__settings =settings.DataSettings()
+        super(ArgData, self).__init__()
 
     def _add_arguments(self):
-        self.__add_disable_cache()
+        self.__add_enable_cache()
         self.__add_clear_cache()
 
-    def __add_disable_cache(self):
+    def __add_enable_cache(self):
         self._parser.add_argument(
-            "--disable-cache", action='store_false', default=True,
+            "--enable-cache", action='store_true', default=False,
             help="Enable caching of interacted data. This will speed up "
                  "future interaction with the same data."
         )
@@ -135,19 +135,10 @@ class ArgDataParse(arguments_options.Plugin):
             help="Force cache for interacted files to be cleared."
         )
 
-    def get_interface(self, namespace):
-        return memory.Memory(
-            enable_cache=namespace.disable_cache,
-            clear_cache=namespace.clear_cache
+    def setup_db(self, namespace):
+        self.__settings.merge_settings(
+            {
+                "enable cache": namespace.enable_cache,
+                "clear cache": namespace.clear_cache
+            }
         )
-
-
-class ArgDataIterate(arguments_options.Plugin):
-
-    _NAME = "Builtin Iterator"
-
-    def _add_arguments(self):
-        pass
-
-    def get_interface(self, namespace):
-        return iterator.Iterator()

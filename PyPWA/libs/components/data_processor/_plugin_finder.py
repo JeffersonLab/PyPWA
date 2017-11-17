@@ -38,8 +38,8 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA import builtin_plugins
-from PyPWA.libs.data_handler import data_templates
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor import data_templates
+from PyPWA.libs.components.data_processor import exceptions
 from PyPWA.libs import plugin_loader
 
 __credits__ = ["Mark Jones"]

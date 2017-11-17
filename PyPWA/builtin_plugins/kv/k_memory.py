@@ -40,7 +40,7 @@ from typing import List, Tuple
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import data_templates
+from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.builtin_plugins.kv import k_iterator
 
 __credits__ = ["Mark Jones"]

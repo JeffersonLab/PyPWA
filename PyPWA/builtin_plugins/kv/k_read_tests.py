@@ -36,8 +36,8 @@ attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import data_templates
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor import data_templates
+from PyPWA.libs.components.data_processor import exceptions
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

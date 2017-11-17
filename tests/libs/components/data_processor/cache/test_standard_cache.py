@@ -23,14 +23,14 @@ import os
 import io
 import pytest
 
-from PyPWA.libs.data_handler import exceptions
-from PyPWA.libs.data_handler.cache import _standard_cache
-from PyPWA.libs.data_handler.cache import _basic_info
+from PyPWA.libs.components.data_processor import exceptions
+from PyPWA.libs.components.data_processor.cache import _standard_cache
+from PyPWA.libs.components.data_processor.cache import _basic_info
 
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__),
-    "../../../data/test_docs/temporary_write_data"
+    "../../../../data/test_docs/temporary_write_data"
 )
 
 DATA = ";qjkxbmwvzpyfgcrl"

@@ -17,42 +17,26 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+Main object for Parsing Data
 """
 
-import logging
-import os
+from typing import Optional
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import exceptions
-from PyPWA.libs.data_handler.cache import _basic_info
-from PyPWA.libs.data_handler.cache import _template
+from PyPWA.libs.components.data_processor import file_processor
+from PyPWA.libs.components.data_processor import settings
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class ClearCache(_template.ReadInterface):
+class ShellDataProcessor(file_processor.DataProcessor):
 
-    __LOGGER = logging.getLogger(__name__ + ".ClearCache")
+    def __init__(self, enable_cache=True, clear_cache=False):
+        # type: (Optional[bool], Optional[bool]) -> None
+        self.settings = settings.DataSettings()
+        self.settings.clear_cache(clear_cache)
+        self.settings.use_cache(enable_cache)
 
-    def __init__(self, basic_info):
-        # type: (_basic_info.FindBasicInfo) -> None
-        self.__info = basic_info
-        self.__attempt_to_remove_cache()
-
-    def is_valid(self):
-        return False
-
-    def get_cache(self):
-        raise exceptions.CacheError
-
-    def __attempt_to_remove_cache(self):
-        try:
-            self.__remove_cache()
-        except OSError:
-            self.__LOGGER.debug("No cache to delete.")
-
-    def __remove_cache(self):
-        os.remove(self.__info.cache_location)
+        super(ShellDataProcessor, self).__init__()

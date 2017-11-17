@@ -15,8 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
-from PyPWA.libs.data_handler.cache import _no_cache
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor.cache import _no_cache
+from PyPWA.libs.components.data_processor import exceptions
 
 
 @pytest.fixture

@@ -36,7 +36,7 @@ attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.data_handler import data_templates
+from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.builtin_plugins.kv import k_iterator
 from PyPWA.builtin_plugins.kv import k_memory
 from PyPWA.builtin_plugins.kv import k_read_tests

@@ -3,31 +3,29 @@ import os
 import numpy
 import pytest
 
-from PyPWA.libs.data_handler import memory
+from PyPWA.libs.components.data_processor import shell_interface
 
+
+##############################################################################
+# Data Files
+##############################################################################
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
 )
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../../../data/test_docs/temporary_write_data"
 )
 
 
 @pytest.fixture
 def parser_with_cache():
-    def raise_error(file_location):
-        raise RuntimeError("Cache was not loaded!")
-
-    mem = memory.Memory(enable_cache=True)
-    mem.__read_data = raise_error
-
-    return mem
+    return shell_interface.ShellDataProcessor(enable_cache=True)
 
 
 @pytest.fixture
 def parser_no_cache():
-    return memory.Memory(enable_cache=False)
+    return shell_interface.ShellDataProcessor(enable_cache=False)
 
 
 @pytest.fixture
@@ -68,3 +66,11 @@ def test_written_data_matches_read_with_cache(
     new_data = parser_with_cache.parse(TEMP_WRITE_LOCATION)
 
     numpy.testing.assert_array_equal(new_data, array_data)
+
+
+
+def test_Iterator_ReadData_DataMatches():
+    handler = shell_interface.ShellDataProcessor()
+    reader = handler.get_reader(CSV_TEST_DATA)
+    first_line = reader.next()
+    assert first_line["ctAD"] == -0.265433
