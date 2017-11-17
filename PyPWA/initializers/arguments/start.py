@@ -216,6 +216,7 @@ class StartArguments(object):
             self.__setup.start()
         except Exception:
             self.__crash_report()
+            raise
 
     def __crash_report(self):
         pass
