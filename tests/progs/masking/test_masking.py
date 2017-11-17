@@ -4,6 +4,7 @@ import uuid
 
 import pytest
 
+from PyPWA.initializers import configuration_db
 from PyPWA.entries import arguments
 from PyPWA.libs import misc_file_libs
 
@@ -55,6 +56,13 @@ def cleanup_temp():
     os.remove(TEMP_FILE)
 
 
+@pytest.fixture()
+def clear_settings():
+    settings = configuration_db.Connector()
+    yield
+    with pytest.warns(RuntimeWarning):
+        settings.purge()
+
 """
 Test Masking can run without crashing
 """
@@ -64,7 +72,9 @@ tested_args = [
     ["pymask", "-i", INPUT, "--mask", PF, "-m", PF2, "-o", TEMP_FILE]
 ]
 @pytest.fixture(params=tested_args)
-def patch_args_clean(monkeypatch, request, correct_argv, cleanup_temp):
+def patch_args_clean(
+        monkeypatch, request, correct_argv, cleanup_temp, clear_settings
+):
     monkeypatch.setattr("sys.argv", request.param)
 
 
@@ -77,7 +87,9 @@ Test Masking with multiple masks has the correct number of lines
 """
 
 @pytest.fixture()
-def patch_args_double_mask(monkeypatch, request, correct_argv, cleanup_temp):
+def patch_args_double_mask(
+        monkeypatch, request, correct_argv, cleanup_temp, clear_settings
+):
     monkeypatch.setattr(
         "sys.argv",
         [
@@ -99,7 +111,7 @@ Test Masking with multiple OR masks has the correct number of lines
 
 @pytest.fixture()
 def patch_args_double_mask_or(
-        monkeypatch, request, correct_argv, cleanup_temp
+        monkeypatch, request, correct_argv, cleanup_temp, clear_settings
 ):
     monkeypatch.setattr(
         "sys.argv",
@@ -123,7 +135,7 @@ Test Masking with multiple XOR masks has the correct number of lines
 
 @pytest.fixture()
 def patch_args_double_mask_xor(
-        monkeypatch, request, correct_argv, cleanup_temp
+        monkeypatch, request, correct_argv, cleanup_temp, clear_settings
 ):
     monkeypatch.setattr(
         "sys.argv",
@@ -146,7 +158,9 @@ Test Masking with more masked events than data
 """
 
 @pytest.fixture()
-def patch_args_warning(monkeypatch, correct_argv, cleanup_temp):
+def patch_args_warning(
+        monkeypatch, correct_argv, cleanup_temp, clear_settings
+):
     monkeypatch.setattr(
         "sys.argv",
         ["pymask", "-i", INPUT, "--mask", PF_LONG, "-o", TEMP_FILE]
@@ -163,7 +177,9 @@ Test Masking with less masked events than data
 """
 
 @pytest.fixture()
-def patch_args_critical(monkeypatch, correct_argv, cleanup_temp):
+def patch_args_critical(
+        monkeypatch, correct_argv, cleanup_temp, clear_settings
+):
     monkeypatch.setattr(
         "sys.argv",
         ["pymask", "-i", INPUT, "--mask", PF_SHORT, "-o", TEMP_FILE]
@@ -180,7 +196,7 @@ Test Masking with both OR and XOR
 """
 
 @pytest.fixture()
-def patch_args_critical_or_and_xor(monkeypatch, correct_argv):
+def patch_args_critical_or_and_xor(monkeypatch, correct_argv, clear_settings):
     monkeypatch.setattr(
         "sys.argv",
         [

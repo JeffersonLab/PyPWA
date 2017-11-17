@@ -10,12 +10,12 @@ def base():
 
 @pytest.fixture()
 def plugin():
-    return arguments_options.Plugin()
+    return arguments_options.Component()
 
 
 @pytest.fixture()
 def main():
-    return arguments_options.Main()
+    return arguments_options.Program()
 
 
 def test_base_setup_raises_not_implemented(base):
