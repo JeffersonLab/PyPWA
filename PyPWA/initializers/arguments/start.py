@@ -38,6 +38,9 @@ to a lesser extent.
 import argparse
 from typing import Dict, List
 
+import os
+
+from PyPWA.initializers import configuration_db
 from PyPWA import AUTHOR, VERSION
 from PyPWA.initializers.arguments import _loader, arguments_options
 from PyPWA.libs import initial_logging
@@ -75,12 +78,12 @@ class _PluginLoader(object):
 
     @property
     def components(self):
-        # type: () -> Dict[str, arguments_options.Plugin]
+        # type: () -> Dict[str, arguments_options.Component]
         return self.__components
 
     @property
     def program(self):
-        # type: () -> arguments_options.Main
+        # type: () -> arguments_options.Program
         return self.__program
 
 
@@ -167,7 +170,7 @@ class _SetupPlugins(object):
         self.__plugins = None  # type: _PluginLoader
         self.__arguments = None  # type: _LoadArguments
         self.__child_interfaces = {}  # type: Dict[str, common.BasePlugin]
-        self.__main_interface = None  # type: common.Main
+        self.__main_interface = None  # type: common.Program
 
     def create_main_program(self, plugin_storage, arguments):
         # type: (_PluginLoader, _LoadArguments) -> None
@@ -181,7 +184,7 @@ class _SetupPlugins(object):
             self.__setup_component(name, component)
 
     def __setup_component(self, name, component):
-        # type: (str, arguments_options.Plugin) -> None
+        # type: (str, arguments_options.Component) -> None
         component.setup_db(self.__arguments.namespace)
 
     def __setup_program(self):
@@ -219,4 +222,17 @@ class StartArguments(object):
             raise
 
     def __crash_report(self):
-        pass
+        report = configuration_db.Connector().crash_report()
+        if self.__arguments.namespace.log_file:
+            self.__write_report(report)
+        if self.__arguments.namespace.v:
+            print(report)
+
+    def __write_report(self, crash_report):
+        with open(self.__get_report_file_name(), "w") as stream:
+            stream.write(crash_report)
+
+    def __get_report_file_name(self):
+        log_file = os.path.splitext(self.__arguments.namespace.log_file)
+        log_file_name = log_file[0]
+        return log_file_name + "_crash_report.json"
