@@ -32,7 +32,7 @@ import multiprocessing
 from typing import Any
 
 from PyPWA import VERSION, AUTHOR
-from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.components.process import templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -42,7 +42,7 @@ __version__ = VERSION
 class _AbstractProcess(multiprocessing.Process):
 
     def __init__(self):
-        # type: (kernel.Kernel, multiprocessing.Pipe) -> None
+        # type: (templates.Kernel, multiprocessing.Pipe) -> None
         super(_AbstractProcess, self).__init__()
         self.daemon = True  # When true, processes will die with main
 
@@ -55,7 +55,7 @@ class Duplex(_AbstractProcess):
     __LOGGER = logging.getLogger(__name__ + ".Duplex")
 
     def __init__(self, kernel, connect):
-        # type: (kernel.Kernel, multiprocessing.Pipe) -> None
+        # type: (templates.Kernel, multiprocessing.Pipe) -> None
         super(Duplex, self).__init__()
         self.__kernel = kernel
         self.__connection = connect
@@ -68,7 +68,7 @@ class Duplex(_AbstractProcess):
     def __loop(self):
         while True:
             self.__get_value()
-            if self.__received_value == kernel.ProcessCodes.SHUTDOWN:
+            if self.__received_value == templates.ProcessCodes.SHUTDOWN:
                 self.__LOGGER.debug("Gracefully shutting down process.")
                 break
             self.__process()
@@ -90,7 +90,7 @@ class Duplex(_AbstractProcess):
 
     def __handle_error(self, error):
         # type: (Exception) -> None
-        self.__connection.send(kernel.ProcessCodes.ERROR)
+        self.__connection.send(templates.ProcessCodes.ERROR)
         self.__LOGGER.exception(error)
         self.__LOGGER.critical(
             "Child process in critical state! The program will crash!"
@@ -103,7 +103,7 @@ class Simplex(_AbstractProcess):
     __LOGGER = logging.getLogger(__name__ + ".Simplex")
 
     def __init__(self, single_kernel, connect):
-        # type: (kernel.Kernel, multiprocessing.Pipe) -> None
+        # type: (templates.Kernel, multiprocessing.Pipe) -> None
         super(Simplex, self).__init__()
         self.__kernel = single_kernel
         self.__connection = connect
@@ -117,6 +117,6 @@ class Simplex(_AbstractProcess):
         try:
             self.__connection.send(self.__kernel.process())
         except Exception as error:
-            self.__connection.send(kernel.ProcessCodes.ERROR)
+            self.__connection.send(templates.ProcessCodes.ERROR)
             self.__LOGGER.exception(error)
             raise error

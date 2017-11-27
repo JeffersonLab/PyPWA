@@ -1,8 +1,7 @@
 import numpy
 import pytest
 
-from PyPWA.builtin_plugins.process import _data_split
-
+from PyPWA.libs.components.process import _data_split
 
 TWO_SPLIT = _data_split.SetupData(2)
 FOUR_SPLIT = _data_split.SetupData(4)

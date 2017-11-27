@@ -1,10 +1,7 @@
-import time
-
 import numpy
 import pytest
 
-from PyPWA.builtin_plugins.process import foreman
-from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.components.process import foreman, templates
 
 TEST_DATA = {"data": numpy.random.rand(100)}
 
@@ -13,7 +10,7 @@ TEST_DATA = {"data": numpy.random.rand(100)}
 Test Duplex
 """
 
-class DuplexKernel(kernel.Kernel):
+class DuplexKernel(templates.Kernel):
 
     def __init__(self):
         self.data = None  # type: numpy.ndarray
@@ -26,7 +23,7 @@ class DuplexKernel(kernel.Kernel):
         return numpy.sum(self.data)
 
 
-class DuplexInterface(kernel.KernelInterface):
+class DuplexInterface(templates.KernelInterface):
     IS_DUPLEX = True
 
     def run(self, connections, arguments):
@@ -64,7 +61,7 @@ def test_duplex_reports_is_alive(duplex_interface):
 Test Simplex
 """
 
-class SimplexKernel(kernel.Kernel):
+class SimplexKernel(templates.Kernel):
 
     def __init__(self):
         self.data = False  # type: numpy.ndarray
@@ -76,7 +73,7 @@ class SimplexKernel(kernel.Kernel):
         return numpy.sum(self.data)
 
 
-class SimplexInterface(kernel.KernelInterface):
+class SimplexInterface(templates.KernelInterface):
     IS_DUPLEX = False
 
     def run(self, connections, args):
@@ -106,7 +103,7 @@ def test_simplex_sum_matches_expected(simplex_interface):
 Test Errors
 """
 
-class KernelError(kernel.Kernel):
+class KernelError(templates.Kernel):
 
     def __init__(self):
         self.data = False  # type: numpy.ndarray
@@ -118,7 +115,7 @@ class KernelError(kernel.Kernel):
         raise RuntimeError
 
 
-class InterfaceError(kernel.KernelInterface):
+class InterfaceError(templates.KernelInterface):
 
     IS_DUPLEX = False
 
@@ -152,4 +149,4 @@ def interface_with_errors(broken_interface):
 
 def test_error_was_handled(interface_with_errors):
     values = interface_with_errors.run()
-    assert kernel.ProcessCodes.ERROR in values
+    assert templates.ProcessCodes.ERROR in values

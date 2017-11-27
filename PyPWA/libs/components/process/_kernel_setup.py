@@ -25,7 +25,7 @@ import copy
 from typing import Any, Dict, List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.components.process import templates as proc
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -35,17 +35,17 @@ __version__ = VERSION
 class SetupKernels(object):
 
     def __init__(self):
-        self.__kernel = None  # type: kernel.Kernel
-        self.__packed_kernels = None  # type: List[kernel.Kernel]
+        self.__kernel = None  # type: proc.Kernel
+        self.__packed_kernels = None  # type: List[proc.Kernel]
 
     def setup_kernels(self, process_kernel, packets):
-        # type: (kernel.Kernel, List[Dict[str, Any]]) -> List[kernel.Kernel]
+        # type: (proc.Kernel, List[Dict[str, Any]]) -> List[proc.Kernel]
         self.__setup_kernel_details(process_kernel)
         self.__iterate_over_packets(packets)
         return self.__packed_kernels
 
     def __setup_kernel_details(self, process_kernel):
-        # type: (kernel.Kernel) -> None
+        # type: (proc.Kernel) -> None
         self.__kernel = process_kernel
         self.__packed_kernels = []
 
@@ -61,10 +61,10 @@ class SetupKernels(object):
         self.__packed_kernels.append(kernel)
 
     def __get_kernel_copy(self):
-        # type: () -> kernel.Kernel
+        # type: () -> proc.Kernel
         return copy.deepcopy(self.__kernel)
 
     def __load_data_into_kernel(self, process_kernel, packet):
-        # type: (kernel.Kernel, Dict[str, Any]) -> None
+        # type: (proc.Kernel, Dict[str, Any]) -> None
         for key in packet.keys():
             setattr(process_kernel, key, packet[key])

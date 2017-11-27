@@ -32,22 +32,18 @@ Example:
 import multiprocessing
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.process import _setup
-from PyPWA.builtin_plugins.process import foreman
 from PyPWA.initializers.configurator import options
+from PyPWA.libs.components.process import foreman
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Processing(options.Plugin):
+class Processing(options.Component):
 
     plugin_name = "Builtin Multiprocessing"
-    setup = _setup.ProcessSetup
-    provides = options.Types.KERNEL_PROCESSING
-    defined_function = None
-    module_comment = "Builtin SMP Plugin, should be 'good enough'"
+    module_comment = "OpenMP like Python Implementation"
 
     default_options = {
         "number of processes": multiprocessing.cpu_count() * 2
