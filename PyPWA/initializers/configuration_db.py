@@ -17,11 +17,12 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-
+A pseudo-database for component and program configuration.
 """
 
-import json
 import copy
+import enum
+import json
 import warnings
 
 from PyPWA import AUTHOR, VERSION
@@ -63,6 +64,14 @@ class _Database(object):
 
     data = {0: dict()}
     index = 0
+
+
+class _EnumEncoder(json.JSONEncoder):
+
+    def default(self, setting):
+        if isinstance(setting, enum.Enum):
+            return "Enum[" + str(setting) +"]"
+        return super(_EnumEncoder, self).default(setting)
 
 
 class Connector(object):
@@ -115,4 +124,4 @@ class Connector(object):
             return self.__db.data[self.__db.index]
 
     def crash_report(self):
-        return json.dumps(self.__db.data.copy(), indent=2)
+        return json.dumps(self.__db.data.copy(), indent=2, cls=_EnumEncoder)
