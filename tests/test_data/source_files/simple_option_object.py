@@ -1,7 +1,7 @@
 from PyPWA.initializers.configurator import options
 
 
-class SimpleOptions(options.Plugin):
+class SimpleOptions(options.Component):
     plugin_name = "SimpleOptions"
     default_options = {
         "Option1": "item 1",
