@@ -182,7 +182,7 @@ def mock_basic_info_no_file(monkeypatch):
 # Fixtures for tests
 ##############################################################################
 
-@pytest.fixture()
+@pytest.fixture
 def data_settings():
     return settings.DataSettings()
 
@@ -266,7 +266,7 @@ def test_cache_is_valid(param_wrapper):
 @pytest.fixture
 def cache_with_no_file(
         mock_no_cache, mock_standard_cache, mock_clear_cache,
-        mock_basic_info_no_file
+        mock_basic_info_no_file, data_settings
 ):
     build = builder.CacheBuilder()
     return build.get_cache_interface("A File")

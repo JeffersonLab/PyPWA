@@ -30,7 +30,7 @@ from PyPWA.libs.components.data_processor.cache import _basic_info
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__),
-    "../../../../data/test_docs/temporary_write_data"
+    "../../../../test_data/docs/temporary_write_data"
 )
 
 DATA = ";qjkxbmwvzpyfgcrl"

@@ -43,80 +43,53 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class DataParser(options.Component):
+class DataConf(options.Component):
 
-    plugin_name = "Builtin Parser"
-    provides = options.ComponentSelect.DATA
-    defined_function = None
-    module_comment = "Parses TSV, CSV, Kvs, and GAMP data."
+    def __init__(self):
+        super(DataConf, self).__init__()
+        self.name = "Data Processor"
+        self.module_comment = "Parses raw text and numpy data."
 
-    default_options = {
-        "enable cache": True,
-        "clear cache": False,
-        "user plugin": None
-    }
+    def get_default_options(self):
+        return  {
+            "use cache": True,
+            "clear cache": False,
+            "user plugin": None
+        }
 
-    option_difficulties = {
-        "enable cache": options.Level.OPTIONAL,
-        "clear cache": options.Level.ADVANCED,
-        "user plugin": options.Level.ADVANCED
-    }
+    def get_option_difficulties(self):
+        return {
+            "use cache": options.Levels.OPTIONAL,
+            "clear cache": options.Levels.ADVANCED,
+            "user plugin": options.Levels.ADVANCED
+        }
 
-    option_types = {
-        "enable cache": bool,
-        "clear cache": bool,
-        "user plugin": str
-    }
+    def get_option_types(self):
+        return {
+            "use cache": bool,
+            "clear cache": bool,
+            "user plugin": str
+        }
 
-    option_comments = {
-        "enable cache": "Enable caching of all read data.",
-        "clear cache":
-            "Force cache to be cleared even if the data file hasn't changed.",
-        "user plugin":
-            "Directory that has potential plugins for the data parser in "
-            "it. Read the docs for more information."
-    }
-
-
-class DataIterator(options.Component):
-
-    plugin_name = "Builtin Iterator"
-    provides = options.ComponentSelect.DATA
-    defined_function = None
-    module_comment = "Iterates over TSV, CSV, Kvs, and GAMP data."
-
-    default_options = {
-        "fail": False,
-        "user plugin": None
-    }
-
-    option_difficulties = {
-        "fail": options.Level.ADVANCED,
-        "user plugin": options.Level.ADVANCED
-    }
-
-    option_types = {
-        "fail": bool,
-        "user plugin": str
-    }
-
-    option_comments = {
-        "fail":
-            "Force Parser to crash when it fails to read a file even if "
-            "a fallback exists.",
-        "user plugin":
-            "Directory that has potential plugins for the data parser in "
-            "it. Read the docs for more information."
-    }
+    def get_option_comments(self):
+        return {
+            "use cache": "Enable caching of all read data.",
+            "clear cache":
+                "Force cache to be cleared even if the data file hasn't "
+                "changed.",
+            "user plugin":
+                "Directory that has potential plugins for the data parser in "
+                "it. Read the docs for more information."
+        }
 
 
-class ArgData(arguments_options.Component):
+class DataArg(arguments_options.Component):
 
-    _NAME = "Data"
+    _NAME = "Data Processor"
 
     def __init__(self):
         self.__settings =settings.DataSettings()
-        super(ArgData, self).__init__()
+        super(DataArg, self).__init__()
 
     def _add_arguments(self):
         self.__add_enable_cache()
@@ -124,7 +97,7 @@ class ArgData(arguments_options.Component):
 
     def __add_enable_cache(self):
         self._parser.add_argument(
-            "--enable-cache", action='store_true', default=False,
+            "--use-cache", action='store_true', default=False,
             help="Enable caching of interacted data. This will speed up "
                  "future interaction with the same data."
         )
@@ -138,7 +111,7 @@ class ArgData(arguments_options.Component):
     def setup_db(self, namespace):
         self.__settings.merge_settings(
             {
-                "enable cache": namespace.enable_cache,
+                "use cache": namespace.use_cache,
                 "clear cache": namespace.clear_cache
             }
         )

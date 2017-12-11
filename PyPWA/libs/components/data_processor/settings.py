@@ -23,7 +23,7 @@ Main object for Parsing Data
 from typing import Dict
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers import configuration_db
+from PyPWA.libs import configuration_db
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -38,7 +38,7 @@ class DataSettings(object):
 
     def __initialize_defaults(self):
         self.__db.initialize_component(
-            "Data",
+            "Data Processor",
             {
                 "use cache": True,
                 "clear cache": False
@@ -47,10 +47,10 @@ class DataSettings(object):
 
     def merge_settings(self, settings):
         # type: (Dict[str, bool]) -> None
-        self.__db.merge_component("Data", settings)
+        self.__db.merge_component("Data Processor", settings)
 
     def use_cache(self, enable=True):
-        self.__db.modify_setting("Data", "use cache", enable)
+        self.__db.modify_setting("Data Processor", "use cache", enable)
 
     def clear_cache(self, enable=False):
-        self.__db.modify_setting("Data", "clear cache", enable)
+        self.__db.modify_setting("Data Processor", "clear cache", enable)

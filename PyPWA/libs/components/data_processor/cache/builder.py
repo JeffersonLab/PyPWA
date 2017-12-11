@@ -33,7 +33,7 @@ import logging
 from typing import Any
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers import configuration_db
+from PyPWA.libs import configuration_db
 from PyPWA.libs.components.data_processor.cache import _basic_info
 from PyPWA.libs.components.data_processor.cache import _clear_cache
 from PyPWA.libs.components.data_processor.cache import _no_cache
@@ -73,8 +73,8 @@ class CacheBuilder(object):
     def __init__(self):
         # type: (bool, bool) -> None
         settings = configuration_db.Connector()
-        self.__clear_cache = settings.read("Data", "clear cache")
-        self.__use_cache = settings.read("Data", "use cache")
+        self.__clear_cache = settings.read("Data Processor", "clear cache")
+        self.__use_cache = settings.read("Data Processor", "use cache")
         self.__info_object = None  # type: _basic_info.FindBasicInfo
         self.__selected_reader = None  # type: _template.ReadInterface
         self.__selected_writer = None  # type: _template.WriteInterface

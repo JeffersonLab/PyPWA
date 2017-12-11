@@ -10,11 +10,11 @@ from PyPWA.libs.components.data_processor import shell_interface
 # Data Files
 ##############################################################################
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../../test_data/docs/sv_test_data.csv"
 )
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../../data/test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../../../test_data/docs/temporary_write_data"
 )
 
 
