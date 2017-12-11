@@ -30,7 +30,7 @@ import multiprocessing
 from typing import Any, Dict, List, Optional
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers import configuration_db
+from PyPWA.libs import configuration_db
 from PyPWA.libs.components.process import (
     _data_split, _kernel_setup,
     _process_factory, templates
@@ -100,7 +100,7 @@ class CalculationForeman(object):
             return potential_processes
         else:
             return configuration_db.Connector().read(
-                "Builtin Multiprocessing", "number of processes"
+                "Multiprocessing", "number of processes"
             )
 
     def main_options(

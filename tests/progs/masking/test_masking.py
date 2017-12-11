@@ -4,38 +4,36 @@ import uuid
 
 import pytest
 
-from PyPWA.initializers import configuration_db
 from PyPWA.entries import arguments
-from PyPWA.libs import misc_file_libs
-
+from PyPWA.libs import misc_file_libs, configuration_db
 
 """
 Masking Data
 """
 
 INPUT = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
 )
 
 PF = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.pf"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.pf"
 )
 
 PF2 = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data2.pf"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data2.pf"
 )
 
 PF_SHORT = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data_short.pf"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data_short.pf"
 )
 
 PF_LONG = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data_long.pf"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data_long.pf"
 )
 
 TEMP_FILE = os.path.join(
     os.path.dirname(__file__),
-    "../../data/test_docs/temp_" + str(uuid.uuid4()) + "_file.txt"
+    "../../test_data/docs/temp_" + str(uuid.uuid4()) + "_file.txt"
 )
 
 

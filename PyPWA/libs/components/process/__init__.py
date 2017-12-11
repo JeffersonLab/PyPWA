@@ -42,21 +42,27 @@ __version__ = VERSION
 
 class Processing(options.Component):
 
-    plugin_name = "Builtin Multiprocessing"
-    module_comment = "OpenMP like Python Implementation"
+    def __init__(self):
+        self.name = "Multiprocessing"
+        self.module_comment = "OpenMP like Python Implementation"
 
-    default_options = {
-        "number of processes": multiprocessing.cpu_count() * 2
-    }
+    def get_default_options(self):
+        return {
+            "number of processes": multiprocessing.cpu_count() * 2
+        }
 
-    option_levels = {
-        "number of processes": options.Levels.OPTIONAL
-    }
+    def get_option_difficulties(self):
+        return {
+            "number of processes": options.Levels.OPTIONAL
+        }
 
-    option_types = {
-        "number of processes": int
-    }
+    def get_option_types(self):
+        return {
+            "number of processes": int
+        }
 
-    option_comments = {
-        "number of processes": "Number of processes to use for calculation."
-    }
+    def get_option_comments(self):
+        return {
+            "number of processes": "Number of processes to use for "
+                                   "calculation."
+        }
