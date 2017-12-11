@@ -25,7 +25,7 @@ another.
 """
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers import configuration_db
+from PyPWA.libs import configuration_db
 from PyPWA.initializers.arguments import arguments_options
 from PyPWA.progs.masking import masking
 
@@ -37,7 +37,7 @@ __version__ = VERSION
 class MaskingArguments(arguments_options.Program):
 
     _NAME = "masking utility"
-    _REQUIRED = ["Data"]
+    _REQUIRED = ["Data Processor"]
 
     def _add_arguments(self):
         self.__add_input_argument()

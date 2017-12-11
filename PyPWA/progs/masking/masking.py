@@ -32,9 +32,8 @@ from typing import Optional as Opt
 import numpy
 import tqdm
 
-from PyPWA.initializers import configuration_db
+from PyPWA.libs import configuration_db
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import common
 from PyPWA.libs.components.data_processor import file_processor
 from PyPWA.libs.components.data_processor import data_templates
 
@@ -123,7 +122,7 @@ class _DataPackage(object):
         return self.__writer
 
 
-class Masking(common.Main):
+class Masking(object):
 
     __LOGGER = logging.getLogger(__name__ + ".Masking")
 

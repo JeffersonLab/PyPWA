@@ -40,11 +40,9 @@ from typing import Dict, List
 
 import os
 
-from PyPWA.initializers import configuration_db
 from PyPWA import AUTHOR, VERSION
 from PyPWA.initializers.arguments import _loader, arguments_options
-from PyPWA.libs import initial_logging
-from PyPWA.libs.interfaces import common
+from PyPWA.libs import initial_logging, configuration_db
 
 __credits__ = ["Mark Jones"]
 
@@ -169,8 +167,8 @@ class _SetupPlugins(object):
     def __init__(self):
         self.__plugins = None  # type: _PluginLoader
         self.__arguments = None  # type: _LoadArguments
-        self.__child_interfaces = {}  # type: Dict[str, common.BasePlugin]
-        self.__main_interface = None  # type: common.Program
+        self.__child_interfaces = {}  # type: Dict[arguments_options.Component]
+        self.__main_interface = None  # type: arguments_options.Program
 
     def create_main_program(self, plugin_storage, arguments):
         # type: (_PluginLoader, _LoadArguments) -> None

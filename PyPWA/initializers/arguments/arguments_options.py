@@ -31,11 +31,9 @@ used inside the argument parser.
 """
 
 from argparse import ArgumentParser, Namespace
-from typing import Dict, List
-from typing import Optional as Opt
+from typing import List, Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -86,7 +84,7 @@ class Program(Base):
         return self._REQUIRED
 
     def setup_db(self, namespace):
-        # type: (Namespace, Dict[str, common.BasePlugin]) -> common.Main
+        # type: (Namespace) -> None
         raise NotImplementedError
 
     def start(self):
