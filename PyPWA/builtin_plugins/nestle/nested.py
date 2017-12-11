@@ -29,127 +29,92 @@ your parameter space for provided function.
 """
 
 import logging
-from typing import Any, Callable, Tuple
-from typing import Optional as Opt
+from typing import Any, Callable, Tuple, Dict
 
 import nestle
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.builtin_plugins.nestle import _graph_data
-from PyPWA.builtin_plugins.nestle import _save_results
+from PyPWA.builtin_plugins.nestle import _save_results, _settings
 from PyPWA.libs import plugin_loader
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.optimizers import opt_plugins
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _NestleParserObject(optimizers.OptimizerOptionParser):
+
+class NestleParserObject(opt_plugins.OptionParser):
+
+    def __init__(self):
+        self.__parameters = _settings.NestleSettings().parameters
 
     def convert(self, *args):
-        # type: (Tuple[Tuple[Tuple[numpy.ndarray]]]) -> numpy.ndarray
-        return args[0][0][0]
+        # type: (Tuple[Tuple[Tuple[numpy.ndarray]]]) -> Dict[str, numpy.ndarray]
+        values = dict()
+        for parameter, slice in zip(self.__parameters, args[0][0][0]):
+            values[parameter] = slice
+        return values
 
 
-class NestledSampling(optimizers.Optimizer):
-
-    OPTIMIZER_TYPE = optimizers.OptimizerTypes.MAXIMIZER
-
-    __LOGGER = logging.getLogger(__name__ + ".NestledSampling")
-
-    def __init__(
-            self,
-            prior,  # type: Callable[[numpy.ndarray], numpy.ndarray]
-            ndim,  # type: int
-            npoints=100,   # type: int
-            method="single",  # type: str
-            update_interval=None,   # type: Opt[int]
-            npdim=None,   # type: Opt[int]
-            maxiter=None,  # type: Opt[int]
-            maxcall=None,  # type: Opt[int]
-            dlogz=None,   # type: Opt[float]
-            decline_factor=None,  # type: Opt[float]
-            folder_location=False  # type: Opt[str]
-    ):
-        # type: (...) -> None
-        self.__save_data = _save_results.SaveData()
-        self.__prior = prior
-        self.__ndim = ndim
-        self.__npoints = npoints
-        self.__method = method
-        self.__update_interval = update_interval
-        self.__npdim = npdim
-        self.__maxiter = maxiter
-        self.__maxcall = maxcall
-        self.__dlogz = dlogz
-        self.__decline_factor = decline_factor
-        self.__folder_location = folder_location
-        self.__calc_function = None  # type: Callable[[Any], float]
-        self.__callback_object = None  # type: _graph_data.SaveData
-        self.__results = None  # type: nestle.Result
-
-    def main_options(self, calc_function, fitting_type=False):
-        # type: (Callable[[Any], float], optimizers.LikelihoodTypes) -> None
-        self.__calc_function = calc_function
-
-    def start(self):
-        self.__start_sampling()
-
-    def __setup_callback(self):
-        if self.__folder_location:
-            self.__LOGGER.info("Writing nestle's data to disk.")
-            callback = _graph_data.SaveData(self.__folder_location)
-            self.__callback_object = callback.process_callback
-
-    def __start_sampling(self):
-        self.__results = nestle.sample(
-            loglikelihood=self.__calc_function,
-            prior_transform=self.__prior,
-            ndim=self.__ndim,
-            npoints=self.__npoints,
-            method=self.__method,
-            update_interval=self.__update_interval,
-            npdim=self.__npdim,
-            maxiter=self.__maxiter,
-            maxcall=self.__maxcall,
-            dlogz=self.__dlogz,
-            decline_factor=self.__decline_factor,
-            callback=self.__callback_object
-        )
-
-    def return_parser(self):
-        # type: () -> _NestleParserObject
-        return _NestleParserObject()
-
-    def save_extra(self, save_name):
-        self.__save_data.save_data(save_name, self.__results)
-
-
-class LoadPrior(object):
+class _LoadPrior(object):
 
     __LOGGER = logging.getLogger("_LoadPrior." + __name__)
 
     def __init__(self):
         self.__plugin_storage = plugin_loader.PluginLoader()
+        self.__settings = _settings.NestleSettings()
         self.__found_prior = None  # type: Any
 
 
-    def load_prior(self, prior_location, prior_name):
+    def load_prior(self):
         # type: (str, str) -> None
-        self.__add_prior_location(prior_location)
-        self.__set_prior(prior_name)
+        self.__add_prior_location()
+        self.__set_prior()
 
-    def __add_prior_location(self, location):
-        # type: (str) -> None
-        self.__plugin_storage.add_plugin_location(location)
+    def __add_prior_location(self):
+        self.__plugin_storage.add_plugin_location(
+            self.__settings.prior_location
+        )
 
-    def __set_prior(self, name):
-        # type: (str) -> None
-        self.__found_prior = self.__plugin_storage.get_by_name(name)
+    def __set_prior(self):
+        self.__found_prior = self.__plugin_storage.get_by_name(
+            self.__settings.prior_name
+        )
 
     @property
     def prior(self):
-        # type: () -> Callable[[numpy.ndarray], numpy.ndarray]
+        # type: () -> Callable[numpy.ndarray]
         return self.__found_prior
+
+
+class NestledSampling(opt_plugins.Optimizer):
+
+    __LOGGER = logging.getLogger(__name__ + ".NestledSampling")
+
+    def __init__(self):
+        self.__results = None  # type: nestle.Result
+        self.__save_data = _save_results.SaveData()
+        self.__settings = _settings.NestleSettings()
+        self.__function = _LoadPrior()
+
+    def run(self, calculation_function, fitting_type=None):
+        self.__function.load_prior()
+        self.__results = nestle.sample(
+            loglikelihood=calculation_function,
+            prior_transform=self.__function.prior,
+            ndim=self.__settings.ndim,
+            npoints=self.__settings.npoints,
+            method=self.__settings.method,
+            update_interval=self.__settings.update_interval,
+            npdim=self.__settings.npdim,
+            maxiter=self.__settings.maxiter,
+            maxcall=self.__settings.maxcall,
+            dlogz=self.__settings.dlogz,
+            decline_factor=self.__settings.decline_factor
+        )
+
+
+    def save_extra(self, save_name):
+        self.__save_data.save_data(save_name, self.__results)
