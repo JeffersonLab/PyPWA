@@ -47,22 +47,29 @@ class _FullOptions(object):
     __LOGGER = logging.getLogger(__name__ + ".FullOptions")
 
     def __init__(self, options_object):
-        # type: (options.Base) -> None
+        # type: (options.Component) -> None
         self.__options = options_object
         self.__built_options = None  # type: comments.CommentedMap
-        self.__build_options()
+        self.__try_to_build_options()
+
+    def __try_to_build_options(self):
+        try:
+            self.__build_options()
+        except Exception as error:
+            print("Failed to build %s!" % self.__options)
+            raise error
 
     def __build_options(self):
         self.__set_header_into_built_options()
         self.__set_content_into_built_options()
         self.__LOGGER.info(
-            "Built the options for %s" % self.__options.plugin_name
+            "Built the options for %s" % self.__options.name
         )
 
     def __set_header_into_built_options(self):
         header = comments.CommentedMap()
         header.yaml_add_eol_comment(
-            self.__options.module_comment, self.__options.plugin_name
+            self.__options.module_comment, self.__options.name
         )
         self.__built_options = header
 
@@ -70,17 +77,17 @@ class _FullOptions(object):
         content = comments.CommentedMap()
         populated_content = self.__add_default_options(content)
         commented_content = self.__add_option_comments(populated_content)
-        self.__built_options[self.__options.plugin_name] = commented_content
+        self.__built_options[self.__options.name] = commented_content
 
     def __add_default_options(self, content):
         # type: (comments.CommentedMap) -> comments.CommentedMap
-        for option, value in self.__options.default_options.items():
+        for option, value in self.__options.get_default_options().items():
             content[option] = value
         return content
 
     def __add_option_comments(self, content):
         # type: (comments.CommentedMap) -> comments.CommentedMap
-        for option, comment in self.__options.option_comments.items():
+        for option, comment in self.__options.get_option_comments().items():
             content.yaml_add_eol_comment(comment, option)
         return content
 
@@ -92,12 +99,12 @@ class _FullOptions(object):
     @property
     def name(self):
         # type: () -> str
-        return self.__options.plugin_name
+        return self.__options.name
 
     @property
     def difficulties(self):
         # type: () -> List[options.Types]
-        return self.__options.option_difficulties.items()
+        return self.__options.get_option_difficulties().items()
 
 
 class ProcessOptions(object):

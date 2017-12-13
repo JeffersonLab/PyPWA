@@ -19,19 +19,19 @@
 """
 General Objects needed for PySimulate
 -------------------------------------
-A collection of objects are defined here that influence how the PySimulate 
+A collection of objects are defined here that influence how the PySimulate
 works. All here is the true main logic of the program.
 
-- DataHandler - takes the data objects, data location, and save location, 
-  the providing access to whatever data it can load, and exposing  methods 
-  that will handle to writing of all the different types of data the 
+- DataHandler - takes the data objects, data location, and save location,
+  the providing access to whatever data it can load, and exposing  methods
+  that will handle to writing of all the different types of data the
   simulation object would need written.
 
-- Intensities - calculates the intensities using the provided processing 
+- Intensities - calculates the intensities using the provided processing
   function and setup.
 
-- RejectionList - takes an array of calculated intensities along with a max 
-  intensity, normalizes the intensities, then using the Rejection Method, 
+- RejectionList - takes an array of calculated intensities along with a max
+  intensity, normalizes the intensities, then using the Rejection Method,
   randomly throws out events.
 """
 
@@ -42,8 +42,8 @@ from typing import Dict
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import data_loaders
-from PyPWA.libs.interfaces import kernel
+from PyPWA.libs import configuration_db
+from PyPWA.libs.components.process import foreman
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.simulate import _processing
 
@@ -54,10 +54,12 @@ __version__ = VERSION
 
 class DataHandler(loaders.DataLoading):
 
-    def __init__(self, data_parser, data_location, save_name):
-        # type: (data_loaders.ParserPlugin, str, str) -> None
-        super(DataHandler, self).__init__(data_parser, data_location)
-        self.__save_location = save_name
+    def __init__(self):
+        db = configuration_db.Connector()
+        super(DataHandler, self).__init__()
+        self.__save_location = configuration_db.Connector().read(
+            "shell simulation", "save name"
+        )
 
     def write_intensity_data(self, intensities, max_intensity):
         # type: (numpy.ndarray, float) -> None
@@ -83,17 +85,13 @@ class DataHandler(loaders.DataLoading):
 
 class Intensities(object):
 
-    def __init__(
-            self,
-            data_loader,  # type: DataHandler
-            function_loader,  # type: loaders.FunctionLoader
-            kernel_processing,  # type: kernel.KernelProcessing
-            parameters  # type: Dict[str, float]
-    ):
-        self.__data_loader = data_loader
-        self.__function_loader = function_loader
-        self.__processing = kernel_processing
-        self.__parameters = parameters
+    def __init__(self):
+        self.__data_loader = DataHandler()
+        self.__function_loader = loaders.FunctionLoader()
+        self.__processing = foreman.CalculationForeman()
+        self.__parameters = configuration_db.Connector().read(
+            "shell simulation", "parameters"
+        )
 
         self.__found_intensities = None  # type: numpy.ndarray
         self.__max_intensity = None  # type: float

@@ -45,7 +45,7 @@ import time
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.components.process import templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -175,7 +175,7 @@ class _OutputThread(threading.Thread):
         self.__send_queue.put(self.__get_current_runtime())
 
 
-class FittingInterface(kernel.KernelInterface):
+class FittingInterface(templates.KernelInterface):
 
     IS_DUPLEX = True
     __LOGGER = logging.getLogger(__name__ + ".FittingInterfaceKernel")

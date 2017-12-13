@@ -30,8 +30,7 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import kernel
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.process import templates
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell import shell_types
 
@@ -40,7 +39,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Likelihood(kernel.Kernel):
+class Likelihood(templates.Kernel):
 
     def __init__(self, setup_function=None):
         # type: (shell_types.users_setup) -> None

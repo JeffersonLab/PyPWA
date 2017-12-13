@@ -35,106 +35,93 @@ import numpy
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.builtin_plugins.minuit import _save_data
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.optimizers import opt_plugins
+from PyPWA.libs import configuration_db
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _ParserObject(optimizers.OptimizerOptionParser):
+class ParserObject(opt_plugins.OptionParser):
 
-    def __init__(self, parameters):
-        # type: (List[str]) -> None
-        self._parameters = parameters
+    def __init__(self):
+        self.__parameters = configuration_db.Connector().read(
+            "Optimizer", "parameters"
+        )
 
     def convert(self, *args):
         # type: (Tuple[Tuple[List[float]]]) -> Dict[str, float]
         parameters_with_values = {}
-        for parameter, arg in zip(self._parameters, args[0][0]):
+        for parameter, arg in zip(self.__parameters, args[0][0]):
             parameters_with_values[parameter] = arg
 
         return parameters_with_values
 
 
-class Minuit(optimizers.Optimizer):
-
-    OPTIMIZER_TYPE = optimizers.OptimizerTypes.MINIMIZER
+class Minuit(opt_plugins.Optimizer):
 
     __LOGGER = logging.getLogger(__name__ + ".Minuit")
 
-    def __init__(
-            self,
-            parameters=False,  # type: List[str]
-            settings=False,  # type: Dict[str, Any]
-            strategy=1,  # type: int
-            number_of_calls=10000,  # type: int
-    ):
-        # type: (...) -> None
-        self.__save_data = _save_data.SaveData()
-        self.__parameters = parameters
-        self.__settings = settings
-        self.__strategy = strategy
-        self.__number_of_calls = number_of_calls
-
+    def __init__(self):
+        # type: () -> None
         self.__final_value = 0  # type: numpy.float64
         self.__covariance = 0  # type: tuple
         self.__values = 0  # type: float
         self.__set_up = 0  # type: float
-        self.__calc_function = None  # type: Callable[[List[str]], float]
 
-    def main_options(
-            self,
-            calc_function,  # type: Callable[[List[str], float]]
-            fitting_type=False  # type: optimizers.LikelihoodTypes
-    ):
-        # type: (...) -> None
-        self.__calc_function = calc_function
+        self.__db = configuration_db.Connector()
+        self.__save_data = _save_data.SaveData()
+
+    def run(self, calculation_function, fitting_type=None):
+        # type: (Callable[Any], opt_plugins.Likelihood) -> None
         self.__error_def(fitting_type)
-
-    def __check_params(self):
-        if isinstance(self.__parameters, bool):
-            raise ValueError(
-                "There are no supplied parameters! Please set "
-                "'parameters' under 'Minuit' in your settings!"
-            )
-        self.__LOGGER.debug(
-            "Found parameters: {0}".format(repr(self.__parameters))
-        )
+        self.__log_information()
+        self.__execute_minimizer(calculation_function)
 
     def __error_def(self, fitting_type):
-        # type: (optimizers.LikelihoodTypes) -> None
-        if fitting_type is optimizers.LikelihoodTypes.CHI_SQUARED:
+        # type: (opt_plugins.Likelihood) -> None
+        if fitting_type is opt_plugins.Likelihood.CHI_SQUARED:
             self.__set_up = 1
         else:
             self.__set_up = .5
 
-    def start(self):
-        self.__check_params()
+    def __log_information(self):
+        settings, strategy, max_iterations, parameters = self.__load_data()
+        self.__LOGGER.debug("Found settings: %s" % repr(settings))
+        self.__LOGGER.info("Running with strategy: %d" % strategy)
+        self.__LOGGER.debug("Settings max iterations to: %d" % max_iterations)
+        self.__LOGGER.info("Found parameters: %s" % repr(parameters))
 
-        self.__LOGGER.debug("Found settings: " + repr(self.__settings))
+    def __load_data(self):
+        # type: () -> Tuple[Dict[str, Any], int, int, List[str]]
+        settings = self.__db.read("minuit", "settings")
+        strategy = self.__db.read("minuit", "strategy")
+        max_iterations = self.__db.read("minuit", "number of calls")
+        parameters = self.__db.read("minuit", "parameters")
+        return settings, strategy, max_iterations, parameters
+
+    def __execute_minimizer(self, calculation_function):
+        settings, strategy, max_iterations, parameters = self.__load_data()
+
         minimal = iminuit.Minuit(
-            self.__calc_function,
-            forced_parameters=self.__parameters,
-            **self.__settings
+            calculation_function, forced_parameters=parameters,
+            **settings
         )
 
-        minimal.set_strategy(self.__strategy)
+        minimal.set_strategy(strategy)
         minimal.set_up(self.__set_up)
-        minimal.migrad(ncall=self.__number_of_calls)
+        minimal.migrad(ncall=max_iterations)
 
         self.__final_value = minimal.fval
         self.__covariance = minimal.covariance
         self.__values = minimal.values
 
-    def return_parser(self):
-        # type: () -> _ParserObject
-        return _ParserObject(self.__parameters)
 
-    def save_extra(self, save_name):
+    def save_data(self, save_name):
         # type: (str) -> None
         if not isinstance(self.__covariance, type(None)):
             self.__save_data.save_data(
-                save_name, self.__covariance, self.__final_value,
-                self.__values
+                save_name, self.__covariance,
+                self.__final_value, self.__values
             )

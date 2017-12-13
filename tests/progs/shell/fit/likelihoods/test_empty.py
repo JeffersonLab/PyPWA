@@ -3,7 +3,7 @@ import pytest
 
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.fit.likelihoods import empty
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.optimizers import opt_plugins
 
 
 class Data(loaders.DataLoading):
@@ -34,7 +34,7 @@ class Functions(loaders.FunctionLoader):
 def likelihood_loader():
     loader = empty.EmptyLikelihood()
     loader.setup_likelihood(
-        Data(), Functions(), optimizers.OptimizerTypes.MAXIMIZER
+        Data(), Functions(), opt_plugins.Type.MAXIMIZER
     )
     return loader
 

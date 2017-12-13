@@ -20,17 +20,14 @@
 All the plugins that come packaged with PyPWA by default.
 ---------------------------------------------------------
 
-- data - A not so basic data plugin that supports caching, different file 
-  types, can be extended, and even supports both parsing and iterating.
-
+- gamp - The GAMP data plugin
+- kv - The EVIL data plugin
 - minuit - A python / cython minimizer based on ROOT's PyPWA.
-
 - nestle - A python maximizer based off of Multinest.
+- numpy - The Numpy data plugin
+- sv - The CSV/TSV Data Plugin
 
-- process - A Kernel based multiprocessing module. Allows for an 
-  embarrassingly parallel calculation to be expanded across multiple cores.
-  
-For more information about how these plugins work, see their documentation 
+For more information about how these plugins work, see their documentation
 as well.
 """
 

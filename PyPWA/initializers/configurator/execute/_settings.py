@@ -19,35 +19,36 @@
 """
 The main file for handing configuration parsing.
 ------------------------------------------------
-This file contains a collection of objects that load and process the 
-configuration file into a usable dictionary that can be used to setup the 
-plugins. This configuration file also goes through a sort of spell check to 
+This file contains a collection of objects that load and process the
+configuration file into a usable dictionary that can be used to setup the
+plugins. This configuration file also goes through a sort of spell check to
 ensure that all the keys and values are of the right type for the plugin that
 is going to be rendering it.
 
 .. seealso::
-    _correct_configuration.py for the logic regarding setting value 
+    _correct_configuration.py for the logic regarding setting value
     correction.
 
-- _InternalizeSettings - Takes the settings loaded from the configuration, 
-  and replaces select keys in the configuration with keys from the settings 
+- _InternalizeSettings - Takes the settings loaded from the configuration,
+  and replaces select keys in the configuration with keys from the settings
   override in the entry function. Useful so that you can have multiple names
   for the same main module.
-  
-- _SetupPluginDir - Static Object that pulls the plugin directory from the 
+
+- _SetupPluginDir - Static Object that pulls the plugin directory from the
   configuration and adds the path to the storage objects plugin search path.
-  
-- Setup - Takes the configuration and override information then parses that 
+
+- Setup - Takes the configuration and override information then parses that
   information into a usable configuration dictionary.
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers.configurator import storage
-from PyPWA.initializers.configurator.execute import _correct_configuration
-from PyPWA.initializers.configurator.execute import _reader
+from PyPWA.libs import configuration_db
+from PyPWA.initializers.configurator import storage, options
+from PyPWA.initializers.configurator.execute import _storage_data, \
+    _correct_configuration, _reader
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -90,6 +91,9 @@ class _InternalizeSettings(object):
 
         self.__settings.pop(self.__overrides["main name"])
 
+    def get_program_name(self):
+        return self.__overrides["main"]
+
 
 class _SetupPluginDir(object):
 
@@ -117,17 +121,46 @@ class _SetupPluginDir(object):
         self.__LOGGER.info("Found extra plugin locations %s" % repr(location))
 
 
+class _InitializeDefaults(object):
+
+    def __init__(self):
+        self.__db = configuration_db.Connector()
+        self.__selector = _storage_data.ModulePicking()
+
+    def update(self, main_name):
+        # type: (str) -> None
+        program_configuration = self.__selector.request_program_by_id(main_name)
+        self.__process_component_list(program_configuration)
+
+    def __process_component_list(self, main):
+        # type: (options.Program) -> None
+        self.__initialize_component(main)
+        for component in main.get_required_components():
+            self.__initialize_component(component)
+
+    def __initialize_component(self, component):
+        # type: (options.Component) -> None
+        self.__update_database(component.name, component.get_default_options())
+
+    def __update_database(self, name, options):
+        self.__db.initialize_component(name, options)
+
+
 class Setup(object):
 
     def __init__(self):
-        self.__settings = None
+        self.__defaults = _InitializeDefaults()
+        self.__db = configuration_db.Connector()
+        self.__main_name = None  # type: str
 
     def load_settings(self, settings_overrides, configuration_location):
         # type: (Dict[str, Any], str) -> None
         config = self.__load_config(configuration_location)
         internal = self.__internalize_settings(config, settings_overrides)
         self.__process_plugin_path(internal)
-        self.__correct_settings(internal)
+        settings = self.__correct_settings(internal)
+        self.__initialize_defaults()
+        self.__update_database(settings)
 
     @staticmethod
     def __load_config(configuration_location):
@@ -135,13 +168,14 @@ class Setup(object):
         loader = _reader.ConfigurationLoader()
         return loader.read_config(configuration_location)
 
-    @staticmethod
-    def __internalize_settings(configuration, settings_overrides):
+    def __internalize_settings(self, configuration, settings_overrides):
         # type: (Dict[str, Any], Dict[str, Any]) -> Dict[str, Any]
         internalize = _InternalizeSettings()
-        return internalize.processed_settings(
+        internalized = internalize.processed_settings(
             configuration, settings_overrides
         )
+        self.__main_name = internalize.get_program_name()
+        return internalized
 
     @staticmethod
     def __process_plugin_path(settings):
@@ -150,16 +184,18 @@ class Setup(object):
         plugin_dir.add_locations_from_settings(settings)
 
     def __correct_settings(self, settings):
-        # type: (Dict[str, Any]) -> None
+        # type: (Dict[str, Any]) -> Dict[str, Any]
         corrector = _correct_configuration.SettingsAid()
-        self.__settings = corrector.correct_settings(settings)
+        return corrector.correct_settings(settings)
+
+    def __initialize_defaults(self):
+        self.__defaults.update(self.__main_name)
+
+    def __update_database(self, settings):
+        for base in settings.keys():
+            self.__db.merge_component(base, settings[base])
 
     @property
-    def loaded_settings(self):
-        # type: () -> Dict[str, Any]
-        return self.__settings
-
-    @property
-    def plugin_ids(self):
-        # type: () -> List[str]
-        return list(self.__settings.keys())
+    def program_name(self):
+        # type: () -> str
+        return self.__main_name

@@ -3,7 +3,8 @@ import pytest
 
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.fit.likelihoods import chi_squared
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.optimizers import opt_plugins
+
 
 class Functions(loaders.FunctionLoader):
 
@@ -76,7 +77,7 @@ def binned():
 def binned_loader():
     likelihood_loader = chi_squared.ChiLikelihood()
     likelihood_loader.setup_likelihood(
-        BinnedData(), Functions(), optimizers.OptimizerTypes.MINIMIZER
+        BinnedData(), Functions(), opt_plugins.Type.MINIMIZER
     )
     return likelihood_loader
 
@@ -130,7 +131,7 @@ def errors():
 def un_binned_loader():
     likelihood_loader = chi_squared.ChiLikelihood()
     likelihood_loader.setup_likelihood(
-        UnBinnedData(), Functions(), optimizers.OptimizerTypes.MAXIMIZER
+        UnBinnedData(), Functions(), opt_plugins.Type.MAXIMIZER
     )
     return likelihood_loader
 
@@ -167,5 +168,5 @@ def test_no_binned_or_errors():
     likelihood_loader = chi_squared.ChiLikelihood()
     with pytest.raises(ValueError):
         likelihood_loader.setup_likelihood(
-            BaseData(), Functions(), optimizers.OptimizerTypes.MAXIMIZER
+            BaseData(), Functions(), opt_plugins.Type.MAXIMIZER
         )

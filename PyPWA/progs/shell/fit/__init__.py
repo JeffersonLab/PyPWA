@@ -42,81 +42,94 @@ from PyPWA import AUTHOR, VERSION
 from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import pyshell_functions
 from PyPWA.progs.shell.fit import pyfit
+from PyPWA.libs.components import optimizers, data_processor, process
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class ShellFitting(options.Main):
+class ShellFitting(options.Program, options.HasUserFunction):
 
-    __likelihood_loader = pyfit.LikelihoodPackager()
+    def __init__(self):
+        self.name = "shell fitting method"
+        self.module_comment = "PyFit, a simple python data analysis tool."
+        self.__likelihood_loader = pyfit.LikelihoodPackager()
 
-    plugin_name = "shell fitting method"
-    setup = intial_setup.FittingSetup
-    defined_function = pyshell_functions.ShellFunctionFile
-    required_plugins = [
-        options.Types.OPTIMIZER,
-        options.Types.DATA_PARSER,
-        options.Types.KERNEL_PROCESSING
-    ]
+    def get_required_components(self):
+        return [
+            optimizers.OptimizerConf(),
+            data_processor.DataConf(),
+            process.Processing()
+        ]
 
-    default_options = {
-        "likelihood type": "log-likelihood",
-        "generated length": 10000,
-        "function's location": "/path/to/the/function.py",
-        "processing name": "processing_function",
-        "setup name": "setup_function",
-        "qfactor location": None,
-        "data location": "/path/to/the/data.csv",
-        "internal data": {"quality factor": "Qfactors"},
-        "accepted monte carlo location": None,
-        "save name": "output"
-    }
+    def get_start(self):
+        return pyfit.Fitting()
 
-    option_difficulties = {
-        "likelihood type": options.Levels.REQUIRED,
-        "generated length": options.Levels.OPTIONAL,
-        "function's location": options.Levels.REQUIRED,
-        "processing name": options.Levels.REQUIRED,
-        "setup name": options.Levels.REQUIRED,
-        "qfactor location": options.Levels.OPTIONAL,
-        "data location": options.Levels.REQUIRED,
-        "internal data": options.Levels.OPTIONAL,
-        "accepted monte carlo location": options.Levels.OPTIONAL,
-        "save name": options.Levels.REQUIRED
-    }
+    def get_default_options(self):
+        return {
+            "likelihood type": "log-likelihood",
+            "generated length": 10000,
+            "function's location": "/path/to/the/function.py",
+            "processing name": "processing_function",
+            "setup name": "setup_function",
+            "qfactor location": None,
+            "data location": "/path/to/the/data.csv",
+            "internal data": {"quality factor": "Qfactors"},
+            "accepted monte carlo location": None,
+            "save name": "output"
+        }
 
-    option_types = {
-        "likelihood type": __likelihood_loader.get_likelihood_name_list(),
-        "generated length": int,
-        "function's location": str,
-        "processing name": str,
-        "setup name": str,
-        "qfactor location": str,
-        "data location": str,
-        "internal data": {
-            "quality factor": str,
-            "binned data": str,
-            "event errors": str,
-            "expected values": str
-        },
-        "accepted monte carlo location": str,
-        "save name": str
-    }
+    def get_option_difficulties(self):
+        return {
+            "likelihood type": options.Levels.REQUIRED,
+            "generated length": options.Levels.OPTIONAL,
+            "function's location": options.Levels.REQUIRED,
+            "processing name": options.Levels.REQUIRED,
+            "setup name": options.Levels.REQUIRED,
+            "qfactor location": options.Levels.OPTIONAL,
+            "data location": options.Levels.REQUIRED,
+            "internal data": options.Levels.OPTIONAL,
+            "accepted monte carlo location": options.Levels.OPTIONAL,
+            "save name": options.Levels.REQUIRED
+        }
 
-    module_comment = "PyFit, a simple python data analysis tool."
-    option_comments = {
-        "likelihood type":
-            "Likelihood to use: Chi-Squared, Likelihood, or Empty",
-        "generated length": "The number of generated events",
-        "function's location": "The path of your functions file",
-        "processing name": "The name of your processing function.",
-        "setup name": "The name of your setup function.",
-        "qfactor location": "The path of the qfactors file.",
-        "data location": "The path of your data file.",
-        "internal data": "Internal name mapping.",
-        "accepted monte carlo location":
-            "The path to your accepted monte carlo file",
-        "save name": "The name out the output files."
-    }
+    def get_option_types(self):
+        return {
+            "likelihood type":
+                self.__likelihood_loader.get_likelihood_name_list(),
+            "generated length": int,
+            "function's location": str,
+            "processing name": str,
+            "setup name": str,
+            "qfactor location": str,
+            "data location": str,
+            "internal data": {
+                "quality factor": str,
+                "binned data": str,
+                "event errors": str,
+                "expected values": str
+            },
+            "accepted monte carlo location": str,
+            "save name": str
+        }
+
+    def get_option_comments(self):
+        return  {
+            "likelihood type":
+                "Likelihood to use: Chi-Squared, Likelihood, or Empty",
+            "generated length": "The number of generated events",
+            "function's location": "The path of your functions file",
+            "processing name": "The name of your processing function.",
+            "setup name": "The name of your setup function.",
+            "qfactor location": "The path of the qfactors file.",
+            "data location": "The path of your data file.",
+            "internal data": "Internal name mapping.",
+            "accepted monte carlo location":
+                "The path to your accepted monte carlo file",
+            "save name": "The name out the output files."
+        }
+
+    def get_predefined_function(self):
+        return pyshell_functions.ShellFunctionFile()
+

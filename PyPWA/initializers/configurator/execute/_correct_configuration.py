@@ -243,7 +243,7 @@ class SettingsAid(object):
         self.__settings = None
 
     def correct_settings(self, value):
-        # type: (Dict[str, Any]) -> None
+        # type: (Dict[str, Any]) -> Dict[str, Any]
         self.__set_settings(value)
         self.__correct_keys()
         self.__correct_all()

@@ -15,7 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyPWA import VERSION, LICENSE, STATUS
-from PyPWA.initializers.configurator import options
 
 __author__ = ["Mark Jones"]
 __credits__ = ["Mark Jones"]
@@ -28,16 +27,3 @@ __version__ = VERSION
 
 def the_meaning_of_life():
     return 42
-
-
-class OptionsTest(options.Plugin):
-
-    plugin_name = "Does not exist"
-    default_options = {}
-    option_difficulties = {}
-    option_types = {}
-    module_comment = "I think, therefore I am."
-    option_comments = {}
-    defined_function = None
-    setup = None
-    provides = options.Types.KERNEL_PROCESSING

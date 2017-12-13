@@ -30,7 +30,7 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.optimizers import opt_plugins
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell import shell_types
 from PyPWA.progs.shell.fit import interfaces
@@ -43,7 +43,7 @@ __version__ = VERSION
 class LogLikelihood(interfaces.Setup):
 
     NAME = "log-likelihood"
-    LIKELIHOOD_TYPE = optimizers.LikelihoodTypes.LOG_LIKELIHOOD
+    LIKELIHOOD_TYPE = opt_plugins.Likelihood.LOG_LIKELIHOOD
 
     def __init__(self):
         self.__data = dict()  # type: Dict[str, numpy.ndarray]
@@ -55,7 +55,7 @@ class LogLikelihood(interfaces.Setup):
             self,
             data_package,  # type: loaders.DataLoading
             function_package,  # type: loaders.FunctionLoader,
-            optimizer_type, # type: optimizers.OptimizerTypes
+            optimizer_type, # type: opt_plugins.Type
             extra_info=None  # type: Opt[Dict[str, Any]]
     ):
         # type: (...) -> None
@@ -65,8 +65,8 @@ class LogLikelihood(interfaces.Setup):
         self.__setup_likelihood(function_package)
 
     def __setup_multiplier(self, optimizer_type):
-        # type: (optimizers.OptimizerTypes) -> None
-        if optimizer_type is optimizers.OptimizerTypes.MINIMIZER:
+        # type: (opt_plugins.OptimizerTypes) -> None
+        if optimizer_type is opt_plugins.Type.MINIMIZER:
             self.__multiplier = -1
         else:
             self.__multiplier = 1

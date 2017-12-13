@@ -4,9 +4,9 @@ import example_python_sheet
 import pytest
 
 from PyPWA import builtin_plugins
-from PyPWA.builtin_plugins import data, process, minuit, nestle
 from PyPWA.initializers.configurator import options
-from PyPWA.libs import plugin_loader
+from PyPWA.libs import components, plugin_loader
+from PyPWA.libs.components import data_processor, process
 
 EXAMPLE_SHEET = os.path.join(
     os.path.dirname(__file__), "example_python_sheet.py"
@@ -20,8 +20,8 @@ DOES_NOT_EXIST = os.path.join(
 @pytest.fixture(scope="module")
 def plugin_loader_with_plugins():
     loader = plugin_loader.PluginLoader()
-    loader.add_plugin_location([builtin_plugins, None])
-    return loader.get_by_class(options.Plugin)
+    loader.add_plugin_location([builtin_plugins, components, None])
+    return loader.get_by_class(options.Component)
 
 
 def check_template_is_in_list(template, plugin_list):
@@ -38,28 +38,13 @@ def test_plugin_loader_with_sets():
     loader.add_plugin_location({builtin_plugins})
 
 
-def test_data_iterator_is_found(plugin_loader_with_plugins):
-    check_template_is_in_list(data.DataIterator, plugin_loader_with_plugins)
-
-
 def test_data_parser_is_found(plugin_loader_with_plugins):
-    check_template_is_in_list(data.DataParser, plugin_loader_with_plugins)
-
+    check_template_is_in_list(
+        data_processor.DataConf, plugin_loader_with_plugins
+    )
 
 def test_processing_is_found(plugin_loader_with_plugins):
     check_template_is_in_list(process.Processing, plugin_loader_with_plugins)
-
-
-def test_minuit_is_found(plugin_loader_with_plugins):
-    check_template_is_in_list(
-        minuit.MinuitOptions, plugin_loader_with_plugins
-    )
-
-
-def test_nestle_is_found(plugin_loader_with_plugins):
-    check_template_is_in_list(
-        nestle.NestleOptions, plugin_loader_with_plugins
-    )
 
 
 @pytest.mark.xfail(
@@ -86,7 +71,7 @@ def test_cant_find_nothing(python_sheet_loader):
         fun = python_sheet_loader.get_by_name("nothing")
 
 
-def test_can_load_non_existant_file():
+def test_can_load_non_existent_file():
     with pytest.raises(ImportError):
         loader = plugin_loader.PluginLoader()
         loader.add_plugin_location(DOES_NOT_EXIST)

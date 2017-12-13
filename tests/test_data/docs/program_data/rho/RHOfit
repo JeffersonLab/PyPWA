@@ -1,0 +1,27 @@
+Optimizer:
+  parameters:
+    - A1
+    - A2
+  selected optimizer: minuit
+  configuration:
+    settings:
+      errordef: 1
+      A1: 5
+      fix_A1: true
+      error_A1: 1
+      A2: .375
+      limit_A2: [.2,1]
+      error_A2: 1
+    strategy: 0
+    number of calls: 1
+Data Processor:
+  use cache: false
+Multiprocessing:
+  number of processes: 2
+General Fitting:
+  likelihood type: log-likelihood
+  function's location: tests/test_data/docs/program_data/rho/testRHO.py
+  processing name: processing_function
+  setup name: setup_function
+  data location: tests/test_data/docs/program_data/rho/RHOw.csv
+  save name: outputRHOFIT

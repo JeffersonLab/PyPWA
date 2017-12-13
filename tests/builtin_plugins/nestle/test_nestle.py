@@ -1,31 +1,34 @@
+# coding=utf-8
+
 import os
 
 import pytest
 
 from PyPWA.builtin_plugins import nestle
-from PyPWA.initializers.configurator import option_tools
+from PyPWA.libs import configuration_db
+
 
 SIMPLE_PRIOR = os.path.join(
-    os.path.dirname(__file__), "../../data/source_files/simple_prior.py"
+    os.path.dirname(__file__), "../../test_data/source_files/simple_prior.py"
 )
-
-
-def simple_function(x):
-    return 0.0
 
 
 @pytest.fixture()
 def nested():
-    template = nestle.NestleOptions.default_options
-    options = {
-        "prior location": SIMPLE_PRIOR,
-        "prior name": "prior",
-        "method": "classic",
-        "npoints": 4
-    }
-    command = option_tools.CommandOptions(template, options)
-    setup = nestle.NestleOptions.setup(command)
-    return setup.return_interface()
+    db = configuration_db.Connector()
+    db.initialize_component("nestle", nestle.NestleOptions().get_defaults())
+    db.merge_component(
+        "nestle",
+        {
+            "prior location": SIMPLE_PRIOR,
+            "prior name": "prior",
+            "method": "classic",
+            "npoints": 4,
+            "parameters": ["A"]
+        }
+    )
+
+    return nestle.NestleOptions().get_optimizer()
 
 
 @pytest.fixture()
@@ -38,5 +41,4 @@ def nested_save_data(nested):
 
 def test_nested_with_save(nested_save_data):
     logl = lambda x: 0.0
-    nested_save_data.main_options(logl)
-    nested_save_data.start()
+    nested_save_data.run(logl)

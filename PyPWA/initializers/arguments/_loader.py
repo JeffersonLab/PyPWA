@@ -31,10 +31,10 @@ the core lib plugin loader.
   allows for plugins to be searched for by their name exclusively.
 """
 
-from typing import List
-from typing import Optional as Opt
+from typing import List, Optional as Opt
 
 import PyPWA.builtin_plugins
+import PyPWA.libs.components
 import PyPWA.progs
 from PyPWA import AUTHOR, VERSION
 from PyPWA.initializers.arguments import arguments_options
@@ -49,7 +49,9 @@ def _plugin_charger(optional_plugin_location):
     # type: (Opt[str]) -> None
     loader = plugin_loader.PluginLoader()
     loader.add_plugin_location(optional_plugin_location)
-    loader.add_plugin_location({PyPWA.progs, PyPWA.builtin_plugins})
+    loader.add_plugin_location(
+        {PyPWA.progs, PyPWA.builtin_plugins, PyPWA.libs.components}
+    )
 
 
 class _PluginStorage(object):
@@ -57,15 +59,15 @@ class _PluginStorage(object):
     def __init__(self):
         self.__loader = plugin_loader.PluginLoader()
         self.__storage = []
-        self.__load_main_plugins()
-        self.__load_option_plugins()
+        self.__load_programs()
+        self.__load_components()
 
-    def __load_main_plugins(self):
-        for main in self.__loader.get_by_class(arguments_options.Main):
+    def __load_programs(self):
+        for main in self.__loader.get_by_class(arguments_options.Program):
             self.__storage.append(main)
 
-    def __load_option_plugins(self):
-        for option in self.__loader.get_by_class(arguments_options.Plugin):
+    def __load_components(self):
+        for option in self.__loader.get_by_class(arguments_options.Component):
             self.__storage.append(option)
 
     @property

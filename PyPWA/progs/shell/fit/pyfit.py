@@ -27,13 +27,13 @@ PyFit, a flexible python fitting utility.
 from typing import List
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs import plugin_loader
-from PyPWA.libs.interfaces import common
-from PyPWA.libs.interfaces import kernel
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs import plugin_loader, configuration_db
+from PyPWA.initializers.configurator import options
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.fit import interfaces
 from PyPWA.progs.shell.fit import likelihoods
+from PyPWA.libs.components.process import foreman
+from PyPWA.libs.components.optimizers import gateway
 from PyPWA.progs.shell.fit._process_interface import FittingInterface
 
 __credits__ = ["Mark Jones"]
@@ -76,25 +76,24 @@ class LikelihoodPackager(object):
         return names
 
 
-class Fitting(common.Main):
+class Fitting(options.StartProgram):
 
-    def __init__(
-            self,
-            optimizer,  # type: optimizers.Optimizer
-            processing,  # type: kernel.KernelProcessing
-            data_loader,  # type: loaders.DataLoading
-            function_loader,  # type: loaders.FunctionLoader
-            likelihood_type,  # type: str
-            generated_length,  # type: int
-            save_name  # type: str
-    ):
-        self.__optimizer = optimizer
-        self.__processing = processing
-        self.__data_loader = data_loader
-        self.__function_loader = function_loader
-        self.__likelihood_type = likelihood_type
-        self.__generated_length = generated_length
-        self.__save_name = save_name
+    def __init__(self):
+        self.__db = configuration_db.Connector()
+        self.__processing = foreman.CalculationForeman()
+        self.__optimizer = gateway.FetchOptimizer()
+        self.__function_loader = loaders.FunctionLoader()
+        self.__data_loader = loaders.DataLoading()
+
+        self.__likelihood_type = self.__db.read(
+            "shell fitting method", "likelihood type"
+        )
+        self.__generated_length = self.__db.read(
+            "shell fitting method", "generated length"
+        )
+        self.__save_name = self.__db.read(
+            "shell fitting method", "save name"
+        )
 
         self.__likelihood_loader = LikelihoodPackager()
         self.__process_interface = None  # type: FittingInterface
@@ -111,7 +110,7 @@ class Fitting(common.Main):
 
     def __setup_interface(self):
         self.__processing_interface = FittingInterface(
-            self.__optimizer.return_parser()
+            self.__optimizer.get_parser_object()
         )
 
     def __setup_likelihood(self):
@@ -121,7 +120,7 @@ class Fitting(common.Main):
 
         self.__likelihood.setup_likelihood(
             self.__data_loader, self.__function_loader,
-            self.__optimizer.OPTIMIZER_TYPE,
+            self.__optimizer.get_optimizer_type(),
             {"generated length": self.__generated_length}
         )
 
@@ -135,11 +134,10 @@ class Fitting(common.Main):
         self.__interface = self.__processing.fetch_interface()
 
     def __start_optimizer(self):
-        self.__optimizer.main_options(
+        self.__optimizer.run(
             self.__interface.run, self.__likelihood.LIKELIHOOD_TYPE
         )
-        self.__optimizer.start()
 
     def __finalize_program(self):
         self.__interface.stop()
-        self.__optimizer.save_extra(self.__save_name)
+        self.__optimizer.save_data(self.__save_name)

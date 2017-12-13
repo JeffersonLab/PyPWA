@@ -29,7 +29,7 @@ import logging
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs import plugin_loader
+from PyPWA.libs import plugin_loader, configuration_db
 from PyPWA.progs.shell import shell_types
 
 __credits__ = ["Mark Jones"]
@@ -120,8 +120,18 @@ class FunctionLoader(object):
 
     __LOGGER = logging.getLogger(__name__ + ".FunctionLoader")
 
-    def __init__(self, location, process_name, setup_name=None):
+    def __init__(self):
         # type: (str, str, Opt[str]) -> None
+        config = configuration_db.Connector().read()
+        if "shell fitting method" in config:
+            name = "shell fitting method"
+        else:
+            name = "shell simulation"
+
+        location = config[name]["function's location"]
+        process_name = config[name]["processing name"]
+        setup_name = config[name]["setup name"]
+
         loader = plugin_loader.PluginLoader()
         loader.add_plugin_location(location)
         self.__process_loader = _ProcessFunctionLoader(loader, process_name)

@@ -28,9 +28,9 @@ __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
-initializer = start.StartArguments()
 
 def masking_utility():
+    initializer = start.StartArguments()
     initializer.start(
         'masking utility', 'A basic masking utility.'
     )

@@ -31,11 +31,9 @@ used inside the argument parser.
 """
 
 from argparse import ArgumentParser, Namespace
-from typing import Dict, List
-from typing import Optional as Opt
+from typing import List, Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import common
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -60,19 +58,19 @@ class Base(object):
         return self._NAME
 
 
-class Plugin(Base):
+class Component(Base):
 
     def setup(self, parser):
         # type: (ArgumentParser) -> None
         self._parser = parser.add_argument_group(self.get_name())
         self._add_arguments()
 
-    def get_interface(self, namespace):
-        # type: (Namespace) -> common.BasePlugin
+    def setup_db(self, namespace):
+        # type: (Namespace) -> None
         raise NotImplementedError
 
 
-class Main(Base):
+class Program(Base):
 
     _REQUIRED = None  # type: List[Opt[str]]
 
@@ -85,6 +83,10 @@ class Main(Base):
         # type: () -> List[Opt[str]]
         return self._REQUIRED
 
-    def get_interface(self, namespace, plugins):
-        # type: (Namespace, Dict[str, common.BasePlugin]) -> common.Main
+    def setup_db(self, namespace):
+        # type: (Namespace) -> None
+        raise NotImplementedError
+
+    def start(self):
+        # type: () -> None
         raise NotImplementedError

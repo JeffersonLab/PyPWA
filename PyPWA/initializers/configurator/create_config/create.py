@@ -62,7 +62,7 @@ class StartConfig(object):
 
     def __fetch_main_plugin(self, function_settings):
         # type: (Dict[str, Any]) -> None
-        self.__main_plugin = self.__storage.request_main_plugin_by_name(
+        self.__main_plugin = self.__storage.request_program_by_name(
             function_settings["main"]
         )
 

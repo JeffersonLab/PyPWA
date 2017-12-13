@@ -50,20 +50,25 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class ConfiguratorOptions(options.Plugin):
+class ConfiguratorOptions(options.Component):
 
-    plugin_name = "Global Options"
-    default_options = {
+    name = "Global Options"
+    module_comment = "These settings effect runtime settings for the program."
+
+    def get_default_options(self):
+        return {
             "plugin directory": "none",
             "logging": "error"
         }
 
-    option_difficulties = {
+    def get_option_difficulties(self):
+        return {
             "plugin directory": options.Levels.ADVANCED,
             "logging": options.Levels.OPTIONAL
         }
 
-    option_types = {
+    def get_option_types(self):
+        return {
             "plugin directory": str,
             "logging": [
                 "debug", "info", "warning",
@@ -71,9 +76,9 @@ class ConfiguratorOptions(options.Plugin):
             ]
         }
 
-    option_comments = {
+    def get_option_comments(self):
+        return {
             "plugin directory": "Directory for any plugins you may have.",
             "logging": "How much logging to enable, overridden by -v"
-    }
+        }
 
-    module_comment = "These settings effect runtime settings for the program."
