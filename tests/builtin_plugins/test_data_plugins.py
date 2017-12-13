@@ -18,26 +18,26 @@ import os
 
 import pytest
 from PyPWA.builtin_plugins import sv, kv, gamp, numpy
-from PyPWA.libs.data_handler import data_templates
+from PyPWA.libs.components.data_processor import data_templates
 
 TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/temporary_write_data"
+    os.path.dirname(__file__), "../test_data/docs/temporary_write_data"
 )
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../test_data/docs/sv_test_data.csv"
 )
 
 GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/gamp_test_data.gamp"
+    os.path.dirname(__file__), "../test_data/docs/gamp_test_data.gamp"
 )
 
 EVIL_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/kv_test_data.txt"
+    os.path.dirname(__file__), "../test_data/docs/kv_test_data.txt"
 )
 
 NUMPY_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/numpy_test_data.npy"
+    os.path.dirname(__file__), "../test_data/docs/numpy_test_data.npy"
 )
 
 

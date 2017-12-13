@@ -22,19 +22,20 @@ from PyPWA.builtin_plugins.sv import s_memory
 
 TEMP_WRITE_LOCATION = os.path.join(
     os.path.dirname(__file__),
-    "../../data/test_docs/temporary_write_data"
+    "../../test_data/docs/temporary_write_data"
 )
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
 )
 
 CSV_TEST_DATA_2 = os.path.join(
-    os.path.dirname(__file__), "../../data/shell/data/data.csv"
+    os.path.dirname(__file__),
+    "../../test_data/docs/program_data/data/data.csv"
 )
 
 TSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.tsv"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.tsv"
 )
 
 

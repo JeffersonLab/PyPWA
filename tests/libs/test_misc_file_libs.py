@@ -4,20 +4,19 @@ from PyPWA.libs import misc_file_libs
 
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../test_data/docs/sv_test_data.csv"
 )
 
 GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/gamp_test_data.gamp"
+    os.path.dirname(__file__), "../test_data/docs/gamp_test_data.gamp"
 )
 
 KV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../data/test_docs/kv_test_data.txt"
+    os.path.dirname(__file__), "../test_data/docs/kv_test_data.txt"
 )
 
 FILE_LOCATION = os.path.join(
-    os.path.dirname(__file__),
-    "../data/test_docs/sv_test_data.tsv"
+    os.path.dirname(__file__), "../test_data/docs/sv_test_data.tsv"
 )
 
 

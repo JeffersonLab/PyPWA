@@ -2,19 +2,19 @@ import pytest
 import os
 
 from PyPWA.builtin_plugins.kv import k_read_tests
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor import exceptions
 
 KV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/kv_test_data.txt"
+    os.path.dirname(__file__), "../../test_data/docs/kv_test_data.txt"
 )
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
 )
 
 FLOAT_TEST_DATA = os.path.join(
     os.path.dirname(__file__),
-    "../../data/test_docs/kv_floats_test_data.txt"
+    "../../test_data/docs/kv_floats_test_data.txt"
 )
 
 

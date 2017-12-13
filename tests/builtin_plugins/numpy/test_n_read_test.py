@@ -2,30 +2,30 @@ import os
 
 import pytest
 
-from PyPWA.libs.data_handler import exceptions
+from PyPWA.libs.components.data_processor import exceptions
 from PyPWA.builtin_plugins.numpy import n_read_tests
 
 NUMPY_TEST_DATA = os.path.join(
     os.path.dirname(__file__),
-    "../../data/test_docs/numpy_test_data.npy"
+    "../../test_data/docs/numpy_test_data.npy"
 )
 
 NUMPY_TEST_DATA_2 = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/numpydata.npz"
+    os.path.dirname(__file__), "../../test_data/docs/numpydata.npz"
 )
 
 NUMPY_TEST_DATA_3 = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/numpydata.txt"
+    os.path.dirname(__file__), "../../test_data/docs/numpydata.txt"
 )
 
 
 NOISE_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/noise_test_data"
+    os.path.dirname(__file__), "../../test_data/docs/noise_test_data"
 )
 
 
 CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../data/test_docs/sv_test_data.csv"
+    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
 )
 
 
