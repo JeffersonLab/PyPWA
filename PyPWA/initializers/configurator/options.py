@@ -60,10 +60,8 @@ plugin to be used with the configurator plugin.
   if your plugin needs a function to be defined for it to be usable.
 """
 
-from typing import Dict
-from typing import Union
-
 import enum
+from typing import Dict, Optional, List
 
 from PyPWA import AUTHOR, VERSION
 
@@ -72,12 +70,10 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Types(enum.Enum):
-    KERNEL_PROCESSING = 1
-    OPTIMIZER = 2
-    DATA_READER = 3
-    DATA_PARSER = 4
-    SKIP = 5
+class StartProgram(object):
+
+    def start(self):
+        raise NotImplementedError
 
 
 class Levels(enum.Enum):
@@ -86,42 +82,53 @@ class Levels(enum.Enum):
     ADVANCED = 3
 
 
-class Setup(object):
+class HasChoices(object):
 
-    def return_interface(self):
-        """
-        This should return the initialized plugin or main using the
-        CommandOptions that would be received via the __init__
+    choice_type = None  # type: str
+    choices = None  # type: str
 
-        :return: The initialized plugin or main.
-        """
+    def set_choice(self, option):
+        # type: (str) -> None
+        raise NotImplementedError
+
+class HasUserFunction(object):
+
+    def get_predefined_function(self):
+        # type: () -> Optional[FileBuilder]
         raise NotImplementedError
 
 
-class Base(object):
+class Component(object):
 
-    plugin_name = "BASE"  # type: str
-    # the options coupled with their default values
-    default_options = {}  # type: Dict[str, str]
-    # the option and their types. See official documentation.
-    option_types = {}  # type: Dict[str, Types]
-    module_comment = "BASE"  # type: str
-    # A short comment about each option.
-    option_comments = {}  # type: Dict[str, str]
-    # The options and their Levels.
-    option_difficulties = {}  # type: Dict[str,Levels]
-    # The defined functions if needed.
-    defined_function = None  # type: Union[None, FileBuilder]
-    # The setup object
-    setup = Setup  # type: Setup
+    name = "Component"  # type: str
+    module_comment = None  # type: str
+
+    def get_default_options(self):
+        # type: () -> Dict[str, str]
+        raise NotImplementedError
+
+    def get_option_difficulties(self):
+        # type: () -> Dict[str,Levels]
+        raise NotImplementedError
+
+    def get_option_types(self):
+        # type: () -> Dict[str, type]
+        raise NotImplementedError
+
+    def get_option_comments(self):
+        # type: () -> Dict[str, str]
+        raise NotImplementedError
 
 
-class Plugin(Base):
-    provides = Types.SKIP  # type: Types
+class Program(Component):
 
+    def get_required_components(self):
+        # type: () ->  List[Component]
+        return []
 
-class Main(Base):
-    required_plugins = []  # type: [Types]
+    def get_start(self):
+        # type: () -> StartProgram
+        raise NotImplementedError
 
 
 class FileBuilder(object):

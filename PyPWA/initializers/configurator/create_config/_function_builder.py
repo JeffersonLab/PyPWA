@@ -85,22 +85,22 @@ class _BuildStorage(object):
     def process_plugin_list(self, plugin_list):
         # type: (_metadata.GetPluginList) -> None
         self.__plugin_list = plugin_list
-        self.__process_main()
-        self.__process_plugins()
+        self.__process_program()
+        self.__process_components()
 
-    def __process_main(self):
-        if self.__plugin_list.program.defined_function:
+    def __process_program(self):
+        if isinstance(self.__plugin_list.program, options.HasUserFunction):
             self.__process_function(self.__plugin_list.program)
 
-    def __process_plugins(self):
-        for plugin in self.__plugin_list.plugins:
-            if plugin.defined_function:
-                self.__process_function(plugin)
+    def __process_components(self):
+        for component in self.__plugin_list.components:
+            if isinstance(component, options.HasUserFunction):
+                self.__process_function(component)
 
-    def __process_function(self, plugin):
-        # type: (options.Plugin) -> None
-        self.__add_imports(plugin.defined_function.imports)
-        self.__add_function(plugin.defined_function.functions)
+    def __process_function(self, component):
+        # type: (options.HasUserFunction) -> None
+        self.__add_imports(component.get_predefined_function().imports)
+        self.__add_function(component.get_predefined_function().functions)
 
     def __add_imports(self, imports):
         # type: (List[str]) -> None

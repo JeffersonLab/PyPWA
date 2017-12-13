@@ -30,8 +30,8 @@ The Root Storage objects for the configurator.
 import logging
 from typing import Any, List
 
-import PyPWA.builtin_plugins
 import PyPWA.initializers
+import PyPWA.libs.components
 import PyPWA.progs
 from PyPWA import AUTHOR, VERSION
 from PyPWA.initializers.configurator import options
@@ -44,8 +44,8 @@ __version__ = VERSION
 
 class _InternalStorage(object):
 
-    plugins = []  # type: List[options.Plugin]
-    shells = []  # type: List[options.Main]
+    components = []  # type: List[options.Component]
+    programs = []  # type: List[options.Program]
     index = 0
 
 
@@ -57,7 +57,7 @@ class Storage(object):
     def __init__(self):
         self.__loader = plugin_loader.PluginLoader()
         self.__loader.add_plugin_location(
-            {PyPWA.builtin_plugins, PyPWA.progs, PyPWA.initializers}
+            {PyPWA.libs.components, PyPWA.progs, PyPWA.initializers}
         )
         self.__index = 0
         self._check_for_updates()
@@ -81,11 +81,14 @@ class Storage(object):
             self._update_extra()
 
     def __update_storage(self):
-        self.__STORAGE.plugins = self.__loader.get_by_class(options.Plugin)
-        self.__STORAGE.shells = self.__loader.get_by_class(options.Main)
+        self.__STORAGE.components = self.__loader.get_by_class(
+            options.Component
+        )
+        self.__STORAGE.programs = self.__loader.get_by_class(options.Program)
         self.__STORAGE.index = self.__loader.storage_index
 
     def _update_extra(self):
+        # So that other classes can extend this
         pass
 
     def add_location(self, location):
@@ -93,12 +96,12 @@ class Storage(object):
         self.__loader.add_plugin_location(location)
         self._check_for_updates()
 
-    def _get_plugins(self):
-        # type: () -> Any
+    def _get_components(self):
+        # type: () -> List[options.Component]
         self._check_for_updates()
-        return self.__STORAGE.plugins
+        return self.__STORAGE.components
 
-    def _get_shells(self):
-        # type: () -> Any
+    def _get_programs(self):
+        # type: () -> List[options.Program]
         self._check_for_updates()
-        return self.__STORAGE.shells
+        return self.__STORAGE.programs

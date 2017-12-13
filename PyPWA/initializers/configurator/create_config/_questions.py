@@ -36,7 +36,6 @@ from typing import List
 from typing import Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers.configurator import option_tools
 from PyPWA.initializers.configurator import options
 from PyPWA.initializers.configurator.create_config import _input_loop
 
@@ -122,19 +121,12 @@ class GetSpecificPlugin(_input_loop.QuestionLoop):
 
     def __init__(self):
         super(GetSpecificPlugin, self).__init__()
-        self.__name_conversion = option_tools.PluginNameConversion()
 
     def ask_for_plugin(self, plugin_list, plugin_type):
-        # type: (List[options.Plugin], options.Types) -> None
-        self.__set_possible_answers(plugin_list)
+        # type: (List[str], str) -> None
+        self._possible_answers = plugin_list
         self.__create_question(plugin_type)
         self._question_loop()
-
-    def __set_possible_answers(self, plugin_list):
-        # type: (List[options.Plugin]) -> None
-        self._possible_answers = []
-        for plugin in plugin_list:
-            self._possible_answers.append(plugin.plugin_name)
 
     def __create_question(self, plugin_type):
         # type: (options.Types) -> None
@@ -143,9 +135,8 @@ class GetSpecificPlugin(_input_loop.QuestionLoop):
         self._question += "\nPlugin?: "
 
     def __make_base_string(self, plugin_type):
-        # type: (options.Types) -> str
-        clean_type = self.__name_conversion.internal_to_external(plugin_type)
-        return "Which plugin would you like to use for '%s'?" % clean_type
+        # type: (str) -> str
+        return "Which plugin would you like to use for '%s'?" % plugin_type
 
     def __make_name_list_string(self):
         # type: () -> None

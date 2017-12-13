@@ -100,9 +100,9 @@ class BuildConfig(object):
         )
 
     def __update_plugins(self):
-        for plugin in self.__plugin_list.plugins:
+        for component in self.__plugin_list.components:
             self.__configuration.update(
-                self.__get_plugin_options(plugin)
+                self.__get_plugin_options(component)
             )
 
     def __get_plugin_options(self, plugin):

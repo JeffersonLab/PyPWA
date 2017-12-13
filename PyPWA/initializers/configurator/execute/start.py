@@ -24,11 +24,10 @@ _settings that loads the settings into something usable, and _plugins that
 takes those settings to package together a little runnable program.
 """
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers.configurator.execute import _plugin_data
-from PyPWA.initializers.configurator.execute import _settings
-
 from typing import Dict
+
+from PyPWA import AUTHOR, VERSION
+from PyPWA.initializers.configurator.execute import _plugin_data, _settings
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

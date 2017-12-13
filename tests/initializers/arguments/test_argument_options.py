@@ -30,9 +30,9 @@ def test_base_add_arguments_raises_not_implemented(base):
 
 def test_plugin_get_interface_raises_not_implemented(plugin):
     with pytest.raises(NotImplementedError):
-        plugin.get_interface("namespace")
+        plugin.setup_db("namespace")
 
 
 def test_main_get_interface_raises_not_implemented(main):
     with pytest.raises(NotImplementedError):
-        main.get_interface("namespace", {"plugins": "value"})
+        main.setup_db("namespace")

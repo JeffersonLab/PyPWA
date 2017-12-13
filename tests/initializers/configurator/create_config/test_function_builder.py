@@ -15,7 +15,7 @@ def function_handler():
 @pytest.fixture()
 def plugin_list():
     plugins = _metadata.GetPluginList()
-    plugins.parse_plugins(simulate.ShellSimulation)
+    plugins.parse_plugins(simulate.ShellSimulation())
     return plugins
 
 

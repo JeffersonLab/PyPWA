@@ -26,11 +26,10 @@ Loads in the users configuration files.
   defaults to Yml unless files extension is json.
 """
 
+import io
 import json
 import logging
 import os
-import io
-
 from typing import Any, Dict
 
 import ruamel.yaml
