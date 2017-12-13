@@ -71,6 +71,7 @@ class OptimizerFetcher(object):
 class AllOptions(templates.OptimizerConf):
 
     def __init__(self):
+        self.name = "None selected"
         self.__defaults = dict()
 
         self.__loader = plugin_loader.PluginLoader()
