@@ -23,6 +23,8 @@ A pseudo-database for component and program configuration.
 import copy
 import enum
 import json
+import logging
+import pprint
 import warnings
 
 from PyPWA import AUTHOR, VERSION
@@ -77,6 +79,7 @@ class _EnumEncoder(json.JSONEncoder):
 class Connector(object):
 
     __db = _Database()
+    __LOGGER = logging.getLogger(__name__ + ".Connector")
 
     def purge(self):
         warnings.warn(
@@ -95,9 +98,17 @@ class Connector(object):
             self.__add_component(component, configuration)
 
     def __increment_reference(self):
-        old_data = copy.deepcopy(self.__db.data[self.__db.index])
-        self.__db.data[self.__db.index + 1] = old_data
-        self.__db.index += 1
+        try:
+            old_data = copy.deepcopy(self.__db.data[self.__db.index])
+            self.__db.data[self.__db.index + 1] = old_data
+            self.__db.index += 1
+        except Exception as error:
+            self.__handle_errors(error)
+
+    def __handle_errors(self, error):
+        database = pprint.pformat(self.__db.data)
+        self.__LOGGER.fatal("Database produced an error!\n%s" % database)
+        raise error
 
     def __override_component(self, component, configuration):
         if isinstance(self.__db.data[self.__db.index][component], dict):
