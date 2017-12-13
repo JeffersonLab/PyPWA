@@ -47,7 +47,7 @@ class NumPyDataPlugin(data_templates.DataPlugin):
 
     @property
     def plugin_supported_extensions(self):
-        return [".npy", ".npz", ".pf", ".txt"]
+        return [".npy", ".pf", ".txt"]
 
     @property
     def plugin_supports_single_array(self):

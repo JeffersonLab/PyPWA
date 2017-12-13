@@ -17,9 +17,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy
-
+import warnings
 from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.interfaces import data_loaders
+from typing import Union
 
 __credits__ = ["Keandre Palmer"]
 __author__ = AUTHOR
@@ -29,6 +30,7 @@ __version__ = VERSION
 class NumpyReader(data_loaders.Reader):
 
     def __init__(self, file_location):
+        warnings.warn("Numpy Reader is redundant!")
         self.__array = numpy.load(file_location)
         self.__counter = 0
 
@@ -47,20 +49,21 @@ class NumpyReader(data_loaders.Reader):
 
 
 class NumpyWriter(data_loaders.Writer):
+
     def __init__(self, file_location):
-        self.__array = False
+        warnings.warn("Numpy Writer is inefficient!")
+        self.__array = False  # type: Union[numpy.ndarray, bool]
         self.__file_location = file_location
-        self.__i = 0
 
     def write(self, data):
-        # type: (numpy.ndarray) -> None
+        # type: (numpy.void)-> None
         if not isinstance(self.__array, numpy.ndarray):
-            self.__array = data
+            self.__array = numpy.zeros(1, dtype=data.dtype)
+            self.__array[0] = data
         else:
             self.__array = numpy.resize(self.__array, self.__array.size + 1)
             self.__array[-1] = data
 
     def close(self):
         # type: () -> None
-        numpy.save(self.__file_location,self.__array)
-        del self.__array
+        numpy.save(self.__file_location, self.__array)

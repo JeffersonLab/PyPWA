@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 ### Added
+ - Added numpy reader and writer.
  - Adds a helper script to clean the project directory of caches.
  - Adds initial documentation for PyPWA.
  - Added a component to handle optimizers
