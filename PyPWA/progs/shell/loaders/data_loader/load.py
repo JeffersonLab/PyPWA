@@ -24,16 +24,15 @@ then exposes that through it's properties.
 """
 
 import logging
-from typing import Dict, Union
-from typing import Optional as Opt
+from typing import Union
 
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import data_loaders
 from PyPWA.progs.shell.loaders.data_loader import _bin_filter
-from PyPWA.progs.shell.loaders.data_loader import _setup_dataset
 from PyPWA.progs.shell.loaders.data_loader import _dataset_storage
+from PyPWA.progs.shell.loaders.data_loader import _setup_dataset
+from PyPWA.libs import configuration_db
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -44,25 +43,32 @@ class DataLoading(object):
 
     __LOGGER = logging.getLogger(__name__ + ".DataLoading")
 
-    def __init__(
-            self,
-            parser,  # type: data_loaders.ParserPlugin
-            data,  # type: str
-            internal_data=None,  # type: Opt[Dict[str, str]]
-            qfactor=None,  # type: Opt[str]
-            monte_carlo=None  # type: Opt[str]
-    ):
-        # type: (...) -> None
-        if not internal_data:
+    def __init__(self):
+
+        config = configuration_db.Connector().read()
+
+        if "shell fitting method" in config:
+            data = config["shell fitting method"]["data location"]
+            internal_data = config["shell fitting method"]["internal data"]
+            qfactor = config["shell fitting method"]["qfactor location"]
+            monte_carlo = config["shell fitting method"]\
+                ["accepted monte carlo location"]
+        else:
+            data = config["shell simulation"]["data location"]
             internal_data = {}
+            qfactor = None
+            monte_carlo = None
 
         self.__storage = None  # type: _dataset_storage.DataStorage
 
         self.__loader = _setup_dataset.LoadData(
-            parser, data, internal_data, qfactor, monte_carlo
+            data, internal_data, qfactor, monte_carlo
         )
         self.__filter = _bin_filter.BinFilter()
         self.__load_data()
+
+    def __get_configuration(self):
+        pass
 
     def __load_data(self):
         storage = self.__loader.load()

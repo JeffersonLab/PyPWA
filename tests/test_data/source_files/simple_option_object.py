@@ -2,34 +2,36 @@ from PyPWA.initializers.configurator import options
 
 
 class SimpleOptions(options.Component):
-    plugin_name = "SimpleOptions"
-    default_options = {
-        "Option1": "item 1",
-        "Option2": 3,
-        "Option3": "A string value"
-    }
 
-    option_difficulties = {
-        "Option1": options.Levels.REQUIRED,
-        "Option2": options.Levels.OPTIONAL,
-        "Option3": options.Levels.ADVANCED
-    }
-
-    option_types = {
-        "Option1": ["item1", "item2", "item3"],
-        "Option2": int,
-        "Option3": str
-    }
-
+    name = "SimpleOptions"
     module_comment = "A Simple test plugin"
-    option_comments = {
-        "Option1": "A specific item, predefined",
-        "Option2": "Any integer",
-        "Option3": "Anything as a string"
-    }
 
-    defined_function = None
+    def get_default_options(self):
+        return {
+            "Option1": "item 1",
+            "Option2": 3,
+            "Option3": "A string value"
+        }
 
-    setup = options.Setup
-    provides = options.Types.SKIP
+    def get_option_difficulties(self):
+        return {
+            "Option1": options.Levels.REQUIRED,
+            "Option2": options.Levels.OPTIONAL,
+            "Option3": options.Levels.ADVANCED
+        }
+
+    def get_option_types(self):
+        return {
+            "Option1": ["item1", "item2", "item3"],
+            "Option2": int,
+            "Option3": str
+        }
+
+    def get_option_comments(self):
+        return {
+            "Option1": "A specific item, predefined",
+            "Option2": "Any integer",
+            "Option3": "Anything as a string"
+        }
+
 

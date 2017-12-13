@@ -30,7 +30,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class FittingSetup(options.Setup):
+class FittingSetup(object):
 
     def __init__(self, options_object):
         self.__options = options_object

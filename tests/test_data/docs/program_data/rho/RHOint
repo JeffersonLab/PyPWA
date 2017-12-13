@@ -1,12 +1,12 @@
-Builtin Multiprocessing:
+Multiprocessing:
   number of processes: 2
-Builtin Parser:
-  enable cache: false
+Data Processor:
+  use cache: false
 Intensities:
-  function's location: tests/data/shell/rho/testRHO.py
+  function's location: tests/test_data/docs/program_data/rho/testRHO.py
   processing name: processing_function
   setup name: setup_function
-  data location: tests/data/shell/rho/flat_data.csv
+  data location: tests/test_data/docs/program_data/rho/flat_data.csv
   parameters:
     A1: 100
     A2: 0.4

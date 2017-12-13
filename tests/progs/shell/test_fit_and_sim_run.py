@@ -6,19 +6,20 @@ import pytest
 from PyPWA.entries import configurator
 
 FIT_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../data/shell/rho/RHOfit"
+    os.path.dirname(__file__), "../../test_data/docs/program_data/rho/RHOfit"
 )
 
 INT_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../data/shell/rho/RHOint"
+    os.path.dirname(__file__), "../../test_data/docs/program_data/rho/RHOint"
 )
 
 WEG_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../data/shell/rho/RHOweg.json"
+    os.path.dirname(__file__),
+    "../../test_data/docs/program_data/rho/RHOweg.json"
 )
 
 SIM_CONFIG_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../data/shell/rho/RHOsim"
+    os.path.dirname(__file__), "../../test_data/docs/program_data/rho/RHOsim"
 )
 
 

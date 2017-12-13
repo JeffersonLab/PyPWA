@@ -30,7 +30,7 @@ import numpy
 from numpy import ndarray
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import kernel
+from PyPWA.libs.components.process import templates
 from PyPWA.progs.shell import shell_types
 
 __credits__ = ["Mark Jones"]
@@ -38,7 +38,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class IntensityInterface(kernel.KernelInterface):
+class IntensityInterface(templates.KernelInterface):
 
     IS_DUPLEX = False
     __LOGGER = logging.getLogger(__name__ + "IntensityInterface")
@@ -75,7 +75,7 @@ class IntensityInterface(kernel.KernelInterface):
         self.__LOGGER.info("Intensities Mean: %f" % array.mean())
 
 
-class IntensityKernel(kernel.Kernel):
+class IntensityKernel(templates.Kernel):
 
     __LOGGER = logging.getLogger(__name__ + ".IntensityKernel")
 

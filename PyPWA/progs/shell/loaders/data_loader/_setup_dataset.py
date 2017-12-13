@@ -34,7 +34,6 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import data_loaders
 from PyPWA.progs.shell.loaders.data_loader import _dataset_storage
 from PyPWA.progs.shell.loaders.data_loader import _file_handling
 
@@ -128,7 +127,6 @@ class LoadData(object):
 
     def __init__(
             self,
-            parser,  # type: data_loaders.ParserPlugin
             data,  # type: str
             internal_data,  # type: Dict[str, str]
             qfactor=None,  # type: Opt[str]
@@ -136,7 +134,7 @@ class LoadData(object):
     ):
         # type: (...) -> None
         self.__data_handler = _file_handling.DataHandler(
-            parser, data, monte_carlo, qfactor
+            data, monte_carlo, qfactor
         )
         self.__extractor = _InternalDataExtractor(
             self.__data_handler, internal_data

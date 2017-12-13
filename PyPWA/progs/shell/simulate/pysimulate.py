@@ -29,9 +29,7 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import common
-from PyPWA.libs.interfaces import kernel
-from PyPWA.progs.shell import loaders
+from PyPWA.libs import configuration_db
 from PyPWA.progs.shell.simulate import _libs
 
 __credits__ = ["Mark Jones"]
@@ -39,26 +37,15 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class Simulator(common.Main):
+class Simulator(object):
 
     __LOGGER = logging.getLogger(__name__ + ".Simulator")
 
-    def __init__(
-            self,
-            data_loader,  # type: _libs.DataHandler
-            the_type,   # type: Union["full", "intensities", "weighting"]
-            kernel_processing=None,  # type: Opt[kernel.KernelProcessing]
-            function_loader=None,  # type: Opt[loaders.FunctionLoader]
-            parameters=None,  # type: Opt[Dict[str, numpy.float64]]
-            max_intensity=None  # type: Opt[numpy.float64]
-    ):
-        # type: (...) -> None
-        self.__data_loader = data_loader
-        self.__program_type = the_type
-        self.__kernel_processing = kernel_processing
-        self.__function_loader = function_loader
-        self.__parameters = parameters
-        self.__max_intensity = max_intensity
+    def __init__(self):
+        db = configuration_db.Connector()
+        self.__data_loader = _libs.DataHandler()
+        self.__program_type = db.read("shell simulation", "the type")
+        self.__max_intensity = db.read("shell simulation", "max intensity")
 
         self.__intensity_calc = None  # type: _libs.Intensities
         self.__rejection_calc = None  # type: _libs.RejectionList
@@ -84,10 +71,7 @@ class Simulator(common.Main):
 
     def __setup_intensity_calc(self):
         self.__LOGGER.debug("Setting up Intensity Calculation.")
-        self.__intensity_calc = _libs.Intensities(
-            self.__data_loader, self.__function_loader,
-            self.__kernel_processing, self.__parameters
-        )
+        self.__intensity_calc = _libs.Intensities()
 
     def __set_intensities_from_intensity_calc(self):
         self.__max_intensity = self.__intensity_calc.max_intensity

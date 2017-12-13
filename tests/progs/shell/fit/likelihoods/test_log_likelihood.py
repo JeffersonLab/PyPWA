@@ -3,7 +3,7 @@ import pytest
 
 from PyPWA.progs.shell import loaders
 from PyPWA.progs.shell.fit.likelihoods import log_likelihood
-from PyPWA.libs.interfaces import optimizers
+from PyPWA.libs.components.optimizers import opt_plugins
 
 
 class Functions(loaders.FunctionLoader):
@@ -76,7 +76,7 @@ Test UnExtended Likelihood
 def un_extended_loader():
     likelihood_loader = log_likelihood.LogLikelihood()
     likelihood_loader.setup_likelihood(
-        BaseData(), Functions(), optimizers.OptimizerTypes.MINIMIZER
+        BaseData(), Functions(), opt_plugins.Type.MINIMIZER
     )
     return likelihood_loader
 
@@ -130,7 +130,7 @@ def monte_carlo():
 def extended_loader():
     likelihood_loader = log_likelihood.LogLikelihood()
     likelihood_loader.setup_likelihood(
-        ExtendedData(), Functions(), optimizers.OptimizerTypes.MAXIMIZER,
+        ExtendedData(), Functions(), opt_plugins.Type.MAXIMIZER,
         {"generated length": 1000000}
     )
     return likelihood_loader

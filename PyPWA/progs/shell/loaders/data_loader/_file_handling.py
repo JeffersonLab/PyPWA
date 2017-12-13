@@ -28,8 +28,8 @@ from typing import Optional as Opt
 
 import numpy
 
+from PyPWA.libs.components.data_processor import file_processor
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import data_loaders
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -40,9 +40,8 @@ class _FileLoader(object):
 
     __LOGGER = logging.getLogger(__name__ +"._FileLoader")
 
-    def __init__(self, data_parser):
-        # type: (data_loaders.ParserPlugin) -> None
-        self.__data_parser = data_parser
+    def __init__(self):
+        self.__data_parser = file_processor.DataProcessor()
 
     def load_file(self, file):
         # type: (Opt[str]) -> Opt[numpy.ndarray]
@@ -63,14 +62,13 @@ class DataHandler(object):
 
     def __init__(
             self,
-            data_parser,  # type: data_loaders.ParserPlugin
             data,  # type: Opt[str]
             monte_carlo,  # type: Opt[str]
             qfactor  # type: Opt[str]
     ):
         # type: (...) -> None
-        self.__data_parser = data_parser
-        self.__file_loader = _FileLoader(data_parser)
+        self.__data_parser = file_processor.DataProcessor()
+        self.__file_loader = _FileLoader()
         self.__data = self.__file_loader.load_file(data)
         self.__monte_carlo = self.__file_loader.load_file(monte_carlo)
         self.__qfactor = self.__file_loader.load_file(qfactor)
