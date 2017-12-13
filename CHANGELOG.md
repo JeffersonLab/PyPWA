@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 ### Added
+ - Added a component to handle optimizers
+ - Added a central configuration database to ease passing of user arguments to
+   components
+ - Adds a python shell interface to data processor to avoid the configuration
+   database
 ### Changed
+ - Moved the program plugins, data plugin, and processing plugin to components
+ - Moved Nestle and Minuit to the Optimizer component
+ - Renamed 'Builtin Multiprocessing' to 'Multiprocessing'
+ - Renamed 'Builtin Parser' and "Builtin Iterator" to "Data Processor"
+ - Combined iterator and parsing objects to allow easy fallback
+ - All components now exist inside PyPWA.libs.components
 ### Fixed
 ### Security
 
