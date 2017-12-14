@@ -18,8 +18,9 @@
 
 import numpy
 import warnings
+import pytest
 from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import data_loaders
+from PyPWA.libs.components.data_processor import data_templates
 from typing import Union
 
 __credits__ = ["Keandre Palmer"]
@@ -27,10 +28,12 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class NumpyReader(data_loaders.Reader):
+class NumpyReader(data_templates.Reader):
 
+    @pytest.mark.x
     def __init__(self, file_location):
-        warnings.warn("Numpy Reader is redundant!")
+        with pytest.warns(UserWarning, match='Numpy Reader is redundant!'):
+            warnings.warn("Numpy Reader is redundant!", UserWarning)
         self.__array = numpy.load(file_location)
         self.__counter = 0
 
@@ -48,10 +51,11 @@ class NumpyReader(data_loaders.Reader):
         del self.__array
 
 
-class NumpyWriter(data_loaders.Writer):
+class NumpyWriter(data_templates.Writer):
 
     def __init__(self, file_location):
-        warnings.warn("Numpy Writer is inefficient!")
+        with pytest.warns(UserWarning, match='Numpy Writer is Inefficient!'):
+            warnings.warn("Numpy Writer is Inefficient!", UserWarning)
         self.__array = False  # type: Union[numpy.ndarray, bool]
         self.__file_location = file_location
 

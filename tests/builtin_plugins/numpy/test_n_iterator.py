@@ -2,16 +2,14 @@ import os
 
 import numpy
 import pytest
-from PyPWA.builtin_plugins.data.builtin.numpy import n_iterator
+from PyPWA.builtin_plugins.numpy import n_iterator
 
 
 NUMPY_DATA = os.path.join(
-    os.path.dirname(__file__),"../../../../data/test_docs/numpy_test_data.npy"
+    os.path.dirname(__file__),"../../test_data/docs/numpy_test_data.npy"
 )
 
-TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../../../data/test_docs/temporary_write_data.npy"
-)
+TEMP_WRITE_LOCATION = "temp_location.npy"
 
 
 @pytest.fixture()
