@@ -1,23 +1,12 @@
-import os
-
+from PyPWA import Path
 from PyPWA.libs import misc_file_libs
 
 
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/sv_test_data.csv"
-)
-
-GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/gamp_test_data.gamp"
-)
-
-KV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/kv_test_data.txt"
-)
-
-FILE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/sv_test_data.tsv"
-)
+ROOT = Path(__file__).parent
+CSV_TEST_DATA = ROOT / "../test_data/docs/sv_test_data.csv"
+GAMP_TEST_DATA = ROOT /  "../test_data/docs/gamp_test_data.gamp"
+KV_TEST_DATA = ROOT / "../test_data/docs/kv_test_data.txt"
+FILE_LOCATION = ROOT / "../test_data/docs/sv_test_data.tsv"
 
 
 """
@@ -25,8 +14,7 @@ Tests Cache Location
 """
 
 def DataLocation_TestHelper(location):
-    new_location = os.path.split(location)
-    assert os.path.exists(new_location[0])
+    assert location.parent.exists()
 
 
 def test_DataLocation_FindCache_DirectoryReturned():

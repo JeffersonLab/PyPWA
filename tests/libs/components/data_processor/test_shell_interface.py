@@ -1,21 +1,16 @@
-import os
-
 import numpy
 import pytest
 
+from PyPWA import Path
 from PyPWA.libs.components.data_processor import shell_interface
-
 
 ##############################################################################
 # Data Files
 ##############################################################################
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../../test_data/docs/sv_test_data.csv"
-)
 
-TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../../test_data/docs/temporary_write_data"
-)
+ROOT = Path(__file__).parent
+CSV_TEST_DATA = ROOT / "../../../test_data/docs/sv_test_data.csv"
+TEMP_WRITE_LOCATION = ROOT / "../../../test_data/docs/temporary_write_data"
 
 
 @pytest.fixture
@@ -39,10 +34,7 @@ def array_data():
 @pytest.fixture
 def clear_temp():
     yield
-    try:
-        os.remove(TEMP_WRITE_LOCATION)
-    except (OSError, IOError):
-        pass
+    TEMP_WRITE_LOCATION.unlink() if TEMP_WRITE_LOCATION.exists() else None
 
 
 def test_read_data_matches_expected(parser_no_cache):

@@ -20,18 +20,18 @@ of the caching module.
 """
 
 import os
-import io
 import pytest
 
+from PyPWA import Path
 from PyPWA.libs.components.data_processor import exceptions
-from PyPWA.libs.components.data_processor.cache import _standard_cache
-from PyPWA.libs.components.data_processor.cache import _basic_info
-
-
-TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__),
-    "../../../../test_data/docs/temporary_write_data"
+from PyPWA.libs.components.data_processor.cache import (
+    _standard_cache,
+    _basic_info,
 )
+
+
+ROOT = Path(__file__).parent
+TEMP_WRITE_LOCATION = ROOT / "../../../../test_data/docs/temporary_write_data"
 
 DATA = ";qjkxbmwvzpyfgcrl"
 
@@ -92,7 +92,7 @@ def wrapping_pass_read(write_a, basic_info_a):
 
     yield _standard_cache.ReadCache(basic_info_a)
 
-    os.remove(TEMP_WRITE_LOCATION)
+    TEMP_WRITE_LOCATION.unlink()
 
 
 @pytest.fixture
@@ -101,19 +101,19 @@ def wrapping_fail_read(write_a, basic_info_b):
 
     yield _standard_cache.ReadCache(basic_info_b)
 
-    os.remove(TEMP_WRITE_LOCATION)
+    TEMP_WRITE_LOCATION.unlink()
 
 
 @pytest.fixture
 def induced_pickle_error(write_a, basic_info_a):
     write_a.write_cache(DATA)
 
-    with io.open(TEMP_WRITE_LOCATION, "wb") as stream:
+    with TEMP_WRITE_LOCATION.open("wb") as stream:
         stream.write(os.urandom(10240))
 
     yield _standard_cache.ReadCache(basic_info_a)
 
-    os.remove(TEMP_WRITE_LOCATION)
+    TEMP_WRITE_LOCATION.unlink()
 
 
 def test_read_is_valid_true(wrapping_pass_read):

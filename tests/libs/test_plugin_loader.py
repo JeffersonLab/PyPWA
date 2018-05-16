@@ -1,20 +1,31 @@
-import os
+#    PyPWA, a scientific analysis toolkit.
+#    Copyright (C) 2016  JLab
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import example_python_sheet
 import pytest
 
-from PyPWA import builtin_plugins
+from PyPWA import Path, builtin_plugins
 from PyPWA.initializers.configurator import options
 from PyPWA.libs import components, plugin_loader
 from PyPWA.libs.components import data_processor, process
 
-EXAMPLE_SHEET = os.path.join(
-    os.path.dirname(__file__), "example_python_sheet.py"
-)
-
-DOES_NOT_EXIST = os.path.join(
-    os.path.dirname(__file__), "awfulness.py"
-)
+ROOT = Path(__file__).parent
+EXAMPLE_SHEET = ROOT / "example_python_sheet.py"
+DOES_NOT_EXIST = ROOT / "awfulness.py"
+BLANK = Path()
 
 
 @pytest.fixture(scope="module")
@@ -75,3 +86,8 @@ def test_can_load_non_existent_file():
     with pytest.raises(ImportError):
         loader = plugin_loader.PluginLoader()
         loader.add_plugin_location(DOES_NOT_EXIST)
+
+
+def test_can_ignore_blank_path():
+    loader = plugin_loader.PluginLoader()
+    loader.add_plugin_location(BLANK)

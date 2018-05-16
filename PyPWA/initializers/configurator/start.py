@@ -19,24 +19,25 @@
 """
 Where everything begins.
 ------------------------
-This is the starting objects for the configurator. This handles initial 
-output, argument parsing, logging, and the finally depending on the 
-arguments will start building the configuration, or it will execute the 
+This is the starting objects for the configurator. This handles initial
+output, argument parsing, logging, and the finally depending on the
+arguments will start building the configuration, or it will execute the
 program.
 
-- _Arguments - A simple object that parses the arguments for the program, 
+- _Arguments - A simple object that parses the arguments for the program,
   then exposes those inputs through the properties.
-  
-- StartProgram - This is the object that takes the information from the 
-  entry point along with the data from the _Arguments to determine where 
-  which half of the configuration utility should be started. 
+
+- StartProgram - This is the object that takes the information from the
+  entry point along with the data from the _Arguments to determine where
+  which half of the configuration utility should be started.
 """
 
-import argparse
 import sys
+
+import argparse
 from typing import Dict
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator.create_config import create
 from PyPWA.initializers.configurator.execute import start
 from PyPWA.libs import initial_logging
@@ -118,8 +119,8 @@ class _Arguments(object):
 
     @property
     def configuration_location(self):
-        # type: () -> str
-        return self.__arguments.configuration
+        # type: () -> Path
+        return Path(self.__arguments.configuration)
 
     @property
     def verbose(self):
@@ -128,8 +129,8 @@ class _Arguments(object):
 
     @property
     def log_file(self):
-        # type: () -> str
-        return self.__arguments.log_file
+        # type: () -> Path
+        return Path(self.__arguments.log_file)
 
 
 class StartProgram(object):

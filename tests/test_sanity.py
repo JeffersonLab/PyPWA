@@ -19,16 +19,20 @@ import os
 
 import pytest
 
+from PyPWA import Path
 
-@pytest.fixture(scope="module", params=[".testfile", ".anotherfile"])
+
+@pytest.fixture(
+    scope="module", params=[Path(".testfile"), Path(".anotherfile")]
+)
 def io_open(request):
-    io.open(request.param, "w").close()
-    opened_file = io.open(request.param)
+    request.param.open("w").close()
+    opened_file = request.param.open()
 
     yield opened_file
 
     opened_file.close()
-    os.remove(request.param)
+    request.param.unlink()
 
 
 def test_empty_file_has_no_lines(io_open):

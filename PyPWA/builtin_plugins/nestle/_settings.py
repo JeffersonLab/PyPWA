@@ -20,7 +20,7 @@
 
 """
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import configuration_db
 
 __credits__ = ["Mark Jones"]
@@ -35,7 +35,7 @@ class NestleSettings(object):
 
     @property
     def prior_location(self):
-        return self.__db.read("nestle", "prior location")
+        return Path(self.__db.read("nestle", "prior location"))
 
     @property
     def prior_name(self):

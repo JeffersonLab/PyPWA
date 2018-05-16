@@ -1,9 +1,7 @@
-import os
-
 import pytest
 
-from PyPWA.libs.components import data_processor
 from PyPWA.initializers.arguments import _loader
+from PyPWA.libs.components import data_processor
 
 
 @pytest.fixture("module")

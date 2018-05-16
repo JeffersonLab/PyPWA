@@ -23,7 +23,7 @@ Finds the hash and cache location for the Cache Module.
 import logging
 import os
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import misc_file_libs
 
 __credits__ = ["Mark Jones"]
@@ -36,18 +36,18 @@ class FindBasicInfo(object):
     __LOGGER = logging.getLogger(__name__ + ".FindBasicInfo")
 
     def __init__(self, original_file):
-        # type: (str) -> None
-        self.__cache_location = ""
+        # type: (Path) -> None
+        self.__cache_location = None  # type: Path
         self.__found_hash = ""
         self.__setup_basic_info(original_file)
 
     def __setup_basic_info(self, original_file):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__set_cache_location(original_file)
         self.__set_file_hash(original_file)
 
     def __set_cache_location(self, original_file):
-        # type: (str) -> None
+        # type: (Path) -> None
         cache_location = self.__get_cache_uri()
         location = self.__pair_filename_with_uri(
             original_file, cache_location
@@ -55,29 +55,22 @@ class FindBasicInfo(object):
         self.__cache_location = location
 
     def __get_cache_uri(self):
-        # type: () -> str
+        # type: () -> Path
         potential_cache_location = misc_file_libs.get_cache_uri()
         self.__LOGGER.debug("Found location is %s" % potential_cache_location)
         return potential_cache_location
 
     def __pair_filename_with_uri(self, original_file, found_location):
-        # type: (str, str) ->  str
-        beginning_of_uri = "/"
-        filename_extension = ".pickle"
-
-        filename_base = os.path.basename(original_file)
-        filename_without_extension = filename_base.split(".")[0]
-
+        # type: (Path, Path) ->  Path
         final_location = (
-            found_location + beginning_of_uri +
-            filename_without_extension + filename_extension
+            Path(found_location / (original_file.stem + ".pickle"))
         )
 
         self.__LOGGER.debug("Cache Location set to '%s'" % final_location)
         return final_location
 
     def __set_file_hash(self, original_file):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__found_hash = self.__file_hash(original_file)
         self.__LOGGER.debug(
             "Found hash '%s' for '%s'" % (
@@ -87,6 +80,7 @@ class FindBasicInfo(object):
 
     @staticmethod
     def __file_hash(original_file):
+        # type: (Path) -> str
         return misc_file_libs.get_sha512_hash(original_file)
 
     @property

@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.libs.components.data_processor import exceptions
 
@@ -36,20 +36,20 @@ class NumpyDataTest(data_templates.ReadTest):
 
     @staticmethod
     def __binary_file_load(file_location):
-        # type: (str) -> None
-        numpy.load(file_location)
+        # type: (Path) -> None
+        numpy.load(str(file_location))
 
     @staticmethod
     def __text_file(file_location):
-        # type: (str) -> None
-        numpy.loadtxt(file_location)
+        # type: (Path) -> None
+        numpy.loadtxt(str(file_location))
 
     def test(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__iterate_through_file_types(file_location)
 
     def __iterate_through_file_types(self, file_location):
-        # type: (str)-> None
+        # type: (Path)-> None
         result = []
         for file_type in self.__list_test:
             result.append(self.__run_test(file_type, file_location))

@@ -22,30 +22,28 @@ Writer for Example Functions
 
 - _GetFunctionLocation - Takes the configuration file location then derives
   a function file location using the same name.
-  
-- _FunctionStorage - a simple object used for passing around data about the 
+
+- _FunctionStorage - a simple object used for passing around data about the
   imports and functions.
-  
-- _BuildStorage - Takes the plugin list and uses it to populate the 
+
+- _BuildStorage - Takes the plugin list and uses it to populate the
   _FunctionStorage object.
 
 - _FileBuilder - takes all the storage object and uses it to build the actual
   text file that is to be written to disk.
-  
+
 - _FileWriter - A simple object that takes the file and function location and
   writes the rendered functions to disk.
-  
+
 - FunctionHandler - The main object to interact with to generate a functions
   file.
 """
 
-import os
-
 from typing import List
 
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator import options
 from PyPWA.initializers.configurator.create_config import _metadata
-from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -55,17 +53,15 @@ __version__ = VERSION
 class _GetFunctionLocation(object):
 
     def __init__(self):
-        self.__function_location = None  # type: str
+        self.__function_location = None  # type: Path
 
     def process_location(self, configuration_location):
-        # type: (str) -> None
-        self.__function_location = ""
-        file_name = os.path.splitext(configuration_location)[0]
-        self.__function_location += file_name + ".py"
+        # type: (Path) -> None
+        self.__function_location = Path(configuration_location.stem)
 
     @property
     def function_location(self):
-        # type: () -> str
+        # type: () -> Path
         return self.__function_location
 
 
@@ -160,8 +156,8 @@ class _FileWriter(object):
 
     @staticmethod
     def write_file(file_location, file_data):
-        # type: (str, str) -> None
-        with open(file_location, "w") as stream:
+        # type: (Path, str) -> None
+        with open(str(file_location), "w") as stream:
             stream.write(file_data)
 
 
@@ -174,7 +170,7 @@ class FunctionHandler(object):
         self.__storage = _BuildStorage()
 
     def output_functions(self, plugin_list, configuration_location):
-        # type: (_metadata.GetPluginList, str) -> None
+        # type: (_metadata.GetPluginList, Path) -> None
         self.__file_location.process_location(configuration_location)
         self.__storage.process_plugin_list(plugin_list)
         self.__builder.build(self.__storage.storage)

@@ -33,7 +33,7 @@ import numpy
 import tqdm
 
 from PyPWA.libs import configuration_db
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import file_processor
 from PyPWA.libs.components.data_processor import data_templates
 
@@ -60,33 +60,40 @@ class _DataPackage(object):
 
     def __setup_data(self):
         # type: () -> None
-        input_file = self.__db.read("masking", "input")
-        output_file = self.__db.read("masking", "output")
-        masking_file = self.__db.read("masking", "mask")
+        input_file = Path(self.__db.read("masking", "input"))
+        output_file = Path(self.__db.read("masking", "output"))
+        masking_info = self.__db.read("masking", "mask")
+
+        if isinstance(masking_info, type(None)):
+           masking_file = masking_info
+        else:
+            masking_file = [Path(mask) for mask in masking_info]
+
         self.__load_writer(input_file, output_file)
         self.__load_reader(input_file)
         self.__setup_mask_array(masking_file)
 
     def __load_writer(self, input_file, output_file):
-        # type: (str, str) -> None
+        # type: (Path, Path) -> None
         with self.__data_processor.get_reader(input_file) as reader:
             self.__writer = self.__data_processor.get_writer(
                 output_file, reader.next()
             )
 
     def __load_reader(self, input_file):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__reader = self.__data_processor.get_reader(input_file)
 
     def __setup_mask_array(self, masking_file):
-        # type: (Opt[List[str]]) -> None
+        # type: (Opt[List[Path]]) -> None
+
         if masking_file:
             self.__mask = self.__load_masking_files(masking_file)
         else:
             self.__mask = numpy.ones(len(self.__reader), dtype=bool)
 
     def __load_masking_files(self, masking_files):
-        # type: (List[str]) -> numpy.ndarray
+        # type: (List[Path]) -> numpy.ndarray
         mask = None  # type: numpy.ndarray
         for file in masking_files:
             if isinstance(mask, type(None)):

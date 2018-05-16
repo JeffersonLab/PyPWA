@@ -44,11 +44,13 @@ is going to be rendering it.
 import logging
 from typing import Any, Dict
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs import configuration_db
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator import storage, options
-from PyPWA.initializers.configurator.execute import _storage_data, \
-    _correct_configuration, _reader
+from PyPWA.initializers.configurator.execute import (
+    _storage_data,
+    _correct_configuration, _reader,
+)
+from PyPWA.libs import configuration_db
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -129,7 +131,9 @@ class _InitializeDefaults(object):
 
     def update(self, main_name):
         # type: (str) -> None
-        program_configuration = self.__selector.request_program_by_id(main_name)
+        program_configuration = (
+            self.__selector.request_program_by_id(main_name)
+        )
         self.__process_component_list(program_configuration)
 
     def __process_component_list(self, main):
@@ -140,7 +144,9 @@ class _InitializeDefaults(object):
 
     def __initialize_component(self, component):
         # type: (options.Component) -> None
-        self.__update_database(component.name, component.get_default_options())
+        self.__update_database(
+            component.name, component.get_default_options()
+        )
 
     def __update_database(self, name, options):
         self.__db.initialize_component(name, options)
@@ -154,7 +160,7 @@ class Setup(object):
         self.__main_name = None  # type: str
 
     def load_settings(self, settings_overrides, configuration_location):
-        # type: (Dict[str, Any], str) -> None
+        # type: (Dict[str, Any], Path) -> None
         config = self.__load_config(configuration_location)
         internal = self.__internalize_settings(config, settings_overrides)
         self.__process_plugin_path(internal)
@@ -164,7 +170,7 @@ class Setup(object):
 
     @staticmethod
     def __load_config(configuration_location):
-        # type: (str) -> Dict[str, Any]
+        # type: (Path) -> Dict[str, Any]
         loader = _reader.ConfigurationLoader()
         return loader.read_config(configuration_location)
 

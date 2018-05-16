@@ -32,13 +32,12 @@ again.
 import logging
 from typing import Any
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import configuration_db
-from PyPWA.libs.components.data_processor.cache import _basic_info
-from PyPWA.libs.components.data_processor.cache import _clear_cache
-from PyPWA.libs.components.data_processor.cache import _no_cache
-from PyPWA.libs.components.data_processor.cache import _standard_cache
-from PyPWA.libs.components.data_processor.cache import _template
+from PyPWA.libs.components.data_processor.cache import (
+    _basic_info,
+    _clear_cache, _no_cache, _standard_cache, _template,
+)
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -80,14 +79,14 @@ class CacheBuilder(object):
         self.__selected_writer = None  # type: _template.WriteInterface
 
     def get_cache_interface(self, file_location):
-        # type: (str) -> _CacheInterface
+        # type: (Path) -> _CacheInterface
         self.__set_info_object(file_location)
         self.__find_reader()
         self.__find_writer()
         return self.__make_interface()
 
     def __set_info_object(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         try:
             self.__info_object = _basic_info.FindBasicInfo(file_location)
         except (OSError, IOError):

@@ -1,21 +1,13 @@
 import pytest
-import os
 
+from PyPWA import Path
 from PyPWA.builtin_plugins.kv import k_read_tests
 from PyPWA.libs.components.data_processor import exceptions
 
-KV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/kv_test_data.txt"
-)
-
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
-)
-
-FLOAT_TEST_DATA = os.path.join(
-    os.path.dirname(__file__),
-    "../../test_data/docs/kv_floats_test_data.txt"
-)
+ROOT = Path(__file__).parent
+KV_TEST_DATA = ROOT / "../../test_data/docs/kv_test_data.txt"
+CSV_TEST_DATA = ROOT / "../../test_data/docs/sv_test_data.csv"
+FLOAT_TEST_DATA = ROOT / "../../test_data/docs/kv_floats_test_data.txt"
 
 
 @pytest.fixture()

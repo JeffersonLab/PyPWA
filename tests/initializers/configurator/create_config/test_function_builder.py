@@ -1,9 +1,10 @@
-import os
-
 import pytest
 
-from PyPWA.initializers.configurator.create_config import _function_builder
-from PyPWA.initializers.configurator.create_config import _metadata
+from PyPWA import Path
+from PyPWA.initializers.configurator.create_config import (
+    _function_builder,
+    _metadata,
+)
 from PyPWA.progs.shell import simulate
 
 
@@ -20,5 +21,5 @@ def plugin_list():
 
 
 def test_function_builder(function_handler, plugin_list):
-    function_handler.output_functions(plugin_list, "test_functions")
-    os.remove("test_functions.py")
+    function_handler.output_functions(plugin_list, Path("test_functions"))
+    Path("test_functions").unlink()

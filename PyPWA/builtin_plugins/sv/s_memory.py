@@ -25,7 +25,7 @@ from typing import List, Tuple, Iterable, Dict
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import data_templates
 
 __credits__ = ["Mark Jones"]
@@ -39,12 +39,12 @@ HEADER_SEARCH_BITS = 3072
 class SvMemory(data_templates.Memory):
 
     def parse(self, file_location):
-        # type: (str) -> numpy.ndarray
+        # type: (Path) -> numpy.ndarray
         parser = _SvParser()
         return parser.return_read_data(file_location)
 
     def write(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         writer = _SvMemoryWriter()
         writer.write_memory_to_disk(file_location, data)
 
@@ -61,18 +61,18 @@ class _SvParser(object):
         self.__header = None  # type: List[str]
 
     def return_read_data(self, file_location):
-        # type: (str) -> numpy.ndarray
+        # type: (Path) -> numpy.ndarray
         self.__start_parsing(file_location)
         return self.__end_parsing()
 
     def __start_parsing(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__open_stream(file_location)
         self.__set_required_data()
 
     def __open_stream(self, file_location):
-        # type: (str) -> None
-        self.__stream = io.open(file_location, "r")
+        # type: (Path) -> None
+        self.__stream = file_location.open("r")
 
     def __reset_stream(self):
         self.__stream.seek(0)
@@ -155,25 +155,15 @@ class _SvMemoryWriter(object):
         self.__writer = None  # type: csv.DictWriter
 
     def write_memory_to_disk(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         self.__setup_initial_information(file_location, data)
         self.__setup_writer(file_location)
         self.__write_data(data)
 
     def __setup_initial_information(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
-        self.__process_dialect(file_location)
+        # type: (Path, numpy.ndarray) -> None
+        self.__set_dialect(file_location.suffix)
         self.__set_column_names(data)
-
-    def __process_dialect(self, file_location):
-        # type: (str) -> None
-        extension = self.__get_extension(file_location)
-        self.__set_dialect(extension)
-
-    @staticmethod
-    def __get_extension(file_location):
-        # type: (str) -> str
-        return os.path.splitext(file_location)[1]
 
     def __set_dialect(self, extension):
         # type: (str) -> None
@@ -187,17 +177,14 @@ class _SvMemoryWriter(object):
         self.__column_names = data.dtype.names
 
     def __setup_writer(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__open_stream(file_location)
         self.__set_writer()
         self.__write_header()
 
     def __open_stream(self, file_location):
-        # type: (str) -> None
-        if sys.version_info.major == 2:
-            self.__stream = open(file_location, "w")
-        else:
-            self.__stream = io.open(file_location, "w")
+        # type: (Path) -> None
+        self.__stream = open(str(file_location), "w")
 
     def __set_writer(self):
         self.__writer = csv.DictWriter(

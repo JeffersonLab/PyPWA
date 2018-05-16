@@ -39,7 +39,7 @@ import logging
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import misc_file_libs
 from PyPWA.libs.components.data_processor import data_templates
 
@@ -53,8 +53,9 @@ class EVILReader(data_templates.Reader):
     __LOGGER = logging.getLogger(__name__ + ".EVILReader")
 
     def __init__(self, file_location):
+        # type: (Path) -> None
         self.__event_count = misc_file_libs.get_file_length(file_location)
-        self.__file = open(file_location)
+        self.__file = file_location.open()
         self.__column_names = None
         self.__numpy_type = None
         self.__setup_static_information()
@@ -108,13 +109,14 @@ class EVILReader(data_templates.Reader):
 class EVILWriter(data_templates.Writer):
 
     def __init__(self, file_location):
-        self.__file = open(file_location, "w")
+        # type: (Path) -> None
+        self.__file = file_location.open("w")
         self.__line = None
         self.__column_names = None
 
     def write(self, data):
         # type: (numpy.ndarray) -> None
-        self.__line = ""
+        self.__line = u""
         self.__setup_writer(data)
         self.__process_row(data)
         self.__line += "\n"

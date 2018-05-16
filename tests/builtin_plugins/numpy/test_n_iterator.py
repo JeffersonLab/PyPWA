@@ -1,15 +1,11 @@
-import os
-
 import numpy
 import pytest
+
+from PyPWA import Path
 from PyPWA.builtin_plugins.numpy import n_iterator
 
-
-NUMPY_DATA = os.path.join(
-    os.path.dirname(__file__),"../../test_data/docs/numpy_test_data.npy"
-)
-
-TEMP_WRITE_LOCATION = "temp_location.npy"
+NUMPY_DATA = Path(__file__).parent / "../../test_data/docs/numpy_test_data.npy"
+TEMP_WRITE_LOCATION = Path("temp_location.npy")
 
 
 @pytest.fixture()
@@ -24,10 +20,10 @@ def read_and_write():
 @pytest.fixture
 def clear_write_location():
     yield
-    os.remove(TEMP_WRITE_LOCATION)
+    TEMP_WRITE_LOCATION.unlink()
 
 
 def test_read_data_matches_wrote(read_and_write, clear_write_location):
-    file_1 = numpy.load(NUMPY_DATA)
-    file_2 = numpy.load(TEMP_WRITE_LOCATION)
+    file_1 = numpy.load(str(NUMPY_DATA))
+    file_2 = numpy.load(str(TEMP_WRITE_LOCATION))
     numpy.testing.assert_array_equal(file_1, file_2)

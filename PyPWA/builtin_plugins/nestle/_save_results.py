@@ -20,11 +20,11 @@
 Saves Data for Nestle in a way the User can interact with it
 ------------------------------------------------------------
 
-- _MakeTable - Makes the covariance table for the minimizer, also optionally   
+- _MakeTable - Makes the covariance table for the minimizer, also optionally
   prints out the tables.
-  
+
 - _SaveData - takes all the essential data from the minimizer and saves to
-  the disk. 
+  the disk.
 
 - SaveData - the main object for saving data from iMinuit.
 """
@@ -131,7 +131,7 @@ class _SaveData(object):
 
     @staticmethod
     def __save_text_data(save_name, results, table):
-        with open(save_name + ".txt", "w") as stream:
+        with open(str(save_name) + ".txt", "w") as stream:
             stream.write(results.summary())
             stream.write("\n\n")
             stream.write(table.mean_table)

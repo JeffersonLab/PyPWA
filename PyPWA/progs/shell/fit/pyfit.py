@@ -26,14 +26,13 @@ PyFit, a flexible python fitting utility.
 
 from typing import List
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs import plugin_loader, configuration_db
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator import options
-from PyPWA.progs.shell import loaders
-from PyPWA.progs.shell.fit import interfaces
-from PyPWA.progs.shell.fit import likelihoods
-from PyPWA.libs.components.process import foreman
+from PyPWA.libs import plugin_loader, configuration_db
 from PyPWA.libs.components.optimizers import gateway
+from PyPWA.libs.components.process import foreman
+from PyPWA.progs.shell import loaders
+from PyPWA.progs.shell.fit import interfaces, likelihoods
 from PyPWA.progs.shell.fit._process_interface import FittingInterface
 
 __credits__ = ["Mark Jones"]
@@ -85,14 +84,14 @@ class Fitting(options.StartProgram):
         self.__function_loader = loaders.FunctionLoader()
         self.__data_loader = loaders.DataLoading()
 
-        self.__likelihood_type = self.__db.read(
-            "shell fitting method", "likelihood type"
+        self.__likelihood_type = (
+            self.__db.read("shell fitting method", "likelihood type")
         )
-        self.__generated_length = self.__db.read(
-            "shell fitting method", "generated length"
+        self.__generated_length = (
+            self.__db.read("shell fitting method", "generated length")
         )
-        self.__save_name = self.__db.read(
-            "shell fitting method", "save name"
+        self.__save_name = (
+            Path(self.__db.read("shell fitting method", "save name"))
         )
 
         self.__likelihood_loader = LikelihoodPackager()

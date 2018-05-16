@@ -45,16 +45,15 @@ plugin storage module, you will need to call and use PluginLoader.
   provided search conditions.
 """
 
-import importlib
-import logging
-import os
-import pkgutil
 import sys
 
-from typing import Any, Callable, List, Union, Set
+import importlib
+import logging
+import pkgutil
 import types
+from typing import Any, Callable, List, Union, Set
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, PurePath, AUTHOR, VERSION
 
 __credits__ = [
     "Mark Jones",
@@ -70,20 +69,12 @@ class _AppendPath(object):
     __LOGGER = logging.getLogger(__name__ + "._AppendPath")
 
     def append_path(self, filename):
-        # type: (str) -> None
-        function_path = self.__get_function_path(filename)
-        self.__log_path(function_path)
-        sys.path.append(function_path)
-
-    @staticmethod
-    def __get_function_path(filename):
-        # type: (str) -> str
-        absolute_path = os.path.abspath(filename)
-        path_without_basename = os.path.dirname(absolute_path)
-        return path_without_basename
+        # type: (Path) -> None
+        self.__log_path(filename.absolute().parent)
+        sys.path.append(str(filename.absolute().parent))
 
     def __log_path(self, path):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__LOGGER.debug("Adding %s to the path." % path)
 
 
@@ -95,29 +86,21 @@ class _Importer(object):
         self.__path_handler = _AppendPath()
 
     def fetch_modules(self, package):
-        # type: (Union[str, types.ModuleType]) -> List[object]
+        # type: (Union[Path, types.ModuleType]) -> List[object]
         found_module = self.__load_module(package)
         return self.__process_module(found_module)
 
     def __load_module(self, package):
-        # type: (Union[str, types.ModuleType]) -> object
+        # type: (Union[Path, types.ModuleType]) -> object
         if isinstance(package, types.ModuleType):
             return package
         else:
             return self.__import_module(package)
 
     def __import_module(self, package):
-        # type: (str) -> types.ModuleType
+        # type: (Path) -> types.ModuleType
         self.__path_handler.append_path(package)
-        name = self.__get_module_name(package)
-        return self.__get_module(name)
-
-    @staticmethod
-    def __get_module_name(package):
-        # type: (str) -> str
-        file_name = os.path.basename(package)
-        module_name = os.path.splitext(file_name)[0]
-        return module_name
+        return self.__get_module(package.stem)
 
     def __get_module(self, package):
         # type: (str) -> types.ModuleType
@@ -217,29 +200,38 @@ class _FilterBySubclass(object):
 class _PluginStorage(object):
 
     __LOGGER = logging.getLogger(__name__ + "._PluginStorage")
-    PLUGINS = []  # type: List[type]
-    __LOCATIONS = []  # type: List[str]
+    PLUGINS = []  # type: List[Any]
+    __LOCATIONS = []  # type: List[PurePath]
     __APPEND_COUNT = 0
 
     @classmethod
     def add_location(cls, location):
-        # type: (str) -> None
+        # type: (Union[Path, types.ModuleType]) -> None
         cls.__note_if_index_is_zero()
-        cls.__LOCATIONS.append(location)
+        cls.__append_location(location)
         cls.__APPEND_COUNT = cls.__APPEND_COUNT + 1
 
     @classmethod
     def __note_if_index_is_zero(cls):
         if cls.__APPEND_COUNT == 0:
-            cls.__LOGGER.debug("Initializing _PluginStorage for first time")
+            cls.__LOGGER.debug("Initializing _PluginStorage for first time!")
+
+    @classmethod
+    def __append_location(cls, location):
+        if isinstance(location, Path):
+            cls.__LOCATIONS.append(PurePath(location))
+        else:
+            cls.__LOCATIONS.append(location)
 
     @classmethod
     def location_already_added(cls, location):
-        # type: (str) -> bool
-        if location in cls.__LOCATIONS:
-            return True
+        # type: (Union[Path, types.ModuleType]) -> bool
+        if isinstance(location, Path):
+            if PurePath(location) in cls.__LOCATIONS:
+                return True
         else:
-            return False
+            if location in cls.__LOCATIONS:
+                return True
 
     @classmethod
     def plugin_index(cls):
@@ -269,17 +261,27 @@ class PluginLoader(object):
             self.__process_single_module(location)
 
     def __process_single_module(self, location):
-        # type: (str) -> None
-        if location is not None and location is not "":
-            if not self.__STORAGE.location_already_added(location):
-                modules = self.__importer.fetch_modules(location)
-                self.__append_modules(modules)
-                self.__STORAGE.add_location(location)
-                self.__LOGGER.debug("Adding plugin location: %s" % location)
+        # type: (Union[str, types.ModuleType]) -> None
+        if isinstance(location, str) and location != "":
+            location = Path(location).expanduser().absolute()
+            self.__add_to_storage(location)
+        elif isinstance(location, Path) and PurePath(location) != PurePath():
+            location = location.expanduser().absolute()
+            self.__add_to_storage(location)
+        elif isinstance(location, types.ModuleType):
+            self.__add_to_storage(location)
         else:
             self.__LOGGER.debug(
                 "Received blank location! This might be an error."
             )
+
+    def __add_to_storage(self, location):
+        # type: (Union[str, types.ModuleType]) -> None
+        if not self.__STORAGE.location_already_added(location):
+            modules = self.__importer.fetch_modules(location)
+            self.__append_modules(modules)
+            self.__STORAGE.add_location(location)
+            self.__LOGGER.debug("Adding plugin location: %s" % location)
 
     def __append_modules(self, modules):
         # type: (List[object]) -> None
@@ -287,7 +289,7 @@ class PluginLoader(object):
             self.__STORAGE.PLUGINS.append(the_module)
 
     def get_by_name(self, name):
-        # type: (str, bool) -> Callable[Any, Any]
+        # type: (str) -> Callable[Any, Any]
         for plugin in self.__STORAGE.PLUGINS:
             if hasattr(plugin, name):
                 possible_answer = getattr(plugin, name)

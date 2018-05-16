@@ -27,7 +27,7 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class NumPyDataPlugin(data_templates.DataPlugin):
+class NumpyDataPlugin(data_templates.DataPlugin):
 
     @property
     def plugin_name(self):

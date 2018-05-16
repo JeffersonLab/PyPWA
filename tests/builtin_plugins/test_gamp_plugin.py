@@ -1,24 +1,15 @@
-import os
-
 import numpy
 import pytest
 
+from PyPWA import Path
+from PyPWA.builtin_plugins.gamp import g_iterator, g_memory, g_read_tests
 from PyPWA.libs.components.data_processor import exceptions
-from PyPWA.builtin_plugins.gamp import g_iterator
-from PyPWA.builtin_plugins.gamp import g_memory
-from PyPWA.builtin_plugins.gamp import g_read_tests
 
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/sv_test_data.csv"
-)
 
-GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/gamp_test_data.gamp"
-)
-
-TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../test_data/docs/temporary_write_data"
-)
+ROOT = Path(__file__).parent
+CSV_TEST_DATA = ROOT / "../test_data/docs/sv_test_data.csv"
+GAMP_TEST_DATA = ROOT / "../test_data/docs/gamp_test_data.gamp"
+TEMP_WRITE_LOCATION = ROOT / "../test_data/docs/temporary_write_data"
 
 
 def test_Validator_CheckGAMPValid_TestPass():
@@ -60,11 +51,11 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
     data = rendered.parse(GAMP_TEST_DATA)
     rendered.write(TEMP_WRITE_LOCATION, data)
 
-    assert os.path.exists(TEMP_WRITE_LOCATION)
+    assert TEMP_WRITE_LOCATION.exists()
     new_data = rendered.parse(TEMP_WRITE_LOCATION)
 
     numpy.testing.assert_array_equal(data, new_data)
-    os.remove(TEMP_WRITE_LOCATION)
+    TEMP_WRITE_LOCATION.unlink()
 
 
 def test_GAMPReader_ResetReader_NoFail():

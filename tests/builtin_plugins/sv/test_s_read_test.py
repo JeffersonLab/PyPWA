@@ -14,28 +14,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 import pytest
-from PyPWA.libs.components.data_processor import exceptions
+
+from PyPWA import Path
 from PyPWA.builtin_plugins.sv import s_read_tests
+from PyPWA.libs.components.data_processor import exceptions
 
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
-)
+ROOT = Path(__file__).parent
+CSV_TEST_DATA = ROOT / "../../test_data/docs/sv_test_data.csv"
+TSV_TEST_DATA = ROOT / "../../test_data/docs/sv_test_data.tsv"
+NOISE_TEST_DATA = ROOT / "../../test_data/docs/noise_test_data"
+BAD_CSV_TEST_DATA = ROOT / "../../test_data/docs/sv_test_data_bad.csv"
 
-TSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.tsv"
-)
-
-BAD_CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__),
-    "../../test_data/docs/sv_test_data_bad.csv"
-)
-
-NOISE_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/noise_test_data"
-)
 
 
 @pytest.fixture(scope="module")

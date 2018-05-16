@@ -22,9 +22,8 @@ Main object for Parsing Data
 
 from typing import Optional
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.components.data_processor import file_processor
-from PyPWA.libs.components.data_processor import settings
+from PyPWA import Path, AUTHOR, VERSION
+from PyPWA.libs.components.data_processor import file_processor, settings
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -40,3 +39,20 @@ class ShellDataProcessor(file_processor.DataProcessor):
         self.settings.use_cache(enable_cache)
 
         super(ShellDataProcessor, self).__init__()
+
+    def parse(self, file_location):
+        return super(ShellDataProcessor, self).parse(Path(file_location))
+
+    def get_reader(self, file_location):
+        return super(ShellDataProcessor, self).get_reader(Path(file_location))
+
+    def write(self, file_location, data):
+        return super(ShellDataProcessor, self).write(
+            Path(file_location), data
+        )
+
+    def get_writer(self, file_location, data):
+        return super(ShellDataProcessor, self).get_writer(
+            Path(file_location), data
+        )
+

@@ -16,13 +16,12 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import csv
-import io
+import numpy
 from typing import Dict, List, Tuple
 
-import numpy
-
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import misc_file_libs
 from PyPWA.libs.components.data_processor import data_templates
 
@@ -37,9 +36,11 @@ HEADER_SEARCH_BITS = 8192
 class SvReader(data_templates.Reader):
 
     def __init__(self, file_location):
-        # type: (str) -> None
-        self.__particle_count = misc_file_libs.get_file_length(file_location) - 1
-        self.__file = io.open(file_location)
+        # type: (Path) -> None
+        self.__particle_count = (
+                misc_file_libs.get_file_length(file_location) - 1
+        )
+        self.__file = open(str(file_location))
         self.__previous_event = None  # type: numpy.ndarray
         self.__reader = False  # type: csv.DictReader
         self.__types = False  # type: List[Tuple[str]]
@@ -94,28 +95,19 @@ class SvReader(data_templates.Reader):
 class SvWriter(data_templates.Writer):
 
     def __init__(self, file_location):
-        # type: (str) ->  None
-        self.__file = open(file_location, "w")
+        # type: (Path) ->  None
+        self.__file = open(str(file_location), "w")
         self.__dialect = None  # type: csv.Dialect
         self.__writer = None  # type: csv.DictWriter
         self.__field_names = None  # type: List[str]
         self.__set_dialect(file_location)
 
     def __set_dialect(self, file_location):
-        # type: (str) -> None
-        if self.__is_tab(file_location):
+        # type: (Path) -> None
+        if file_location.suffix == ".tsv":
             self.__dialect = csv.excel_tab
         else:
             self.__dialect = csv.excel
-
-    def __is_tab(self, file_location):
-        # type: (str) -> bool
-        return self.__get_extension(file_location) == "tsv"
-
-    @staticmethod
-    def __get_extension(file_location):
-        # type: (str) -> str
-        return file_location.split(".")[-1]
 
     def write(self, data):
         # type: (numpy.ndarray) -> None

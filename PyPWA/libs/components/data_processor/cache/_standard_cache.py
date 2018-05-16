@@ -33,7 +33,7 @@ import logging
 import pickle
 from typing import Any
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import exceptions
 from PyPWA.libs.components.data_processor.cache import _basic_info
 from PyPWA.libs.components.data_processor.cache import _template
@@ -70,7 +70,7 @@ class ReadCache(_template.ReadInterface):
             self.__LOGGER.debug(error, exc_info=True)
 
     def __load_data(self):
-        with io.open(self.__info_object.cache_location, "rb") as stream:
+        with self.__info_object.cache_location.open("rb") as stream:
             self.__packaged_data = pickle.load(stream)
 
     def get_cache(self):
@@ -126,9 +126,11 @@ class WriteCache(_template.WriteInterface):
             self.__LOGGER.debug(error, exc_info=True)
 
     def __write_cache_data(self):
-        location = self.__info_object.cache_location
-        self.__LOGGER.debug("Making cache for '%s'" % location)
-        with io.open(location, "wb") as stream:
+        self.__LOGGER.debug(
+            "Making cache for '%s'" % self.__info_object.cache_location
+        )
+
+        with self.__info_object.cache_location.open("wb") as stream:
             pickle.dump(
                 self.__packaged_data, stream, protocol=pickle.HIGHEST_PROTOCOL
             )

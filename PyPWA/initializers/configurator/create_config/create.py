@@ -23,11 +23,10 @@ Creates the template configuration file when --WriteConfig is passed
 from typing import Any, Dict
 
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers.configurator.create_config import _builder
-from PyPWA.initializers.configurator.create_config import _function_builder
-from PyPWA.initializers.configurator.create_config import _metadata
-from PyPWA.initializers.configurator.create_config import _questions
-from PyPWA.initializers.configurator.create_config import _writer
+from PyPWA.initializers.configurator.create_config import (
+    _builder,
+    _function_builder, _metadata, _questions, _writer,
+)
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

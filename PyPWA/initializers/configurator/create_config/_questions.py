@@ -24,18 +24,17 @@ All questions that can be asked, ever.
 
 - GetPluginDirectory - Asks the user if they have any extra plugins they would
   like to add.
-  
-- GetSaveLocation - Asks the user for a save file location if one hasn't 
+
+- GetSaveLocation - Asks the user for a save file location if one hasn't
   already been provided.
-  
+
 - GetSpecificPlugin - Asks the user to select a plugin when there are multiple
   plugins that can fill the same dependency.
 """
 
-from typing import List
-from typing import Optional as Opt
+from typing import List, Union, Optional as Opt
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator import options
 from PyPWA.initializers.configurator.create_config import _input_loop
 
@@ -86,11 +85,11 @@ Would you like to use your own plugins? If so enter the path to your plugins
         self._question_loop()
 
     def get_plugin_directory(self):
-        # type: () -> Opt[str]
+        # type: () -> Opt[Path]
         if self._answer is "None":
             return None
         else:
-            return self._answer
+            return Path(self._answer)
 
 
 class GetSaveLocation(_input_loop.QuestionLoop):
@@ -106,15 +105,15 @@ File Name?: """
         self._question_loop()
 
     def override_save_location(self, save_location):
-        # type: (str) -> None
+        # type: (Union[Path, str]) -> None
         self.__override = save_location
 
     def get_save_location(self):
-        # type: () -> str
+        # type: () -> Path
         if self.__override:
-            return self.__override
+            return Path(self.__override)
         else:
-            return self._answer
+            return Path(self._answer)
 
 
 class GetSpecificPlugin(_input_loop.QuestionLoop):

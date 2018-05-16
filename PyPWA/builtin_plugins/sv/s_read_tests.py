@@ -20,7 +20,7 @@ import csv
 import io
 import logging
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.libs.components.data_processor import exceptions
 
@@ -38,13 +38,13 @@ class SvDataTest(data_templates.ReadTest):
         self.__stream = None  # type: io.FileIO
 
     def test(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__set_stream(file_location)
         self.__header_test()
 
     def __set_stream(self, file_location):
-        # type: (str) -> None
-        self.__stream = io.open(file_location, "r")
+        # type: (Path) -> None
+        self.__stream = file_location.open("r")
 
     def __header_test(self):
         header_test = _HeaderTest(self.__stream)

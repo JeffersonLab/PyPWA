@@ -29,12 +29,10 @@ Loads in the users configuration files.
 import io
 import json
 import logging
-import os
+import ruamel.yaml
 from typing import Any, Dict
 
-import ruamel.yaml
-
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -46,14 +44,14 @@ class _ReadData(object):
     __LOGGER = logging.getLogger(__name__ + "._ReadData")
 
     def read(self, configuration):
-        # type: (str) -> Dict[str, Any]
-        with io.open(configuration, "r") as stream:
+        # type: (Path) -> Dict[str, Any]
+        with configuration.open("r") as stream:
             data = self._process_stream(stream)
             self.__LOGGER.info("Parsed %s" % configuration)
             return data
 
     def _process_stream(self, stream):
-        # type: (io.TextIOWrapper) -> Dict[str, Any]
+        # type: (io.TextIO) -> Dict[str, Any]
         raise NotImplementedError
 
     def _process_error(self, user_error):
@@ -101,8 +99,8 @@ class ConfigurationLoader(object):
         self.__yml = _ReadYml()
 
     def read_config(self, configuration):
-        # type: (str) -> Dict[str, Any]
-        if os.path.splitext(configuration)[1] is json:
+        # type: (Path) -> Dict[str, Any]
+        if configuration.suffix is ".json":
             return self.__json.read(configuration)
         else:
             return self.__yml.read(configuration)

@@ -1,16 +1,13 @@
 # coding=utf-8
 
-import os
-
 import pytest
 
+from PyPWA import Path
 from PyPWA.builtin_plugins import nestle
 from PyPWA.libs import configuration_db
 
-
-SIMPLE_PRIOR = os.path.join(
-    os.path.dirname(__file__), "../../test_data/source_files/simple_prior.py"
-)
+ROOT = Path(__file__).parent
+SIMPLE_PRIOR = ROOT / "../../test_data/source_files/simple_prior.py"
 
 
 @pytest.fixture()
@@ -20,7 +17,7 @@ def nested():
     db.merge_component(
         "nestle",
         {
-            "prior location": SIMPLE_PRIOR,
+            "prior location": str(SIMPLE_PRIOR),
             "prior name": "prior",
             "method": "classic",
             "npoints": 4,
@@ -35,8 +32,8 @@ def nested():
 def nested_save_data(nested):
     yield nested
     nested.save_extra("extra_data")
-    os.remove("extra_data.npy")
-    os.remove("extra_data.txt")
+    Path("extra_data.npy").unlink()
+    Path("extra_data.txt").unlink()
 
 
 def test_nested_with_save(nested_save_data):

@@ -29,7 +29,7 @@ import io
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import misc_file_libs
 from PyPWA.libs.components.data_processor import data_templates
 
@@ -44,18 +44,20 @@ class GampParticleCount(object):
         self.__particle_count = 0
 
     def get_particle_count(self, file_location):
+        # type: (Path) -> None
         particle_count = self.__get_particle_count(file_location)
         file_length = misc_file_libs.get_file_length(file_location)
         self.__particle_count = int(file_length / particle_count)
 
     @staticmethod
     def __get_particle_count(file_location):
-        with open(file_location) as stream:
+        with file_location.open() as stream:
             return int(stream.readline())
 
     @property
     def particle_count(self):
         return self.__particle_count
+
 
 class GampReader(data_templates.Reader):
 
@@ -66,7 +68,7 @@ class GampReader(data_templates.Reader):
         event.
 
         Args:
-            file_location (str): Name of the GAMP file, can be any size.
+            file_location (Path): Name of the GAMP file, can be any size.
         """
         self.__event_count = None
         self._previous_event = None  # type: numpy.ndarray
@@ -85,7 +87,7 @@ class GampReader(data_templates.Reader):
                 self._file.close()
         except AttributeError:
             pass
-        self._file = io.open(self._the_file, "rt")
+        self._file = self._the_file.open("rt")
 
     def reset(self):
         """
@@ -157,9 +159,9 @@ class GampWriter(data_templates.Writer):
         output.
 
         Args:
-            file_location (str): Where to write the GAMP data.
+            file_location (Path): Where to write the GAMP data.
         """
-        self._file = open(file_location, "w")
+        self._file = file_location.open("w")
 
     def write(self, data):
         """
@@ -170,13 +172,9 @@ class GampWriter(data_templates.Writer):
         Args:
             numpy.ndarray: the file that is to be written to disk.
         """
-        self._file.write(str(len(data)) + "\n")
+        self._file.write(u"%d\n" % len(data))
         for particle in data:
-            self._file.write(
-                repr(particle[0]) + " " + repr(particle[1]) + " " +
-                repr(particle[2]) + " " + repr(particle[3]) + " " +
-                repr(particle[4]) + " " + repr(particle[5]) + "\n"
-            )
+            self._file.write(u"{0} {1} {2} {3} {4} {5}\n".format(*particle))
 
     def close(self):
         self._file.close()

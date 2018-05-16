@@ -67,10 +67,11 @@ setuptools_version = int(setuptools.__version__.split(".", 1)[0])
 
 if setuptools_version > 20:
     requires.append("enum34;python_version<'3.4'")
+    requires.append("pathlib2;python_version<'3.5'")
     requires.append("typing;python_version<'3.5'")
 elif 18 < setuptools_version < 20:
     extras[':python_version<"3.4"'] = ["enum34"]
-    extras[':python_version<"3.5"'] = ["typing"]
+    extras[':python_version<"3.5"'] = ["typing", "pathlib2"]
 else:
     if "bdist_wheel" in sys.argv:
         # We want to raise an error here, wheels are universal, but
@@ -81,6 +82,7 @@ else:
         )
     if python_version < (3, 5):
         requires.append("typing")
+        requires.append("pathlib2")
     if python_version < (3, 4):
         requires.append("enum34")
 

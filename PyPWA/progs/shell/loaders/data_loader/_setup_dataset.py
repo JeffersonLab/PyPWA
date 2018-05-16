@@ -33,7 +33,7 @@ from typing import Optional as Opt
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.progs.shell.loaders.data_loader import _dataset_storage
 from PyPWA.progs.shell.loaders.data_loader import _file_handling
 
@@ -127,10 +127,10 @@ class LoadData(object):
 
     def __init__(
             self,
-            data,  # type: str
+            data,  # type: Path
             internal_data,  # type: Dict[str, str]
-            qfactor=None,  # type: Opt[str]
-            monte_carlo=None  # type: Opt[str]
+            qfactor=None,  # type: Opt[Path]
+            monte_carlo=None  # type: Opt[Path]
     ):
         # type: (...) -> None
         self.__data_handler = _file_handling.DataHandler(

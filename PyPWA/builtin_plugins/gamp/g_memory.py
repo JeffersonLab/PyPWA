@@ -29,7 +29,7 @@ import io
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.builtin_plugins.gamp import g_iterator
 
@@ -43,8 +43,7 @@ class GampMemory(data_templates.Memory):
     Loads GAMP Data into memory to bypass the disk bottleneck with
     calculations.
     DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL QUICKLY
-    OVERFILL THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY AND COLLECTIONS
-    OPTIMIZATIONS!
+    OVERFILL THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY OPTIMIZATIONS!
     """
 
     @staticmethod
@@ -54,14 +53,14 @@ class GampMemory(data_templates.Memory):
         count.
 
         Args:
-            file_location (str):  The location of the file being read.
+            file_location (Path):  The location of the file being read.
 
         Returns:
             list[event_index, particle_index]
         """
         event_index = 0
         particle_index = 0
-        with io.open(file_location) as stream:
+        with file_location.open() as stream:
             for index, line in enumerate(stream):
                 filtered_line = line.strip("\n").strip()
                 if len(filtered_line) == 1:
@@ -76,7 +75,7 @@ class GampMemory(data_templates.Memory):
         Parses Gamp Files into a single list.
 
         Args:
-            file_location (str): The location of the GAMP File.
+            file_location (Path): The location of the GAMP File.
 
         Returns:
             numpy.ndarray: A list containing all the GampEvents from the
@@ -124,7 +123,7 @@ class GampMemory(data_templates.Memory):
         GampWriter for single GAMP event writing or something similar.
 
         Args:
-            file_location (str): The location where to write the GAMP
+            file_location (Path): The location where to write the GAMP
                 file.
             data (numpy.ndarray): The list containing all the GampEvents
                 that are to be written to disk.

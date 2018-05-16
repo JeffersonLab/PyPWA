@@ -25,7 +25,7 @@ from typing import List
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -44,11 +44,11 @@ class DataPlugin(object):
         raise NotImplementedError()
 
     def get_plugin_reader(self, file_location):
-        # type: (str) -> Reader
+        # type: (Path) -> Reader
         raise NotImplementedError()
 
     def get_plugin_writer(self, file_location):
-        # type: (str) -> Writer
+        # type: (Path) -> Writer
         raise NotImplementedError()
 
     def get_plugin_read_test(self):
@@ -79,11 +79,11 @@ class DataPlugin(object):
 class Memory(object):
 
     def parse(self, file_location):
-        # type: (str) -> numpy.ndarray
+        # type: (Path) -> numpy.ndarray
         raise NotImplementedError()
 
     def write(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         raise NotImplementedError()
 
 
@@ -161,7 +161,7 @@ class Writer(object):
 class ReadTest(object):
 
     def test(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         """
         Raises:
             PyPWA.builtin_plugins.data.exceptions.IncompatibleData: Raised

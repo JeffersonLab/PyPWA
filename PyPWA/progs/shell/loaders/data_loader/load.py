@@ -28,7 +28,7 @@ from typing import Union
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.progs.shell.loaders.data_loader import _bin_filter
 from PyPWA.progs.shell.loaders.data_loader import _dataset_storage
 from PyPWA.progs.shell.loaders.data_loader import _setup_dataset
@@ -46,15 +46,23 @@ class DataLoading(object):
     def __init__(self):
 
         config = configuration_db.Connector().read()
+        fitting_key = "shell fitting method"
+        simulation_key = "shell simulation"
 
-        if "shell fitting method" in config:
-            data = config["shell fitting method"]["data location"]
-            internal_data = config["shell fitting method"]["internal data"]
-            qfactor = config["shell fitting method"]["qfactor location"]
-            monte_carlo = config["shell fitting method"]\
-                ["accepted monte carlo location"]
+        if fitting_key in config:
+            data = Path(config[fitting_key]["data location"])
+            internal_data = config[fitting_key]["internal data"]
+            qfactor = config[fitting_key]["qfactor location"]
+            monte_carlo = config[fitting_key]["accepted monte carlo location"]
+
+            if isinstance(qfactor, str):
+                qfactor = Path(qfactor)
+
+            if isinstance(monte_carlo, str):
+                monte_carlo = Path(monte_carlo)
+
         else:
-            data = config["shell simulation"]["data location"]
+            data = Path(config[simulation_key]["data location"])
             internal_data = {}
             qfactor = None
             monte_carlo = None
@@ -75,7 +83,7 @@ class DataLoading(object):
         self.__storage = self.__filter(storage)
 
     def write(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         self.__loader.write(file_location, data)
 
     @property

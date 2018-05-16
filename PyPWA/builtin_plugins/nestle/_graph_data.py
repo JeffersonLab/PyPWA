@@ -36,7 +36,7 @@ import shutil
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -58,13 +58,13 @@ class _Handler(object):
     @staticmethod
     def _find_points(data):
         raise NotImplementedError
-    
+
     @staticmethod
     def __convert_list_to_numpy(list_of_points):
         return numpy.array(list_of_points)
 
     def save_data(self, file_location):
-        numpy.save(file_location, self.__data)
+        numpy.save(str(file_location), self.__data)
 
 
 class _EllipsoidHandler(_Handler):
@@ -88,11 +88,11 @@ class _PointsHandler(_Handler):
             xs_and_ys[0].append(point[0])
             xs_and_ys[1].append(point[1])
         return xs_and_ys
-        
+
 
 class SaveData(object):
 
-    __DATA_FOLDER = "saved_data"
+    __DATA_FOLDER = Path("saved_data")  # type: Path
 
     __basic_data = None  # type: List[double]
     __root_save_name = None  # type: str
@@ -106,7 +106,7 @@ class SaveData(object):
 
     def __create_empty_basic_data(self):
         self.__basic_data = []
-        
+
     def __handle_directories(self):
         if os.path.isdir(self.__DATA_FOLDER):
             self.__clear_directory()
@@ -116,7 +116,7 @@ class SaveData(object):
         shutil.rmtree(self.__DATA_FOLDER)
 
     def __create_directory(self):
-        os.mkdir(self.__DATA_FOLDER)
+        self.__DATA_FOLDER.mkdir()
 
     def process_callback(self, info):
         self.__set_root_save_name(info["it"])
@@ -127,7 +127,7 @@ class SaveData(object):
     def __set_root_save_name(self, iteration):
         self.__root_save_name = self.__DATA_FOLDER + "/"
         self.__root_save_name += str(iteration) + "_"
-        
+
     def __process_ellipsoids(self, ells):
         handler = _EllipsoidHandler(ells)
         save_location = self.__root_save_name + "ellipsoids.npy"
@@ -149,4 +149,4 @@ class SaveData(object):
         return numpy.array(self.__basic_data)
 
     def __write_data(self, data):
-        numpy.save(self.__DATA_FOLDER + "/logz.npy", data)
+        numpy.save(str(self.__DATA_FOLDER / "logz.npy"), data)

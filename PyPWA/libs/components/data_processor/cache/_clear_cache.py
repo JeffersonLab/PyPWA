@@ -21,12 +21,10 @@
 """
 
 import logging
-import os
 
 from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import exceptions
-from PyPWA.libs.components.data_processor.cache import _basic_info
-from PyPWA.libs.components.data_processor.cache import _template
+from PyPWA.libs.components.data_processor.cache import _basic_info, _template
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -55,4 +53,4 @@ class ClearCache(_template.ReadInterface):
             self.__LOGGER.debug("No cache to delete.")
 
     def __remove_cache(self):
-        os.remove(self.__info.cache_location)
+        self.__info.cache_location.unlink()

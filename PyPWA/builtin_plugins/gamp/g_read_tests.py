@@ -25,11 +25,8 @@ time. Only the previous loaded events are stored, anything later than that
 will not be saved in memory by these object.
 """
 
-import io
-
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.components.data_processor import data_templates
-from PyPWA.libs.components.data_processor import exceptions
+from PyPWA import Path, AUTHOR, VERSION
+from PyPWA.libs.components.data_processor import data_templates, exceptions
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -37,6 +34,12 @@ __version__ = VERSION
 
 
 class GampDataTest(data_templates.ReadTest):
+
+    def test(self, text_file):
+        # type: (Path) -> None
+
+        self._test_length(text_file)
+        self._check_events(text_file)
 
     def _check_events(self, file_location):
         """
@@ -47,7 +50,7 @@ class GampDataTest(data_templates.ReadTest):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the tests fail for this object and the data.
         """
-        the_file = io.open(file_location)
+        the_file = file_location.open()
         count = 0
         while True:
             # Limit how much of the file is tested
@@ -101,7 +104,7 @@ class GampDataTest(data_templates.ReadTest):
             PyPWA.libs.data.exceptions.IncompatibleData:
                 Raised when the tests fail for this object and the data.
         """
-        the_file = io.open(file_location)
+        the_file = file_location.open()
         while True:
             number = the_file.readline().strip().strip("\n")
             try:
@@ -114,7 +117,3 @@ class GampDataTest(data_templates.ReadTest):
                     "Unexpected exception raised, caught " + str(Error) +
                     " where it wasn't expected."
                 )
-
-    def test(self, text_file):
-        self._test_length(text_file)
-        self._check_events(text_file)

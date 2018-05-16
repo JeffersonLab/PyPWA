@@ -14,29 +14,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
-
 import numpy
 import pytest
+
+from PyPWA import Path
 from PyPWA.builtin_plugins.sv import s_memory
 
-TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__),
-    "../../test_data/docs/temporary_write_data"
-)
-
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
-)
-
-CSV_TEST_DATA_2 = os.path.join(
-    os.path.dirname(__file__),
-    "../../test_data/docs/program_data/data/data.csv"
-)
-
-TSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.tsv"
-)
+ROOT = Path(__file__).parent
+TEMP_WRITE_LOCATION = ROOT / "../../test_data/docs/temporary_write_data"
+CSV_TEST_DATA = ROOT / "../../test_data/docs/sv_test_data.csv"
+CSV_TEST_DATA_2 = ROOT / "../../test_data/docs/program_data/data/data.csv"
+TSV_TEST_DATA = ROOT / "../../test_data/docs/sv_test_data.tsv"
 
 
 @pytest.fixture
@@ -65,8 +53,8 @@ def return_parsed_data(request):
     scope="function",
     params=[
         TEMP_WRITE_LOCATION,
-        TEMP_WRITE_LOCATION + ".csv",
-        TEMP_WRITE_LOCATION + ".tsv"
+        Path(TEMP_WRITE_LOCATION.stem + ".csv"),
+        Path(TEMP_WRITE_LOCATION.stem + ".tsv")
     ]
 )
 def looping_parser_test_data(numpy_flat, request):
@@ -76,7 +64,7 @@ def looping_parser_test_data(numpy_flat, request):
 
     yield [numpy_flat, new_data]
 
-    os.remove(request.param)
+    request.param.unlink()
 
 
 def test_full_data_has_expected_data(full_data):

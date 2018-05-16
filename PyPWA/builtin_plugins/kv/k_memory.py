@@ -23,7 +23,7 @@ The objects in this file are dedicated to reading the EVIL files from disk
 and into memory. This file type is being depreciated for many reasons, and
 will live here until it shrivels away, is completely forgotten, and dies.
 
-EVIL, Expanded Variable Identification Lists, earned their name from their
+EVIL (Expanded Variable Identification Lists) earned their name from their
 inefficient nature when it comes to reading in, writing out, or simply
 existing, its a name given to these EVIL formats out of a mixture of spite
 and love by current and former developers alike.
@@ -35,13 +35,12 @@ trying to learn the nature of data within PyPWA, you should move your
 attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
+import numpy
 from typing import List, Tuple
 
-import numpy
-
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.components.data_processor import data_templates
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.builtin_plugins.kv import k_iterator
+from PyPWA.libs.components.data_processor import data_templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -54,14 +53,14 @@ class _CreateEmptyArray(object):
         self.__split = None
 
     def create_empty_array(self, file_location, array_length):
-        # type: (str) -> numpy.ndarray
+        # type: (Path, int) -> numpy.ndarray
         self.__get_split_of_first_line(file_location)
         names = self.__get_column_names()
         types = self.__create_numpy_type(names)
         return self.__create_array(array_length, types)
 
     def __get_split_of_first_line(self, file):
-        with open(file) as stream:
+        with file.open() as stream:
             self.__split = stream.readline().split(",")
 
     def __get_column_names(self):
@@ -90,18 +89,18 @@ class _EVILParser(object):
         self.__array = None  # type: numpy.ndarray
 
     def parse(self, file_location):
-        # type: (str) -> numpy.ndarray
+        # type: (Path) -> numpy.ndarray
         self.__process_file(file_location)
         return self.__array
 
     def __process_file(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         with k_iterator.EVILReader(file_location) as iterator:
             self.__set_empty_array(file_location, len(iterator))
             self.__load_array(iterator)
 
     def __set_empty_array(self, file_location, event_count):
-        # type: (str) -> None
+        # type: (Path, int) -> None
         self.__array = self.__create_empty_array.create_empty_array(
             file_location, event_count
         )
@@ -110,10 +109,11 @@ class _EVILParser(object):
         for index, event in enumerate(iterator):
             self.__array[index] = event
 
+
 class _EVILWriter(object):
 
     def write(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         with k_iterator.EVILWriter(file_location) as iterator:
             for event in numpy.nditer(data):
                 iterator.write(event)
@@ -127,7 +127,9 @@ class EVILMemory(data_templates.Memory):
         self.__writer = _EVILWriter()
 
     def parse(self, file_location):
+        # type: (Path) -> numpy.ndarray
         return self.__parser.parse(file_location)
 
     def write(self, file_location, data):
+        # type: (Path, numpy.ndarray) -> None
         self.__writer.write(file_location, data)

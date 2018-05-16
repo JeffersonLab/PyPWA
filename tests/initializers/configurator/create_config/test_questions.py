@@ -2,9 +2,9 @@ import sys
 
 import pytest
 
-
-from PyPWA.initializers.configurator.create_config import _questions
+from PyPWA import PurePath
 from PyPWA.initializers.configurator import options
+from PyPWA.initializers.configurator.create_config import _questions
 
 
 @pytest.fixture(params=["required", "optional", "advanced"])
@@ -47,8 +47,9 @@ def plugin_directory():
 
 def test_plugin_directory(input_location, plugin_directory):
     plugin_directory.ask_for_plugin_directory()
-    assert plugin_directory.get_plugin_directory() == "xhere"
-
+    assert (
+        PurePath(plugin_directory.get_plugin_directory()) == PurePath("xhere")
+    )
 
 @pytest.fixture()
 def save_location():
@@ -57,12 +58,11 @@ def save_location():
 
 def test_save_location_from_input(save_location, input_location):
     save_location.ask_for_save_location()
-    assert save_location.get_save_location() == "xhere"
+    assert PurePath(save_location.get_save_location()) == PurePath("xhere")
 
 
 def test_save_location_from_override(save_location):
     save_location.override_save_location("elsewhere")
-    assert save_location.get_save_location() == "elsewhere"
-
-
-
+    assert (
+        PurePath(save_location.get_save_location()) == PurePath("elsewhere")
+    )

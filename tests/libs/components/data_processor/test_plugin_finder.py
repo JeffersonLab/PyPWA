@@ -14,30 +14,18 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import io
-import os
-
 import numpy
 import pytest
-from PyPWA.libs.components.data_processor import _plugin_finder
-from PyPWA.libs.components.data_processor import exceptions
+
+from PyPWA import Path
 from PyPWA.builtin_plugins import sv, gamp
+from PyPWA.libs.components.data_processor import _plugin_finder, exceptions
 
-CSV_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../../test_data/docs/sv_test_data.csv"
-)
-
-GAMP_TEST_DATA = os.path.join(
-    os.path.dirname(__file__), "../../../test_data/docs/gamp_test_data.gamp"
-)
-
-TEMP_WRITE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../../test_data/docs/temporary_write_data"
-)
-
-NOISE_LOCATION = os.path.join(
-    os.path.dirname(__file__), "../../../test_data/docs/noise_test_data"
-)
+ROOT = Path(__file__).parent
+CSV_TEST_DATA = ROOT / "../../../test_data/docs/sv_test_data.csv"
+GAMP_TEST_DATA = ROOT / "../../../test_data/docs/gamp_test_data.gamp"
+TEMP_WRITE_LOCATION = ROOT / "../../../test_data/docs/temporary_write_data"
+NOISE_LOCATION = ROOT / "../../../test_data/docs/noise_test_data"
 
 
 @pytest.fixture(scope="module")
@@ -49,12 +37,12 @@ def plugin_search():
 
 @pytest.fixture(scope="function")
 def make_noise():
-    with io.open(TEMP_WRITE_LOCATION, "w") as stream:
+    with TEMP_WRITE_LOCATION.open("w") as stream:
         stream.write(u"Random nonsense that isn't data.")
 
     yield True
 
-    os.remove(TEMP_WRITE_LOCATION)
+    TEMP_WRITE_LOCATION.unlink()
 
 
 @pytest.fixture(scope="module")
@@ -163,7 +151,7 @@ def test_plugin_write_search_finds_unknown_extension(
         plugin_search (_plugin_finder.PluginSearch)
         random_numpy_flat_data (numpy.ndarray)
     """
-    location = TEMP_WRITE_LOCATION + ".completely_useless_extension"
+    location = Path(TEMP_WRITE_LOCATION.stem + ".completely_useless_extension")
 
     with pytest.raises(exceptions.UnknownData):
         plugin_search.get_write_plugin(location, random_numpy_flat_data)

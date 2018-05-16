@@ -14,7 +14,9 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import pytest
+from PyPWA import Path
 from PyPWA.libs.components.data_processor.cache import _clear_cache
 from PyPWA.libs.components.data_processor.cache import _basic_info
 from PyPWA.libs.components.data_processor import exceptions
@@ -32,7 +34,7 @@ class BasicTestInfo(_basic_info.FindBasicInfo):
 
     @property
     def cache_location(self):
-        return "narnia"
+        return Path("narnia")
 
 
 @pytest.fixture
@@ -40,10 +42,16 @@ def mock_os_remove_no_file(monkeypatch):
     def raise_oserror(location):
         raise OSError
 
-    monkeypatch.setattr(
-        "os.remove",
-        raise_oserror
-    )
+    if sys.version_info[0:2] >= (3,4):
+        monkeypatch.setattr(
+            "pathlib.Path.unlink",
+            raise_oserror
+        )
+    else:
+        monkeypatch.setattr(
+            "pathlib2.Path.unlink",
+            raise_oserror
+        )
 
 
 @pytest.fixture
@@ -51,10 +59,17 @@ def mock_os_remove_no_error(monkeypatch):
     def no_error(location):
         pass
 
-    monkeypatch.setattr(
-        "os.remove",
-        no_error
-    )
+    if sys.version_info[0:2] >= (3,4):
+        monkeypatch.setattr(
+            "pathlib.Path.unlink",
+            no_error
+        )
+    else:
+        monkeypatch.setattr(
+            "pathlib2.Path.unlink",
+            no_error
+        )
+
 
 
 @pytest.fixture

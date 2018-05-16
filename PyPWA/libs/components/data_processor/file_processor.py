@@ -21,13 +21,13 @@ Main object for Parsing Data
 """
 
 import logging
-
 import numpy
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.components.data_processor import _plugin_finder
-from PyPWA.libs.components.data_processor import data_templates
-from PyPWA.libs.components.data_processor import exceptions
+from PyPWA import Path, AUTHOR, VERSION
+from PyPWA.libs.components.data_processor import (
+    _plugin_finder,
+    data_templates, exceptions,
+)
 from PyPWA.libs.components.data_processor.cache import builder
 
 __credits__ = ["Mark Jones"]
@@ -44,10 +44,10 @@ class _ArrayLoader(object):
         self.__plugin_search = _plugin_finder.PluginSearch()
         self.__cache_builder = builder.CacheBuilder()
         self.__cache_interface = None  # type: builder._CacheInterface
-        self.file_location = None  # type: str
+        self.file_location = None  # type: Path
 
     def parse(self, file_location):
-        # type: (str) -> numpy.ndarray
+        # type: (Path) -> numpy.ndarray
         self.file_location = file_location
         self.__set_cache_interface()
         if self.__cache_interface.is_valid():
@@ -60,25 +60,22 @@ class _ArrayLoader(object):
             return self.__parse_with_cache()
 
     def __set_cache_interface(self):
-        # type: (str) -> None
         self.__cache_interface = self.__cache_builder.get_cache_interface(
             self.file_location
         )
 
     def __parse_with_cache(self):
-        # type: (str) -> numpy.ndarray
         data = self.__read_data()
         self.__cache_interface.write_cache(data)
         return data
 
     def __read_data(self):
-        # type: (str) -> numpy.ndarray
         plugin = self.__load_read_plugin(self.file_location)
         returned_parser = plugin.get_plugin_memory_parser()
         return returned_parser.parse(self.file_location)
 
     def __load_read_plugin(self, file_location):
-        # type: (str) -> data_templates.DataPlugin
+        # type: (Path) -> data_templates.DataPlugin
         try:
             return self.__plugin_search.get_read_plugin(file_location)
         except exceptions.UnknownData:
@@ -94,25 +91,25 @@ class _DataDumper(object):
         self.__cache_interface = None  # type: builder._CacheInterface
 
     def write(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         self.__write_data(file_location, data)
         self.__set_cache_interface(file_location)
         self.__cache_interface.write_cache(data)
 
     def __write_data(self, file_location, data):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         plugin = self.__load_write_plugin(file_location, data)
         found_parser = plugin.get_plugin_memory_parser()
         found_parser.write(file_location, data)
 
     def __set_cache_interface(self, file_location):
-        # type: (str) -> None
+        # type: (Path) -> None
         self.__cache_interface = self.__cache_builder.get_cache_interface(
             file_location
         )
 
     def __load_write_plugin(self, file_location, data):
-        # type: (str, numpy.ndarray) -> data_templates.DataPlugin
+        # type: (Path, numpy.ndarray) -> data_templates.DataPlugin
         try:
             return self.__plugin_search.get_write_plugin(file_location, data)
         except exceptions.UnknownData:
@@ -122,24 +119,23 @@ class _DataDumper(object):
 class _Iterator(object):
 
     def __init__(self):
-        # type: (bool, str) -> None
         self.__plugin_fetcher = _plugin_finder.PluginSearch()
 
     def return_reader(self, file_location):
-        # type: (str) -> data_templates.Reader
+        # type: (Path) -> data_templates.Reader
         return self.__get_reader_plugin(file_location)
 
     def __get_reader_plugin(self, file_location):
-        # type: (str) -> data_templates.Reader
+        # type: (Path) -> data_templates.Reader
         plugin = self.__plugin_fetcher.get_read_plugin(file_location)
         return plugin.get_plugin_reader(file_location)
 
     def return_writer(self, file_location, data):
-        # type: (str, numpy.ndarray) -> data_templates.Writer
+        # type: (Path, numpy.ndarray) -> data_templates.Writer
         return self.__get_writer_plugin(file_location, data)
 
     def __get_writer_plugin(self, file_location, data):
-        # type: (str, numpy.ndarray) -> data_templates.Writer
+        # type: (Path, numpy.ndarray) -> data_templates.Writer
         plugin = self.__plugin_fetcher.get_write_plugin(file_location, data)
         return plugin.get_plugin_writer(file_location)
 
@@ -152,17 +148,22 @@ class DataProcessor(object):
         self.__iterator = _Iterator()
 
     def parse(self, file_location):
+        # type: (Path) -> numpy.ndarray
         self.__interaction_file = file_location
         return self.__loader.parse(file_location)
 
     def fallback_reader(self):
+        # type: () -> data_templates.Reader
         return self.__iterator.return_reader(self.__loader.file_location)
 
     def get_reader(self, file_location):
+        # type: (Path) -> data_templates.Reader
         return self.__iterator.return_reader(file_location)
 
     def write(self, file_location, data):
+        # type: (Path, numpy.ndarray) -> None
         self.__dumper.write(file_location, data)
 
     def get_writer(self, file_location, data):
+        # type: (Path, numpy.ndarray) -> data_templates.Writer
         return self.__iterator.return_writer(file_location, data)

@@ -77,6 +77,13 @@ For more information on how each module works, view their documentation
 respectively.
 """
 
+import sys
+
+if sys.version_info[0:2] < (3, 5):
+    from pathlib2 import Path, PurePath
+else:
+    from pathlib import Path, PurePath
+
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
 __version__ = "2.3.0.dev"

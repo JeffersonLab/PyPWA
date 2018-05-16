@@ -29,7 +29,7 @@ from typing import Optional as Opt
 import numpy
 
 from PyPWA.libs.components.data_processor import file_processor
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -62,9 +62,9 @@ class DataHandler(object):
 
     def __init__(
             self,
-            data,  # type: Opt[str]
-            monte_carlo,  # type: Opt[str]
-            qfactor  # type: Opt[str]
+            data,  # type: Opt[Path]
+            monte_carlo,  # type: Opt[Path]
+            qfactor  # type: Opt[Path]
     ):
         # type: (...) -> None
         self.__data_parser = file_processor.DataProcessor()
@@ -74,7 +74,7 @@ class DataHandler(object):
         self.__qfactor = self.__file_loader.load_file(qfactor)
 
     def write(self, file, array):
-        # type: (str, numpy.ndarray) -> None
+        # type: (Path, numpy.ndarray) -> None
         self.__data_parser.write(file, array)
 
     @property

@@ -38,9 +38,7 @@ to a lesser extent.
 import argparse
 from typing import Dict, List
 
-import os
-
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.arguments import _loader, arguments_options
 from PyPWA.libs import initial_logging, configuration_db
 
@@ -231,6 +229,5 @@ class StartArguments(object):
             stream.write(crash_report)
 
     def __get_report_file_name(self):
-        log_file = os.path.splitext(self.__arguments.namespace.log_file)
-        log_file_name = log_file[0]
-        return log_file_name + "_crash_report.json"
+        log_file = Path(self.__arguments.namespace.log_file)
+        return Path(log_file.parent / (log_file.stem + "_crash_report.json"))

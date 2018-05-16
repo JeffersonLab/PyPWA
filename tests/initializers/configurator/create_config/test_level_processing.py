@@ -1,14 +1,12 @@
-import os
 import sys
 
 import pytest
 
+from PyPWA import Path
 from PyPWA.initializers.configurator import options
 from PyPWA.initializers.configurator.create_config import _level_processing
 
-sys.path.append(os.path.join(
-    os.path.dirname(__file__), "../../../test_data/source_files"
-))
+sys.path.append(str(Path(__file__).parent / "../../../test_data/source_files"))
 
 import simple_option_object
 

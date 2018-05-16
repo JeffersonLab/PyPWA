@@ -69,7 +69,6 @@ class _LoadPrior(object):
 
 
     def load_prior(self):
-        # type: (str, str) -> None
         self.__add_prior_location()
         self.__set_prior()
 

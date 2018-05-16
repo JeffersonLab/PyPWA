@@ -41,7 +41,7 @@ from typing import Dict
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs import configuration_db
 from PyPWA.libs.components.process import foreman
 from PyPWA.progs.shell import loaders
@@ -57,8 +57,8 @@ class DataHandler(loaders.DataLoading):
     def __init__(self):
         db = configuration_db.Connector()
         super(DataHandler, self).__init__()
-        self.__save_location = configuration_db.Connector().read(
-            "shell simulation", "save name"
+        self.__save_location = (
+            configuration_db.Connector().read("shell simulation", "save name")
         )
 
     def write_intensity_data(self, intensities, max_intensity):
@@ -68,18 +68,18 @@ class DataHandler(loaders.DataLoading):
 
     def __write_intensity_array(self, intensities):
         # type: (numpy.ndarray) -> None
-        save_location = self.__save_location + "_intensities.txt"
+        save_location = Path(self.__save_location + "_intensities.txt")
         self.write(save_location, intensities)
 
     def __write_max_intensity(self, max_intensity):
         # type: (float) -> None
-        save_location = self.__save_location + "_max.txt"
-        with open(save_location, "w") as stream:
+        save_location = Path(self.__save_location + "_max.txt")
+        with open(str(save_location), "w") as stream:
             stream.write(str(max_intensity))
 
     def write_rejection_list(self, rejection_list):
         # type: (numpy.ndarray) -> None
-        rejection_list_name = self.__save_location + "_rejection.pf"
+        rejection_list_name = Path(self.__save_location + "_rejection.pf")
         self.write(rejection_list_name, rejection_list)
 
 

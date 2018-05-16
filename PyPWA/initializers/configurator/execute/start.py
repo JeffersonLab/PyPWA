@@ -26,7 +26,7 @@ takes those settings to package together a little runnable program.
 
 from typing import Dict
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator.execute import _plugin_data, _settings
 
 __credits__ = ["Mark Jones"]
@@ -41,13 +41,13 @@ class Execute(object):
         self.__executor = None  # type: _plugin_data.SetupProgram
 
     def run(self, function_settings, configuration_location):
-        # type: (Dict[str, str], str) -> None
+        # type: (Dict[str, str], Path) -> None
         self.__set_settings(function_settings, configuration_location)
         self.__set_executor()
         self.__execute()
 
     def __set_settings(self, function_settings, configuration_location):
-        # type: (Dict[str, str], str) -> None
+        # type: (Dict[str, str], Path) -> None
         self.__settings.load_settings(
             function_settings, configuration_location
         )

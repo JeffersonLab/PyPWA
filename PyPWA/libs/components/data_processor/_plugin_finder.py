@@ -31,16 +31,12 @@ whatever data needs to be read/written.
 """
 
 import logging
-import os
-from typing import List
-
 import numpy
+from typing import List, Union
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA import builtin_plugins
-from PyPWA.libs.components.data_processor import data_templates
-from PyPWA.libs.components.data_processor import exceptions
+from PyPWA import Path, AUTHOR, VERSION, builtin_plugins
 from PyPWA.libs import plugin_loader
+from PyPWA.libs.components.data_processor import data_templates, exceptions
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -52,13 +48,13 @@ class PluginSearch(object):
     __LOGGER = logging.getLogger(__name__ + ".PluginSearch")
 
     def __init__(self, user_plugin_dir=""):
-        # type: (str) -> None
+        # type: (Union[str, Path]) -> None
         self.__found_plugins = None
-        self.__setup_plugin_storage(user_plugin_dir)
+        self.__setup_plugin_storage(Path(user_plugin_dir))
         self.__log_found_plugins()
 
     def __setup_plugin_storage(self, user_plugin_dir):
-        # type: (str) -> None
+        # type: (Path) -> None
         plugin_storage = plugin_loader.PluginLoader()
         plugin_storage.add_plugin_location([builtin_plugins, user_plugin_dir])
 
@@ -72,12 +68,12 @@ class PluginSearch(object):
         self.__LOGGER.debug("Loaded Data Plugins: %s" % self.__found_plugins)
 
     def get_read_plugin(self, file_location):
-        # type: (str) -> data_templates.DataPlugin
+        # type: (Path) -> data_templates.DataPlugin
         plugin_finder = _FindReadPlugins(self.__found_plugins)
         return plugin_finder.get_plugin(file_location)
 
     def get_write_plugin(self, file_location, data):
-        # type: (str, numpy.ndarray) -> data_templates.DataPlugin
+        # type: (Path, numpy.ndarray) -> data_templates.DataPlugin
         plugin_finder = _FindWritePlugins(self.__found_plugins)
         return plugin_finder.get_plugin(file_location, data)
 
@@ -91,9 +87,11 @@ class _FindReadPlugins(object):
         self.__potential_plugins = potential_plugins
 
     def get_plugin(self, file_location):
+        # type: (Path) -> data_templates.DataPlugin
         return self.__search_plugin_list(file_location)
 
     def __search_plugin_list(self, file_location):
+        # type: (Path) -> data_templates.DataPlugin
         for plugin in self.__potential_plugins:
             if self.__plugin_can_read(plugin, file_location):
                 return plugin
@@ -103,7 +101,7 @@ class _FindReadPlugins(object):
         )
 
     def __plugin_can_read(self, plugin, file_location):
-        # type: (data_templates.DataPlugin, str) -> bool
+        # type: (data_templates.DataPlugin, Path) -> bool
         try:
             self.__run_read_test(plugin, file_location)
             return True
@@ -120,7 +118,7 @@ class _FindReadPlugins(object):
             return False
 
     def __run_read_test(self, plugin, file_location):
-        # type: (data_templates.DataPlugin, str) -> None
+        # type: (data_templates.DataPlugin, Path) -> None
         read_test = plugin.get_plugin_read_test()
         read_test.test(file_location)
         self.__LOGGER.info(
@@ -139,10 +137,10 @@ class _FindWritePlugins(object):
         self.__data_is_columned = False
         self.__data_is_single_array = False
         self.__file_extension = ""
-        self.__file_name = ""
+        self.__file_name = None  # type: Path
 
     def get_plugin(self, file_location, data):
-        # type: (str, numpy.ndarray) -> data_templates.DataPlugin
+        # type: (Path, numpy.ndarray) -> data_templates.DataPlugin
         self.__set_data_type(data)
         self.__set_data_extension(file_location)
         return self.__search_for_plugins()
@@ -166,12 +164,10 @@ class _FindWritePlugins(object):
             self.__data_is_single_array = True
 
     def __set_data_extension(self, file_location):
-        # type: (str) -> None
-        split_extension = os.path.splitext(file_location)
-        extension = split_extension[1]
-        self.__file_extension = extension
+        # type: (Path) -> None
+        self.__file_extension = file_location.suffix
         self.__file_name = file_location
-        self.__LOGGER.debug("Data's extension is: " + repr(extension))
+        self.__LOGGER.debug("Data's extension is: %s" % file_location.suffix)
 
     def __search_for_plugins(self):
         # type: () -> data_templates.DataPlugin

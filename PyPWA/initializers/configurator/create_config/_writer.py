@@ -22,20 +22,18 @@ Simple writers to export configurations.
 
 - _YmlWriter - Exports configurations using ruamel.yaml, this is default, and
   is the only way to get comments.
-  
-- _JsonWriter - Exports configurations using json for masochists who prefer 
+
+- _JsonWriter - Exports configurations using json for masochists who prefer
   it, does not support comments.
-  
+
 - Write - Simple wrapping main object around the two defined writers.
 """
 
 import json
-import os
+import ruamel.yaml
 from typing import Any, Dict
 
-import ruamel.yaml
-
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -46,8 +44,8 @@ class _YmlWriter(object):
 
     @staticmethod
     def write(settings, location):
-        # type: (Dict[str, Any], str) -> None
-        with open(location, "w") as stream:
+        # type: (Dict[str, Any], Path) -> None
+        with open(str(location), "w") as stream:
             stream.write(
                 ruamel.yaml.dump(
                     settings,
@@ -60,8 +58,8 @@ class _JsonWriter(object):
 
     @staticmethod
     def write(settings, location):
-        # type: (Dict[str, Any], str) -> None
-        with open(location, "w") as stream:
+        # type: (Dict[str, Any], Path) -> None
+        with open(str(location), "w") as stream:
             stream.write(json.dumps(settings, indent=4))
 
 
@@ -72,7 +70,7 @@ class Write(object):
         self.__yml = _YmlWriter()
 
     def write(self, settings, location):
-        # type: (Dict[str, Any], str) -> None
+        # type: (Dict[str, Any], Path) -> None
         if self.__is_json(location):
             self.__json.write(settings, location)
         else:
@@ -80,8 +78,8 @@ class Write(object):
 
     @staticmethod
     def __is_json(location):
-        # type: (str) -> bool
-        if os.path.splitext(location)[1] == ".json":
+        # type: (Path) -> bool
+        if location.suffix == ".json":
             return True
         else:
             return False

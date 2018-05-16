@@ -21,13 +21,11 @@ Miscellaneous file tools.
 -------------------------
 """
 
+import appdirs
 import hashlib
 import io
-import os
 
-import appdirs
-
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -36,55 +34,42 @@ __version__ = VERSION
 
 class _CheckLocationIsUsable(object):
 
-    def find_usable_uri(self, potential_uri):
-        # type: (str) -> str
-        self.__recursively_make_uri_directories(potential_uri)
-        return self.__determine_potential_or_cwd(potential_uri)
+    def find_usable_uri(self, uri):
+        # type: (Path) -> Path
+        uri.mkdir(parents=True, exist_ok=True)
+        return self.__determine_potential_or_cwd(uri)
 
-    @staticmethod
-    def __recursively_make_uri_directories(potential_uri):
-        # type: (str) -> None
+    def __determine_potential_or_cwd(self, uri):
+        # type: (Path) -> Path
         try:
-            os.makedirs(potential_uri)
+            uri.mkdir(parents=True, exist_ok=True)
+            uri.joinpath("test").touch()
+            uri.joinpath("test").unlink()
+            return uri
         except OSError:
-            pass
-
-    def __determine_potential_or_cwd(self, potential_uri):
-        # type: (str) -> str
-        try:
-            self.__check_writable(potential_uri)
-            return potential_uri
-        except OSError:
-            self.__check_writable(os.getcwd())
-            return os.getcwd()
-
-    @staticmethod
-    def __check_writable(potential_uri):
-        # type: (str) -> None
-        test_file = potential_uri + "/test"
-        with open(test_file, "w") as stream:
-            stream.write("test")
-        os.remove(test_file)
+            Path.cwd().joinpath("test").touch()
+            Path.cwd().joinpath("test").unlink()
+            return Path.cwd()
 
 
 def get_cache_uri():
-    # type: () -> str
+    # type: () -> Path
     possible_uri = appdirs.user_cache_dir("PyPWA", "JLab", __version__)
     usable_location = _CheckLocationIsUsable()
-    return usable_location.find_usable_uri(possible_uri)
+    return usable_location.find_usable_uri(Path(possible_uri))
 
 
 class _HashUtility(object):
 
     def get_stream_hash(self, file_location, file_hash):
-        # type: (str, hashlib._hashlib.HASH) -> str
-        with open(file_location, 'rb') as stream:
+        # type: (Path, hashlib._hashlib.HASH) -> str
+        with file_location.open("rb") as stream:
             self.__update_hash_with_file_contents(stream, file_hash)
         return self.__convert_hash_to_string(file_hash)
 
     @staticmethod
     def __update_hash_with_file_contents(stream, file_hash):
-        # type: (io.FileIO, hashlib._hashlib.HASH) -> None
+        # type: (io.BinaryIO, hashlib._hashlib.HASH) -> None
         for chunk in iter(lambda: stream.read(4096), b""):
             file_hash.update(chunk)
 
@@ -95,7 +80,7 @@ class _HashUtility(object):
 
 
 def get_sha512_hash(file_location):
-    # type: (str) -> str
+    # type: (Path) -> str
     hash_utility = _HashUtility()
     return hash_utility.get_stream_hash(file_location, hashlib.sha512())
 
@@ -109,13 +94,13 @@ class _FileLength(object):
         self.__buffer = b''  # type: bytes
 
     def get_length(self, file_location):
-        # type: (str) -> int
-        with io.open(file_location, 'rb') as binary_stream:
+        # type: (Path) -> int
+        with file_location.open("rb") as binary_stream:
             self.__iterate_over_file(binary_stream)
         return self.__lines
 
     def __iterate_over_file(self, stream):
-        # type: (io.FileIO) -> None
+        # type: (io.BinaryIO) -> None
         self.__read_new_buffer(stream)
         while self.__buffer:
             self.__lines += self.__buffer.count(b'\n')
@@ -134,6 +119,6 @@ class _FileLength(object):
 
 
 def get_file_length(file_location):
-    # type: (str) -> int
+    # type: (Path) -> int
     counter = _FileLength()
     return counter.get_length(file_location)

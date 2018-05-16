@@ -35,7 +35,7 @@ trying to learn the nature of data within PyPWA, you should move your
 attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.libs.components.data_processor import exceptions
 
@@ -46,9 +46,13 @@ __version__ = VERSION
 
 class EVILDataTest(data_templates.ReadTest):
 
+    def test(self, file_location):
+        # type: (Path) -> None
+        self.__check_data_type(file_location)
+
     def __check_data_type(self, file_location):
-        # type: (str) -> None
-        with open(file_location) as stream:
+        # type: (Path) -> None
+        with file_location.open() as stream:
             first_line = stream.readline()
             if not self.__is_evil(first_line):
                 raise exceptions.IncompatibleData
@@ -58,7 +62,3 @@ class EVILDataTest(data_templates.ReadTest):
         equal_count = line.count("=")
         comma_count = line.count(",") + 1
         return equal_count == comma_count and equal_count
-
-    def test(self, file_location):
-        # type: (str) -> None
-        self.__check_data_type(file_location)

@@ -18,23 +18,21 @@
 
 import numpy
 import warnings
-import pytest
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.components.data_processor import data_templates
 from typing import Union
 
-__credits__ = ["Keandre Palmer"]
+from PyPWA import Path, AUTHOR, VERSION
+from PyPWA.libs.components.data_processor import data_templates
+
+__credits__ = ["Keandre Palmer", "Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
 class NumpyReader(data_templates.Reader):
 
-    @pytest.mark.x
     def __init__(self, file_location):
-        with pytest.warns(UserWarning, match='Numpy Reader is redundant!'):
-            warnings.warn("Numpy Reader is redundant!", UserWarning)
-        self.__array = numpy.load(file_location)
+        # type: (Path) -> None
+        self.__array = numpy.load(str(file_location))
         self.__counter = 0
 
     def get_event_count(self):
@@ -54,8 +52,7 @@ class NumpyReader(data_templates.Reader):
 class NumpyWriter(data_templates.Writer):
 
     def __init__(self, file_location):
-        with pytest.warns(UserWarning, match='Numpy Writer is Inefficient!'):
-            warnings.warn("Numpy Writer is Inefficient!", UserWarning)
+        # type: (Path) -> None
         self.__array = False  # type: Union[numpy.ndarray, bool]
         self.__file_location = file_location
 
@@ -70,4 +67,4 @@ class NumpyWriter(data_templates.Writer):
 
     def close(self):
         # type: () -> None
-        numpy.save(self.__file_location, self.__array)
+        numpy.save(str(self.__file_location), self.__array)

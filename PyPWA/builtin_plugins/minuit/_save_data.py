@@ -20,11 +20,11 @@
 Saves Data for iMinuit in a way the User can interact with it
 -------------------------------------------------------------
 
-- _MakeTable - Makes the covariance table for the minimizer, also optionally   
+- _MakeTable - Makes the covariance table for the minimizer, also optionally
   prints out the table.
-  
+
 - _WriteData - takes all the essential data from the minimizer and saves to
-  the disk. 
+  the disk.
 
 - SaveData - the main object for saving data from iMinuit.
 """
@@ -33,6 +33,8 @@ import logging
 
 import numpy
 import tabulate
+
+from PyPWA import Path
 
 
 class _MakeTable(object):
@@ -117,7 +119,8 @@ class _WriteData(object):
         self.__save_numpy_data()
 
     def __save_text_data(self):
-        with open(self.__save_location + ".txt", "w") as stream:
+        new_path = Path(str(self.__save_location.stem + ".txt"))
+        with open(str(new_path), "w") as stream:
             stream.write("Covariance.\n")
             stream.write(self.__table_data.table)
             stream.write("\n")
@@ -125,7 +128,7 @@ class _WriteData(object):
 
     def __save_numpy_data(self):
         numpy.save(
-            self.__save_location + ".npy", {
+            str(self.__save_location) + ".npy", {
                 "covariance": self.__covariance_data,
                 "fval": self.__final_value,
                 "values": self.__values

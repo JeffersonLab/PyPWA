@@ -7,7 +7,7 @@ from PyPWA.libs.components.optimizers import gateway
 from PyPWA.libs import configuration_db
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def minuit():
     configuration_db.Connector().initialize_component(
         "Optimizer",

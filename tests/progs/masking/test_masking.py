@@ -1,9 +1,9 @@
-import os
 import sys
-import uuid
 
 import pytest
+import uuid
 
+from PyPWA import Path
 from PyPWA.entries import arguments
 from PyPWA.libs import misc_file_libs, configuration_db
 
@@ -11,29 +11,14 @@ from PyPWA.libs import misc_file_libs, configuration_db
 Masking Data
 """
 
-INPUT = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.csv"
-)
-
-PF = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data.pf"
-)
-
-PF2 = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data2.pf"
-)
-
-PF_SHORT = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data_short.pf"
-)
-
-PF_LONG = os.path.join(
-    os.path.dirname(__file__), "../../test_data/docs/sv_test_data_long.pf"
-)
-
-TEMP_FILE = os.path.join(
-    os.path.dirname(__file__),
-    "../../test_data/docs/temp_" + str(uuid.uuid4()) + "_file.txt"
+ROOT = Path(__file__).parent
+INPUT = ROOT / "../../test_data/docs/sv_test_data.csv"
+PF = ROOT / "../../test_data/docs/sv_test_data.pf"
+PF2 = ROOT / "../../test_data/docs/sv_test_data2.pf"
+PF_SHORT = ROOT / "../../test_data/docs/sv_test_data_short.pf"
+PF_LONG = ROOT / "../../test_data/docs/sv_test_data_long.pf"
+TEMP_FILE = ROOT / (
+        "../../test_data/docs/temp_" + str(uuid.uuid4()) + "_file.txt"
 )
 
 
@@ -51,7 +36,8 @@ def correct_argv(monkeypatch):
 @pytest.fixture()
 def cleanup_temp():
     yield
-    os.remove(TEMP_FILE)
+    if TEMP_FILE.exists():
+        TEMP_FILE.unlink()
 
 
 @pytest.fixture()
@@ -66,8 +52,18 @@ Test Masking can run without crashing
 """
 
 tested_args = [
-    ["pymask", "--input", INPUT, "-o", TEMP_FILE],
-    ["pymask", "-i", INPUT, "--mask", PF, "-m", PF2, "-o", TEMP_FILE]
+    [
+        "pymask",
+        "--input", str(INPUT),
+        "-o", str(TEMP_FILE)
+    ],
+    [
+        "pymask",
+        "-i", str(INPUT),
+        "--mask", str(PF),
+        "-m", str(PF2),
+        "-o", str(TEMP_FILE)
+    ]
 ]
 @pytest.fixture(params=tested_args)
 def patch_args_clean(
@@ -92,7 +88,10 @@ def patch_args_double_mask(
         "sys.argv",
         [
             "pymask",
-            "-i", INPUT, "--mask", PF, "-m", PF2, "-o", TEMP_FILE
+            "-i", str(INPUT),
+            "--mask", str(PF),
+            "-m", str(PF2),
+            "-o", str(TEMP_FILE)
         ]
     )
     arguments.masking_utility()
@@ -115,8 +114,10 @@ def patch_args_double_mask_or(
         "sys.argv",
         [
             "pymask",
-            "-i", INPUT, "--mask", PF, "-m", PF2, "--or-masks", "-o",
-            TEMP_FILE
+            "-i", str(INPUT),
+            "--mask", str(PF),
+            "-m", str(PF2),
+            "--or-masks", "-o", str(TEMP_FILE)
         ]
     )
     arguments.masking_utility()
@@ -139,8 +140,10 @@ def patch_args_double_mask_xor(
         "sys.argv",
         [
             "pymask",
-            "-i", INPUT, "--mask", PF, "-m", PF2, "--xor-masks", "-o",
-            TEMP_FILE
+            "-i", str(INPUT),
+            "--mask", str(PF),
+            "-m", str(PF2),
+            "--xor-masks", "-o", str(TEMP_FILE)
         ]
     )
     arguments.masking_utility()
@@ -161,7 +164,12 @@ def patch_args_warning(
 ):
     monkeypatch.setattr(
         "sys.argv",
-        ["pymask", "-i", INPUT, "--mask", PF_LONG, "-o", TEMP_FILE]
+        [
+            "pymask",
+            "-i", str(INPUT),
+            "--mask", str(PF_LONG),
+            "-o", str(TEMP_FILE)
+        ]
     )
 
 
@@ -180,7 +188,12 @@ def patch_args_critical(
 ):
     monkeypatch.setattr(
         "sys.argv",
-        ["pymask", "-i", INPUT, "--mask", PF_SHORT, "-o", TEMP_FILE]
+        [
+            "pymask",
+            "-i", str(INPUT),
+            "--mask", str(PF_SHORT),
+            "-o", str(TEMP_FILE)
+        ]
     )
 
 
@@ -199,9 +212,9 @@ def patch_args_critical_or_and_xor(monkeypatch, correct_argv, clear_settings):
         "sys.argv",
         [
             "pymask",
-            "-i", INPUT,
-            "--mask", PF, "--or-masks", "--xor-masks",
-            "-o", TEMP_FILE
+            "-i", str(INPUT),
+            "--mask", str(PF),
+            "--or-masks", "--xor-masks", "-o", str(TEMP_FILE)
         ]
     )
 
