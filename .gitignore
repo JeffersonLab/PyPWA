@@ -1,6 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+.pytest_cache/
 
 # C extensions
 *.so
@@ -74,14 +75,6 @@ docs/build/
 # PyBuilder
 target/
 
-# Virtualenv
-virt/
-virt3/
-venv/
-venv2/
-
-# PyCharm
-.idea/
-
 # MyPy
 /.mypy_cache/
+
