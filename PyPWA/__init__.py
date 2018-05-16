@@ -84,18 +84,18 @@ if sys.version_info[0:2] < (3, 5):
 else:
     from pathlib import Path, PurePath
 
+
+from PyPWA.libs.components.data_processor.shell_interface import \
+    ShellDataProcessor
+
+
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
-__version__ = "2.3.0.dev"
+__version__ = "3.0.0.dev"
 
 
-EMAIL = "pypwa@jlab.org"
 LICENSE = "GPLv3"
 STATUS = "development"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
-
-
-from PyPWA.libs.components.data_processor.shell_interface import \
-    ShellDataProcessor

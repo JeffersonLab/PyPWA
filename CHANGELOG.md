@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Adds a python shell interface to data processor to avoid the configuration
    database
 ### Changed
+ - Replaced OS and IO with Pathlib where applicable
  - Moved the program plugins, data plugin, and processing plugin to components
  - Moved Nestle and Minuit to the Optimizer component
  - Renamed 'Builtin Multiprocessing' to 'Multiprocessing'
