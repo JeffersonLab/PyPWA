@@ -37,9 +37,9 @@ def test_GAMPMemory_ParseKnownData_DataMatches():
     """
     parser = g_memory.GampMemory()
     data = parser.parse(GAMP_TEST_DATA)
-    assert len(data) == 6
-    assert data[0][0][4] == 3.90355
-    assert data[5][4][5] == 0.549938
+    assert data.event_count == 6
+    assert data[0][0]['z'] == 3.90355
+    assert data[4][5]['e'] == 0.549938
 
 
 def test_GAMPMemory_LoopingKnownData_DataMatches():
@@ -54,7 +54,10 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
     assert TEMP_WRITE_LOCATION.exists()
     new_data = rendered.parse(TEMP_WRITE_LOCATION)
 
-    numpy.testing.assert_array_equal(data, new_data)
+    numpy.testing.assert_array_equal(
+        data[0].get_array(),
+        new_data[0].get_array()
+    )
     TEMP_WRITE_LOCATION.unlink()
 
 

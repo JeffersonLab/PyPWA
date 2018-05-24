@@ -46,11 +46,6 @@ def make_noise():
 
 
 @pytest.fixture(scope="module")
-def random_numpy_gamp_data():
-    return numpy.random.rand(30, 4, 6)
-
-
-@pytest.fixture(scope="module")
 def random_numpy_noise():
     return numpy.random.rand(4, 4, 4, 4)
 
@@ -105,14 +100,14 @@ def test_plugin_write_search_finds_csv(plugin_search, random_numpy_flat_data):
     assert isinstance(found, sv.SvDataPlugin)
 
 
-def test_plugin_write_search_finds_gamp(plugin_search, random_numpy_gamp_data):
+def test_plugin_write_search_finds_gamp(plugin_search, random_particle_pool):
     """"
     Args:
         plugin_search (_plugin_finder.PluginSearch)
         random_numpy_gamp_data (numpy.ndarray)
     """
     found = plugin_search.get_write_plugin(
-        GAMP_TEST_DATA, random_numpy_gamp_data
+        GAMP_TEST_DATA, random_particle_pool
     )
     print(type(found))
     assert isinstance(found, gamp.GampDataPlugin)
@@ -140,7 +135,9 @@ def test_plugin_write_search_finds_noise(plugin_search, random_numpy_noise):
         random_numpy_noise (numpy.ndarray)
     """
     with pytest.raises(exceptions.UnknownData):
-        plugin_search.get_write_plugin(TEMP_WRITE_LOCATION, random_numpy_noise)
+        plugin_search.get_write_plugin(
+            TEMP_WRITE_LOCATION, random_numpy_noise
+        )
 
 
 def test_plugin_write_search_finds_unknown_extension(
@@ -151,7 +148,9 @@ def test_plugin_write_search_finds_unknown_extension(
         plugin_search (_plugin_finder.PluginSearch)
         random_numpy_flat_data (numpy.ndarray)
     """
-    location = Path(TEMP_WRITE_LOCATION.stem + ".completely_useless_extension")
+    location = Path(
+        TEMP_WRITE_LOCATION.stem + ".completely_useless_extension"
+    )
 
     with pytest.raises(exceptions.UnknownData):
         plugin_search.get_write_plugin(location, random_numpy_flat_data)

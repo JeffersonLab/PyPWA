@@ -33,14 +33,21 @@ Examples:
         file.write(path_to_file, the_data)
 """
 
+from typing import Union
+
+import numpy
+
 from PyPWA import AUTHOR, VERSION
 from PyPWA.initializers.arguments import arguments_options
 from PyPWA.initializers.configurator import options
 from PyPWA.libs.components.data_processor import settings
+from PyPWA.libs.math import particle
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
+
+SUPPORTED_DATA_TYPE = Union[numpy.ndarray, particle.ParticlePool]
 
 
 class DataConf(options.Component):

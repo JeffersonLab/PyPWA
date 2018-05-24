@@ -54,7 +54,7 @@ class SvDataPlugin(data_templates.DataPlugin):
         return True
 
     @property
-    def plugin_supports_tree_data(self):
+    def plugin_supports_particle_pool(self):
         return False
 
     @property

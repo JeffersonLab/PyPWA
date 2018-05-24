@@ -50,7 +50,7 @@ class GampDataPlugin(data_templates.DataPlugin):
         return [".gamp"]
 
     @property
-    def plugin_supports_tree_data(self):
+    def plugin_supports_particle_pool(self):
         return True
 
     @property

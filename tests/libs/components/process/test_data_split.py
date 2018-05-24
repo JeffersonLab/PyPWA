@@ -1,6 +1,7 @@
 import numpy
 import pytest
 
+from PyPWA.libs.math import particle
 from PyPWA.libs.components.process import _data_split
 
 TWO_SPLIT = _data_split.SetupData(2)
@@ -44,7 +45,7 @@ Test List Split
 """
 
 FAIL_LIST = {"data": ["FAIL"]}
-LIST = {"data": ["123","234","345","456"]}
+LIST = {"data": ["123", "234", "345", "456"]}
 
 
 @pytest.fixture(params=[TWO_SPLIT, FOUR_SPLIT])
@@ -72,9 +73,28 @@ def test_list_split_fails_if_too_small():
 
 
 """
+Test Particle Pool Split
+"""
+
+
+@pytest.fixture(scope="module")
+def particle_pool(random_particle_pool):
+    return {"data": random_particle_pool}
+
+
+def test_four_split_pool(particle_pool):
+    assert len(FOUR_SPLIT.split(particle_pool)) == 4
+
+
+def test_two_split_pool(particle_pool):
+    assert len(TWO_SPLIT.split(particle_pool)) == 2
+
+
+"""
 Test Unknown Data
 """
 
+
 def test_unknown_data_raises_error():
     with pytest.raises(ValueError):
-        TWO_SPLIT.split({"data":"A failure of a string"})
+        TWO_SPLIT.split({"data": "A failure of a string"})

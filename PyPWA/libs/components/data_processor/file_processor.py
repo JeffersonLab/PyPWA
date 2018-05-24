@@ -26,7 +26,7 @@ import numpy
 from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.components.data_processor import (
     _plugin_finder,
-    data_templates, exceptions,
+    data_templates, exceptions, SUPPORTED_DATA_TYPE
 )
 from PyPWA.libs.components.data_processor.cache import builder
 
@@ -35,9 +35,9 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _ArrayLoader(object):
+class _DataLoader(object):
 
-    __LOGGER = logging.getLogger(__name__ + "._ArrayLoader")
+    __LOGGER = logging.getLogger(__name__ + "._DataLoader")
 
     def __init__(self):
         # type: () -> None
@@ -97,7 +97,7 @@ class _DataDumper(object):
         self.__cache_interface.write_cache(data)
 
     def __write_data(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> None
+        # type: (Path, SUPPORTED_DATA_TYPE) -> None
         plugin = self.__load_write_plugin(file_location, data)
         found_parser = plugin.get_plugin_memory_parser()
         found_parser.write(file_location, data)
@@ -131,11 +131,11 @@ class _Iterator(object):
         return plugin.get_plugin_reader(file_location)
 
     def return_writer(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> data_templates.Writer
+        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.Writer
         return self.__get_writer_plugin(file_location, data)
 
     def __get_writer_plugin(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> data_templates.Writer
+        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.Writer
         plugin = self.__plugin_fetcher.get_write_plugin(file_location, data)
         return plugin.get_plugin_writer(file_location)
 
@@ -143,7 +143,7 @@ class _Iterator(object):
 class DataProcessor(object):
 
     def __init__(self):
-        self.__loader = _ArrayLoader()
+        self.__loader = _DataLoader()
         self.__dumper = _DataDumper()
         self.__iterator = _Iterator()
 
@@ -161,9 +161,9 @@ class DataProcessor(object):
         return self.__iterator.return_reader(file_location)
 
     def write(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> None
+        # type: (Path, SUPPORTED_DATA_TYPE) -> None
         self.__dumper.write(file_location, data)
 
     def get_writer(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> data_templates.Writer
+        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.Writer
         return self.__iterator.return_writer(file_location, data)

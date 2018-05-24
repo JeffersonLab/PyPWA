@@ -97,7 +97,7 @@ def test_supports_gamp_is_bool(setup_plugin_object):
     Args:
         setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
     """
-    assert isinstance(setup_plugin_object[0].plugin_supports_tree_data, bool)
+    assert isinstance(setup_plugin_object[0].plugin_supports_particle_pool, bool)
 
 
 def test_get_plugin_reader_returns_reader(setup_plugin_object):

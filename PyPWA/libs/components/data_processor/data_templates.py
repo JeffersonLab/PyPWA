@@ -71,7 +71,7 @@ class DataPlugin(object):
         raise NotImplementedError
 
     @property
-    def plugin_supports_tree_data(self):
+    def plugin_supports_particle_pool(self):
         # type: () -> bool
         raise NotImplementedError()
 
@@ -113,7 +113,6 @@ class Reader(object):
 
     def __exit__(self, *args):
         self.close()
-
 
     def get_event_count(self):
         # type: () -> int

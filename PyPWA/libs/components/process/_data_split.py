@@ -32,6 +32,7 @@ from typing import Any, Dict, List, Union
 
 import numpy
 
+from PyPWA.libs.math import particle
 from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
@@ -39,7 +40,19 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-_supported_types = Union[numpy.ndarray, List[Any]]
+_supported_types = Union[numpy.ndarray, List[Any], particle.ParticlePool]
+
+
+class _ArraySplit(object):
+
+    def __init__(self, number_of_process):
+        # type: (int) -> None
+        self.__number_of_processes = number_of_process
+
+    def __call__(self, data):
+        # type: (numpy.ndarray) -> List[numpy.ndarray]
+        return numpy.array_split(data, self.__number_of_processes)
+
 
 class _ListSplit(object):
 
@@ -69,15 +82,15 @@ class _ListSplit(object):
             index += 1
 
 
-class _ArraySplit(object):
+class _ParticlePoolSplitter(object):
 
-    def __init__(self, number_of_process):
+    def __init__(self, number_of_processes):
         # type: (int) -> None
-        self.__number_of_processes = number_of_process
+        self.__number_of_processes = number_of_processes
 
     def __call__(self, data):
-        # type: (numpy.ndarray) -> List[numpy.ndarray]
-        return numpy.array_split(data, self.__number_of_processes)
+        # type: (particle.ParticlePool) -> List[particle.ParticlePool]
+        return data.split(self.__number_of_processes)
 
 
 class _MainSplitter(object):
@@ -87,6 +100,7 @@ class _MainSplitter(object):
         self.__number_of_processes = number_of_processes
         self.__array_split = _ArraySplit(number_of_processes)
         self.__list_split = _ListSplit(number_of_processes)
+        self.__pool_split = _ParticlePoolSplitter(number_of_processes)
 
     def __call__(self, data):
         # type: (_supported_types) -> List[Any]
@@ -94,6 +108,8 @@ class _MainSplitter(object):
             return self.__array_split(data)
         elif isinstance(data, list):
             return self.__list_split(data)
+        elif isinstance(data, particle.ParticlePool):
+            return self.__pool_split(data)
         else:
             raise ValueError("Unknown data type: %s!" % type(data))
 

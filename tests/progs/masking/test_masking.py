@@ -13,6 +13,7 @@ Masking Data
 
 ROOT = Path(__file__).parent
 INPUT = ROOT / "../../test_data/docs/sv_test_data.csv"
+PP_INPUT = ROOT / "../../test_data/docs/gamp_test_data.gamp"
 PF = ROOT / "../../test_data/docs/sv_test_data.pf"
 PF2 = ROOT / "../../test_data/docs/sv_test_data2.pf"
 PF_SHORT = ROOT / "../../test_data/docs/sv_test_data_short.pf"
@@ -20,11 +21,14 @@ PF_LONG = ROOT / "../../test_data/docs/sv_test_data_long.pf"
 TEMP_FILE = ROOT / (
         "../../test_data/docs/temp_" + str(uuid.uuid4()) + "_file.txt"
 )
-
+PP_TEMP_FILE = ROOT / (
+        "../../test_data/docs/temp_" + str(uuid.uuid4()) + "_file.gamp"
+)
 
 """
 Helping functions
 """
+
 
 @pytest.fixture()
 def correct_argv(monkeypatch):
@@ -38,6 +42,8 @@ def cleanup_temp():
     yield
     if TEMP_FILE.exists():
         TEMP_FILE.unlink()
+    if PP_TEMP_FILE.exists():
+        PP_TEMP_FILE.unlink()
 
 
 @pytest.fixture()
@@ -46,6 +52,7 @@ def clear_settings():
     yield
     with pytest.warns(RuntimeWarning):
         settings.purge()
+
 
 """
 Test Masking can run without crashing
@@ -59,12 +66,25 @@ tested_args = [
     ],
     [
         "pymask",
+        "--input", str(PP_INPUT),
+        "-o", str(PP_TEMP_FILE)
+    ],
+    [
+        "pymask",
         "-i", str(INPUT),
         "--mask", str(PF),
         "-m", str(PF2),
         "-o", str(TEMP_FILE)
+    ],
+    [
+        "pymask",
+        "-i", str(PP_INPUT),
+        "-m", str(PF_LONG),
+        "-o", str(PP_TEMP_FILE)
     ]
 ]
+
+
 @pytest.fixture(params=tested_args)
 def patch_args_clean(
         monkeypatch, request, correct_argv, cleanup_temp, clear_settings
@@ -79,6 +99,7 @@ def test_masking_utility(patch_args_clean):
 """
 Test Masking with multiple masks has the correct number of lines
 """
+
 
 @pytest.fixture()
 def patch_args_double_mask(
@@ -106,6 +127,7 @@ def test_masking_utility_has_correct_number_of_lines(patch_args_double_mask):
 Test Masking with multiple OR masks has the correct number of lines
 """
 
+
 @pytest.fixture()
 def patch_args_double_mask_or(
         monkeypatch, request, correct_argv, cleanup_temp, clear_settings
@@ -131,6 +153,7 @@ def test_masking_or(patch_args_double_mask_or):
 """
 Test Masking with multiple XOR masks has the correct number of lines
 """
+
 
 @pytest.fixture()
 def patch_args_double_mask_xor(
@@ -158,6 +181,7 @@ def test_masking_xor(patch_args_double_mask_xor):
 Test Masking with more masked events than data
 """
 
+
 @pytest.fixture()
 def patch_args_warning(
         monkeypatch, correct_argv, cleanup_temp, clear_settings
@@ -182,6 +206,7 @@ def test_masking_warning(patch_args_warning):
 Test Masking with less masked events than data
 """
 
+
 @pytest.fixture()
 def patch_args_critical(
         monkeypatch, correct_argv, cleanup_temp, clear_settings
@@ -205,6 +230,7 @@ def test_masking_crash(patch_args_critical):
 """
 Test Masking with both OR and XOR
 """
+
 
 @pytest.fixture()
 def patch_args_critical_or_and_xor(monkeypatch, correct_argv, clear_settings):

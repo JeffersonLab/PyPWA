@@ -77,17 +77,6 @@ For more information on how each module works, view their documentation
 respectively.
 """
 
-import sys
-
-if sys.version_info[0:2] < (3, 5):
-    from pathlib2 import Path, PurePath
-else:
-    from pathlib import Path, PurePath
-
-
-from PyPWA.libs.components.data_processor.shell_interface import \
-    ShellDataProcessor
-
 
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
@@ -99,3 +88,14 @@ STATUS = "development"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
+
+import sys
+
+if sys.version_info[0:2] < (3, 5):
+    from pathlib2 import Path, PurePath
+else:
+    from pathlib import Path, PurePath
+
+
+from PyPWA.libs.components.data_processor.shell_interface import \
+    ShellDataProcessor

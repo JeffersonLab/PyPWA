@@ -23,113 +23,159 @@ This file holds the Gamp Reader and Gamp Writer. These simply load the
 data into memory one event at a time and write to file one event at a
 time. Only the previous loaded events are stored, anything later than that
 will not be saved in memory by these object.
+
+- GampMemory: Loads GAMP Data into memory to bypass the disk bottleneck with
+    calculations. DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL
+    QUICKLY OVERFILL THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY OPTIMIZATIONS!
 """
 
-import io
-
 import numpy
+from typing import Dict, Any
 
 from PyPWA import Path, AUTHOR, VERSION
-from PyPWA.libs.components.data_processor import data_templates
 from PyPWA.builtin_plugins.gamp import g_iterator
+from PyPWA.libs.components.data_processor import data_templates
+from PyPWA.libs.math import particle
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class GampMemory(data_templates.Memory):
-    """
-    Loads GAMP Data into memory to bypass the disk bottleneck with
-    calculations.
-    DO NOT USE THIS FOR LARGE GAMP FILES! THIS OBJECT WILL QUICKLY
-    OVERFILL THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY OPTIMIZATIONS!
-    """
 
-    @staticmethod
-    def __index_gamp(file_location):
-        """
-        Indexes the gamp file for the maximum particle count and event
-        count.
+class _GampIndex(object):
 
-        Args:
-            file_location (Path):  The location of the file being read.
+    def __init__(self):
+        self.__event_index = None  # type: int
+        self.__particle_index = None  # type: int
+        self.__variable_particle_count = None  # type: bool
 
-        Returns:
-            list[event_index, particle_index]
-        """
-        event_index = 0
-        particle_index = 0
-        with file_location.open() as stream:
-            for index, line in enumerate(stream):
-                filtered_line = line.strip("\n").strip()
-                if len(filtered_line) == 1:
-                    event_index += 1
-                    if int(filtered_line) > particle_index:
-                        particle_index = int(filtered_line)
+    def get_gamp_info(self, path):
+        # type: (Path) -> None
+        self.__reset_object_values()
+        with path.open() as stream:
+            for line in stream:
+                sanitized_line = line.strip("\n").strip()
+                if len(sanitized_line) == 1:
+                    self.__process_line(sanitized_line)
 
-        return [event_index, particle_index]
+    def __reset_object_values(self):
+        self.__event_index = 0
+        self.__particle_index = 0
+        self.__variable_particle_count = False
+
+    def __process_line(self, line):
+        # type: (str) -> None
+        self.__event_index += 1
+        if int(self.__particle_index) == 0:
+            self.__particle_index = int(line)
+        elif self.__particle_index < int(line):
+            self.__particle_index = int(line)
+            self.__variable_particle_count = True
+
+    @property
+    def event_count(self):
+        # type: () -> int
+        return self.__event_index
+
+    @property
+    def particle_count(self):
+        # type: () -> int
+        return self.__particle_index
+
+    @property
+    def is_variable(self):
+        # type: () -> bool
+        return self.__variable_particle_count
+
+
+class _GampParse(object):
+
+    def __init__(self):
+        self.__indexer = _GampIndex()
+        self.__temp_pool = None  # type: Dict[int, Dict[str, Any]]
 
     def parse(self, file_location):
-        """
-        Parses Gamp Files into a single list.
+        # type: (Path) -> particle.ParticlePool
+        self.__indexer.get_gamp_info(file_location)
+        self.__crash_if_not_possible()
+        self.__make_particle_dictionary()
+        self.__read_gamp_file(file_location)
+        return self.__make_particle_pool()
 
-        Args:
-            file_location (Path): The location of the GAMP File.
+    def __crash_if_not_possible(self):
+        if self.__indexer.is_variable:
+            raise RuntimeError(
+                "GAMP Parser doesn't support changes in particle count yet!"
+            )
 
-        Returns:
-            numpy.ndarray: A list containing all the GampEvents from the
-                data file.
-        """
-        indexes = self.__index_gamp(file_location)
-        reader = g_iterator.GampReader(file_location)
-        events = numpy.zeros((indexes[0], indexes[1], 6), numpy.float64)
+    def __make_particle_dictionary(self):
+        temp_pool = dict()
+        for index in range(self.__indexer.event_count):
+            temp_pool[index] = {
+                "id": None, "charge": None,
+                "vector": numpy.zeros(
+                    self.__indexer.event_count, particle.NUMPY_PARTICLE_DTYPE
+                )
+            }
+        self.__temp_pool = temp_pool
 
-        for index, event in enumerate(reader):
-            if not len(event) == indexes[1]:
-                event = numpy.resize(event, (indexes[1], 6))
-            events[index] = event
+    def __read_gamp_file(self, file_location):
+        # type: (Path) -> None
+        first_run = True
+        with g_iterator.GampReader(file_location) as stream:
+            for index, chunk in enumerate(stream):
+                if first_run:
+                    self.__setup_initial_data(chunk)
+                self.__initialize_data(index, chunk)
 
-        reader.close()
-        return events
+    def __setup_initial_data(self, chunk):
+        # type: (particle.ParticlePool) -> None
+        for index in range(self.__indexer.particle_count):
+            self.__temp_pool[index]['id'] = chunk[index].id
+            self.__temp_pool[index]['charge'] = chunk[index].charge
 
-    @staticmethod
-    def __filter_events(event):
-        """
-        Filters out zero events and returns a the array without those
-        events.
+    def __initialize_data(self, index, chunk):
+        # type: (int, particle.ParticlePool) -> None
+        for chunk_index in range(len(chunk)):
+            self.__temp_pool[chunk_index]['vector'][index] = (
+                chunk[chunk_index].get_array()
+            )
 
-        Args:
-            event (numpy.ndarray): The event you want zero particles
-                removed
+    def __make_particle_pool(self):
+        # type: () -> particle.ParticlePool
+        new_pool = []
+        for index in range(self.__indexer.particle_count):
+            new_pool.append(
+                particle.Particle(
+                    self.__temp_pool[index]['id'],
+                    self.__temp_pool[index]['charge'],
+                    self.__temp_pool[index]['vector']
+                )
+            )
 
-        Returns:
-            numpy.ndarray: The event with the zero particles striped of
-                it.
-        """
-        while True:
-            for index, particle in enumerate(event):
-                if particle[0] == 0 and particle[5] == 0:
-                    event = numpy.delete(event, index, axis=0)
-                    break
-            break
+        return particle.ParticlePool(new_pool)
 
-        return event
+
+class _GampDump(object):
+
+    def write(self, path, pool):
+        # type: (Path, particle.ParticlePool) -> None
+        with g_iterator.GampWriter(path) as stream:
+            for event in pool:
+                stream.write(event)
+
+
+class GampMemory(data_templates.Memory):
+
+    def __init__(self):
+        self.__parser = _GampParse()
+        self.__dumper = _GampDump()
+
+    def parse(self, file_location):
+        # type: (Path) -> particle.ParticlePool
+        return self.__parser.parse(file_location)
 
     def write(self, file_location, data):
-        """
-        Writes the GAMP events from memory to disk, this method can be
-        used for single GAMP events but its recommended that you use
-        GampWriter for single GAMP event writing or something similar.
-
-        Args:
-            file_location (Path): The location where to write the GAMP
-                file.
-            data (numpy.ndarray): The list containing all the GampEvents
-                that are to be written to disk.
-        """
-        writer = g_iterator.GampWriter(file_location)
-        for event in data:
-            new_event = self.__filter_events(event)
-            writer.write(new_event)
-        writer.close()
+        # type: (Path, particle.ParticlePool) -> None
+        self.__dumper.write(file_location, data)

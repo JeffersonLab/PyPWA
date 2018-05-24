@@ -80,5 +80,5 @@ class EVILDataPlugin(data_templates.DataPlugin):
         return False
 
     @property
-    def plugin_supports_tree_data(self):
+    def plugin_supports_particle_pool(self):
         return False

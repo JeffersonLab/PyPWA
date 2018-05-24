@@ -34,9 +34,12 @@ import logging
 import numpy
 from typing import List, Union
 
+from PyPWA.libs.math import particle
 from PyPWA import Path, AUTHOR, VERSION, builtin_plugins
 from PyPWA.libs import plugin_loader
-from PyPWA.libs.components.data_processor import data_templates, exceptions
+from PyPWA.libs.components.data_processor import (
+    data_templates, exceptions, SUPPORTED_DATA_TYPE
+)
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -73,7 +76,7 @@ class PluginSearch(object):
         return plugin_finder.get_plugin(file_location)
 
     def get_write_plugin(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> data_templates.DataPlugin
+        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.DataPlugin
         plugin_finder = _FindWritePlugins(self.__found_plugins)
         return plugin_finder.get_plugin(file_location, data)
 
@@ -133,35 +136,39 @@ class _FindWritePlugins(object):
     def __init__(self, potential_plugins):
         # type: (List[data_templates.DataPlugin]) -> None
         self.__potential_plugins = potential_plugins
-        self.__data_is_tree = False
+        self.__data_is_pool = False
         self.__data_is_columned = False
         self.__data_is_single_array = False
         self.__file_extension = ""
         self.__file_name = None  # type: Path
 
     def get_plugin(self, file_location, data):
-        # type: (Path, numpy.ndarray) -> data_templates.DataPlugin
+        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.DataPlugin
         self.__set_data_type(data)
         self.__set_data_extension(file_location)
         return self.__search_for_plugins()
 
     def __set_data_type(self, data):
-        # type: (numpy.ndarray) -> None
-        if  len(data.shape) in (2,3) and data.shape[-1] == 6:
-            self.__LOGGER.debug("Found data type: Tree")
-            self.__data_is_tree = True
-        elif len(data.shape) != 1:
-            self.__LOGGER.error(
-                "Found noise, data shape is: " + str(data.shape)
-            )
-
-            raise exceptions.UnknownData("Array Type is Unknown!")
-        elif data.dtype.names:
-            self.__LOGGER.debug("Found data type: Structured Array")
-            self.__data_is_columned = True
+        # type: (SUPPORTED_DATA_TYPE) -> None
+        if isinstance(data, particle.ParticlePool):
+            self.__LOGGER.debug("Found data type: ParticlePool")
+            self.__data_is_pool = True
+        elif isinstance(data, numpy.ndarray):
+            if len(data.shape) != 1:
+                self.__LOGGER.error(
+                    "Found noise, data shape is: " + str(data.shape)
+                )
+                raise exceptions.UnknownData("Array Type is Unknown!")
+            elif data.dtype.names:
+                self.__LOGGER.debug("Found data type: Structured Array")
+                self.__data_is_columned = True
+            else:
+                self.__LOGGER.debug("Found data type: Array")
+                self.__data_is_single_array = True
         else:
-            self.__LOGGER.debug("Found data type: Array")
-            self.__data_is_single_array = True
+            raise exceptions.UnknownData(
+                "Unknown data type: %s!" % type(data)
+            )
 
     def __set_data_extension(self, file_location):
         # type: (Path) -> None
@@ -196,8 +203,8 @@ class _FindWritePlugins(object):
             return plugin.plugin_supports_columned_data
         elif self.__data_is_single_array:
             return plugin.plugin_supports_single_array
-        elif self.__data_is_tree:
-            return plugin.plugin_supports_tree_data
+        elif self.__data_is_pool:
+            return plugin.plugin_supports_particle_pool
 
     def __supports_file_extension(self, extensions):
         # type: (List[str]) -> bool

@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    components
  - Adds a python shell interface to data processor to avoid the configuration
    database
+ - Added support for 3 and 4 vector data
+ - Added Particle and PartcilePool to aid in working with particle data
 ### Changed
  - Replaced OS and IO with Pathlib where applicable
  - Moved the program plugins, data plugin, and processing plugin to components
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Renamed 'Builtin Parser' and "Builtin Iterator" to "Data Processor"
  - Combined iterator and parsing objects to allow easy fallback
  - All components now exist inside PyPWA.libs.components
+ - GAMP was updated to use Particles and ParticlePool
 ### Fixed
 ### Security
 
