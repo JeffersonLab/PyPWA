@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Combined iterator and parsing objects to allow easy fallback
  - All components now exist inside PyPWA.libs.components
  - GAMP was updated to use Particles and ParticlePool
+ - Data Processor no longer uses data to choose a writer, instead uses boolean
+   flags to determine whether to use particle, flat, or columned writer.
 ### Fixed
 ### Security
 

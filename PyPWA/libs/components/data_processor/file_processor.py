@@ -21,6 +21,8 @@ Main object for Parsing Data
 """
 
 import logging
+from typing import Optional as Opt
+
 import numpy
 
 from PyPWA import Path, AUTHOR, VERSION
@@ -29,6 +31,7 @@ from PyPWA.libs.components.data_processor import (
     data_templates, exceptions, SUPPORTED_DATA_TYPE
 )
 from PyPWA.libs.components.data_processor.cache import builder
+from PyPWA.libs.math import particle
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -110,10 +113,22 @@ class _DataDumper(object):
 
     def __load_write_plugin(self, file_location, data):
         # type: (Path, numpy.ndarray) -> data_templates.DataPlugin
+        is_pool, is_basic = self.__find_data_type(data)
         try:
-            return self.__plugin_search.get_write_plugin(file_location, data)
+            return self.__plugin_search.get_write_plugin(
+                file_location, is_pool, is_basic
+            )
         except exceptions.UnknownData:
-            raise RuntimeError
+            raise RuntimeError("Can not write data!")
+
+    @staticmethod
+    def __find_data_type(data):
+        types = [False, False]
+        if isinstance(data, particle.ParticlePool):
+            types[0] = True
+        elif not data.dtype.names:
+            types[1] = True
+        return types
 
 
 class _Iterator(object):
@@ -122,21 +137,14 @@ class _Iterator(object):
         self.__plugin_fetcher = _plugin_finder.PluginSearch()
 
     def return_reader(self, file_location):
-        # type: (Path) -> data_templates.Reader
-        return self.__get_reader_plugin(file_location)
-
-    def __get_reader_plugin(self, file_location):
-        # type: (Path) -> data_templates.Reader
         plugin = self.__plugin_fetcher.get_read_plugin(file_location)
         return plugin.get_plugin_reader(file_location)
 
-    def return_writer(self, file_location, data):
-        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.Writer
-        return self.__get_writer_plugin(file_location, data)
-
-    def __get_writer_plugin(self, file_location, data):
-        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.Writer
-        plugin = self.__plugin_fetcher.get_write_plugin(file_location, data)
+    def return_writer(self, file_location, is_particle, is_basic):
+        # type: (Path, bool, bool) -> data_templates.Writer
+        plugin = self.__plugin_fetcher.get_write_plugin(
+            file_location, is_particle, is_basic
+        )
         return plugin.get_plugin_writer(file_location)
 
 
@@ -149,7 +157,6 @@ class DataProcessor(object):
 
     def parse(self, file_location):
         # type: (Path) -> numpy.ndarray
-        self.__interaction_file = file_location
         return self.__loader.parse(file_location)
 
     def fallback_reader(self):
@@ -164,6 +171,10 @@ class DataProcessor(object):
         # type: (Path, SUPPORTED_DATA_TYPE) -> None
         self.__dumper.write(file_location, data)
 
-    def get_writer(self, file_location, data):
-        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.Writer
-        return self.__iterator.return_writer(file_location, data)
+    def get_writer(
+            self, file_location, is_particle_pool=False, is_basic_type=False
+    ):
+        # type: (Path, Opt[bool], Opt[bool]) -> data_templates.Writer
+        return self.__iterator.return_writer(
+            file_location, is_particle_pool, is_basic_type
+        )

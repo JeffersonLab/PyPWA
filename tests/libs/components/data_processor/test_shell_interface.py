@@ -4,14 +4,18 @@ import pytest
 from PyPWA import Path
 from PyPWA.libs.components.data_processor import shell_interface
 
-##############################################################################
-# Data Files
-##############################################################################
+"""
+File Locations
+"""
 
 ROOT = Path(__file__).parent
 CSV_TEST_DATA = ROOT / "../../../test_data/docs/sv_test_data.csv"
 TEMP_WRITE_LOCATION = ROOT / "../../../test_data/docs/temporary_write_data"
 
+
+"""
+Test helping functions
+"""
 
 @pytest.fixture
 def parser_with_cache():
@@ -37,6 +41,10 @@ def clear_temp():
     TEMP_WRITE_LOCATION.unlink() if TEMP_WRITE_LOCATION.exists() else None
 
 
+"""
+Tests
+"""
+
 def test_read_data_matches_expected(parser_no_cache):
     data = parser_no_cache.parse(CSV_TEST_DATA)
     assert data["QFactor"][3] == 0.832133
@@ -58,7 +66,6 @@ def test_written_data_matches_read_with_cache(
     new_data = parser_with_cache.parse(TEMP_WRITE_LOCATION)
 
     numpy.testing.assert_array_equal(new_data, array_data)
-
 
 
 def test_Iterator_ReadData_DataMatches():

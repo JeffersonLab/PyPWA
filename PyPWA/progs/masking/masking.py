@@ -69,20 +69,19 @@ class _DataPackage(object):
         else:
             masking_file = [Path(mask) for mask in masking_info]
 
-        self.__load_writer(input_file, output_file)
         self.__load_reader(input_file)
+        self.__load_writer(output_file)
         self.__setup_mask_array(masking_file)
-
-    def __load_writer(self, input_file, output_file):
-        # type: (Path, Path) -> None
-        with self.__data_processor.get_reader(input_file) as reader:
-            self.__writer = self.__data_processor.get_writer(
-                output_file, reader.next()
-            )
 
     def __load_reader(self, input_file):
         # type: (Path) -> None
         self.__reader = self.__data_processor.get_reader(input_file)
+
+    def __load_writer(self, output_file):
+        # type: (Path) -> None
+        self.__writer = self.__data_processor.get_writer(
+            output_file, self.__reader.is_particle_pool
+        )
 
     def __setup_mask_array(self, masking_file):
         # type: (Opt[List[Path]]) -> None

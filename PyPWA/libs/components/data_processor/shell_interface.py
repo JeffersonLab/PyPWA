@@ -51,8 +51,9 @@ class ShellDataProcessor(file_processor.DataProcessor):
             Path(file_location), data
         )
 
-    def get_writer(self, file_location, data):
+    def get_writer(
+            self, file_location, is_particle_pool=False, is_basic_type=False
+    ):
         return super(ShellDataProcessor, self).get_writer(
-            Path(file_location), data
+            Path(file_location), is_particle_pool, is_basic_type
         )
-

@@ -31,10 +31,8 @@ whatever data needs to be read/written.
 """
 
 import logging
-import numpy
 from typing import List, Union
 
-from PyPWA.libs.math import particle
 from PyPWA import Path, AUTHOR, VERSION, builtin_plugins
 from PyPWA.libs import plugin_loader
 from PyPWA.libs.components.data_processor import (
@@ -75,10 +73,13 @@ class PluginSearch(object):
         plugin_finder = _FindReadPlugins(self.__found_plugins)
         return plugin_finder.get_plugin(file_location)
 
-    def get_write_plugin(self, file_location, data):
-        # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.DataPlugin
+    def get_write_plugin(
+            self, file_location, is_particle_pool=False, is_basic_type=False
+    ):
+        # type: (Path, bool, bool) -> data_templates.DataPlugin
         plugin_finder = _FindWritePlugins(self.__found_plugins)
-        return plugin_finder.get_plugin(file_location, data)
+        return plugin_finder.get_plugin(
+            file_location, is_particle_pool, is_basic_type)
 
 
 class _FindReadPlugins(object):
@@ -142,32 +143,23 @@ class _FindWritePlugins(object):
         self.__file_extension = ""
         self.__file_name = None  # type: Path
 
-    def get_plugin(self, file_location, data):
+    def get_plugin(self, file_location, is_particle_pool, is_basic_type):
         # type: (Path, SUPPORTED_DATA_TYPE) -> data_templates.DataPlugin
-        self.__set_data_type(data)
+        self.__set_data_type(is_particle_pool, is_basic_type)
         self.__set_data_extension(file_location)
         return self.__search_for_plugins()
 
-    def __set_data_type(self, data):
+    def __set_data_type(self, is_particle_pool, is_basic_type):
         # type: (SUPPORTED_DATA_TYPE) -> None
-        if isinstance(data, particle.ParticlePool):
-            self.__LOGGER.debug("Found data type: ParticlePool")
+        if is_particle_pool and not is_basic_type:
             self.__data_is_pool = True
-        elif isinstance(data, numpy.ndarray):
-            if len(data.shape) != 1:
-                self.__LOGGER.error(
-                    "Found noise, data shape is: " + str(data.shape)
-                )
-                raise exceptions.UnknownData("Array Type is Unknown!")
-            elif data.dtype.names:
-                self.__LOGGER.debug("Found data type: Structured Array")
-                self.__data_is_columned = True
-            else:
-                self.__LOGGER.debug("Found data type: Array")
-                self.__data_is_single_array = True
+        elif is_basic_type and not is_particle_pool:
+            self.__data_is_single_array = True
+        elif not is_basic_type and not is_particle_pool:
+            self.__data_is_columned = True
         else:
-            raise exceptions.UnknownData(
-                "Unknown data type: %s!" % type(data)
+            raise ValueError(
+                "Particle Pool and Basic Type can not both be true!"
             )
 
     def __set_data_extension(self, file_location):

@@ -122,6 +122,10 @@ class GampReader(data_templates.Reader):
     def close(self):
         self._file.close()
 
+    @property
+    def is_particle_pool(self):
+        return True
+
 
 class GampWriter(data_templates.Writer):
 
@@ -149,3 +153,7 @@ class GampWriter(data_templates.Writer):
 
     def close(self):
         self.__file.close()
+
+    @property
+    def is_particle_pool(self):
+        return True

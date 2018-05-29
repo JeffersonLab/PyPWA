@@ -131,6 +131,11 @@ class Reader(object):
         """
         raise NotImplementedError()
 
+    @property
+    def is_particle_pool(self):
+        # type: () -> bool
+        return False
+
 
 class Writer(object):
 
@@ -155,6 +160,11 @@ class Writer(object):
         Should close the stream and any open streams or objects.
         """
         raise NotImplementedError()
+
+    @property
+    def is_particle_pool(self):
+        # type: () -> bool
+        return False
 
 
 class ReadTest(object):
