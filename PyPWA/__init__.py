@@ -96,6 +96,11 @@ if sys.version_info[0:2] < (3, 5):
 else:
     from pathlib import Path, PurePath
 
+if sys.version_info.major == 2:
+    import Queue as queue
+else:
+    import queue
+
 
 from PyPWA.libs.components.data_processor.shell_interface import \
     ShellDataProcessor

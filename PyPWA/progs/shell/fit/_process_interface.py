@@ -33,18 +33,13 @@ output from the the parallel thread.
 
 from __future__ import print_function
 
-try:
-    from queue import Queue
-except ImportError:
-    from Queue import Queue
-
 import logging
 import threading
 import time
 
 import numpy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import queue, AUTHOR, VERSION
 from PyPWA.libs.components.process import templates
 
 __credits__ = ["Mark Jones"]
@@ -58,8 +53,8 @@ class _ThreadInterface(object):
 
     def __init__(self):
         self.__root_logger = logging.getLogger()
-        self.__send_queue = Queue()
-        self.__receive_queue = Queue()
+        self.__send_queue = queue.Queue()
+        self.__receive_queue = queue.Queue()
         self.__times = []
         self.__initial_time = time.time()
 
@@ -103,8 +98,8 @@ class _OutputThread(threading.Thread):
 
     def __init__(
             self,
-            send_queue,  # type: Queue
-            receive_queue, # type: Queue
+            send_queue,  # type: queue.Queue
+            receive_queue,  # type: queue.Queue
             last_value,  # type: numpy.float64
             last_time,  # type: float
             average_time,  # type: float
