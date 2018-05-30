@@ -159,6 +159,7 @@ class _SvMemoryWriter(object):
         self.__setup_initial_information(file_location, data)
         self.__setup_writer(file_location)
         self.__write_data(data)
+        self.__stream.close()
 
     def __setup_initial_information(self, file_location, data):
         # type: (Path, numpy.ndarray) -> None

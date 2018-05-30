@@ -70,6 +70,6 @@ def test_written_data_matches_read_with_cache(
 
 def test_Iterator_ReadData_DataMatches():
     handler = shell_interface.ShellDataProcessor()
-    reader = handler.get_reader(CSV_TEST_DATA)
-    first_line = reader.next()
-    assert first_line["ctAD"] == -0.265433
+    with handler.get_reader(CSV_TEST_DATA) as reader:
+        first_line = reader.next()
+        assert first_line["ctAD"] == -0.265433

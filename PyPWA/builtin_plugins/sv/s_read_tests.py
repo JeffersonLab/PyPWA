@@ -39,12 +39,9 @@ class SvDataTest(data_templates.ReadTest):
 
     def test(self, file_location):
         # type: (Path) -> None
-        self.__set_stream(file_location)
-        self.__header_test()
-
-    def __set_stream(self, file_location):
-        # type: (Path) -> None
         self.__stream = file_location.open("r")
+        self.__header_test()
+        self.__stream.close()
 
     def __header_test(self):
         header_test = _HeaderTest(self.__stream)
@@ -76,6 +73,7 @@ class _HeaderTest(object):
 
     def __header_test(self):
         if not self.__has_a_header():
+            self.__stream.close()
             raise exceptions.IncompatibleData(
                 "CSV Module failed to find the files header in " +
                 str(HEADER_SEARCH_BITS) + " characters!"

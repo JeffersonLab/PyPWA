@@ -68,6 +68,7 @@ class GampDataTest(data_templates.ReadTest):
             try:
                 int(number)
             except ValueError as Error:
+                the_file.close()
                 raise exceptions.IncompatibleData(
                     "Expected particle count. Found " + repr(Error) +
                     str(count)
@@ -79,6 +80,7 @@ class GampDataTest(data_templates.ReadTest):
                 for index in range(int(number)):
                     data_length = len(the_file.readline().split(" "))
                     if data_length != 6:
+                        the_file.close()
                         raise ValueError(
                             "Particle doesn't have all the data "
                             "required by the gamp standard. Has " +
@@ -86,12 +88,14 @@ class GampDataTest(data_templates.ReadTest):
                         )
 
             except Exception as Error:
+                the_file.close()
                 raise exceptions.IncompatibleData(
                     "Unexpected exception raised, caught " + repr(Error) +
                     " where it wasn't expected."
                 )
 
             count += 1
+        the_file.close()
 
     @staticmethod
     def _test_length(file_location):
@@ -113,7 +117,9 @@ class GampDataTest(data_templates.ReadTest):
                 for index in range(int(number)):
                     the_file.readline()
             except Exception as Error:
+                the_file.close()
                 raise exceptions.IncompatibleData(
                     "Unexpected exception raised, caught " + str(Error) +
                     " where it wasn't expected."
                 )
+        the_file.close()

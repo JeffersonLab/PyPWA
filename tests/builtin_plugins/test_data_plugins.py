@@ -37,86 +37,58 @@ NUMPY_TEST_DATA = ROOT / "../test_data/docs/numpy_test_data.npy"
         [numpy.NumpyDataPlugin, NUMPY_TEST_DATA]
     ]
 )
-def setup_plugin_object(request):
-    yield [request.param[0](), request.param[1]]
+def get_plugin(request):
+    yield lambda b: request.param[0]() if b else request.param[1]
 
+    NPY = str(TEMP_WRITE_LOCATION.parent) + "/temporary_write_data.npy"
     if TEMP_WRITE_LOCATION.is_file():
         TEMP_WRITE_LOCATION.unlink()
+    elif Path(NPY).is_file():
+        Path(NPY).unlink()
 
 
-def test_plugin_name_is_string(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
-    assert isinstance(setup_plugin_object[0].plugin_name, str)
+def test_plugin_name_is_string(get_plugin):
+    assert isinstance(get_plugin(1).plugin_name, str)
 
 
-def test_get_memory_parser_returns_parser(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
+def test_get_memory_parser_returns_parser(get_plugin):
     assert isinstance(
-        setup_plugin_object[0].get_plugin_memory_parser(),
+        get_plugin(1).get_plugin_memory_parser(),
         data_templates.Memory
     )
 
 
-def test_supported_extensions_is_list_of_str(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
-    for extension in setup_plugin_object[0].plugin_supported_extensions:
+def test_supported_extensions_is_list_of_str(get_plugin):
+    for extension in get_plugin(1).plugin_supported_extensions:
         assert isinstance(extension, str)
 
 
-def test_supports_columned_data_is_bool(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
+def test_supports_columned_data_is_bool(get_plugin):
     assert isinstance(
-        setup_plugin_object[0].plugin_supports_columned_data, bool
+        get_plugin(1).plugin_supports_columned_data, bool
     )
 
 
-def test_supports_single_array_is_bool(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
+def test_supports_single_array_is_bool(get_plugin):
     assert isinstance(
-        setup_plugin_object[0].plugin_supports_single_array, bool
+        get_plugin(1).plugin_supports_single_array, bool
     )
 
 
-def test_supports_gamp_is_bool(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
-    assert isinstance(setup_plugin_object[0].plugin_supports_particle_pool, bool)
+def test_supports_gamp_is_bool(get_plugin):
+    assert isinstance(get_plugin(1).plugin_supports_particle_pool, bool)
 
 
-def test_get_plugin_reader_returns_reader(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
-    assert isinstance(
-        setup_plugin_object[0].get_plugin_reader(setup_plugin_object[1]),
-        data_templates.Reader
-    )
+def test_get_plugin_reader_returns_reader(get_plugin):
+    plugin = get_plugin(1)
+    file_location = get_plugin(0)
+
+    with plugin.get_plugin_reader(file_location) as reader:
+        assert isinstance(reader, data_templates.Reader)
 
 
-def test_get_plugin_writer_returns_writer(setup_plugin_object):
-    """
-    Args:
-        setup_plugin_object (list[data_templates.TemplateDataPlugin, str])
-    """
-    assert isinstance(
-        setup_plugin_object[0].get_plugin_writer(TEMP_WRITE_LOCATION),
-        data_templates.Writer
-    )
+def test_get_plugin_writer_returns_writer(get_plugin):
+    plugin = get_plugin(1)
+
+    with plugin.get_plugin_writer(TEMP_WRITE_LOCATION) as writer:
+        assert isinstance(writer, data_templates.Writer)

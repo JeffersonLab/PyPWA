@@ -64,3 +64,4 @@ def test_GAMPMemory_LoopingKnownData_DataMatches():
 def test_GAMPReader_ResetReader_NoFail():
     reader = g_iterator.GampReader(GAMP_TEST_DATA)
     reader.reset()
+    reader.close()

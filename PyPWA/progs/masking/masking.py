@@ -138,7 +138,7 @@ class Masking(object):
 
     def start(self):
         self.__complain_to_user()
-        self.__mask()
+        self.__try_to_mask()
 
     def __complain_to_user(self):
         if len(self.__data.reader) < len(self.__data.mask):
@@ -148,11 +148,21 @@ class Masking(object):
                 "Mask is smaller than data events! Masker *will* crash!!"
             )
 
+    def __try_to_mask(self):
+        try:
+            self.__mask()
+        except Exception as error:
+            raise error
+        finally:
+            self.__close_file_handles()
+
     def __mask(self):
         data_with_progress = tqdm.tqdm(self.__data.reader, unit="events")
         for index, value in enumerate(data_with_progress):
             print(index, len(data_with_progress), len(self.__data.mask))
             if self.__data.mask[index]:
                 self.__data.writer.write(value)
+
+    def __close_file_handles(self):
         self.__data.writer.close()
         self.__data.reader.close()
