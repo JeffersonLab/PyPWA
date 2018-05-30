@@ -16,27 +16,22 @@ addons:
       - "build-essential"
       - "gfortran"
       - "libatlas-base-dev"
+      - "libopenblas-dev"
+      - "liblapack-dev"
+      - "python-dev"
+      - "cython"
 before_install:
-  - python --version
-  - uname -a
-  - ls -a
   - "pip install --upgrade pip setuptools wheel"
   - "pip install --upgrade numpy scipy"
   - "pip install --upgrade iminuit nestle ruamel.yaml tabulate appdirs"
   - "pip install --upgrade fuzzywuzzy python-Levenshtein"
-  - "pip install coveralls --upgrade"
-  - "pip install coverage --upgrade"
-  - "pip install pytest --upgrade"
-  - "pip install pytest-runner --upgrade"
-  - "pip install pytest-cov --upgrade"
-  - "pip install pytest-logging --upgrade"
+  - "pip install --upgrade coveralls coverage"
+  - "pip install --upgrade pytest pytest-runner pytest-cov"
 install:
-  - "pip install -e ."
-script: "py.test --cov=PyPWA tests/ -vvvv"
+  - "pip install --upgrade -e ."
+script: "pytest --cov=PyPWA tests --cov-report="
 after_success:
-  - ls -a
   - coveralls
-  - head .coverage
 notifications:
   emails:
     on_success: change
