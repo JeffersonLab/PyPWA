@@ -111,7 +111,7 @@ class _GampParse(object):
 
     def __make_particle_dictionary(self):
         temp_pool = dict()
-        for index in range(self.__indexer.event_count):
+        for index in range(self.__indexer.particle_count):
             temp_pool[index] = {
                 "id": None, "charge": None,
                 "vector": numpy.zeros(
