@@ -45,16 +45,16 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class _GampParticleCount(object):
+class _GampEventCount(object):
 
     def __init__(self):
         self.__particle_count = 0
 
-    def get_particle_count(self, file_location):
+    def get_event_count(self, file_location):
         # type: (Path) -> None
         particle_count = self.__get_particle_count(file_location)
         file_length = misc_file_libs.get_file_length(file_location)
-        self.__particle_count = int(file_length / particle_count)
+        self.__particle_count = int(file_length / (particle_count + 1))
 
     @staticmethod
     def __get_particle_count(file_location):
@@ -62,7 +62,7 @@ class _GampParticleCount(object):
             return int(stream.readline())
 
     @property
-    def particle_count(self):
+    def event_count(self):
         return self.__particle_count
 
 
@@ -73,8 +73,8 @@ class GampReader(data_templates.Reader):
         self.__event_count = None
         self._file = None  # type: io.BufferedReader
         self._the_file = file_location
-        self.__particle_count = _GampParticleCount()
-        self.__particle_count.get_particle_count(file_location)
+        self.__particle_count = _GampEventCount()
+        self.__particle_count.get_event_count(file_location)
         self._start_input()
 
     def _start_input(self):
@@ -117,7 +117,7 @@ class GampReader(data_templates.Reader):
         return particle.Particle(particle_id, charge, vector)
 
     def get_event_count(self):
-        return self.__particle_count.particle_count
+        return self.__particle_count.event_count
 
     def close(self):
         self._file.close()
