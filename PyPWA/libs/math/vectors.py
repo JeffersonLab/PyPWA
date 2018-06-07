@@ -38,13 +38,19 @@ class ThreeVector(_abstract_vectors.AbstractVector):
 
     def __init__(self, array):
         # type: (numpy.ndarray) -> None
-        super(ThreeVector, self).__init__(array, ThreeVector)
+        data_type = [('x', 'f8'), ('y', 'f8'), ('z', 'f8')]
+        super(ThreeVector, self).__init__(array, ThreeVector, data_type)
 
-    def __repr__(self):
+    def __str__(self):
         # type: () -> str
-        return "ThreeVector(x=%s, y=%s, z=%s)" % (
-            self['x'], self['y'], self['z']
-        )
+        if len(self) == 1:
+            return "{0}(x={1}, y={2}, z={3})".format(
+                self.__class__.__name__, self.x[0], self.y[0], self.z[0]
+            )
+        else:
+            return "{0}(x, y, z; len={1})".format(
+                self.__class__.__name__, len(self)
+            )
 
     def _vector_multiplication(self, other_vector):
         # type: (ThreeVector) -> ThreeVector
@@ -75,13 +81,20 @@ class FourVector(_abstract_vectors.AbstractVector):
 
     def __init__(self, array):
         # type: (numpy.ndarray) -> None
-        super(FourVector, self).__init__(array, FourVector)
+        data_type = [('x', 'f8'), ('y', 'f8'), ('z', 'f8'), ('e', 'f8')]
+        super(FourVector, self).__init__(array, FourVector, data_type)
 
-    def __repr__(self):
+    def __str__(self):
         # type: () -> str
-        return "FourVector(x=%s, y=%s, z=%s, e=%s)" % (
-            self['x'], self['y'], self['z'], self['e']
-        )
+        if len(self) == 1:
+            return "{0}(x={1}, y={2}, z={3}, e={4})".format(
+                self.__class__.__name__, self.x[0], self.y[0],
+                self.z[0], self.e[0]
+            )
+        else:
+            return "{0}(x, y, z, e; len={1})".format(
+                self.__class__.__name__, len(self)
+            )
 
     def _vector_multiplication(self, vector):
         raise ValueError("Four Vectors can not be cross multiplied!")

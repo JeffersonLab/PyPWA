@@ -85,11 +85,29 @@ class Particle(vectors.FourVector):
         else:
             raise ValueError("Unknown type: %s!" % type(item))
 
+    def __eq__(self, other):
+        # type: (Particle) -> bool
+        arrays_equal = (other.get_array() == self._vector).all()
+        id_equals = self.id == other.id
+        return True if arrays_equal and id_equals else False
+
     def __repr__(self):
-        return "Particle(name=%s, id=%d, charge=%f, vector=%s)" % (
-            self.name, self.id,
-            self.charge, super(Particle, self).__repr__()
+        return "{0}({1}, {2}, {3!r}".format(
+            self.__class__.__name__, self.__particle_id,
+            self.__charge, self._vector
         )
+
+    def __str__(self):
+        if len(self) == 1:
+            return "{0}(name={1}, id={2}, x={3}, y={4}, z={5}, e={6}".format(
+                self.__class__.__name__, self.__particle_name,
+                self.__particle_id, self.x[0], self.y[0], self.z[0], self.e[0]
+            )
+        else:
+            return "{0}(name={1}, id={2}, x, y, z, e for length={3}".format(
+                self.__class__.__name__, self.__particle_name,
+                self.__particle_id, len(self)
+            )
 
     def split(self, count):
         new_vectors = super(Particle, self).split(count)

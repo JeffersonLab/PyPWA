@@ -27,7 +27,7 @@ error checking that _should_ be universal for all vectors.
 
 import numpy
 from numbers import Number
-from typing import List, Union
+from typing import List, Union, Tuple
 
 from PyPWA import AUTHOR, VERSION
 
@@ -38,19 +38,35 @@ __version__ = VERSION
 
 class AbstractVector(object):
 
-    def __init__(self, array, vector_type):
-        # type: (numpy.ndarray, type(self)) -> None
-        self._vector = array
+    def __init__(
+            self,
+            array,  # type: Union[numpy.ndarray, int]
+            vector_type,  # type: type(self)
+            data_type  # type: List[Tuple[str, str]]
+    ):
+        # type: (...) -> None
+        if isinstance(array, int):
+            self._vector = numpy.zeros(array, dtype=data_type)
+        else:
+            self._vector = array
+        self._data_type = data_type
         self.__vector_type = vector_type
         self.__count = 0
 
     def __repr__(self):
         # type: () -> str
-        raise NotImplementedError
+        return "{0}({1!r})".format(
+            self.__class__.__name__, self._vector
+        )
+
+    def __eq__(self, other):
+        # type: (type(self)) -> bool
+        array = other.get_array()
+        return (array == self._vector).all()
 
     def __str__(self):
         # type: () -> str
-        return str(self._vector)
+        raise NotImplementedError
 
     def __add__(self, vector):
         # type: (type(self)) -> type(self)
