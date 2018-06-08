@@ -35,7 +35,7 @@ program.
 import sys
 
 import argparse
-from typing import Dict
+from typing import Dict, Union
 
 from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.initializers.configurator.create_config import create
@@ -119,8 +119,11 @@ class _Arguments(object):
 
     @property
     def configuration_location(self):
-        # type: () -> Path
-        return Path(self.__arguments.configuration)
+        # type: () -> Union[Path, str]
+        if self.__arguments.configuration:
+            return Path(self.__arguments.configuration)
+        else:
+            return ""
 
     @property
     def verbose(self):
@@ -129,8 +132,11 @@ class _Arguments(object):
 
     @property
     def log_file(self):
-        # type: () -> Path
-        return Path(self.__arguments.log_file)
+        # type: () -> Union[Path, str]
+        if self.__arguments.log_file:
+            return Path(self.__arguments.log_file)
+        else:
+            return ""
 
 
 class StartProgram(object):

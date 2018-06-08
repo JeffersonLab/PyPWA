@@ -22,4 +22,4 @@ def plugin_list():
 
 def test_function_builder(function_handler, plugin_list):
     function_handler.output_functions(plugin_list, Path("test_functions"))
-    Path("test_functions").unlink()
+    Path("test_functions.py").unlink()

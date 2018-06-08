@@ -57,7 +57,7 @@ class _GetFunctionLocation(object):
 
     def process_location(self, configuration_location):
         # type: (Path) -> None
-        self.__function_location = Path(configuration_location.stem)
+        self.__function_location = Path(configuration_location.stem + ".py")
 
     @property
     def function_location(self):
