@@ -55,9 +55,9 @@ class _FullOptions(object):
     def __try_to_build_options(self):
         try:
             self.__build_options()
-        except Exception as error:
-            print("Failed to build %s!" % self.__options)
-            raise error
+        except Exception:
+            print("Failed to build {0!r}!".format(self.__options))
+            raise
 
     def __build_options(self):
         self.__set_header_into_built_options()
@@ -88,6 +88,8 @@ class _FullOptions(object):
     def __add_option_comments(self, content):
         # type: (comments.CommentedMap) -> comments.CommentedMap
         for option, comment in self.__options.get_option_comments().items():
+            if isinstance(comment, list):
+                continue
             content.yaml_add_eol_comment(comment, option)
         return content
 

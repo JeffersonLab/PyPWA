@@ -16,7 +16,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Adds a python shell interface to data processor to avoid the configuration
    database
  - Added support for 3 and 4 vector data
- - Added Particle and PartcilePool to aid in working with particle data
+ - Added Particle and ParticlePool to aid in working with particle data
+ - Configurator gained support for Dictionaries nested inside a list
 ### Changed
  - Replaced OS and IO with Pathlib where applicable
  - Moved the program plugins, data plugin, and processing plugin to components
@@ -28,6 +29,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - GAMP was updated to use Particles and ParticlePool
  - Data Processor no longer uses data to choose a writer, instead uses boolean
    flags to determine whether to use particle, flat, or columned writer.
+ - If there is no function to write when generating the configuration, then
+   writing the function file will be skipped.
 ### Fixed
 ### Security
 

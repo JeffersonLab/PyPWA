@@ -187,13 +187,15 @@ class _CorrectValues(object):
         return corrected_dictionary
 
     def __correct_from_list(self, string, value_list):
-        # type: (str, List[str]) -> str
-        value = fuzzywuzzy.process.extractOne(string, value_list)
-
-        if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
-            return value[0]
+        # type: (Union[str, Dict], List[Union[str, Dict]]) -> Union[str, List]
+        if isinstance(value_list[0], str):
+            value = fuzzywuzzy.process.extractOne(string, value_list)
+            if value[1] >= FUZZY_STRING_CONFIDENCE_LEVEL:
+                return value[0]
+            else:
+                return self.__FAILED
         else:
-            return self.__FAILED
+            return [self.correct_all(pv, value_list[0]) for pv in string]
 
     def __correct_boolean_values(self, value):
         # type: (Any) -> Union[bool, str]

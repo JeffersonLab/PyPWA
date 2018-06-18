@@ -71,6 +71,9 @@ class _FunctionStorage(object):
         self.imports = set()
         self.functions = []
 
+    def is_empty(self):
+        return len(self.functions) == 0 and len(self.imports) == 0
+
 
 class _BuildStorage(object):
 
@@ -174,7 +177,8 @@ class FunctionHandler(object):
         self.__file_location.process_location(configuration_location)
         self.__storage.process_plugin_list(plugin_list)
         self.__builder.build(self.__storage.storage)
-        self.__writer.write_file(
-            self.__file_location.function_location,
-            self.__builder.functions_file
-        )
+        if not self.__storage.storage.is_empty():
+            self.__writer.write_file(
+                self.__file_location.function_location,
+                self.__builder.functions_file
+            )
