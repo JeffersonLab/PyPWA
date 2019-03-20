@@ -17,8 +17,9 @@
 import pytest
 
 from PyPWA import Path
-from PyPWA.builtin_plugins import sv, gamp
-from PyPWA.libs.components.data_processor import _plugin_finder, exceptions
+from PyPWA.plugins.data import gamp, sv
+from PyPWA.libs.components.data_processor import _plugin_finder
+from PyPWA.libs.components.data_processor import DataType
 
 
 """
@@ -69,27 +70,27 @@ def test_plugin_read_search_finds_gamp_reader(plugin_search):
 
 
 def test_plugin_read_search_finds_noise(plugin_search):
-    with pytest.raises(exceptions.UnknownData):
+    with pytest.raises(RuntimeError):
         plugin_search.get_read_plugin(NOISE_LOCATION)
 
 
 def test_plugin_write_search_finds_csv(plugin_search):
-    found = plugin_search.get_write_plugin(CSV_TEST_DATA)
+    found = plugin_search.get_write_plugin(CSV_TEST_DATA, DataType.STRUCTURED)
     assert isinstance(found, sv.SvDataPlugin)
 
 
 def test_plugin_write_search_finds_gamp(plugin_search):
     found = plugin_search.get_write_plugin(
-        GAMP_TEST_DATA, is_particle_pool=True
+        GAMP_TEST_DATA, DataType.TREE_VECTOR
     )
     assert isinstance(found, gamp.GampDataPlugin)
 
 
 def test_plugin_write_search_finds_something_with_no_extension(plugin_search):
     found = plugin_search.get_write_plugin(
-        TEMP_WRITE_LOCATION
+        TEMP_WRITE_LOCATION, DataType.STRUCTURED
     )
-    assert found.plugin_supports_columned_data
+    assert DataType.STRUCTURED in found.supported_data_types
 
 
 def test_plugin_write_search_finds_unknown_extension(plugin_search):
@@ -97,5 +98,5 @@ def test_plugin_write_search_finds_unknown_extension(plugin_search):
         TEMP_WRITE_LOCATION.stem + ".completely_useless_extension"
     )
 
-    with pytest.raises(exceptions.UnknownData):
-        plugin_search.get_write_plugin(location)
+    with pytest.raises(RuntimeError):
+        plugin_search.get_write_plugin(location, DataType.STRUCTURED)

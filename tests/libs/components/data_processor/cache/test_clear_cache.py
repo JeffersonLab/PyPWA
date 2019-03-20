@@ -19,7 +19,6 @@ import pytest
 from PyPWA import Path
 from PyPWA.libs.components.data_processor.cache import _clear_cache
 from PyPWA.libs.components.data_processor.cache import _basic_info
-from PyPWA.libs.components.data_processor import exceptions
 
 
 class BasicTestInfo(_basic_info.FindBasicInfo):
@@ -92,5 +91,5 @@ def test_is_valid_is_false(clear_cache_with_success):
 
 
 def test_get_cache_raises_error(clear_cache_without_success):
-    with pytest.raises(exceptions.CacheError):
+    with pytest.raises(RuntimeError):
         clear_cache_without_success.get_cache()

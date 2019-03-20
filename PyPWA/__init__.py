@@ -101,6 +101,3 @@ if sys.version_info.major == 2:
 else:
     import queue
 
-
-from PyPWA.libs.components.data_processor.shell_interface import \
-    ShellDataProcessor

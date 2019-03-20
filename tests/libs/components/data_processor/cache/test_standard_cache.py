@@ -23,12 +23,10 @@ import os
 import pytest
 
 from PyPWA import Path
-from PyPWA.libs.components.data_processor import exceptions
 from PyPWA.libs.components.data_processor.cache import (
     _standard_cache,
     _basic_info,
 )
-
 
 ROOT = Path(__file__).parent
 TEMP_WRITE_LOCATION = ROOT / "../../../../test_data/docs/temporary_write_data"
@@ -129,7 +127,7 @@ def test_read_is_valid_false(wrapping_fail_read):
 
 
 def test_get_cache_raises_error(wrapping_fail_read):
-    with pytest.raises(exceptions.CacheError):
+    with pytest.raises(RuntimeError):
         wrapping_fail_read.get_cache()
 
 
@@ -138,7 +136,7 @@ def test_read_is_valid_false_with_bad_pickle(induced_pickle_error):
 
 
 def test_get_cache_raises_error_with_bad_pickle(induced_pickle_error):
-    with pytest.raises(exceptions.CacheError):
+    with pytest.raises(RuntimeError):
         induced_pickle_error.get_cache()
 
 
@@ -147,5 +145,5 @@ def test_read_is_valid_false_with_no_cache(read_b):
 
 
 def test_get_cache_raises_error_with_no_cache(read_b):
-    with pytest.raises(exceptions.CacheError):
+    with pytest.raises(RuntimeError):
         read_b.get_cache()

@@ -15,8 +15,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
+
 from PyPWA.libs.components.data_processor.cache import _no_cache
-from PyPWA.libs.components.data_processor import exceptions
 
 
 @pytest.fixture
@@ -38,5 +38,5 @@ def test_reader_isnt_valid(NoRead):
 
 
 def test_reader_get_cache(NoRead):
-    with pytest.raises(exceptions.CacheError):
+    with pytest.raises(RuntimeError):
         NoRead.get_cache()

@@ -50,12 +50,16 @@ def mock_cache_uri(monkeypatch):
 
 @pytest.fixture
 def mocked_basic_info(mock_hash, mock_cache_uri):
-    return _basic_info.FindBasicInfo(DATA)
+    info = _basic_info.FindBasicInfo()
+    info.setup_basic_info(DATA)
+    return info
 
 
 @pytest.fixture
 def standard_basic_info():
-    return _basic_info.FindBasicInfo(DATA)
+    info = _basic_info.FindBasicInfo()
+    info.setup_basic_info(DATA)
+    return info
 
 
 def test_basic_info_hash_is_string(standard_basic_info):

@@ -27,9 +27,11 @@ This are where the actual processes are defined
   over its pipe.
 """
 
+import sys
+import enum
 import logging
 import multiprocessing
-from typing import Any
+from typing import List
 
 from PyPWA import VERSION, AUTHOR
 from PyPWA.libs.components.process import templates
@@ -39,10 +41,15 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
+class ProcessCodes(enum.Enum):
+
+    SHUTDOWN = 1
+    ERROR = 2
+
+
 class _AbstractProcess(multiprocessing.Process):
 
     def __init__(self):
-        # type: (templates.Kernel, multiprocessing.Pipe) -> None
         super(_AbstractProcess, self).__init__()
         self.daemon = True  # When true, processes will die with main
 
@@ -59,43 +66,37 @@ class Duplex(_AbstractProcess):
         super(Duplex, self).__init__()
         self.__kernel = kernel
         self.__connection = connect
-        self.__received_value = None
 
     def run(self):
-        self.__kernel.setup()
-        self.__loop()
+        try:
+            self.__kernel.setup()
+        except Exception as error:
+            self.__handle_error(error)
+            raise
+        else:
+            self.__loop()
 
     def __loop(self):
         while True:
-            self.__get_value()
-            if self.__received_value == templates.ProcessCodes.SHUTDOWN:
+            received = self.__connection.recv()
+            if received == ProcessCodes.SHUTDOWN:
                 self.__LOGGER.debug("Gracefully shutting down process.")
-                break
-            self.__process()
+                sys.exit()
+            self.__process(received)
 
-    def __get_value(self):
-        self.__received_value = self.__connection.recv()
-
-    def __process(self):
+    def __process(self, received_data):
         try:
-            value = self.__run_kernel()
+            value = self.__kernel.process(received_data)
         except Exception as error:
             self.__handle_error(error)
+            raise
         else:
             self.__connection.send(value)
 
-    def __run_kernel(self):
-        # type: () -> Any
-        return self.__kernel.process(self.__received_value)
-
     def __handle_error(self, error):
         # type: (Exception) -> None
-        self.__connection.send(templates.ProcessCodes.ERROR)
+        self.__connection.send(ProcessCodes.ERROR)
         self.__LOGGER.exception(error)
-        self.__LOGGER.critical(
-            "Child process in critical state! The program will crash!"
-        )
-        raise error
 
 
 class Simplex(_AbstractProcess):
@@ -109,14 +110,54 @@ class Simplex(_AbstractProcess):
         self.__connection = connect
 
     def run(self):
-        self.__kernel.setup()
-        self.__process()
-        self.__LOGGER.debug("Shutting Down.")
-
-    def __process(self):
         try:
+            self.__kernel.setup()
             self.__connection.send(self.__kernel.process())
         except Exception as error:
-            self.__connection.send(templates.ProcessCodes.ERROR)
+            self.__connection.send(ProcessCodes.ERROR)
             self.__LOGGER.exception(error)
-            raise error
+            raise
+        finally:
+            self.__LOGGER.debug("Shutting Down.")
+
+
+class ProcessInterface(object):
+
+    __LOGGER = logging.getLogger(__name__ + "._ProcessInterface")
+
+    def __init__(
+            self,
+            interface_kernel,  # type: templates.Interface
+            process_com,  # type: List[multiprocessing.Pipe]
+            processes  # type: List[multiprocessing.Process]
+    ):
+        # type: (...) -> None
+        self.__connections = process_com
+        self.__interface = interface_kernel
+        self.__processes = processes
+
+    def run(self, *args):
+        return self.__interface.run(self.__connections, args)
+
+    def stop(self, force=False):
+        if self.__interface.IS_DUPLEX and not force:
+            self.__ask_processes_to_stop()
+        else:
+            self.__terminate_processes()
+
+    def __ask_processes_to_stop(self):
+        for connection in self.__connections:
+            self.__LOGGER.debug("Attempting to kill processes.")
+            connection.send(ProcessCodes.SHUTDOWN)
+
+    def __terminate_processes(self):
+        self.__LOGGER.debug("Terminating Processes is Risky!")
+        for process in self.__processes:
+            process.terminate()
+
+    @property
+    def is_alive(self):
+        for process in self.__processes:
+            if process.is_alive():
+                return True
+        return False

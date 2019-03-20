@@ -16,7 +16,6 @@
 
 
 import pytest
-from PyPWA.libs.components.data_processor import settings
 from PyPWA.libs.components.data_processor.cache import _template
 from PyPWA.libs.components.data_processor.cache import builder
 
@@ -98,7 +97,7 @@ class ReadClearTest(_template.ReadInterface):
 
 class MockBasicInfo(object):
 
-    def __init__(self, original_file):
+    def setup_basic_info(self, original_file):
         pass
 
     @property
@@ -112,16 +111,16 @@ class MockBasicInfo(object):
 
 class MockBasicInfoNoFile(object):
 
-    def __init__(self, original_file):
-        raise OSError
+    def setup_basic_info(self, original_file):
+        pass
 
     @property
     def file_hash(self):
-        raise OSError
+        return None
 
     @property
     def cache_location(self):
-        raise OSError
+        return ""
 
 
 ##############################################################################
@@ -183,39 +182,29 @@ def mock_basic_info_no_file(monkeypatch):
 ##############################################################################
 
 @pytest.fixture
-def data_settings():
-    return settings.DataSettings()
-
-@pytest.fixture
 def interface_with_cache_and_noclear(
         mock_no_cache, mock_standard_cache, mock_clear_cache,
-        mock_basic_info, data_settings
+        mock_basic_info,
 ):
-    data_settings.use_cache(True)
-    data_settings.clear_cache(False)
-    build = builder.CacheBuilder()
+    build = builder.CacheBuilder(True, False)
     return build.get_cache_interface("a file location")
 
 
 @pytest.fixture
 def interface_with_cache_and_clear(
         mock_no_cache, mock_standard_cache, mock_clear_cache,
-        mock_basic_info, data_settings
+        mock_basic_info
 ):
-    data_settings.clear_cache(True)
-    data_settings.use_cache(True)
-    build = builder.CacheBuilder()
+    build = builder.CacheBuilder(True, True)
     return build.get_cache_interface("a file location")
 
 
 @pytest.fixture
 def interface_with_nocache(
         mock_no_cache, mock_standard_cache, mock_clear_cache,
-        mock_basic_info, data_settings
+        mock_basic_info
 ):
-    data_settings.clear_cache(False)
-    data_settings.use_cache(False)
-    build = builder.CacheBuilder()
+    build = builder.CacheBuilder(False, False)
     return build.get_cache_interface("a file location")
 
 
@@ -266,9 +255,9 @@ def test_cache_is_valid(param_wrapper):
 @pytest.fixture
 def cache_with_no_file(
         mock_no_cache, mock_standard_cache, mock_clear_cache,
-        mock_basic_info_no_file, data_settings
+        mock_basic_info_no_file
 ):
-    build = builder.CacheBuilder()
+    build = builder.CacheBuilder(True, False)
     return build.get_cache_interface("A File")
 
 

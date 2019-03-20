@@ -33,7 +33,6 @@ some predefined amount of resources of some type.
   processes the returned information from the kernels.
 """
 
-import enum
 from typing import Any, List, Optional as Opt
 
 from PyPWA import AUTHOR, VERSION
@@ -41,12 +40,6 @@ from PyPWA import AUTHOR, VERSION
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
-
-
-class ProcessCodes(enum.Enum):
-
-    SHUTDOWN = 1
-    ERROR = 2
 
 
 class Kernel(object):
@@ -75,7 +68,7 @@ class Kernel(object):
         raise NotImplementedError()
 
 
-class KernelInterface(object):
+class Interface(object):
 
     # is_duplex controls whether the kernel will shutdown after its first
     # run or if the kernel will wait for more information. If this is false

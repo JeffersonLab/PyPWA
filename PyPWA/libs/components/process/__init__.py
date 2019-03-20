@@ -29,40 +29,12 @@ Example:
     processed_value = interface.run("Your args")
 """
 
-import multiprocessing
-
 from PyPWA import AUTHOR, VERSION
-from PyPWA.initializers.configurator import options
-from PyPWA.libs.components.process import foreman
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
-
-class Processing(options.Component):
-
-    def __init__(self):
-        self.name = "Multiprocessing"
-        self.module_comment = "OpenMP like Python Implementation"
-
-    def get_default_options(self):
-        return {
-            "number of processes": multiprocessing.cpu_count() * 2
-        }
-
-    def get_option_difficulties(self):
-        return {
-            "number of processes": options.Levels.OPTIONAL
-        }
-
-    def get_option_types(self):
-        return {
-            "number of processes": int
-        }
-
-    def get_option_comments(self):
-        return {
-            "number of processes": "Number of processes to use for "
-                                   "calculation."
-        }
+from .factory import make_processes
+from .templates import Interface, Kernel
+from ._processes import ProcessCodes

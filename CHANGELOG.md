@@ -10,16 +10,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Added numpy reader and writer.
  - Adds a helper script to clean the project directory of caches.
  - Adds initial documentation for PyPWA.
- - Added a component to handle optimizers
- - Added a central configuration database to ease passing of user arguments to
-   components
  - Adds a python shell interface to data processor to avoid the configuration
    database
  - Added support for 3 and 4 vector data
  - Added Particle and ParticlePool to aid in working with particle data
  - Configurator gained support for Dictionaries nested inside a list
+ - Added a binning utility that supports multiple binning variables and
+   dimensions
+ - Added PyTables support, so that large datasets can be easily managed
 ### Changed
- - Replaced OS and IO with Pathlib where applicable
  - Moved the program plugins, data plugin, and processing plugin to components
  - Moved Nestle and Minuit to the Optimizer component
  - Renamed 'Builtin Multiprocessing' to 'Multiprocessing'
@@ -31,6 +30,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    flags to determine whether to use particle, flat, or columned writer.
  - If there is no function to write when generating the configuration, then
    writing the function file will be skipped.
+### Removed
+ - Nestle Minimization. There is currently no clear way to have Minuit and
+   Nestle to operate with each other nicely. Implementation for multiple
+   optimizers will remain, as well as new associated issues created.
+ - Removed support for all version of Python before 3.7
 ### Fixed
 ### Security
 
