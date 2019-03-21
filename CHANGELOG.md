@@ -14,22 +14,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    database
  - Added support for 3 and 4 vector data
  - Added Particle and ParticlePool to aid in working with particle data
- - Configurator gained support for Dictionaries nested inside a list
  - Added a binning utility that supports multiple binning variables and
    dimensions
  - Added PyTables support, so that large datasets can be easily managed
 ### Changed
- - Moved the program plugins, data plugin, and processing plugin to components
- - Moved Nestle and Minuit to the Optimizer component
- - Renamed 'Builtin Multiprocessing' to 'Multiprocessing'
- - Renamed 'Builtin Parser' and "Builtin Iterator" to "Data Processor"
- - Combined iterator and parsing objects to allow easy fallback
- - All components now exist inside PyPWA.libs.components
+ - Moved the program plugins, data plugin, and processing plugin to libs
+ - Combined optimizers with fit library
  - GAMP was updated to use Particles and ParticlePool
- - Data Processor no longer uses data to choose a writer, instead uses boolean
-   flags to determine whether to use particle, flat, or columned writer.
- - If there is no function to write when generating the configuration, then
-   writing the function file will be skipped.
+ - Cleaned cache module and refactored into a single file
 ### Removed
  - Nestle Minimization. There is currently no clear way to have Minuit and
    Nestle to operate with each other nicely. Implementation for multiple
@@ -60,7 +52,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    on the interfaces purpose.
  - PyFit no longer assumes bins are named 'BinN' you must specify Bin names 
    in 'internal data'.
- - Multipler effect for the Miminzers has been moved to the individual
+ - Multiplier effect for the Minimizers has been moved to the individual
    likelihoods.
  - PyMask defaults to AND operations instead of or now.
 ### Fixed

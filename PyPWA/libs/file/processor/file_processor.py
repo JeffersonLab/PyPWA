@@ -26,7 +26,7 @@ from typing import Union
 import numpy
 
 from PyPWA import Path, AUTHOR, VERSION
-from PyPWA.libs.file.cache import builder
+from PyPWA.libs.file import cache
 from PyPWA.libs.math import vectors
 from . import _plugin_finder
 from . import data_templates
@@ -47,7 +47,7 @@ class _DataLoader(object):
         # type: (bool, bool) -> None
         self.__args = (use_cache, clear_cache)
         self.__plugin_search = _plugin_finder.PluginSearch()
-        self.__cache_builder = builder.CacheBuilder(use_cache, clear_cache)
+        self.__cache_builder = cache.CacheFactory(use_cache, clear_cache)
 
     def __repr__(self):
         return "{0}({1}, {2})".format(
@@ -56,18 +56,18 @@ class _DataLoader(object):
 
     def parse(self, filename, precision):
         # type: (Path, numpy.floating) -> numpy.ndarray
-        cache = self.__cache_builder.get_cache_interface(filename)
-        if cache.is_valid():
+        cache_obj = self.__cache_builder.get_cache(filename)
+        if cache_obj.is_valid:
             self.__LOGGER.info("Loading cache for %s" % filename)
-            return cache.read_cache()
+            return cache_obj.read_cache()
         else:
             self.__LOGGER.info("No cache found, loading file directly.")
-            return self.__read_data(cache, filename, precision)
+            return self.__read_data(cache_obj, filename, precision)
 
-    def __read_data(self, cache, filename, precision):
+    def __read_data(self, cache_obj, filename, precision):
         plugin = self.__plugin_search.get_read_plugin(filename)
         data = plugin.get_memory_parser().parse(filename, precision)
-        cache.write_cache(data)
+        cache_obj.write_cache(data)
         return data
 
 
@@ -77,7 +77,7 @@ class _DataDumper(object):
         # type: (bool, bool) -> None
         self.__args = (use_cache, clear_cache)
         self.__plugin_search = _plugin_finder.PluginSearch()
-        self.__cache_builder = builder.CacheBuilder(use_cache, clear_cache)
+        self.__cache_builder = cache.CacheFactory(use_cache, clear_cache)
 
     def __repr__(self):
         return "{0}({1}, {2})".format(
@@ -87,9 +87,9 @@ class _DataDumper(object):
     def write(self, filename, data):
         # type: (Path, SUPPORTED_DATA) -> None
         parser = self.__get_write_plugin(filename, data).get_memory_parser()
-        cache = self.__cache_builder.get_cache_interface(filename)
+        cache_obj = self.__cache_builder.get_cache(filename)
         parser.write(filename, data)
-        cache.write_cache(data)
+        cache_obj.write_cache(data)
 
     def __get_write_plugin(self, filename, data):
         # type: (Path, SUPPORTED_DATA) -> data_templates.DataPlugin
