@@ -40,29 +40,73 @@ from typing import List
 
 from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.file import misc
-from PyPWA.libs.file.processor import data_templates
+from PyPWA.libs.file.processor import templates, DataType
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class EVILReader(data_templates.Reader):
+class _EVILDataPlugin(templates.IDataPlugin):
 
-    def __init__(self, filename: Path, precision: npy.floating):
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+    @property
+    def plugin_name(self):
+        return "EVIL"
+
+    def get_memory_parser(self):
+        return _EVILMemory()
+
+    def get_reader(self, filename):
+        return _EVILReader(filename)
+
+    def get_writer(self, filename):
+        return _EVILWriter(filename)
+
+    def get_read_test(self):
+        return _EVILDataTest()
+
+    @property
+    def supported_extensions(self):
+        return [".txt", ".kvars"]
+
+    @property
+    def supported_data_types(self):
+        return [DataType.STRUCTURED]
+
+
+metadata = _EVILDataPlugin()
+
+
+class _EVILDataTest(templates.IReadTest):
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+    def can_read(self, file_location: Path) -> bool:
+        with file_location.open() as stream:
+            line = stream.readline()
+            equal_count = line.count("=")
+            comma_count = line.count(",") + 1
+        return equal_count == comma_count and equal_count
+
+
+class _EVILReader(templates.ReaderBase):
+
+    def __init__(self, filename: Path):
         self.__num_event: int = None
-        self.__args = (filename, precision)
+        self.__filename = filename
         self.__file_handle = filename.open()
-        self.__numpy_array = self.__get_numpy_array(precision)
+        self.__numpy_array = self.__get_numpy_array()
 
     def __repr__(self) -> str:
-        return "{0}({1!r}, {2!r})".format(
-            self.__class__.__name__, self.__args[0], self.__args[1]
-        )
+        return f"{self.__class__.__name__}({self.__filename})"
 
-    def __get_numpy_array(self, precision: npy.dtype) -> npy.ndarray:
+    def __get_numpy_array(self) -> npy.ndarray:
         names = [column.split("=")[0] for column in self.__get_columns()]
-        types = [(str(name), precision) for name in names]
+        types = [(str(name), "f8") for name in names]
         self.__file_handle.seek(0)
         return npy.zeros(1, types)
 
@@ -80,7 +124,7 @@ class EVILReader(data_templates.Reader):
 
     def get_event_count(self) -> int:
         if not self.__num_event:
-            self.__num_event = misc.get_file_length(self.__args[0])
+            self.__num_event = misc.get_file_length(self.__filename)
         return self.__num_event
 
     def reset(self):
@@ -94,29 +138,7 @@ class EVILReader(data_templates.Reader):
         return [name for name in self.__numpy_array.dtype.names]
 
 
-class _EVILParser:
-
-    def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
-
-    def parse(self, filename: Path, precision: npy.floating) -> npy.ndarray:
-        with EVILReader(filename, precision) as reader:
-            array = self.__get_empty_array(filename, len(reader), precision)
-            for index, event in enumerate(reader):
-                array[index] = event
-        return array
-
-    @staticmethod
-    def __get_empty_array(
-            filename: Path, array_length: int, precision: npy.floating
-    ) -> npy.ndarray:
-        with filename.open() as stream:
-            split = stream.readline().split(",")
-            types = [(column.split("=")[0], precision) for column in split]
-        return npy.zeros(array_length, types)
-
-
-class EVILWriter(data_templates.Writer):
+class _EVILWriter(templates.WriterBase):
 
     def __init__(self, filename: Path):
         self.__column_names: List[str] = None
@@ -124,7 +146,7 @@ class EVILWriter(data_templates.Writer):
         self.__file_handle = filename.open("w")
 
     def __repr__(self) -> str:
-        return "{0}({1})".format(self.__class__.__name__, self.__filename)
+        return f"{self.__class__.__name__}({self.__filename})"
 
     def write(self, data: npy.ndarray):
         self.__error_check(data)
@@ -136,59 +158,39 @@ class EVILWriter(data_templates.Writer):
             self.__column_names = list(data.dtype.names)
 
     def __get_line(self, data: npy.ndarray) -> str:
-        line = u""
+        line = ""
         for column_index, column in enumerate(self.__column_names):
             line += "," if column_index > 0 else ""
-            line += "{0}={1}".format(column, data[column])
+            line += "%s=%d" % (column, data[column])
         return line + "\n"
 
     def close(self):
         self.__file_handle.close()
 
 
-class EVILMemory(data_templates.Memory):
+class _EVILMemory(templates.IMemory):
 
     def __init__(self):
-        super(EVILMemory, self).__init__()
-        self.__parser = _EVILParser()
+        super(_EVILMemory, self).__init__()
 
     def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
+        return f"{self.__class__.__name__}()"
 
-    def parse(self, filename: Path, precision: npy.floating) -> npy.ndarray:
-        return self.__parser.parse(filename, precision)
+    def parse(self, filename: Path) -> npy.ndarray:
+        with _EVILReader(filename) as reader:
+            array = self.__get_empty_array(filename, len(reader))
+            for index, event in enumerate(reader):
+                array[index] = event
+        return array
+
+    @staticmethod
+    def __get_empty_array(filename: Path, array_length: int) -> npy.ndarray:
+        with filename.open() as stream:
+            split = stream.readline().split(",")
+            types = [(column.split("=")[0], "f8") for column in split]
+        return npy.zeros(array_length, types)
 
     def write(self, filename: Path, data: npy.ndarray):
-        with EVILWriter(filename) as iterator:
+        with _EVILWriter(filename) as iterator:
             for event in npy.nditer(data):
                 iterator.write(event)
-
-
-class EVILReadPackage(data_templates.ReadPackage):
-    
-    def __init__(self, filename: Path, precision: npy.floating):
-        self.__filename = filename
-        self.__precision = precision
-        self.__reader = EVILReader(filename, precision)
-        self.__parser = _EVILParser()
-
-    def __repr__(self) -> str:
-        return "{0}({1!r}, {2})".format(
-            self.__class__.__name__, self.__filename, self.__precision
-        )
-
-    def get_reader(self) -> EVILReader:
-        return self.__reader
-
-    def parse(self) -> npy.ndarray:
-        return self.__parser.parse(self.__filename, self.__precision)
-
-    def get_bytes(self):
-        with self.__filename.open() as stream:
-            num_columns = len(stream.readline().split(","))
-            num_events = self.get_event_count()
-            num_bytes = self.__precision().nbytes
-        return num_columns * num_events * num_bytes
-
-    def get_event_count(self) -> int:
-        return self.__reader.get_event_count()

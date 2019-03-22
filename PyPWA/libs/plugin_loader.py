@@ -23,11 +23,10 @@
 import importlib
 import logging
 import pkgutil
-import types
-from typing import Any, List, Union
+from typing import Any, List
 
 from PyPWA import AUTHOR, VERSION
-from .file.processor import data_templates
+from .file.processor import templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -37,8 +36,7 @@ __version__ = VERSION
 _LOGGER = logging.getLogger(__name__)
 
 
-def fetch_plugins(root, plugin_type):
-    # type: (types.ModuleType, str) -> List[Any]
+def fetch_plugins(root: type(templates), plugin_type: str) -> List[Any]:
     plugins = []
     plugin_path, plugin_name = (root.__path__, root.__name__ + ".")
 
@@ -49,8 +47,7 @@ def fetch_plugins(root, plugin_type):
     return [plugin for plugin in plugins if plugin]  # Remove Nones
 
 
-def _import_plugin(name, plugin_type):
-    # type: (str, str) -> Union[data_templates.DataPlugin, None]
+def _import_plugin(name: str, plugin_type: str) -> List[type(templates)]:
     try:
         return importlib.import_module(name).metadata
     except ImportError as error:

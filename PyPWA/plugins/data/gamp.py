@@ -31,11 +31,9 @@ will not be saved in memory by these object.
 
 from typing import List
 
-import numpy
-
 from PyPWA import Path, AUTHOR, VERSION
 from PyPWA.libs.file import misc
-from PyPWA.libs.file.processor import data_templates
+from PyPWA.libs.file.processor import templates, DataType
 from PyPWA.libs.math import vectors
 
 __credits__ = ["Mark Jones"]
@@ -43,9 +41,70 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
+_COUNT = 3  # number of events to check
+
+
+class _GampDataPlugin(templates.IDataPlugin):
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+    @property
+    def plugin_name(self):
+        return "gamp"
+
+    def get_memory_parser(self):
+        return _GampMemory()
+
+    def get_writer(self, file_location):
+        return _GampWriter(file_location)
+
+    def get_reader(self, file_location):
+        return _GampReader(file_location)
+
+    def get_read_test(self):
+        return _GampDataTest()
+
+    @property
+    def supported_extensions(self):
+        return [".gamp"]
+
+    @property
+    def supported_data_types(self):
+        return [DataType.TREE_VECTOR]
+
+
+metadata = _GampDataPlugin()
+
+
+class _GampDataTest(templates.IReadTest):
+
+    def __repr__(self):
+        return "{0}()".format(self.__class__.__name__)
+
+    def can_read(self, filename):
+        # type: (Path) -> bool
+        with filename.open() as stream:
+            for i in range(_COUNT):
+                line = stream.readline().strip("\n")
+                if line == "":
+                    if i == 0:
+                        return False
+                    return True
+
+                try:
+                    particle_count = int(line)
+                except Exception:
+                    return False
+
+                for l in range(particle_count):
+                    if len(stream.readline().split(" ")) != 6:
+                        return False
+        return True
+
+
 def _get_particle_pool(
-        filename: Path, precision: numpy.floating, particle_length: int = 1
-) -> vectors.ParticlePool:
+        filename: Path, particle_length: int = 1) -> vectors.ParticlePool:
     with filename.open() as stream:
         count = int(stream.readline())
         lines = [stream.readline() for i in range(count)]
@@ -53,23 +112,20 @@ def _get_particle_pool(
     events = []
     for line in lines:
         p_id, charge, x, y, z, e = line.strip("\n").split(" ")
-        events.append(
-            vectors.Particle(int(p_id), particle_length, precision=precision)
-        )
+        events.append(vectors.Particle(int(p_id), particle_length))
     return vectors.ParticlePool(events)
 
 
-class GampReader(data_templates.Reader):
+class _GampReader(templates.ReaderBase):
 
-    def __init__(self, filename: Path, precision: numpy.floating):
+    def __init__(self, filename: Path):
         self.__event_count = None
-        self.__precision = precision  # Vectors don't support flexible types
         self.__file = filename
         self.__file_handle = filename.open()
-        self.__particle_pool = _get_particle_pool(filename, precision)
+        self.__particle_pool = _get_particle_pool(filename)
 
     def __repr__(self) -> str:
-        return f"GampReader({self.__file}, {self.__precision})"
+        return f"GampReader({self.__file})"
 
     def next(self) -> vectors.ParticlePool:
         particle_line = self.__file_handle.readline().strip("\n")
@@ -107,72 +163,44 @@ class GampReader(data_templates.Reader):
         return [p.id for p in self.__particle_pool.iter_particles()]
 
 
-class GampWriter(data_templates.Writer):
+class _GampWriter(templates.WriterBase):
 
     def __init__(self, filename: Path):
         self.__filename = filename
         self.__file_handle = filename.open("w")
 
     def __repr__(self) -> str:
-        return "{0}({1})".format(self.__class__.__name__, self.__filename)
+        return f"{self.__class__.__name__}({self.__filename})"
 
     def write(self, data: vectors.ParticlePool):
-        self.__file_handle.write(u"{0}\n".format(data.particle_count))
+        # I like f-strings, but this is the fastest way to make a string
+        self.__file_handle.write("%i\n" % data.particle_count)
         for p in data.iter_particles():
             self.__file_handle.write(
-                u'{p.id} {p.charge} {p.x[0]} {p.y[0]} {p.z[0]} '
-                u'{p.e[0]}\n'.format(p=p)
+                "%i %i %d %d %d %d\n" % (
+                    p.id, p.charge, p.x[0], p.y[0], p.z[0], p.e[0]
+                )
             )
 
     def close(self):
         self.__file_handle.close()
 
 
-class GampMemory(data_templates.Memory):
+class _GampMemory(templates.IMemory):
 
     def __repr__(self) -> str:
         return "GampMemory()"
 
-    def parse(
-            self, filename: Path, precision: numpy.floating
-    ) -> vectors.ParticlePool:
-        with GampReader(filename, precision) as reader:
-            empty_pool = _get_particle_pool(filename, precision, len(reader))
+    def parse(self, filename: Path) -> vectors.ParticlePool:
+        with _GampReader(filename) as reader:
+            empty_pool = _get_particle_pool(filename, len(reader))
             for ei, e in enumerate(reader):
-                for pi, p in enumerate(e.iterate_over_particles()):
+                for pi, p in enumerate(e.iter_particles()):
                     # You must use get array to get a reference and not a copy
                     empty_pool.stored[pi].get_array()[ei] = p.get_array()
         return empty_pool
 
     def write(self, filename: Path, data: vectors.ParticlePool):
-        with GampWriter(filename) as stream:
+        with _GampWriter(filename) as stream:
             for event in data.iter_events():
                 stream.write(event)
-
-
-class GampReadPackage(data_templates.ReadPackage):
-
-    def __init__(self, filename: Path, precision: numpy.floating):
-        self.__filename = filename
-        self.__precision = precision
-        self.__reader = GampReader(filename, precision)
-        self.__parser = GampMemory()
-
-    def __repr__(self) -> str:
-        return f"GampReadPackage({self.__filename!r}, {self.__precision})"
-
-    def get_reader(self) -> GampReader:
-        return self.__reader
-
-    def parse(self) -> vectors.particle:
-        return self.__parser.parse(self.__filename, self.__precision)
-
-    def get_bytes(self) -> int:
-        with self.__filename.open() as stream:
-            num_particles = int(stream.readline().strip("\n"))
-            num_events = self.__reader.get_event_count()
-            num_bytes = self.__precision().nbytes
-        return num_particles * 4 * num_events * num_bytes
-
-    def get_event_count(self) -> int:
-        return self.__reader.get_event_count()

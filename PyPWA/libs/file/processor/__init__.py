@@ -40,5 +40,5 @@ __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
-from .file_processor import DataProcessor
-from .data_templates import DataType, Reader, ReadPackage, Writer
+from .main import DataProcessor, SUPPORTED_DATA
+from .templates import DataType, ReaderBase, WriterBase

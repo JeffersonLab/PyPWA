@@ -17,17 +17,79 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as npy
-from typing import Union
 
 from PyPWA import Path, AUTHOR, VERSION
-from PyPWA.libs.file.processor import data_templates
+from PyPWA.libs.file.processor import templates, DataType
 
 __credits__ = ["Christopher Banks", "Keandre Palmer", "Mark Jones"]
 __author__ = AUTHOR
 __version__ = VERSION
 
 
-class NumpyReader(data_templates.Reader):
+class _NumpyDataPlugin(templates.IDataPlugin):
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+    @property
+    def plugin_name(self):
+        return "NumPy Data Files"
+
+    def get_memory_parser(self):
+        return _NumpyMemory()
+
+    def get_reader(self, filename):
+        return _NumpyReader(filename)
+
+    def get_writer(self, filename):
+        return _NumpyWriter(filename)
+
+    def get_read_test(self):
+        return _NumpyDataTest()
+
+    @property
+    def supported_extensions(self):
+        return [".npy", ".pf", ".txt"]
+
+    @property
+    def supported_data_types(self):
+        return [DataType.BASIC, DataType.STRUCTURED]
+
+
+metadata = _NumpyDataPlugin()
+
+
+class _NumpyDataTest(templates.IReadTest):
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}()"
+
+    def can_read(self, filename):
+        if self.__can_load_binary(filename) or self.__can_load_text(filename):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def __can_load_binary(file_location):
+        # type: (Path) -> bool
+        try:
+            npy.load(str(file_location))
+            return True
+        except Exception:
+            return False
+
+    @staticmethod
+    def __can_load_text(file_location):
+        # type: (Path) -> bool
+        try:
+            npy.loadtxt(str(file_location))
+            return True
+        except Exception:
+            return False
+
+
+class _NumpyReader(templates.ReaderBase):
 
     def __init__(self, filename: Path, data_type: npy.ndarray):
         self.__args = (filename, data_type)
@@ -35,9 +97,7 @@ class NumpyReader(data_templates.Reader):
         self.__counter = 0
 
     def __repr__(self) -> str:
-        return "{0}({1}, {2})".format(
-            self.__class__.__name__, self.__args[0], self.__args[1]
-        )
+        return f"{self.__class__.__name__}()"
 
     def get_event_count(self) -> int:
         return len(self.__array)
@@ -60,33 +120,14 @@ class NumpyReader(data_templates.Reader):
         return [name for name in self.__array.dtype.names]
 
 
-class _NumpyParser:
-
-    def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
-
-    def parse(self, filename: Path, data_type: npy.floating) -> npy.ndarray:
-        try:
-            return npy.load(str(filename))
-        except Exception:
-            return self.___load_text(filename, data_type)
-
-    @staticmethod
-    def ___load_text(filename: Path, data_type: npy.floating) -> npy.ndarray:
-        if filename.suffix == ".pf":
-            return npy.loadtxt(str(filename), dtype=bool)
-        else:
-            return npy.loadtxt(str(filename), dtype=data_type)
-
-
-class NumpyWriter(data_templates.Writer):
+class _NumpyWriter(templates.WriterBase):
 
     def __init__(self, filename: Path):
-        self.__array = False  # type: Union[npy.ndarray, bool]
+        self.__array: npy.ndarray = False
         self.__filename = filename
 
     def __repr__(self) -> str:
-        return "{0}({1})".format(self.__class__.__name__, self.__filename)
+        return f"{self.__class__.__name__}()"
 
     def write(self, data: npy.void):
         if not isinstance(self.__array, npy.ndarray):
@@ -100,10 +141,23 @@ class NumpyWriter(data_templates.Writer):
         npy.save(str(self.__filename), self.__array)
 
 
-class _NumpyMemoryDump:
+class _NumpyMemory(templates.IMemory):
 
     def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
+        return f"{self.__class__.__name__}()"
+
+    def parse(self, filename: Path) -> npy.ndarray:
+        try:
+            return npy.load(str(filename))
+        except Exception:
+            return self.___load_text(filename)
+
+    @staticmethod
+    def ___load_text(filename: Path) -> npy.ndarray:
+        if filename.suffix == ".pf":
+            return npy.loadtxt(str(filename), dtype=bool)
+        else:
+            return npy.loadtxt(str(filename))
 
     def write(self, filename: Path, data: npy.ndarray):
         if filename.suffix == '.npy':
@@ -114,45 +168,3 @@ class _NumpyMemoryDump:
             npy.savetxt(str(filename), data)
         else:
             npy.save(str(filename), data)
-
-
-class NumpyMemory(data_templates.Memory):
-
-    def __init__(self):
-        self.__parser = _NumpyParser()
-        self.__writer = _NumpyMemoryDump()
-
-    def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
-
-    def parse(self, filename: Path, data_type: npy.floating) -> npy.ndarray:
-        return self.__parser.parse(filename, data_type)
-
-    def write(self, filename: Path, data: npy.ndarray):
-        self.__writer.write(filename, data)
-
-
-class NumpyReadPackage(data_templates.ReadPackage):
-
-    def __init__(self, filename: Path, data_type: npy.floating):
-        self.__filename = filename
-        self.__data_type = data_type
-        self.__reader = NumpyReader(filename, data_type)
-        self.__array = _NumpyParser().parse(filename, data_type)
-
-    def __repr__(self) -> str:
-        return "{0}({1!r}, {2})".format(
-            self.__class__.__name__, self.__filename, self.__data_type
-        )
-
-    def get_reader(self) -> NumpyReader:
-        return self.__reader
-
-    def parse(self) -> npy.ndarray:
-        return self.__array
-
-    def get_bytes(self) -> int:
-        return self.__array.nbytes
-
-    def get_event_count(self) -> int:
-        return len(self.__array)

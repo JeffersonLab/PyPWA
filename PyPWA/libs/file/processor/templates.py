@@ -22,8 +22,10 @@ data module.
 """
 
 import enum
-import numpy as npy
+from abc import ABC, abstractmethod
 from typing import List
+
+import numpy as npy
 
 from PyPWA import Path, AUTHOR, VERSION
 
@@ -38,32 +40,20 @@ class DataType(enum.Enum):
     TREE_VECTOR = 2
 
 
-class Memory:
+class IMemory(ABC):
 
-    def parse(self, filename: Path, precision: npy.dtype) -> npy.ndarray:
-        raise NotImplementedError
+    @abstractmethod
+    def parse(self, filename: Path) -> npy.ndarray:
+        ...
 
+    @abstractmethod
     def write(self, filename: Path, data: npy.ndarray):
-        raise NotImplementedError
+        ...
 
 
-class ReadPackage:
+class ReaderBase(ABC):
 
-    def get_reader(self):
-        raise NotImplementedError
-
-    def parse(self):
-        raise NotImplementedError
-
-    def get_bytes(self):
-        raise NotImplementedError
-
-    def get_event_count(self):
-        raise NotImplementedError
-
-
-class Reader(object):
-
+    @abstractmethod
     def next(self) -> npy.ndarray:
         """
         Called to get the next event from the reader.
@@ -71,7 +61,7 @@ class Reader(object):
         :return: A single event.
         :rtype: numpy.ndarray
         """
-        raise NotImplementedError
+        ...
 
     def __next__(self):
         return self.next()
@@ -88,6 +78,7 @@ class Reader(object):
     def __exit__(self, *args):
         self.close()
 
+    @abstractmethod
     def get_event_count(self) -> int:
         """
         Called to get the total number of events in the file.
@@ -95,38 +86,42 @@ class Reader(object):
         :return: Count of the events
         :rtype: int
         """
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def reset(self):
         """
         Resets the reader back to the first event
         """
-        raise NotImplementedError
+        ...
 
+    @abstractmethod
     def close(self):
         """
         Should close any open objects or streams.
         """
-        raise NotImplementedError
+        ...
 
     @property
     def is_particle_pool(self) -> bool:
         return False
 
     @property
+    @abstractmethod
     def fields(self) -> List[str]:
-        raise NotImplementedError
+        ...
 
 
-class Writer(object):
+class WriterBase(ABC):
 
+    @abstractmethod
     def write(self, data: npy.ndarray):
         """
         Should write the received event to the stream.
 
         :param numpy.ndarray data: The event data stored in a numpy array.
         """
-        raise NotImplementedError
+        ...
 
     def __enter__(self):
         return self
@@ -134,46 +129,51 @@ class Writer(object):
     def __exit__(self, *args):
         self.close()
 
+    @abstractmethod
     def close(self):
         """
         Should close the stream and any open streams or objects.
         """
-        raise NotImplementedError
+        ...
 
 
-class ReadTest(object):
+class IReadTest(ABC):
 
+    @abstractmethod
     def can_read(self, filename: Path) -> bool:
-        raise NotImplementedError
+        ...
 
 
-class DataPlugin:
+class IDataPlugin:
 
     @property
+    @abstractmethod
     def plugin_name(self) -> str:
-        raise NotImplementedError
+        ...
 
-    def get_memory_parser(self) -> Memory:
-        raise NotImplementedError
+    @abstractmethod
+    def get_memory_parser(self) -> IMemory:
+        ...
 
-    def get_read_package(
-            self, filename: Path, precision: npy.floating
-    ) -> ReadPackage:
-        raise NotImplementedError
+    @abstractmethod
+    def get_reader(
+            self, filename: Path) -> ReaderBase:
+        ...
 
-    def get_reader(self, filename: Path, precision:npy.floating) -> Reader:
-        raise NotImplementedError
+    @abstractmethod
+    def get_writer(self, filename: Path) -> WriterBase:
+        ...
 
-    def get_writer(self, filename: Path) -> Writer:
-        raise NotImplementedError
-
-    def get_read_test(self) -> ReadTest:
-        raise NotImplementedError
+    @abstractmethod
+    def get_read_test(self) -> IReadTest:
+        ...
 
     @property
+    @abstractmethod
     def supported_extensions(self) -> List[str]:
-        raise NotImplementedError
+        ...
 
     @property
+    @abstractmethod
     def supported_data_types(self) -> List[DataType]:
-        raise NotImplementedError
+        ...
