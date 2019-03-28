@@ -86,11 +86,14 @@ class _EVILDataTest(templates.IReadTest):
         return f"{self.__class__.__name__}()"
 
     def can_read(self, file_location: Path) -> bool:
-        with file_location.open() as stream:
-            line = stream.readline()
-            equal_count = line.count("=")
-            comma_count = line.count(",") + 1
-        return equal_count == comma_count and equal_count
+        try:
+            with file_location.open() as stream:
+                line = stream.readline()
+                equal_count = line.count("=")
+                comma_count = line.count(",") + 1
+            return equal_count == comma_count and equal_count
+        except Exception:
+            return False
 
 
 class _EVILReader(templates.ReaderBase):
@@ -161,7 +164,7 @@ class _EVILWriter(templates.WriterBase):
         line = ""
         for column_index, column in enumerate(self.__column_names):
             line += "," if column_index > 0 else ""
-            line += "%s=%d" % (column, data[column])
+            line += "%s=%.20f" % (column, data[column])
         return line + "\n"
 
     def close(self):

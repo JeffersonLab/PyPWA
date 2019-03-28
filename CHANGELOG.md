@@ -10,18 +10,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Added numpy reader and writer.
  - Adds a helper script to clean the project directory of caches.
  - Adds initial documentation for PyPWA.
- - Adds a python shell interface to data processor to avoid the configuration
-   database
- - Added support for 3 and 4 vector data
- - Added Particle and ParticlePool to aid in working with particle data
+ - Added support for 3 Vectors, 4 Vectors, and Particles
+ - Added ParticlePool to aid in working with multiple Particles
  - Added a binning utility that supports multiple binning variables and
    dimensions
  - Added PyTables support, so that large datasets can be easily managed
 ### Changed
- - Moved the program plugins, data plugin, and processing plugin to libs
+ - Bulk of program functionality moved to libs, progs being just for UI
+ - Builtin Plugins moved to libs, old plugin's plugins have still reside
+   in plugins, but under a package with the appropriate name. I.E. data
+   plugins are in plugins/data.
+ - All file related libs have been moved to libs/file
  - Combined optimizers with fit library
  - GAMP was updated to use Particles and ParticlePool
- - Cleaned cache module and refactored into a single file
+ - Files with extra newline should parse correctly now
+ - CSV and TSV files will be lf instead of crlf on linux systems now
 ### Removed
  - Nestle Minimization. There is currently no clear way to have Minuit and
    Nestle to operate with each other nicely. Implementation for multiple

@@ -91,13 +91,13 @@ class _NumpyDataTest(templates.IReadTest):
 
 class _NumpyReader(templates.ReaderBase):
 
-    def __init__(self, filename: Path, data_type: npy.ndarray):
-        self.__args = (filename, data_type)
+    def __init__(self, filename: Path):
+        self.__filename = filename
         self.__array = npy.load(str(filename))
         self.__counter = 0
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
+        return f"{self.__class__.__name__}({self.__filename})"
 
     def get_event_count(self) -> int:
         return len(self.__array)

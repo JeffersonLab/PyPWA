@@ -67,4 +67,7 @@ def get_file_length(file_location: Path) -> int:
             lines += chunk.count(b'\n')
             if not chunk and not last_chunk.endswith(b'\n'):
                 lines += 1
+
+        if last_chunk.endswith(b'\n\n'):
+            lines -= 1
     return lines

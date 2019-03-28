@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import os
 import csv
 import numpy as npy
 from typing import List
@@ -72,30 +72,23 @@ class _SvDataTest(templates.IReadTest):
         return f"{self.__class__.__name__}()"
 
     def can_read(self, filename: Path) -> bool:
-        with filename.open() as stream:
-            sample = stream.read(HEADER_SEARCH_BITS)
-        return self.__has_a_header(sample)
+        sniffer = csv.Sniffer()
+        sniffer.preferred = ['\t', ',']
 
-    def __has_a_header(self, sample: str) -> bool:
         try:
-            self.__get_sniffer().has_header(sample)
-            return True
+            with filename.open() as stream:
+                sample = stream.read(HEADER_SEARCH_BITS)
+                return sniffer.has_header(sample)
         except Exception:
             return False
-
-    @staticmethod
-    def __get_sniffer():
-        sniffer = csv.Sniffer()
-        sniffer.preferred = ["/t", ","]
-        return sniffer
 
 
 class _SvReader(templates.ReaderBase):
 
     def __init__(self, filename: Path):
-        self.__event_count: int = None
+        self.__event_count: int = 0
         self.__filename = filename
-        self.__file_handle = open(str(filename))
+        self.__file_handle = open(str(filename), "r")
         self.__reader = self.__get_reader()
         self.__elements = next(self.__reader)  # First call is header
         self.__array = self.__get_data_array()
@@ -116,8 +109,12 @@ class _SvReader(templates.ReaderBase):
 
     def next(self) -> npy.ndarray:
         values = next(self.__reader)
+        if not len(values):
+            raise StopIteration
+
         for column_index, element in enumerate(self.__elements):
             self.__array[0][element] = values[column_index]
+
         return self.__array
 
     def get_event_count(self) -> int:
@@ -165,8 +162,10 @@ class _SvWriter(templates.WriterBase):
     def __setup_writer(self, data: npy.ndarray):
         self.__field_names = list(data.dtype.names)
         self.__writer = csv.DictWriter(
-            self.__file_handle, fieldnames=self.__field_names,
-            dialect=self.__dialect
+            self.__file_handle,
+            fieldnames=self.__field_names,
+            dialect=self.__dialect,
+            lineterminator=os.linesep  # Fix issue where \r\n is used on Linux
         )
         self.__writer.writeheader()
 

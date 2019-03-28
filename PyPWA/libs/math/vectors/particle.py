@@ -140,7 +140,7 @@ class Particle(basic_vectors.FourVector):
         new_vectors = super(Particle, self).split(count)
         new_particles = []
         for vector in new_vectors:
-            new_particles.append(Particle(self.id, self.charge, vector))
+            new_particles.append(Particle(self.id, vector))
         return new_particles
 
     @property
@@ -218,10 +218,10 @@ class ParticlePool:
     def __repr__(self) -> str:
         string = ""
         for index, particle in enumerate(self.__particle_list):
-            if index == len(self) - 1:
+            if index == self.particle_count - 1:
                 string += repr(particle)
             else:
-                string += repr(particle) + ",\n"
+                string += repr(particle) + ","
         return f"ParticlePool({string})"
 
     def iter_particles(self):
