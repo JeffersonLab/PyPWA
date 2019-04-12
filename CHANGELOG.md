@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    dimensions
  - Added PyTables support, so that large datasets can be easily managed
 ### Changed
+ - Process package is now a single module. Interface no longer uses IS_DUPLEX
  - Bulk of program functionality moved to libs, progs being just for UI
  - Builtin Plugins moved to libs, old plugin's plugins have still reside
    in plugins, but under a package with the appropriate name. I.E. data
