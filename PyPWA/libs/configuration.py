@@ -116,7 +116,12 @@ def _correct_keys(parsed: _OPTIONS, template: _TEMPLATE) -> _OPTIONS:
         correct_keys = list(template.keys())
 
         for key in parsed.keys():
-            fuzz = fuzzywuzzy.process.extractOne(key, correct_keys)
+            # Handle situations where the there are no provided keys
+            try:
+                fuzz = fuzzywuzzy.process.extractOne(key, correct_keys)
+            except RuntimeError:
+                fuzz = (0, 0)
+
             if fuzz[1] >= _FUZZY_STRING_CONFIDENCE_LEVEL:
                 found = fuzz[0]
             else:
