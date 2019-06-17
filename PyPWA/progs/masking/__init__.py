@@ -25,6 +25,7 @@ another.
 """
 
 from PyPWA import AUTHOR, VERSION
+from PyPWA.libs import configuration_db
 from PyPWA.initializers.arguments import arguments_options
 from PyPWA.progs.masking import masking
 
@@ -33,10 +34,10 @@ __author__ = AUTHOR
 __version__ = VERSION
 
 
-class MaskingArguments(arguments_options.Main):
+class MaskingArguments(arguments_options.Program):
 
     _NAME = "masking utility"
-    _REQUIRED = ["Builtin Parser", "Builtin Iterator"]
+    _REQUIRED = ["Data Processor"]
 
     def _add_arguments(self):
         self.__add_input_argument()
@@ -79,12 +80,30 @@ class MaskingArguments(arguments_options.Main):
             "--output", "-o", type=str, required=True, help="Output file"
         )
 
-    def get_interface(self, namespace, plugins):
-        mask_type = self.__setup_mask_type(namespace)
-        return masking.Masking(
-            namespace.input, namespace.output, plugins['Builtin Parser'],
-            plugins['Builtin Iterator'], namespace.mask, mask_type
+    def setup_db(self, namespace):
+        self.__initialize_masking()
+        configuration = self.__build_configuration(namespace)
+        self.__merge_config(configuration)
+
+    def __initialize_masking(self):
+        db = configuration_db.Connector()
+        db.initialize_component(
+            "masking",
+            {
+                "input": "",
+                "output": "",
+                "mask": "",
+                "mask type": masking.MaskType.AND
+            }
         )
+
+    def __build_configuration(self, namespace):
+        return {
+            "input": namespace.input,
+            "output": namespace.output,
+            "mask": namespace.mask,
+            "mask type": self.__setup_mask_type(namespace)
+        }
 
     @staticmethod
     def __setup_mask_type(namespace):
@@ -96,3 +115,11 @@ class MaskingArguments(arguments_options.Main):
             return masking.MaskType.OR
         else:
             return masking.MaskType.AND
+
+    def __merge_config(self, config):
+        db = configuration_db.Connector()
+        db.merge_component("masking", config)
+
+    def start(self):
+        main = masking.Masking()
+        main.start()

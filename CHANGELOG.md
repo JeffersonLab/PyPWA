@@ -5,6 +5,39 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
 
+## [3.0.0a1] - 2019-6-17
+### Added
+ - Added numpy reader and writer.
+ - Adds a helper script to clean the project directory of caches.
+ - Adds initial documentation for PyPWA.
+ - Added support for 3 Vectors, 4 Vectors, and Particles
+ - Added ParticlePool to aid in working with multiple Particles
+ - Added a binning utility that supports multiple binning variables and
+   dimensions
+ - Added PyTables support, so that large datasets can be easily managed
+### Changed
+ - All program names have been lowercased
+ - Configuration package has been compressed into a single module
+ - PySimulate now is a library that has no UI, and has a UI portion
+   that exclusively works with interfacing
+ - Fuzzywuzzy is now optional
+ - Process package is now a single module. Interface no longer uses IS_DUPLEX
+ - Bulk of program functionality moved to libs, progs being just for UI
+ - Builtin Plugins moved to libs, old plugin's plugins have still reside
+   in plugins, but under a package with the appropriate name. I.E. data
+   plugins are in plugins/data.
+ - All file related libs have been moved to libs/file
+ - Combined optimizers with fit library
+ - GAMP was updated to use Particles and ParticlePool
+ - Files with extra newline should parse correctly now
+ - CSV and TSV files will be lf instead of crlf on linux systems now
+### Removed
+ - Nestle Minimization. There is currently no clear way to have Minuit and
+   Nestle to operate with each other nicely. Implementation for multiple
+   optimizers will remain, as well as new associated issues created.
+ - Removed support for all version of Python before 3.7
+
+
 ## [2.2.1] - 2017-10-16
 ### Fixed
  - Setup would pull in unstable Yaml parser
@@ -26,7 +59,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    on the interfaces purpose.
  - PyFit no longer assumes bins are named 'BinN' you must specify Bin names 
    in 'internal data'.
- - Multipler effect for the Miminzers has been moved to the individual
+ - Multiplier effect for the Minimizers has been moved to the individual
    likelihoods.
  - PyMask defaults to AND operations instead of or now.
 ### Fixed
@@ -77,7 +110,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Packaging
 
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...development
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...development
+[3.0.0a1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.1...v3.0.0a1
 [2.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.0.0...v2.1.0

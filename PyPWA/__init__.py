@@ -38,7 +38,7 @@ Currently there are 4 different applications defined inside this package:
 - PyIntensities - Just the calculation half of PySimulate.
 
 - PyRejection - Just the rejection-method half of PySimulate.
-    
+
 For information about how to use each of the programs, look in the docs folder
 included with the source code, or check the user docs at ReadTheDocs.io.
 
@@ -46,10 +46,10 @@ Developer Docs
 ==============
 
 To attempt to achieve a flexible fitter that could be quickly adapted to
-changing needs, we actually built the entire package around a generalized 
-plugin loader. The "main" objects ore defined as plugins, along with each 
-task that needed to be solved. This means that fitting, data loading, 
-the processing module, simulation, optimizers, etc are all defined as 
+changing needs, we actually built the entire package around a generalized
+plugin loader. The "main" objects ore defined as plugins, along with each
+task that needed to be solved. This means that fitting, data loading,
+the processing module, simulation, optimizers, etc are all defined as
 plugins internally.
 
 Package purposes
@@ -77,18 +77,14 @@ For more information on how each module works, view their documentation
 respectively.
 """
 
+
 __author__ = "PyPWA Team and Contributors"
 __credits__ = ["Mark Jones"]
-__version__ = "2.2.0"
+__version__ = "3.0.0.dev"
 
 
-EMAIL = "pypwa@jlab.org"
 LICENSE = "GPLv3"
-STATUS = "stable"
+STATUS = "development"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
-
-
-from PyPWA.builtin_plugins.data.iterator import Iterator
-from PyPWA.builtin_plugins.data.memory import Memory

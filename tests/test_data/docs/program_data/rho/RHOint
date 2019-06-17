@@ -1,0 +1,13 @@
+Multiprocessing:
+  number of processes: 2
+Data Processor:
+  use cache: false
+Intensities:
+  function's location: tests/test_data/docs/program_data/rho/testRHO.py
+  processing name: processing_function
+  setup name: setup_function
+  data location: tests/test_data/docs/program_data/rho/flat_data.csv
+  parameters:
+    A1: 100
+    A2: 0.4
+  save name: outputINT

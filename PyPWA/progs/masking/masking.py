@@ -32,9 +32,10 @@ from typing import Optional as Opt
 import numpy
 import tqdm
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.interfaces import common
-from PyPWA.libs.interfaces import data_loaders
+from PyPWA.libs import configuration_db
+from PyPWA import Path, AUTHOR, VERSION
+from PyPWA.libs.components.data_processor import file_processor
+from PyPWA.libs.components.data_processor import data_templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -49,70 +50,71 @@ class MaskType(enum.Enum):
 
 class _DataPackage(object):
 
-    def __init__(
-            self,
-            input_file,  # type: str
-            masking_file,   # type: Opt[str]
-            output_file,  # type: str
-            parser,  # type: data_loaders.ParserPlugin
-            iterator,  # type: data_loaders.IteratorPlugin
-            mask_type=MaskType.AND  # type: MaskType
-    ):
+    def __init__(self):
         # type: (...) -> None
-        self.__mask = None
-        self.__writer = None
-        self.__reader = None
-        self.__operation_type = mask_type
-        self.__iterator = iterator
-        self.__setup_data(input_file, output_file, masking_file, parser)
+        self.__reader = None  # type: data_templates.Reader
+        self.__writer = None  # type: data_templates.Writer
+        self.__data_processor = file_processor.DataProcessor()
+        self.__db = configuration_db.Connector()
+        self.__setup_data()
 
-    def __setup_data(self, input_file, output_file, masking_file, parser):
-        # type: (str, str, Opt[str], data_loaders.ParserPlugin) -> None
-        self.__load_writer(input_file, output_file)
+    def __setup_data(self):
+        # type: () -> None
+        input_file = Path(self.__db.read("masking", "input"))
+        output_file = Path(self.__db.read("masking", "output"))
+        masking_info = self.__db.read("masking", "mask")
+
+        if isinstance(masking_info, type(None)):
+           masking_file = masking_info
+        else:
+            masking_file = [Path(mask) for mask in masking_info]
+
         self.__load_reader(input_file)
-        self.__setup_mask_array(masking_file, parser)
-
-    def __load_writer(self, input_file, output_file):
-        # type: (str, str) -> None
-        with self.__iterator.return_reader(input_file) as reader:
-            self.__writer = self.__iterator.return_writer(
-                output_file, reader.next()
-            )
+        self.__load_writer(output_file)
+        self.__setup_mask_array(masking_file)
 
     def __load_reader(self, input_file):
-        # type: (str) -> None
-        self.__reader = self.__iterator.return_reader(input_file)
+        # type: (Path) -> None
+        self.__reader = self.__data_processor.get_reader(input_file)
 
-    def __setup_mask_array(self, masking_file, parser):
-        # type: (Opt[List[str]],  data_loaders.ParserPlugin) -> None
+    def __load_writer(self, output_file):
+        # type: (Path) -> None
+        self.__writer = self.__data_processor.get_writer(
+            output_file, self.__reader.is_particle_pool
+        )
+
+    def __setup_mask_array(self, masking_file):
+        # type: (Opt[List[Path]]) -> None
+
         if masking_file:
-            self.__mask = self.__load_masking_files(masking_file, parser)
+            self.__mask = self.__load_masking_files(masking_file)
         else:
             self.__mask = numpy.ones(len(self.__reader), dtype=bool)
 
-    def __load_masking_files(self, masking_files, parser):
-        # type: (List[str],  data_loaders.ParserPlugin) -> numpy.ndarray
+    def __load_masking_files(self, masking_files):
+        # type: (List[Path]) -> numpy.ndarray
         mask = None  # type: numpy.ndarray
         for file in masking_files:
             if isinstance(mask, type(None)):
-                mask = parser.parse(file)
+                mask = self.__data_processor.parse(file)
             else:
-                new_mask = parser.parse(file)
+                new_mask = self.__data_processor.parse(file)
                 mask = self.__combine_mask_files(mask, new_mask)
         return mask
 
     def __combine_mask_files(self, current_mask, new_mask):
         # type: (numpy.ndarray, numpy.ndarray) -> numpy.ndarray
-        if self.__operation_type == MaskType.OR:
+        mask_type = self.__db.read("masking", "mask type")
+        if mask_type == MaskType.OR:
             return numpy.logical_or(current_mask, new_mask)
-        elif self.__operation_type == MaskType.XOR:
+        elif mask_type == MaskType.XOR:
             return numpy.logical_xor(current_mask, new_mask)
         else:
             return numpy.logical_and(current_mask, new_mask)
 
     @property
     def reader(self):
-        # type: () -> data_loaders.Reader
+        # type: () -> data_templates.Reader
         return self.__reader
 
     @property
@@ -122,31 +124,21 @@ class _DataPackage(object):
 
     @property
     def writer(self):
-        # type: () -> data_loaders.Writer
+        # type: () -> data_templates.Writer
         return self.__writer
 
 
-class Masking(common.Main):
+class Masking(object):
 
     __LOGGER = logging.getLogger(__name__ + ".Masking")
 
-    def __init__(
-            self,
-            input_file,  # type: str
-            output_file,  # type: str
-            parser,  # type: data_loaders.ParserPlugin
-            iterator,  # type: data_loaders.IteratorPlugin
-            masking_file=None,  # type: Opt[str]
-            mask_type=MaskType.AND  # type: MaskType
-    ):
+    def __init__(self):
         # type: (...) -> None
-        self.__data = _DataPackage(
-            input_file, masking_file, output_file, parser, iterator, mask_type
-        )
+        self.__data = _DataPackage()
 
     def start(self):
         self.__complain_to_user()
-        self.__mask()
+        self.__try_to_mask()
 
     def __complain_to_user(self):
         if len(self.__data.reader) < len(self.__data.mask):
@@ -156,9 +148,21 @@ class Masking(common.Main):
                 "Mask is smaller than data events! Masker *will* crash!!"
             )
 
+    def __try_to_mask(self):
+        try:
+            self.__mask()
+        except Exception as error:
+            raise error
+        finally:
+            self.__close_file_handles()
+
     def __mask(self):
         data_with_progress = tqdm.tqdm(self.__data.reader, unit="events")
         for index, value in enumerate(data_with_progress):
+            print(index, len(data_with_progress), len(self.__data.mask))
             if self.__data.mask[index]:
                 self.__data.writer.write(value)
+
+    def __close_file_handles(self):
         self.__data.writer.close()
+        self.__data.reader.close()

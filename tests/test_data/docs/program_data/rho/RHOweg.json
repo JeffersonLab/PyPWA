@@ -1,0 +1,13 @@
+{
+    "Multiprocessing": {
+        "number of processes": 2
+    },
+    "Data Processor": {
+        "use cache": false
+    },
+    "Rejection Method": {
+        "data location": "tests/test_data/docs/program_data/rho/RHOint_intensities.txt",
+        "max intensity": "134.217784821",
+        "save name": "output"
+    }
+}
