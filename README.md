@@ -4,9 +4,9 @@ PyPWA [![Build Status](https://travis-ci.org/JeffersonLab/PyPWA.svg?branch=devel
 A python based software framework designed to perform Partial Wave and 
 Amplitude Analysis with the goal of extracting resonance information from 
 multi-particle final states.
-Is constantly tested to work with Python Versions 2.7, 3.4, 3.5, and 3.6.
+Is constantly tested to work with Python Version 3.7
 
-Has support for multiple likelihoods, including:
+<!--Has support for multiple likelihoods, including:
  - Extended Log Likelihood
  - Standard Log Likelihood, Optionally Binned
  - Binned ChiSquared Likelihood
@@ -14,15 +14,45 @@ Has support for multiple likelihoods, including:
  
  You can even define your own likelihood, or calculate entirely without one
  if you chose to do so!
+ -->
+ 
+Currently being updated to PyPWA 3 (Summer 2019)
+------------------------------------------------
+
+There is an ongoing project for PyPWA to integrate various complex models
+directly into PyPWA as well as decoupling interface logic from program
+logic so that we may add a fully functioning GUI to the package.
+
+Progress:
+- Analysis programs:
+  - [X] pysimulate
+  - [ ] pyfit
+    - [ ] New interface needs to be written
+    - [ ] Model selection metadata needs to be finalized
+  - [ ] pyproject (replaces pythonPWA)
+    - [ ] Allow for work on large projects involving bins of data
+    - [ ] Handle multiple subprojects for different data and fit types
+    - [ ] Visualization for fits and data
+- Data Programs
+  - [ ] PyMask
+    - [ ] Renamed to pydata
+    - [X] Able to both mask data and convert data between simple types
+  - [ ] pyhd5 (Pending title, partially in place)
+    - [ ] Rename to pyhd5 from pydata
+    - [X] Load data into hdf5 tables
+    - [X] Support multivariable binning inside the table
+    - [X] Optionally write data back from table
+ 
  
 Features
 --------
 
 Generic Fitting Tools
+<!--
 - PyFit
   - Can fit to a log-likelihood, chi-square, or you can define your own
   - Supports Binned Data
-  - Supports a quality factor per event
+  - Supports a quality factor per event -->
 - PySimulate
 - Easy to use Yaml based configuration
 - A configuration builder, to walk you through the initial creation of 
@@ -48,26 +78,12 @@ Install the package inside the virtualenv:
      $ pip install .
 
 
-Using PyFit and PySimulate
---------------------------
-
-Go to the directory that you would like to do your analysis in and run:
-
-     $ [PyFit/PySimulate] -wc [configuration_name]
-
-Fill in the data in that configuration file using your favorite editor,
-then run your analysis:
-
-     $ [PyFit/PySimulate] [configuration_name]
-
-
 Contribute or Support
 ---------------------
 If you have any issues, or would like to see any features added to the 
 project, let us know!
 
-- Feature Tracker: <https://tree.taiga.io/project/markjonestx-pypwa/>
-- Issue Tracker: <https://www.github.com/JeffersonLab/PyPWA/issues>
+- Issue and Feature Tracker: <https://www.github.com/JeffersonLab/PyPWA/issues>
 - Source Code: <https://www.github.com/JeffersonLab/PyPWA>
 
 

@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
 
-## [Unreleased]
+## [3.0.0a1] - 2019-6-17
 ### Added
  - Added numpy reader and writer.
  - Adds a helper script to clean the project directory of caches.
@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    dimensions
  - Added PyTables support, so that large datasets can be easily managed
 ### Changed
+ - All program names have been lowercased
+ - Configuration package has been compressed into a single module
+ - PySimulate now is a library that has no UI, and has a UI portion
+   that exclusively works with interfacing
+ - Fuzzywuzzy is now optional
  - Process package is now a single module. Interface no longer uses IS_DUPLEX
  - Bulk of program functionality moved to libs, progs being just for UI
  - Builtin Plugins moved to libs, old plugin's plugins have still reside
@@ -31,8 +36,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    Nestle to operate with each other nicely. Implementation for multiple
    optimizers will remain, as well as new associated issues created.
  - Removed support for all version of Python before 3.7
-### Fixed
-### Security
 
 
 ## [2.2.1] - 2017-10-16
@@ -107,7 +110,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Packaging
 
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.1...development
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...development
+[3.0.0a1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.1...v3.0.0a1
 [2.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.0.0...v2.1.0
