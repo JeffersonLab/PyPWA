@@ -6,6 +6,10 @@ this and there is no guarantee that all the tools that we use will work on your
 system.
 
 
+Supported Python:
+   - Anaconda Python 3
+   - Python 3.7
+
 Supported Operating Systems:
    - Arch Linux
    - CentOS/Redhat 7 (Anaconda and JLab Instructions only)

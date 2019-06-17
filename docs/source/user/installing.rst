@@ -7,8 +7,34 @@ being you will have to rely on pip. These steps will walk you through how to
 install Python to your machine using Pip.
 
 
-Installing Dependencies
-#######################
+
+In Anaconda: Recommended
+########################
+Install dependencies
+
+.. code-block:: sh
+
+    conda install tqdm iminuit scipy numpy pyyaml tabulate appdirs pytables
+
+Fetch the latest version of PyPWA and install
+
+.. code-block:: sh
+
+    git clone --depth=1 https://github.com/JeffersonLab/PyPWA.git
+    cd PyPWA
+    pip install .
+
+
+Optionally install Fuzzywuzzy to correct for minor configuration mistakes
+
+.. code-block:: sh
+
+    pip install fuzzywuzzy python-Levenshtein
+
+
+
+Installing directly without Anaconda
+####################################
 You need some packages installed to your machine in order to use PyPWA.
 
 .. note::
