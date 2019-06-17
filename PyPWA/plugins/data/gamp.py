@@ -29,9 +29,10 @@ will not be saved in memory by these object.
     QUICKLY OVERFILL THE MEMORY OF YOUR PC, EVEN WITH THE NUMPY OPTIMIZATIONS!
 """
 
+from pathlib import Path
 from typing import List
 
-from PyPWA import Path, AUTHOR, VERSION
+from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
 from PyPWA.libs.math import vectors

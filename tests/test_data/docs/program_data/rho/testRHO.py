@@ -1,7 +1,7 @@
 import numpy
 
 
-def processing_function(the_array,the_params):
+def processing_function(the_array, the_params):
     if isinstance(the_params, dict) and 'A1' in the_params:
         return actual_function(the_array, the_params)
     elif isinstance(the_params, numpy.ndarray):
@@ -12,6 +12,7 @@ def processing_function(the_array,the_params):
         return actual_function(the_array, params)
     else:
         raise ValueError("Recieved unknown %s" % the_params)
+
 
 def actual_function(the_array, the_params):
     wConst= the_params['A1']

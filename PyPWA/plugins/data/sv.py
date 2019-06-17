@@ -16,12 +16,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import csv
-import numpy as npy
+import os
+from pathlib import Path
 from typing import List
 
-from PyPWA import Path, AUTHOR, VERSION
+import numpy as npy
+
+from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
 

@@ -1,13 +1,11 @@
-Multiprocessing:
-  number of processes: 2
-Data Processor:
-  use cache: false
-Simulator:
-  function's location: tests/test_data/docs/program_data/rho/testRHO.py
-  parameters:
-    A1: 100.
-    A2: 0.4
-  setup name: setup_function
-  data location: tests/test_data/docs/program_data/rho/flat_data.csv
-  processing name: processing_function
-  save name: outputRHO
+Version: 1
+Processes: 2
+Function:
+  Path: tests/test_data/docs/program_data/rho/testRHO.py
+  Intensity Name: processing_function
+  Setup Name: setup_function
+Parameters:
+  A1: 100.
+  A2: 0.4
+Data:
+  Path: tests/test_data/docs/program_data/rho/flat_data.csv

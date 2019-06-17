@@ -21,15 +21,15 @@ Main object for Parsing Data
 """
 
 import logging
+from pathlib import Path
 from typing import Union
 
 import numpy as npy
 
-from PyPWA import Path, AUTHOR, VERSION
-from PyPWA.libs import plugin_loader
+from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import cache
 from PyPWA.libs.math import vectors
-from PyPWA.plugins import data as data_plugins
+from PyPWA.plugins import load, data as data_plugins
 from . import templates
 
 __credits__ = ["Mark Jones"]
@@ -41,7 +41,7 @@ SUPPORTED_DATA = Union[npy.ndarray, vectors.ParticlePool]
 
 
 def _get_read_plugin(filename: Path) -> templates.IDataPlugin:
-    found_plugins = plugin_loader.fetch_plugins(data_plugins, "Data")
+    found_plugins = load(data_plugins, "Data")
     for plugin in found_plugins:
         if plugin.get_read_test().can_read(filename):
             return plugin
@@ -51,7 +51,7 @@ def _get_read_plugin(filename: Path) -> templates.IDataPlugin:
 def _get_write_plugin(
         filename: Path, data_type: templates.DataType
         ) -> templates.IDataPlugin:
-    found_plugins = plugin_loader.fetch_plugins(data_plugins, "Data")
+    found_plugins = load(data_plugins, "Data")
     for plugin in found_plugins:
         if data_type in plugin.supported_data_types:
             extension = filename.suffix

@@ -35,10 +35,12 @@ trying to learn the nature of data within PyPWA, you should move your
 attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
-import numpy as npy
+from pathlib import Path
 from typing import List
 
-from PyPWA import Path, AUTHOR, VERSION
+import numpy as npy
+
+from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
 

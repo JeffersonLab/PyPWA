@@ -19,7 +19,7 @@ import os
 
 import pytest
 
-from PyPWA import Path
+from pathlib import Path
 
 
 @pytest.fixture(

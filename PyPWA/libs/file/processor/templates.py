@@ -27,7 +27,8 @@ from typing import List
 
 import numpy as npy
 
-from PyPWA import Path, AUTHOR, VERSION
+from PyPWA import AUTHOR, VERSION
+from pathlib import Path
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

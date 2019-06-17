@@ -229,8 +229,13 @@ class CacheFactory:
                 f"({self.__use_cache}, {self.__clear_cache})")
 
     def get_cache(self, file_location: Path) -> Cache:
+        try:
+            file_hash = misc.get_sha512_hash(file_location)
+        except FileNotFoundError:
+            file_hash = ""
+
         package = _Package(
-            hash=misc.get_sha512_hash(file_location),
+            hash=file_hash,
             location=misc.get_cache_uri() / (file_location.stem + ".pickle")
         )
         reader = self.__get_reader(package)

@@ -29,8 +29,9 @@ progs = "PyPWA.progs"
 
 entry_points = {
     "console_scripts": [
-        f"PyData = {progs}.data:data",
-        f"PyBin = {progs}.binner:start_binning",
+        f"pydata = {progs}.data:data",
+        f"pybin = {progs}.binner:start_binning",
+        f"pysimulate = {progs}.simulation:simulation"
     ]
 }
 

@@ -16,7 +16,7 @@
 import numpy as npy
 import pytest
 
-from PyPWA import Path
+from pathlib import Path
 from PyPWA.plugins.data import sv, kv, numpy
 
 

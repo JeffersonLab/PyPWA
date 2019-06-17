@@ -4,6 +4,7 @@ omit =
     */site-packages/nose/*
     */tests/*
     *.pyi
+    PyPWA/libs/logger.py
 
 exclude_lines =
     raise NotImplementedError

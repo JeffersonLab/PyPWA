@@ -1,4 +1,4 @@
-from PyPWA import Path
+from pathlib import Path
 from PyPWA.libs.file import misc
 
 

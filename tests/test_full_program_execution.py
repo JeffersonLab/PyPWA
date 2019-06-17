@@ -16,17 +16,27 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from pathlib import Path
+
+from PyPWA.progs import simulation
+
+
 """
-Data and Function Loading for the PyShell
------------------------------------------
-- data_loader - Loads in all data for PyShell
-- function_loading - loads in the users functions.
+Ensures that when given a simple dataset, the builtin programs are
+capable of executing.
 """
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.progs.shell.loaders.data_loader.load import DataLoading
-from PyPWA.progs.shell.loaders._function_loading import FunctionLoader
 
-__credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+def test_simulation_execute():
+    output = Path("output.txt")
+
+    simulation.simulation(
+        [
+            "--disable_cache", "--output", "output.txt",
+            "config", "tests/test_data/docs/program_data/rho/RHOsim",
+        ]
+    )
+
+    if output.exists():
+        output.unlink()

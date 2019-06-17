@@ -16,9 +16,11 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from pathlib import Path
+
 import numpy as npy
 
-from PyPWA import Path, AUTHOR, VERSION
+from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file.processor import templates, DataType
 
 __credits__ = ["Christopher Banks", "Keandre Palmer", "Mark Jones"]

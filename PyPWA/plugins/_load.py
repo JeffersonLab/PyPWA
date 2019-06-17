@@ -26,7 +26,6 @@ import pkgutil
 from typing import Any, List
 
 from PyPWA import AUTHOR, VERSION
-from .file.processor import templates
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR
@@ -36,7 +35,7 @@ __version__ = VERSION
 _LOGGER = logging.getLogger(__name__)
 
 
-def fetch_plugins(root: type(templates), plugin_type: str) -> List[Any]:
+def load(root: type(importlib), plugin_type: str) -> List[Any]:
     plugins = []
     plugin_path, plugin_name = (root.__path__, root.__name__ + ".")
 
@@ -47,14 +46,12 @@ def fetch_plugins(root: type(templates), plugin_type: str) -> List[Any]:
     return [plugin for plugin in plugins if plugin]  # Remove Nones
 
 
-def _import_plugin(name: str, plugin_type: str) -> List[type(templates)]:
+def _import_plugin(name: str, plugin_type: str) -> List[type(importlib)]:
     try:
         return importlib.import_module(name).metadata
     except ImportError as error:
         _LOGGER.exception(error)
     except AttributeError as error:
         _LOGGER.error(
-            "{0} plugin {1} has no metadata object! {2}".format(
-                plugin_type, name, error
-            )
+            f"{plugin_type} plugin {name} has no metadata object! {error}"
         )

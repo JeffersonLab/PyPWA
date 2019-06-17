@@ -88,16 +88,3 @@ STATUS = "development"
 MAINTAINER = "Mark Jones"
 AUTHOR = __author__
 VERSION = __version__
-
-import sys
-
-if sys.version_info[0:2] < (3, 5):
-    from pathlib2 import Path, PurePath
-else:
-    from pathlib import Path, PurePath
-
-if sys.version_info.major == 2:
-    import Queue as queue
-else:
-    import queue
-

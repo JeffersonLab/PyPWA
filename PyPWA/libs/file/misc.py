@@ -22,10 +22,11 @@ Miscellaneous file tools.
 """
 
 import hashlib
+from pathlib import Path
 
 import appdirs
 
-from PyPWA import Path, AUTHOR, VERSION
+from PyPWA import AUTHOR, VERSION
 
 __credits__ = ["Mark Jones"]
 __author__ = AUTHOR

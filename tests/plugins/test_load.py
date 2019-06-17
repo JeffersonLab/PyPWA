@@ -16,13 +16,12 @@
 
 import pytest
 
-from PyPWA.libs import plugin_loader
-from PyPWA.plugins import data
+from PyPWA.plugins import data, load
 
 
 @pytest.fixture
 def found_data_plugins():
-    return plugin_loader.fetch_plugins(data, "Data Test")
+    return load(data, "Data Test")
 
 
 def find_data_name(plugins, name):

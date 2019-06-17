@@ -41,6 +41,14 @@ __version__ = VERSION
 root_type = Union[npy.ndarray, vectors.ParticlePool]
 
 
+def iter_root(
+        root: Union["ParticleLeaf", tables.Table],
+        chunk_size: int = 5000) -> npy.ndarray:
+
+    for lower in range(0, len(root), chunk_size):
+        yield root.read(lower, lower + chunk_size)
+
+
 class _Particle(tables.IsDescription):
     x = tables.Float64Col()
     y = tables.Float64Col()
@@ -214,6 +222,8 @@ class SlotFactory:
 
     def __init__(self, file: Union[Path, str], mode: str):
         file = str(file.absolute()) if isinstance(file, Path) else file
+        mode = mode if mode != 'w' else 'a'  # We really don't want 'w'
+
         self.__file = tables.open_file(file, mode)
         if "data" in self.__file.root:
             self.__group = self.__file.root.data
