@@ -32,14 +32,14 @@ will not be saved in memory by these object.
 from pathlib import Path
 from typing import List
 
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
 from PyPWA.libs.math import vectors
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 _COUNT = 3  # number of events to check
@@ -88,16 +88,24 @@ class _GampDataTest(templates.IReadTest):
         with filename.open() as stream:
             for i in range(_COUNT):
                 line = stream.readline().strip("\n")
+
+                # Fail on empty files
                 if line == "":
                     if i == 0:
                         return False
-                    return True
 
+                # Fail if particle count is zero
+                if line == "0":
+                    return False
+
+                # Fail if first line isn't a single integer
                 try:
                     particle_count = int(line)
                 except Exception:
                     return False
 
+                # Fail if particle data doesn't have correct number
+                # of fields.
                 for l in range(particle_count):
                     if len(stream.readline().split(" ")) != 6:
                         return False
@@ -163,6 +171,14 @@ class _GampReader(templates.ReaderBase):
     def fields(self) -> List[str]:
         return [p.id for p in self.__particle_pool.iter_particles()]
 
+    @property
+    def data_type(self) -> DataType:
+        return DataType.TREE_VECTOR
+
+    @property
+    def input_path(self) -> Path:
+        return self.__file
+
 
 class _GampWriter(templates.WriterBase):
 
@@ -185,6 +201,10 @@ class _GampWriter(templates.WriterBase):
 
     def close(self):
         self.__file_handle.close()
+
+    @property
+    def output_path(self) -> Path:
+        return self.__filename
 
 
 class _GampMemory(templates.IMemory):

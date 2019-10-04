@@ -21,8 +21,13 @@
 """
 
 import numpy as npy
+
+from PyPWA import info as _info
 from PyPWA.libs.math import vectors
 
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 _PROTON_GEV = .9382720813
 

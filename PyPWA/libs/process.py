@@ -51,13 +51,12 @@ from typing import Any, Dict, List, Tuple, Union
 
 import numpy as npy
 
-from PyPWA import AUTHOR as _AUTHOR, VERSION as _VERSION
+from PyPWA import info as _info
 from PyPWA.libs.math import vectors
 
 __credits__ = ["Mark Jones"]
-__author__ = _AUTHOR
-__version__ = _VERSION
-__all__ = ["make_processes", "ProcessCodes", "MAX_PROC"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 MAX_PROC = cpu_count()
@@ -253,7 +252,7 @@ class ProcessInterface:
 class _SmartProcess(Process):
 
     def __init__(self, kernel: Kernel, connect: Connection):
-        super(Process, self).__init__()
+        super(_SmartProcess, self).__init__()
         self.__kernel = kernel
         self.__connection = connect
         self.daemon = True

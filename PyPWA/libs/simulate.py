@@ -20,21 +20,26 @@
 Defines how the simulation works for PyPWA
 """
 
+import multiprocessing
 import secrets
 from typing import Any, Callable, Dict, List, Union
 
 import numpy as npy
 
-from PyPWA.libs.file import slot_table
+from PyPWA import info as _info
 from PyPWA.libs import process
-import multiprocessing
+from PyPWA.libs.file import project
+
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
-def calculate_intensities(
+def monte_carlo_simulation(
         function: Callable[[Any, Any], npy.ndarray],
         setup: Callable[[], None],
         params: Dict[str, float],
-        data: Union[npy.ndarray, slot_table.DataSlot],
+        data: Union[npy.ndarray, project.BaseFolder],
         processes: int = multiprocessing.cpu_count()
 ) -> npy.ndarray:
     """Calculates the rejection list
@@ -56,7 +61,7 @@ def calculate_intensities(
         intensity = _in_memory_intensities(
             setup, function, data, params, processes
         )
-    elif isinstance(data, slot_table.DataSlot):
+    elif isinstance(data, project.BaseFolder):
         intensity = _in_table_intensities(setup, function, data, params)
     else:
         raise ValueError("Unknown data type!")
@@ -118,13 +123,13 @@ class _Interface(process.Interface):
 def _in_table_intensities(
         setup_function: Callable[[], None],
         processing_function: Callable[[Any, Any], Any],
-        data: slot_table.DataSlot,
+        data: project.BaseFolder,
         parameters: Dict[str, float]) -> npy.ndarray:
 
     setup_function()
 
     chunk_collection = []
-    for index, chunk in enumerate(slot_table.iter_root(data.get_root())):
+    for index, chunk in enumerate(data.root.iterate_data()):
         chunk_collection.append(processing_function(chunk, parameters))
 
     return npy.concatenate(chunk_collection)

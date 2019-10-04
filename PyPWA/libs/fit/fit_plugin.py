@@ -28,14 +28,14 @@ from enum import Enum
 from typing import Dict, Optional as Opt
 
 import numpy
-
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.components.process import templates
 from PyPWA.progs.shell import shell_types
 
+from PyPWA import info as _info
+
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class LikelihoodType(Enum):

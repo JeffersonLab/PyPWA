@@ -26,12 +26,12 @@ are defined in _abstract_vectors.AbstractVectors.
 import numpy as npy
 from typing import Union, Optional as Opt
 
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.math.vectors import _abstract_vectors
+from PyPWA import info as _info
 
-__credits__ = ["Mark Jones", "Stephanie Bramlett"]
-__author__ = AUTHOR
-__version__ = VERSION
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class ThreeVector(_abstract_vectors.AbstractVector):

@@ -30,12 +30,12 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import misc
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 @dataclass

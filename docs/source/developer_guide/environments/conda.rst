@@ -2,11 +2,9 @@
 ********
 Anaconda
 ********
-Anaconda
-
-.. caution::
-   Anaconda only works with Bash, Fish, and ZSH. If you are using a CSH you
-   should change shells or use Virtualenv instead.
+Anaconda is a distribution of python that specializes in data analysis.
+It makes installing PyPWA dependencies significantly easier than managing
+on your local machine.
 
 Getting Anaconda
 ================
@@ -14,7 +12,7 @@ There are two versions available of Anaconda, the full Anaconda installation
 that is 10+ Gb in size, or an alternative smaller Miniconda. PyPWA will work
 with either installation. We recommend that you pick the Python 3 variant.
 
-`Anaconda Download <https://www.anaconda.com/download/#linux>`_
+`Anaconda Download <https://www.anaconda.com/download>`_
 
 `Miniconda Download <https://conda.io/miniconda.html>`_
 

@@ -20,12 +20,11 @@
 
 """
 
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.math.vectors import basic_vectors
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 from PyPWA.libs.math.vectors.basic_vectors import FourVector, ThreeVector
 from PyPWA.libs.math.vectors.particle import Particle, ParticlePool

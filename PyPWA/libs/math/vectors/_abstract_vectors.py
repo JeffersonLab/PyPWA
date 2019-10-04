@@ -25,15 +25,15 @@ a dictionary, and have properties. It even contains some mathematics and
 error checking that _should_ be universal for all vectors.
 """
 
-import numpy
-from numbers import Number
 from typing import List, Union, Tuple
 
-from PyPWA import AUTHOR, VERSION
+import numpy
 
-__credits__ = ["Mark Jones", "Stephanie Bramlett"]
-__author__ = AUTHOR
-__version__ = VERSION
+from PyPWA import info as _info
+
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class _VectorIterator(object):

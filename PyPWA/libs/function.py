@@ -17,11 +17,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import importlib
+import logging
 import sys
 from pathlib import Path
 from typing import Any, Callable
 
-import logging
+from PyPWA import info as _info
+
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 _LOGGER = logging.getLogger(__file__)
 

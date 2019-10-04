@@ -6,9 +6,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 ## [Unreleased]
 ### Added
+ - ProjectDatabase has been added handle large data manipulation on disk
+   instead of in memory.
+ - Reader/Writer now share path of the file being operated on.
+ - Binning now works in both fixed count and ranges.
+ - Initial Jupyter and IPython support.
 ### Changed
+ - Separate release tag from version info
+ - Package info is now stored in PyPWA.info
+ - pydata has officially been updated to PyPWA 3.0
 ### Removed
+ - SlotTable has been removed in favor of Project. Both use PyTables
+   for the backend.
+ - Unsupported Python versions removed from package's classifiers.
 ### Fixed
+ - GAMP no longer claims that it can read PF files. 
 
 ## [3.0.0a1] - 2019-6-17
 ### Added

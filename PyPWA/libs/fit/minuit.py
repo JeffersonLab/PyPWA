@@ -28,17 +28,18 @@ documentation online.
 """
 
 from dataclasses import dataclass
-import numpy
-import tabulate
-import iminuit
 from typing import Any, Dict, List, Union
 
-from PyPWA import AUTHOR, VERSION, Path
+import iminuit
+import numpy
+import tabulate
 from PyPWA.libs.components.fit import fit_plugin
 
+from PyPWA import info as _info
+
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 @dataclass

@@ -33,19 +33,20 @@ output from the the parallel thread.
 
 from __future__ import print_function
 
-import time
-
 import logging
-import numpy
 import threading
+import time
 from typing import List
 
-from PyPWA import queue, AUTHOR, VERSION
+import numpy
 from PyPWA.libs.components import process
 
+from PyPWA import info as _info
+
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
+
 
 
 class FittingInterface(process.Interface):

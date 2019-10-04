@@ -26,12 +26,12 @@ The ChiSquared Likelihood is defined here:
 import numpy
 from typing import Dict
 
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.components.fit import fit_plugin
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class _ChiLikelihoodMetadata(fit_plugin.Setup):

@@ -17,27 +17,19 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-PyFit, LikelihoodFitting, and ChiSquaredFitting
------------------------------------------------
-PyFit is a simple fitting tool that can use multiple processes depending on
-the processing module that is picked.
-
-- likelihoods - the various builtin likelihoods the PyFit supports.
-
-- _processing_interface - PyFits interface with the processing package, also
-  handles the output mechanism in a second thread.
-
-- interfaces - the interfaces that need to be extended to define a new
-  likelihood function.
-
-- initial_setup - how the configurator package interfaces the PyFit
-  Main object.
-
-- pyfit - the main object and the likelihood loading object are contained.
+*******************
+Main info for PyPWA
+*******************
+This stores the global package info for PyPWA. This data shouldn't ever
+be modified at runtime, and only exists so that branding information
+is consistent across the entire package. When updating the version number,
+start here.
 """
 
-from PyPWA import info as _info
-
 __credits__ = ["Mark Jones"]
-__author__ = _info.AUTHOR
-__version__ = _info.VERSION
+
+AUTHOR = "PyPWA Team and Contributors"
+VERSION = "3.0.0"
+RELEASE = f"{VERSION}.rc1"
+LICENSE = "GPLv3"
+STATUS = "development"

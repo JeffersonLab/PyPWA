@@ -20,12 +20,12 @@ from pathlib import Path
 
 import numpy as npy
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import info as _info
 from PyPWA.libs.file.processor import templates, DataType
 
 __credits__ = ["Christopher Banks", "Keandre Palmer", "Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class _NumpyDataPlugin(templates.IDataPlugin):
@@ -51,7 +51,7 @@ class _NumpyDataPlugin(templates.IDataPlugin):
 
     @property
     def supported_extensions(self):
-        return [".npy", ".pf", ".txt"]
+        return [".npy", ".pf", ".txt", ".sel", ".bamp"]
 
     @property
     def supported_data_types(self):
@@ -95,7 +95,7 @@ class _NumpyReader(templates.ReaderBase):
 
     def __init__(self, filename: Path):
         self.__filename = filename
-        self.__array = npy.load(str(filename))
+        self.__array = _NumpyMemory().parse(filename)
         self.__counter = 0
 
     def __repr__(self) -> str:
@@ -121,6 +121,17 @@ class _NumpyReader(templates.ReaderBase):
     def fields(self):
         return [name for name in self.__array.dtype.names]
 
+    @property
+    def data_type(self) -> DataType:
+        if self.__array.dtype.names:
+            return DataType.STRUCTURED
+        else:
+            return DataType.BASIC
+
+    @property
+    def input_path(self) -> Path:
+        return self.__filename
+
 
 class _NumpyWriter(templates.WriterBase):
 
@@ -140,7 +151,19 @@ class _NumpyWriter(templates.WriterBase):
             self.__array[-1] = data
 
     def close(self):
-        npy.save(str(self.__filename), self.__array)
+        if self.__filename.suffix == ".txt":
+            npy.savetxt(str(self.__filename), self.__array)
+        elif self.__filename.suffix in (".pf", ".sel"):
+            npy.savetxt(str(self.__filename), self.__array, fmt="%d")
+        elif self.__filename.suffix == ".bamp":
+            with self.__filename.open("wb") as stream:
+                self.__array.tofile(stream)
+        else:
+            npy.save(str(self.__filename), self.__array)
+
+    @property
+    def output_path(self) -> Path:
+        return self.__filename
 
 
 class _NumpyMemory(templates.IMemory):
@@ -158,14 +181,17 @@ class _NumpyMemory(templates.IMemory):
     def ___load_text(filename: Path) -> npy.ndarray:
         if filename.suffix == ".pf":
             return npy.loadtxt(str(filename), dtype=bool)
+        elif filename.suffix == ".sel":
+            return npy.loadtxt(str(filename), dtype="u4")
         else:
             return npy.loadtxt(str(filename))
 
     def write(self, filename: Path, data: npy.ndarray):
-        if filename.suffix == '.npy':
-            npy.save(str(filename), data)
-        elif filename.suffix == ".pf":
+        if filename.suffix in (".pf", ".sel"):
             npy.savetxt(str(filename), data, fmt="%d")
+        elif filename.suffix == ".bamp":
+            with filename.open("wb") as stream:
+                data.tofile(stream)
         elif filename.suffix == ".txt":
             npy.savetxt(str(filename), data)
         else:

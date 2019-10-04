@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 
+from datetime import datetime
 import sphinx_rtd_theme
 
+from PyPWA import __version__, __release__, __author__
 
 # Extensions
-extensions = ['sphinx.ext.mathjax', 'sphinx.ext.todo']
+extensions = [
+    'sphinx.ext.mathjax', 'sphinx.ext.todo',
+    'sphinx.ext.autodoc', 'sphinx_autodoc_typehints',
+    'sphinxcontrib.bibtex', 'recommonmark'
+]
 
 
 # Basic file information
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 
 # Project information
 project = 'PyPWA'
-copyright = '2017, PyPWA Team'
-author = 'PyPWA Team'
-version = '2.3'
-release = '2.3.0'
+copyright = f'{datetime.now().year}, Norfolk State University'
+author = __author__
+version = __version__
+release = __release__
 
 
 # Sphinx Extra Options

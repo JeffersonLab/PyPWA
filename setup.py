@@ -29,7 +29,7 @@ progs = "PyPWA.progs"
 
 entry_points = {
     "console_scripts": [
-        f"pydata = {progs}.data:data",
+        f"pymask = {progs}.masking:start_masking",
         f"pybin = {progs}.binner:start_binning",
         f"pysimulate = {progs}.simulation:simulation"
     ]
@@ -43,7 +43,7 @@ requires = [
     "pyyaml",        # YAML Parser
     "tabulate",      # Tables for iminuit
     "appdirs",       # Attempts to find data locations
-    "tables"       # Stores table in a specialized table format
+    "tables",        # Stores table in a specialized table format
 ]
 
 extras = {
@@ -81,8 +81,6 @@ setuptools.setup(
         "Natural Language :: English",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Topic :: Scientific/Engineering :: Mathematics",

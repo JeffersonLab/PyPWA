@@ -27,12 +27,12 @@ import logging
 import numpy
 from typing import Dict
 
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.components.fit import interfaces
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class _LogLikelihoodMetadata(interfaces.Setup):

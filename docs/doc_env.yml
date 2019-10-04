@@ -1,0 +1,10 @@
+name: pypwa_doc
+channels:
+    - conda-forge
+dependencies:
+    - sphinx_rtd_theme
+    - sphinx-autobuild
+    - recommonmark
+    - sphinx-autodoc-typehints
+    - sphinxcontrib-bibtex
+

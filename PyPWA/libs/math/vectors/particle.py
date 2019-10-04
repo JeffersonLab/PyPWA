@@ -26,12 +26,12 @@ are defined in _abstract_vectors.AbstractVectors.
 from typing import List, Union, Tuple, Optional as Opt
 
 import numpy
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.math.vectors import basic_vectors
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 def get_particle_by_id(particle_id: int) -> Tuple[str, int]:

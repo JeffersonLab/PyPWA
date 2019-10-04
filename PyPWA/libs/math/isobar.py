@@ -18,12 +18,11 @@
 
 import numpy as npy
 
-from PyPWA import AUTHOR as _A, LICENSE as _L, VERSION as _V
+from PyPWA import info as _info
 
-__author__ = _A
-__license__ = _L
-__version__ = _V
 __credits__ = ["Mark Jones", "Brandon Kaleiokalani", "Dr. Carlos Salgado"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 def helicity_spin_density(beam, alpha):

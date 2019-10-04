@@ -23,13 +23,13 @@ from typing import List
 
 import numpy as npy
 
-from PyPWA import AUTHOR, VERSION
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 HEADER_SEARCH_BITS = 8192
@@ -136,6 +136,14 @@ class _SvReader(templates.ReaderBase):
     def fields(self):
         return [name for name in self.__array.dtype.names]
 
+    @property
+    def data_type(self) -> DataType:
+        return DataType.STRUCTURED
+
+    @property
+    def input_path(self) -> Path:
+        self.__filename
+
 
 class _SvWriter(templates.WriterBase):
 
@@ -179,6 +187,10 @@ class _SvWriter(templates.WriterBase):
 
     def close(self):
         self.__file_handle.close()
+
+    @property
+    def output_path(self) -> Path:
+        return self.__filename
 
 
 class _SvMemory(templates.IMemory):

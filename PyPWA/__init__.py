@@ -17,7 +17,31 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-============
+******************
+How to get started
+******************
+
+To make using PyPWA easier from IPython or Jupyter, useful modules have
+been imported directly into this package so that you can get up and
+running as quickly as possible. To know more about the following modules,
+use help.
+
+Working with data:
+ - get_reader, get_writer: Returns an object that can read/write data
+    one event at a time.
+ - read, write: Reads/Writes data to and from memory
+ - ProjectDatabase: Handles operating with HD5 tables. This is the
+    method used inside PyPWA to bin data, or operate on larger-than-memory
+    data.
+
+Programs:
+ - monte_carlo_simulation: Simulates data using the Monte Carlo Rejection
+    method.
+
+Complex Data Types:
+ - FourVector ThreeVector Particle ParticlePool: Handles working
+    with particle data.
+
 General Docs
 ============
 
@@ -27,20 +51,14 @@ anything statistical analysis.
 
 Currently there are 4 different applications defined inside this package:
 
-- PyFit - Fitting with any likelihood.
+- pyfit - Fitting with any likelihood.
+- pysimulate - Monte-Carlo something or the other.
+- pymask  - Simple masking and conversion of data
+- pybin - Multi-Variable binning utility utilizing PyTables
 
-- PyLikelihood - Fitting with the log-likelihood.
-
-- PyChiSquared - Fitting with the ChiSquared likelihood.
-
-- PySimulate - Simulation of an amplitude.
-
-- PyIntensities - Just the calculation half of PySimulate.
-
-- PyRejection - Just the rejection-method half of PySimulate.
-
-For information about how to use each of the programs, look in the docs folder
-included with the source code, or check the user docs at ReadTheDocs.io.
+For information about how to use each of the programs, look in the docs
+folder included with the source code, or check the user docs at
+ReadTheDocs.io.
 
 Developer Docs
 ==============
@@ -55,36 +73,40 @@ plugins internally.
 Package purposes
 ----------------
 
-- builtin_plugins - This is where each included plugins are defined, the
-  optimizers, the processing module, the builtin parser, and iterators are
-  all defined here.
-
-- entries - The various entry points for each program contained in this
-  package are here, each function defined here is a starting point for
-  setuptools.
-
-- initializers - This is where the loaders for the programs are defined, this
-  either processes and setups the arguments or a configuration file to load
-  and send the needed plugins to the main objects.
+- plugins - Plug and play functionality for PyPWA. These are modular
+    metadata based plugins that can be user defined to add support for
+    new data types and likelihoods for pypwa.
 
 - libs - The main libraries for the program. Core file libs, interfaces,
-  and mathematics are defined here.
+    and mathematics are defined here. If you're writing a script to
+    interface with PyPWA, this will be the package you'll want to use.
 
-- progs - This is where the various programs are defined that are provided by
-  PyPWA.
+- progs - This is where the various shell programs that PyPWA provides
+    are defined. These programs can also be used as an example on how
+    their respective lib component is used.
 
-For more information on how each module works, view their documentation
-respectively.
+For more information on how each package works, view their documentation.
 """
 
+from PyPWA.libs.math.vectors import (
+    FourVector, ThreeVector, Particle, ParticlePool
+)
 
-__author__ = "PyPWA Team and Contributors"
+from PyPWA.libs.file import (
+    get_reader, get_writer, read, write, ProjectDatabase
+)
+
+from PyPWA.libs.simulate import monte_carlo_simulation
+
+from PyPWA import info as _info
+
+__all__ = [
+    "FourVector", "ThreeVector", "Particle", "ParticlePool",
+    "get_writer", "get_reader", "read", "write", "ProjectDatabase"
+]
+
+__author__ = _info.AUTHOR
 __credits__ = ["Mark Jones"]
-__version__ = "3.0.0.dev"
-
-
-LICENSE = "GPLv3"
-STATUS = "development"
-MAINTAINER = "Mark Jones"
-AUTHOR = __author__
-VERSION = __version__
+__version__ = _info.VERSION
+__release__ = _info.RELEASE
+__license__ = _info.LICENSE
