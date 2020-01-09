@@ -31,19 +31,23 @@ entry_points = {
     "console_scripts": [
         f"pymask = {progs}.masking:start_masking",
         f"pybin = {progs}.binner:start_binning",
-        f"pysimulate = {progs}.simulation:simulation"
+#        f"pysimulate = {progs}.simulation:simulation",
+#        f"pyfit = {progs}.pyfit:start_fitting"
     ]
 }
 
 requires = [
-    "tqdm",          # Progress Bars
-    "iminuit<2.0",   # Default minimizer
-    "scipy",         # Needed for Nestle with multiple ellipsoids.
-    "numpy>1,<2.0",  # Arrays and optimizations
-    "pyyaml",        # YAML Parser
-    "tabulate",      # Tables for iminuit
-    "appdirs",       # Attempts to find data locations
-    "tables",        # Stores table in a specialized table format
+    "tqdm",       # Progress Bars
+    "iminuit",    # Default minimizer
+    "scipy",      # Needed for Nestle with multiple ellipsoids.
+    "numpy",      # Arrays and optimizations
+    "pyyaml",     # YAML Parser
+    "tabulate",   # Tables for iminuit
+    "appdirs",    # Attempts to find data locations
+    "tables",     # Stores table in a specialized table format
+    "pandas",     # A powerful statistics package that's used everywhere
+    "openpyxl",   # Provides support for XLXS, used for resonance,
+    "matplotlib"  # Adds support for plotting
 ]
 
 extras = {

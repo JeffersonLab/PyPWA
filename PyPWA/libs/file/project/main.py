@@ -22,13 +22,14 @@ from pathlib import Path
 from typing import List, Union
 
 import numpy as npy
+import pandas
 import tables
 from tqdm import tqdm
 
 from PyPWA import info as _info
 from PyPWA.libs.file.processor import ReaderBase
-from PyPWA.libs.math import vectors
 from . import _common, _unmanaged, _managed, _binning
+from ... import vectors
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -161,6 +162,9 @@ class _CreateRoot:
         elif isinstance(data, npy.ndarray):
             self.__numpy_to_root(data, title)
 
+        elif isinstance(data, pandas.DataFrame):
+            self.__dataframe_to_root(data, title)
+
         else:
             raise ValueError(
                 f"{type(data)} is an unsupported data type!"
@@ -191,10 +195,10 @@ class _CreateRoot:
                 data, disable=disable, unit=" event", desc="Parsing root data",
                 postfix=f"file={data.input_path.name}"):
             for p, leaf in zip(event.iter_particles(), leaves):
-                leaf.row['x'] = p.x
-                leaf.row['y'] = p.y
-                leaf.row['z'] = p.z
-                leaf.row['e'] = p.e
+                leaf.row['x'] = p.x.to_numpy()
+                leaf.row['y'] = p.y.to_numpy()
+                leaf.row['z'] = p.z.to_numpy()
+                leaf.row['e'] = p.e.to_numpy()
                 leaf.row.append()
 
         for leaf in leaves:
@@ -223,7 +227,7 @@ class _CreateRoot:
         for index, particle in enumerate(data.iter_particles()):
             table = self.__file.create_table(
                 where=self.__folder, name=f"root{index}_{particle.id}",
-                description=particle.get_array(), expectedrows=len(particle),
+                description=particle.data_frame, expectedrows=len(particle),
                 title=desc
             )
             table.flush()
@@ -240,3 +244,10 @@ class _CreateRoot:
             raise ValueError(
                 "Numpy arrays must be structured to be root data!"
             )
+
+    def __dataframe_to_root(self, df, desc):
+        table = self.__file.create_table(
+            where=self.__folder, name="root",
+            description=df.to_records(index=False), title=desc
+        )
+        table.flush()

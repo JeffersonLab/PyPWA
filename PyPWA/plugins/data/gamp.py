@@ -34,7 +34,7 @@ from typing import List
 
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
-from PyPWA.libs.math import vectors
+from PyPWA.libs import vectors
 from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
@@ -218,7 +218,7 @@ class _GampMemory(templates.IMemory):
             for ei, e in enumerate(reader):
                 for pi, p in enumerate(e.iter_particles()):
                     # You must use get array to get a reference and not a copy
-                    empty_pool.stored[pi].get_array()[ei] = p.get_array()
+                    empty_pool.stored[pi].dataframe.iloc[ei] = p.dataframe.loc[0]
         return empty_pool
 
     def write(self, filename: Path, data: vectors.ParticlePool):

@@ -17,8 +17,10 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from pathlib import Path
+from typing import Union
 
 import numpy as npy
+import pandas
 
 from PyPWA import info as _info
 from PyPWA.libs.file.processor import templates, DataType
@@ -61,6 +63,30 @@ class _NumpyDataPlugin(templates.IDataPlugin):
 metadata = _NumpyDataPlugin()
 
 
+def pandas_to_structured(
+        pd: Union[pandas.Series, pandas.DataFrame]) -> npy.ndarray:
+
+    if isinstance(pd, pandas.Series) and isinstance(pd.name, (type(None), str)):
+        return pd.to_numpy()
+
+    names = list(pd.keys())
+    types = pd.dtypes if len(pd.dtypes) else [pd.dtypes] * len(names)
+
+    array_type = []
+    for name, dtype in zip(names, types):
+        array_type.append((name, dtype))
+
+    if isinstance(pd, pandas.Series):
+        length = 1
+    else:
+        length = len(pd)
+
+    array = npy.empty(length, array_type)
+    for name in names:
+        array[name] = pd[name]
+    return array
+
+
 class _NumpyDataTest(templates.IReadTest):
 
     def __repr__(self):
@@ -73,8 +99,7 @@ class _NumpyDataTest(templates.IReadTest):
             return False
 
     @staticmethod
-    def __can_load_binary(file_location):
-        # type: (Path) -> bool
+    def __can_load_binary(file_location: Path) -> bool:
         try:
             npy.load(str(file_location))
             return True
@@ -82,8 +107,7 @@ class _NumpyDataTest(templates.IReadTest):
             return False
 
     @staticmethod
-    def __can_load_text(file_location):
-        # type: (Path) -> bool
+    def __can_load_text(file_location: Path) -> bool:
         try:
             npy.loadtxt(str(file_location))
             return True
@@ -95,19 +119,30 @@ class _NumpyReader(templates.ReaderBase):
 
     def __init__(self, filename: Path):
         self.__filename = filename
-        self.__array = _NumpyMemory().parse(filename)
+        self.__array = self.__load_data()
         self.__counter = 0
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__filename})"
 
+    def __load_data(self) -> Union[pandas.DataFrame, pandas.Series]:
+        data = _NumpyMemory().parse(self.__filename)
+
+        if isinstance(data, npy.ndarray):
+            if data.dtype.names:
+                return pandas.DataFrame(data)
+            else:
+                return pandas.Series(data)
+        else:
+            return data
+
     def get_event_count(self) -> int:
         return len(self.__array)
 
-    def next(self) -> npy.ndarray:
+    def next(self) -> Union[pandas.Series]:
         if self.__counter < len(self):
             self.__counter += 1
-            return self.__array[self.__counter-1]
+            return self.__array.iloc[self.__counter-1]
         else:
             raise StopIteration
 
@@ -143,6 +178,9 @@ class _NumpyWriter(templates.WriterBase):
         return f"{self.__class__.__name__}()"
 
     def write(self, data: npy.void):
+        if isinstance(data, (pandas.Series, pandas.DataFrame)):
+            data = pandas_to_structured(data)
+
         if not isinstance(self.__array, npy.ndarray):
             self.__array = npy.zeros(1, dtype=data.dtype)
             self.__array[0] = data
@@ -171,11 +209,15 @@ class _NumpyMemory(templates.IMemory):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def parse(self, filename: Path) -> npy.ndarray:
+    def parse(self, filename: Path) -> Union[pandas.DataFrame, pandas.Series]:
         try:
-            return npy.load(str(filename))
+            data = npy.load(str(filename))
+            if data.dtype.names:
+                return pandas.DataFrame(data)
+            else:
+                return pandas.Series(data)
         except Exception:
-            return self.___load_text(filename)
+            return pandas.Series(self.___load_text(filename))
 
     @staticmethod
     def ___load_text(filename: Path) -> npy.ndarray:
@@ -186,7 +228,11 @@ class _NumpyMemory(templates.IMemory):
         else:
             return npy.loadtxt(str(filename))
 
-    def write(self, filename: Path, data: npy.ndarray):
+    def write(
+            self, filename: Path, data: Union[pandas.DataFrame, pandas.Series]):
+
+        data = pandas_to_structured(data)
+
         if filename.suffix in (".pf", ".sel"):
             npy.savetxt(str(filename), data, fmt="%d")
         elif filename.suffix == ".bamp":

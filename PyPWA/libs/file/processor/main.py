@@ -25,12 +25,13 @@ from pathlib import Path
 from typing import Union
 
 import numpy as npy
+import pandas
 
 from PyPWA import info as _info
 from PyPWA.libs.file import cache
-from PyPWA.libs.math import vectors
 from PyPWA.plugins import load, data as data_plugins
 from . import templates
+from ... import vectors
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -73,7 +74,7 @@ class _DataLoader:
         return (f"{self.__class__.__name__}"
                 f"({self.__args[0]}, {self.__args[1]})")
 
-    def parse(self, filename: Path) -> npy.ndarray:
+    def parse(self, filename: Path) -> Union[pandas.DataFrame, pandas.Series]:
         cache_obj = self.__cache_builder.get_cache(filename)
         if cache_obj.is_valid:
             self.__LOGGER.info("Loading cache for %s" % filename)

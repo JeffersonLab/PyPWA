@@ -50,9 +50,10 @@ from multiprocessing.connection import Connection
 from typing import Any, Dict, List, Tuple, Union
 
 import numpy as npy
+import pandas as pd
 
 from PyPWA import info as _info
-from PyPWA.libs.math import vectors
+from PyPWA.libs import vectors
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -129,7 +130,7 @@ Predefined Types
 
 _main = Tuple[List["_SmartProcess"], List[Connection]]
 _pipe = Tuple[List[Connection], List[Connection]]
-_supported_types = Union[npy.ndarray, vectors.ParticlePool]
+_supported_types = Union[npy.ndarray, vectors.ParticlePool, pd.DataFrame]
 _data = Dict[str, _supported_types]
 _data_packet = List[_data]
 
@@ -159,7 +160,7 @@ def _make_data_packets(data: _data, number_of_processes: int) -> _data_packet:
     list_of_dicts = [dict() for i in range(number_of_processes)]
 
     for key in data.keys():
-        if isinstance(data[key], npy.ndarray):
+        if isinstance(data[key], (npy.ndarray, pd.Series, pd.DataFrame)):
             split = npy.array_split(data[key], number_of_processes)
         elif isinstance(data[key], vectors.ParticlePool):
             split = data[key].split(number_of_processes)

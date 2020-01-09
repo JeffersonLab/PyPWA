@@ -3,7 +3,7 @@
 import numpy
 import pytest
 
-from PyPWA.libs.math import vectors
+from PyPWA.libs import vectors
 
 
 def make_new_particle(geant_id):

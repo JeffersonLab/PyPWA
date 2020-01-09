@@ -21,12 +21,13 @@ from __future__ import annotations
 from enum import Enum as _Enum
 
 import numpy as npy
+import pandas
 import tables
 
 from PyPWA import info as _info
 from PyPWA.libs.file.processor import ReaderBase
-from PyPWA.libs.math import vectors
 from . import _common
+from ... import vectors
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -119,6 +120,12 @@ class _ModifyData(_ReadData):
         elif isinstance(data, ReaderBase):
             self.__add_array_reader(data_name, data, title)
 
+        elif isinstance(data, pandas.Series):
+            self.__add_series(data_name, data, title)
+
+        elif isinstance(data, pandas.DataFrame):
+            self.__add_dataframe(data_name, data, title)
+
         else:
             raise ValueError(f"Unknown value type {type(data)}")
 
@@ -174,6 +181,19 @@ class _ModifyData(_ReadData):
                 row[name] = event[name]
             row.append()
         node.flush()
+
+    def __add_series(self, name: str, data: pandas.Series, desc: str):
+        node = self._file.create_array(
+            self._folder, name, data.to_numpy(), desc
+        )
+
+        node.flush()
+
+    def __add_dataframe(self, name: str, data: pandas.DataFrame, desc: str):
+        table = self._file.create_table(
+            self._folder, name, data.to_records(index=False), desc
+        )
+        table.flush()
 
     def replace_data(
             self, node_type: _ReadData.Data, node_id: int, data: npy.ndarray):

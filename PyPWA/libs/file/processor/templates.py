@@ -23,11 +23,11 @@ data module.
 
 import enum
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import List
 
-import numpy as npy
+import pandas
 
-from pathlib import Path
 from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
@@ -49,18 +49,18 @@ class DataType(enum.Enum):
 class IMemory(ABC):
 
     @abstractmethod
-    def parse(self, filename: Path) -> npy.ndarray:
+    def parse(self, filename: Path) -> pandas.DataFrame:
         ...
 
     @abstractmethod
-    def write(self, filename: Path, data: npy.ndarray):
+    def write(self, filename: Path, data: pandas.DataFrame):
         ...
 
 
 class ReaderBase(ABC):
 
     @abstractmethod
-    def next(self) -> npy.ndarray:
+    def next(self) -> pandas.DataFrame:
         """
         Called to get the next event from the reader.
 
@@ -131,7 +131,7 @@ class ReaderBase(ABC):
 class WriterBase(ABC):
 
     @abstractmethod
-    def write(self, data: npy.ndarray):
+    def write(self, data: pandas.DataFrame):
         """
         Should write the received event to the stream.
 

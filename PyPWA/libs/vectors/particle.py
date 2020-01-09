@@ -25,13 +25,17 @@ are defined in _abstract_vectors.AbstractVectors.
 
 from typing import List, Union, Tuple, Optional as Opt
 
-import numpy
-from PyPWA.libs.math.vectors import basic_vectors
+import numpy as npy
+import pandas
+from PyPWA.libs.vectors import FourVector
 from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
 __version__ = _info.VERSION
+
+
+_PROTON_GEV = .9382720813
 
 
 def get_particle_by_id(particle_id: int) -> Tuple[str, int]:
@@ -64,84 +68,83 @@ def get_particle_by_id(particle_id: int) -> Tuple[str, int]:
     }[particle_id]
 
 
-class _ParticleIterator:
+class Particle(FourVector):
+    """DataFrame backed Particle object for vector operations inside
+    PyPWA.
 
-    def __init__(self, particle_id: int, array: numpy.ndarray, array_type):
-        self.__id = particle_id
-        self.__array = array
-        self.__type = array_type
-        self.__index = -1
+    Parameters
+    ----------
+    x : int, npy.ndarray, float, or DataFrame
+        Can be an integer to specify size, a structured array or DataFrame
+        with x y z and e values, a single float value, or a Series or
+        single dimensional array, If you provide a float, series, or
+        array, you need to provide a float for the other options as well.
+    y : int, npy.ndarray, float, or DataFrame, optional
+    z : int, npy.ndarray, float, or DataFrame, optional
+    e : int, npy.ndarray, float, or DataFrame, optional
 
-    def __repr__(self):
-        return (
-            f"_ParticleIterator({self.__id}, {self.__array}, {self.__type})"
-        )
+    See Also
+    --------
+    FourVector : For storing a FourVector without particle ID
+    ParticlePool : For storing a collection of particles
+    """
 
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        return self.next()
-
-    def next(self):
-        try:
-            self.__index += 1
-            array = numpy.array(self.__array[self.__index], self.__type)
-            return Particle(self.__id, array)
-        except IndexError:
-            raise StopIteration
-
-
-class Particle(basic_vectors.FourVector):
-
-    __slots__ = ['__particle_id', '__charge', '__particle_name']
+    __slots__ = ["_vector", "__particle_id", "__particle_name", "__charge"]
 
     def __init__(
             self,
             particle_id: int,
-            x: Union[int, numpy.ndarray, float, str],
-            y: Opt[Union[str, float]] = None,
-            z: Opt[Union[str, float]] = None,
-            e: Opt[Union[str, float]] = None,
-            precision: numpy.floating = numpy.float64
+            x: Union[int, npy.ndarray, float, pandas.DataFrame],
+            y: Opt[Union[float, pandas.Series, npy.ndarray]] = None,
+            z: Opt[Union[float, pandas.Series, npy.ndarray]] = None,
+            e: Opt[Union[float, pandas.Series, npy.ndarray]] = None
     ):
-        super(Particle, self).__init__(x, y, z, e, precision)
+        super(Particle, self).__init__(x, y, z, e)
         self.__particle_id = particle_id
         self.__particle_name, self.__charge = get_particle_by_id(particle_id)
 
     def __eq__(self, other: "Particle") -> bool:
-        arrays_equal = (other.get_array() == self._vector).all()
+        arrays_equal = self._vector.equals(other._vector)
         id_equals = self.id == other.id
-        return True if arrays_equal and id_equals else False
+        return arrays_equal and id_equals
 
     def __repr__(self) -> str:
-        return f"Particle({self.__particle_id}, {self._vector!r})"
+        return f"Particle({self.__particle_id}, \n{self._vector!r})"
 
     def __str__(self) -> str:
         if len(self) == 1:
             return (
                 f"Particle("
                 f"name={self.__particle_name}, id={self.__particle_id},"
-                f" x={self.x[0]}, y={self.y[0]},"
-                f" z={self.z[0]}, e={self.e[0]})"
+                f"vector=\n{str(self._vector)})"
             )
         else:
             return (
                 f"Particle("
                 f"name={self.__particle_name}, id={self.__particle_id},"
-                f" x, y, z, e for length={len(self)})"
+                f"vector=\n{self._vector.describe()}"
             )
 
-    def __getitem__(self, item: int) -> "Particle":
-        array = numpy.array([self._vector[item]], self._array_type)
-        return Particle(self.__particle_id, array)
+    def __getitem__(
+            self, item: Union[int, str, slice]
+    ) -> Union["Particle", pandas.Series]:
+        if isinstance(item, slice):
+            return Particle(self.__particle_id, self._vector.loc[item])
+        elif isinstance(item, int):
+            return Particle(self.__particle_id, self._vector.iloc[item])
+        elif isinstance(item, str) and item in ("x", "y", "z", "e"):
+            return self._vector[item].copy()
+        else:
+            raise ValueError(f"Can not index with {item!r}")
 
-    def split(self, count: int) -> List["Particle"]:
-        new_vectors = super(Particle, self).split(count)
-        new_particles = []
-        for vector in new_vectors:
-            new_particles.append(Particle(self.id, vector))
-        return new_particles
+    def split(self, count) -> List["FourVector"]:
+        particles = []
+        for vector in npy.split(self._vector, count):
+            particles.append(Particle(self.__particle_id, vector))
+        return particles
+
+    def get_copy(self):
+        return Particle(self.__particle_id, self._vector.copy())
 
     @property
     def id(self) -> int:
@@ -252,6 +255,48 @@ class ParticlePool:
             for index, particle_segment in enumerate(split_particles):
                 particles[index].append(particle_segment)
         return [ParticlePool(pool) for pool in particles]
+
+    def get_event_mass(self) -> npy.ndarray:
+        found_photon, found_proton = 0, 0
+        vector_sum = FourVector(self.event_count)
+        for event_particle in self.iter_particles():
+            if not found_photon and event_particle.id == 1:
+                found_photon = True
+            elif not found_proton and event_particle.id == 14:
+                found_proton = True
+            else:
+                vector_sum += event_particle
+        return vector_sum.get_mass()
+
+    def get_t(self) -> npy.ndarray:
+        proton = self.get_particles_by_name("Proton")[0]
+        momenta = proton.x ** 2 + proton.y ** 2 + proton.z ** 2
+        energy = (proton.e - _PROTON_GEV) ** 2
+        return energy - momenta
+
+    def get_s(self) -> npy.ndarray:
+        proton = self.get_particles_by_name("Proton")[0]
+        momenta = proton.x ** 2 + proton.y ** 2 + proton.z ** 2
+        energy = (proton.e + _PROTON_GEV) ** 2
+        return energy - momenta
+
+    def get_t_prime(self) -> npy.ndarray:
+        # Get initial values
+        proton = self.get_particles_by_name("Proton")[0]
+        s_value = self.get_s()
+        sqrt_s = npy.sqrt(s_value)
+        mx2 = self.get_event_mass() ** 2
+
+        # Calculate for Px and Ex
+        ex = (s_value * mx2 * _PROTON_GEV ** 2) / 2 * sqrt_s
+        px = npy.sqrt((ex ** 2) - mx2)
+
+        # Calculate t0
+        t0_left = (mx2 / (2 * sqrt_s)) ** 2
+        t0_right = (((proton.e * _PROTON_GEV) / sqrt_s) - px) ** 2
+        t0 = t0_left - t0_right
+
+        return self.get_t() - t0
 
     @property
     def event_count(self) -> int:

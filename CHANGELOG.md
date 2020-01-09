@@ -9,12 +9,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - ProjectDatabase has been added handle large data manipulation on disk
    instead of in memory.
  - Reader/Writer now share path of the file being operated on.
- - Binning now works in both fixed count and ranges.
+ - Binning now works in both fixed count and ranges, and can be done
+   entirely in memory.
  - Initial Jupyter and IPython support.
+ - Adding lego plotting
+ - Likelihoods are now standalone objects that can be combined with any
+   optimizer.
+ - Resonance support now builtin using DataFrames as a backbone.
+   Resonances are now saved as a two sheet excel file, and can be modified
+   using the supplied wave and resonance objects.
 ### Changed
  - Separate release tag from version info
  - Package info is now stored in PyPWA.info
  - pydata has officially been updated to PyPWA 3.0
+ - Structured Arrays have been replaces for Pandas DataFrames
+ - Reactions have been merged into ParticlePool
+ - Vectors have been simplified to be easier to test while still being
+   powerful to use.
 ### Removed
  - SlotTable has been removed in favor of Project. Both use PyTables
    for the backend.

@@ -4,10 +4,10 @@ language: python
 cache: pip
 python:
   - "3.7"
-  - "3.8-dev"
+  - "3.8"
 matrix:
   allow_failures:
-    - python: "3.8-dev"
+    - python: "3.8"
 addons:
   apt:
     packages:
@@ -20,11 +20,12 @@ addons:
       - "cython"
 before_install:
   - "pip install --upgrade pip setuptools wheel"
-  - "pip install --upgrade numpy scipy"
+  - "pip install --upgrade numpy scipy pandas"
   - "pip install --upgrade iminuit nestle ruamel.yaml tabulate appdirs"
   - "pip install --upgrade fuzzywuzzy python-Levenshtein"
   - "pip install --upgrade coveralls coverage"
   - "pip install --upgrade pytest pytest-runner pytest-cov"
+  - "pip install --upgrade matplotlib"
 install:
   - "pip install --upgrade -e ."
 script: "pytest --cov=PyPWA tests --cov-report="

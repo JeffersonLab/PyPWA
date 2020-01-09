@@ -26,7 +26,7 @@ import tables
 from tqdm import tqdm
 
 from PyPWA import info as _info
-from PyPWA.libs.math import reaction
+from PyPWA.libs.vectors.particle import ParticlePool
 from . import _common, _managed, _unmanaged
 
 __credits__ = ["Mark Jones"]
@@ -68,11 +68,11 @@ class _ManageBins:
         # lower limit (ll), upper limit (ul)
         for ll in range(0, len(self.__root), buffer):
             ul = ll + buffer
-            root_chunk = self.__root.data.read(ll, ul)
+            root_chunk = self.__root.data.read(ll, ul)  # type: ParticlePool
 
-            bin_array["mass"][ll:ul] = reaction.get_event_mass(root_chunk)
-            bin_array["tp"][ll:ul] = reaction.get_t_prime(root_chunk)
-            bin_array["t"][ll:ul] = reaction.get_t(root_chunk)
+            bin_array["mass"][ll:ul] = root_chunk.get_event_mass()
+            bin_array["tp"][ll:ul] = root_chunk.get_t_prime()
+            bin_array["t"][ll:ul] = root_chunk.get_t()
             bin_array["beam"][ll:ul] = root_chunk.get_particles_by_id(1)[0].z
 
         table = self.__file.create_table(

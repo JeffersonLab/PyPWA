@@ -1,11 +1,12 @@
 # coding=utf-8
 
-import pytest
-from PyPWA.libs.file import project, processor
 from pathlib import Path
-import numpy as npy
-from PyPWA.libs.math import vectors
 
+import pandas.testing
+import pytest
+
+from PyPWA.libs import vectors
+from PyPWA.libs.file import project, processor
 
 HDF = Path("./project_test.hd5")
 DATA_DIR = (Path(__file__).parent / "../../test_data/docs").resolve()
@@ -55,9 +56,8 @@ def test_gamp_data_matches(parser, project_manager):
     )
 
     for parsed, expected in zipped_particles:  # type: vectors.Particle
-        npy.testing.assert_array_equal(
-            parsed.get_array(), expected.get_array()
-        )
+        assert parsed.id == expected.id
+        pandas.testing.assert_frame_equal(parsed.dataframe, expected.dataframe)
 
 
 @pytest.mark.filterwarnings("ignore::UserWarning")

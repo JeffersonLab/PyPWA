@@ -39,10 +39,11 @@ from pathlib import Path
 from typing import List
 
 import numpy as npy
+import pandas
 
+from PyPWA import info as _info
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
-from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -115,11 +116,11 @@ class _EVILReader(templates.ReaderBase):
         self.__file_handle.seek(0)
         return npy.zeros(1, types)
 
-    def next(self) -> npy.ndarray:
+    def next(self) -> pandas.DataFrame:
         for column in self.__get_columns():
             name, value = column.split("=")
             self.__numpy_array[name] = value
-        return self.__numpy_array
+        return pandas.DataFrame(self.__numpy_array).loc[0]
 
     def __get_columns(self) -> List[str]:
         string = self.__file_handle.readline().strip("\n").strip(" ")
@@ -161,16 +162,16 @@ class _EVILWriter(templates.WriterBase):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__filename})"
 
-    def write(self, data: npy.ndarray):
+    def write(self, data: pandas.DataFrame):
         self.__error_check(data)
         line = self.__get_line(data)
         self.__file_handle.write(line)
 
-    def __error_check(self, data: npy.ndarray):
+    def __error_check(self, data: pandas.DataFrame):
         if not self.__column_names:
-            self.__column_names = list(data.dtype.names)
+            self.__column_names = list(data.keys())
 
-    def __get_line(self, data: npy.ndarray) -> str:
+    def __get_line(self, data: pandas.DataFrame) -> str:
         line = ""
         for column_index, column in enumerate(self.__column_names):
             line += "," if column_index > 0 else ""
@@ -193,12 +194,12 @@ class _EVILMemory(templates.IMemory):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def parse(self, filename: Path) -> npy.ndarray:
+    def parse(self, filename: Path) -> pandas.DataFrame:
         with _EVILReader(filename) as reader:
-            array = self.__get_empty_array(filename, len(reader))
+            df = pandas.DataFrame(self.__get_empty_array(filename, len(reader)))
             for index, event in enumerate(reader):
-                array[index] = event
-        return array
+                df.iloc[index] = event
+        return df
 
     @staticmethod
     def __get_empty_array(filename: Path, array_length: int) -> npy.ndarray:
@@ -207,7 +208,7 @@ class _EVILMemory(templates.IMemory):
             types = [(column.split("=")[0], "f8") for column in split]
         return npy.zeros(array_length, types)
 
-    def write(self, filename: Path, data: npy.ndarray):
+    def write(self, filename: Path, data: pandas.DataFrame):
         with _EVILWriter(filename) as iterator:
-            for event in npy.nditer(data):
+            for index, event in data.iterrows():
                 iterator.write(event)

@@ -1,4 +1,4 @@
-from PyPWA.libs.math import vectors
+from PyPWA.libs import vectors
 
 
 def test_particle_pool_can_get_by_id(random_particle_pool):

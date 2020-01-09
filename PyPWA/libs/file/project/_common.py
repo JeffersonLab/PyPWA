@@ -28,7 +28,7 @@ import yaml
 
 from PyPWA import info as _info
 from PyPWA.libs.file.processor import DataType
-from PyPWA.libs.math import vectors
+from PyPWA.libs import vectors
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -63,10 +63,7 @@ class ParticleLeaf:
 
         particles = []
         for pid in self.__ids:
-            array = npy.zeros(
-                1, [("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")]
-            )
-            particles.append(vectors.Particle(pid, array))
+            particles.append(vectors.Particle(pid, 1))
 
         self.__pool = vectors.ParticlePool(particles)
 

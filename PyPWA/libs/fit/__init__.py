@@ -17,23 +17,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-PyFit, LikelihoodFitting, and ChiSquaredFitting
------------------------------------------------
-PyFit is a simple fitting tool that can use multiple processes depending on
-the processing module that is picked.
 
-- likelihoods - the various builtin likelihoods the PyFit supports.
-
-- _processing_interface - PyFits interface with the processing package, also
-  handles the output mechanism in a second thread.
-
-- interfaces - the interfaces that need to be extended to define a new
-  likelihood function.
-
-- initial_setup - how the configurator package interfaces the PyFit
-  Main object.
-
-- pyfit - the main object and the likelihood loading object are contained.
 """
 
 from PyPWA import info as _info
@@ -41,3 +25,11 @@ from PyPWA import info as _info
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
 __version__ = _info.VERSION
+
+
+from .likelihoods import (
+    ChiSquared, LogLikelihood, EmptyLikelihood,
+    AbstractAmplitude, FunctionAmplitude
+)
+
+from . import minuit

@@ -58,8 +58,7 @@ _EXAMPLE = {
     "Processes": multiprocessing.cpu_count(),
     "Function": {
         "Path": 'function.py',
-        "Intensity Name": "intensity",
-        "Setup Name": "setup"
+        "Amplitude Name": "MyAmplitude"
     },
 
     "Parameters": {
@@ -70,8 +69,7 @@ _EXAMPLE = {
 
     "Data": {
         "Path": "data.type",
-        "Folder": "folder_name_if_table remove if not using tables.",
-        "Output": "output.txt remove if using tables"
+        "Output": "output.txt"
     }
 }
 
@@ -80,6 +78,7 @@ _TEMPLATE = {
     "Processes": int,
     "Function": {
         "Path": str,
+        "Amplitude Name": str,
         "Intensity Name": str,
         "Setup Name": str
     },
@@ -196,13 +195,8 @@ def _arguments(args: List[str]) -> argparse.ArgumentParser.parse_args:
     )
 
     arguments.add_argument(
-        "--intensity", metavar="INTENSITY_NAME", default="intensity",
+        "--amplitude", metavar="AMPLITUDE_NAME", default="MyAmplitude",
         help="Name of the intensity function inside the source file."
-    )
-
-    arguments.add_argument(
-        "--setup", metavar="SETUP_NAME", default="setup",
-        help="Name of the setup function inside the source file"
     )
 
     return arguments.parse_args(args)

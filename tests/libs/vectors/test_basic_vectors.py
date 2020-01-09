@@ -1,8 +1,8 @@
 import pytest
 import numpy
+import pandas
 
-from PyPWA.libs.math import vectors
-
+from PyPWA.libs import vectors
 
 ARRAY_LENGTH = 20
 
@@ -95,7 +95,7 @@ def test_three_vector_copy_is_real(three_vector):
 
 
 def test_four_vector_get_array_returns_array(four_vector):
-    assert isinstance(four_vector.get_array(), numpy.ndarray)
+    assert isinstance(four_vector.dataframe, pandas.DataFrame)
 
 
 def test_three_vector_splits(three_vector):
@@ -111,23 +111,23 @@ def test_dot_between_different_vector_types(four_vector, three_vector):
 # Test Builtin Properties
 
 def test_four_vector_length(four_vector):
-    assert isinstance(four_vector.get_length(), numpy.ndarray)
+    assert isinstance(four_vector.get_length(), pandas.Series)
 
 
 def test_three_vector_theta(three_vector):
-    assert isinstance(three_vector.get_theta(), numpy.ndarray)
+    assert isinstance(three_vector.get_theta(), pandas.Series)
 
 
 def test_four_vector_phi(four_vector):
-    assert isinstance(four_vector.get_phi(), numpy.ndarray)
+    assert isinstance(four_vector.get_phi(), pandas.Series)
 
 
 def test_three_vector_sin_theta(three_vector):
-    assert isinstance(three_vector.get_sin_theta(), numpy.ndarray)
+    assert isinstance(three_vector.get_sin_theta(), pandas.Series)
 
 
 def test_four_vector_cos_theta(four_vector):
-    assert isinstance(four_vector.get_cos_theta(), numpy.ndarray)
+    assert isinstance(four_vector.get_cos_theta(), pandas.Series)
 
 
 def test_three_vector_setters(three_vector):
@@ -158,11 +158,11 @@ def test_three_vector_multiplication(three_vector):
 # Test Dot Multiplication
 
 def test_four_vector_dot(four_vector):
-    assert isinstance(four_vector.get_dot(four_vector), numpy.ndarray)
+    assert isinstance(four_vector.get_dot(four_vector), pandas.Series)
 
 
 def test_three_vector_dot(three_vector):
-    assert isinstance(three_vector.get_dot(three_vector), numpy.ndarray)
+    assert isinstance(three_vector.get_dot(three_vector), pandas.Series)
 
 
 # Test Representation
@@ -178,8 +178,8 @@ def test_three_vector_repr(three_vector):
 # Test Length Squared
 
 def test_three_vector_length_squared(three_vector):
-    assert isinstance(three_vector.get_length_squared(), numpy.ndarray)
+    assert isinstance(three_vector.get_length_squared(), pandas.Series)
 
 
 def test_four_vector_length_squared(four_vector):
-    assert isinstance(four_vector.get_length_squared(), numpy.ndarray)
+    assert isinstance(four_vector.get_length_squared(), pandas.Series)

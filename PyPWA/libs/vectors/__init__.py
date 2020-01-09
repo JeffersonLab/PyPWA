@@ -25,3 +25,7 @@ from PyPWA import info as _info
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
 __version__ = _info.VERSION
+
+from PyPWA.libs.vectors.three_vector import ThreeVector
+from PyPWA.libs.vectors.four_vector import FourVector
+from PyPWA.libs.vectors.particle import Particle, ParticlePool

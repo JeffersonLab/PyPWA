@@ -21,14 +21,15 @@ Defines how the simulation works for PyPWA
 """
 
 import multiprocessing
-import secrets
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Dict, List, Union
 
 import numpy as npy
+import pandas
 
 from PyPWA import info as _info
 from PyPWA.libs import process
 from PyPWA.libs.file import project
+from PyPWA.libs.fit import likelihoods
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -36,33 +37,29 @@ __version__ = _info.VERSION
 
 
 def monte_carlo_simulation(
-        function: Callable[[Any, Any], npy.ndarray],
-        setup: Callable[[], None],
-        params: Dict[str, float],
+        amplitude: likelihoods.AbstractAmplitude,
         data: Union[npy.ndarray, project.BaseFolder],
-        processes: int = multiprocessing.cpu_count()
-) -> npy.ndarray:
-    """Calculates the rejection list
-    This takes a user defined intensity function along with it's
+        params: Dict[str, float] = None,
+        processes: int = multiprocessing.cpu_count()) -> npy.ndarray:
+    """Produces the rejection list
+    This takes a user defined intensity object along with it's
     associated data, and generates a pass/fail array to be used to
     mask the monte carlo.
 
-    :param function: Function defining the intensity
-    :param setup: A function called once to setup the intensity,
-        if needed.
+    :param amplitude: Users amplitude, an object extending from
+        AbstractAmplitude
+    :param data: Data to simulate against, either as a structured numpy
+        array or a pandas DataFrame
     :param params: Dictionary of the parameters and their associated
         values. These are the values for the intensity to simulate with.
-    :param data: The data to simulate against
     :param processes: How many processes to execute with if applicable
     :return: A pass/fail boolean array of the same length as data
     """
 
-    if isinstance(data, npy.ndarray):
-        intensity = _in_memory_intensities(
-            setup, function, data, params, processes
-        )
+    if isinstance(data, (npy.ndarray, pandas.DataFrame)):
+        intensity = _in_memory_intensities(amplitude, data, params, processes)
     elif isinstance(data, project.BaseFolder):
-        intensity = _in_table_intensities(setup, function, data, params)
+        intensity = _in_table_intensities(amplitude, data, params)
     else:
         raise ValueError("Unknown data type!")
 
@@ -70,13 +67,12 @@ def monte_carlo_simulation(
 
 
 def _in_memory_intensities(
-        setup_function: Callable[[], None],
-        processing_function: Callable[[Any, Any], npy.ndarray],
-        data: npy.ndarray,
+        amplitude: likelihoods.AbstractAmplitude,
+        data: Union[npy.ndarray, pandas.DataFrame],
         params: Dict[str, float],
         processes: int) -> npy.ndarray:
 
-    kernel = _Kernel(setup_function, processing_function, params)
+    kernel = _Kernel(amplitude, params)
     interface = _Interface()
     manager = process.make_processes(
         {"data": data}, kernel, interface, processes, False
@@ -88,19 +84,17 @@ class _Kernel(process.Kernel):
 
     def __init__(
             self,
-            setup_function: Callable[[], None],
-            processing_function: Callable[[Any, Any], npy.ndarray],
+            amplitude: likelihoods.AbstractAmplitude,
             parameters: Dict[str, float]):
-        self.__setup_function = setup_function
-        self.__processing_function = processing_function
+        self.__amplitude = amplitude
         self.__parameters = parameters
         self.data: npy.ndarray = None
 
     def setup(self):
-        self.__setup_function()
+        self.__amplitude.setup(self.data, self.__parameters)
 
     def process(self, data: Any = False) -> Any:
-        calculated = self.__processing_function(self.data, self.__parameters)
+        calculated = self.__amplitude.calculate(self.__parameters)
         return self.PROCESS_ID, calculated
 
 
@@ -121,23 +115,14 @@ class _Interface(process.Interface):
 
 
 def _in_table_intensities(
-        setup_function: Callable[[], None],
-        processing_function: Callable[[Any, Any], Any],
+        amplitude: likelihoods.AbstractAmplitude,
         data: project.BaseFolder,
         parameters: Dict[str, float]) -> npy.ndarray:
 
-    setup_function()
-
-    chunk_collection = []
-    for index, chunk in enumerate(data.root.iterate_data()):
-        chunk_collection.append(processing_function(chunk, parameters))
-
-    return npy.concatenate(chunk_collection)
+    amplitude.setup(data, parameters)
+    return amplitude.calculate(parameters)
 
 
 def _make_reject_list(intensities: npy.ndarray) -> npy.ndarray:
-    rejection_list = npy.zeros(len(intensities), bool)
-    for index, event in enumerate(intensities / intensities.max()):
-        if event > secrets.SystemRandom().random():
-            rejection_list[index] = True
-    return rejection_list
+    random_numbers = npy.random.rand(len(intensities))
+    return (intensities / intensities.max()) > random_numbers

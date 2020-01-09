@@ -88,21 +88,26 @@ Package purposes
 For more information on how each package works, view their documentation.
 """
 
-from PyPWA.libs.math.vectors import (
-    FourVector, ThreeVector, Particle, ParticlePool
-)
-
+from PyPWA import info as _info
+from PyPWA.libs.binning import bin_by_range
 from PyPWA.libs.file import (
     get_reader, get_writer, read, write, ProjectDatabase
 )
-
+from PyPWA.libs.fit import (
+    minuit, ChiSquared, LogLikelihood, EmptyLikelihood, AbstractAmplitude,
+    FunctionAmplitude
+)
+from PyPWA.libs.plotting import make_lego
+from PyPWA.libs.resonance import ResonanceData
 from PyPWA.libs.simulate import monte_carlo_simulation
-
-from PyPWA import info as _info
+from PyPWA.libs.vectors import FourVector, ThreeVector, ParticlePool, Particle
 
 __all__ = [
     "FourVector", "ThreeVector", "Particle", "ParticlePool",
-    "get_writer", "get_reader", "read", "write", "ProjectDatabase"
+    "get_writer", "get_reader", "read", "write", "ProjectDatabase",
+    "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
+    "EmptyLikelihood", "AbstractAmplitude", "FunctionAmplitude",
+    "ResonanceData", "bin_by_range", "make_lego"
 ]
 
 __author__ = _info.AUTHOR
