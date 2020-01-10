@@ -36,7 +36,7 @@ attention to CSV/TSV in the SV object and forget that this ever existed.
 """
 
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
 import numpy as npy
 import pandas
@@ -101,7 +101,8 @@ class _EVILDataTest(templates.IReadTest):
 
 class _EVILReader(templates.ReaderBase):
 
-    def __init__(self, filename: Path):
+    def __init__(self, filename: Path, output_array=False):
+        self.__output_array = output_array
         self.__num_event: int = None
         self.__filename = filename
         self.__file_handle = filename.open()
@@ -116,11 +117,16 @@ class _EVILReader(templates.ReaderBase):
         self.__file_handle.seek(0)
         return npy.zeros(1, types)
 
-    def next(self) -> pandas.DataFrame:
+    def next(self) -> Union[pandas.Series, npy.ndarray]:
         for column in self.__get_columns():
             name, value = column.split("=")
             self.__numpy_array[name] = value
-        return pandas.DataFrame(self.__numpy_array).loc[0]
+
+        if self.__output_array:
+            return self.__numpy_array
+        else:
+            # If you don't copy the Series will break next call
+            return pandas.Series(self.__numpy_array.copy())
 
     def __get_columns(self) -> List[str]:
         string = self.__file_handle.readline().strip("\n").strip(" ")
@@ -195,11 +201,11 @@ class _EVILMemory(templates.IMemory):
         return f"{self.__class__.__name__}()"
 
     def parse(self, filename: Path) -> pandas.DataFrame:
-        with _EVILReader(filename) as reader:
-            df = pandas.DataFrame(self.__get_empty_array(filename, len(reader)))
+        with _EVILReader(filename, True) as reader:
+            data = self.__get_empty_array(filename, len(reader))
             for index, event in enumerate(reader):
-                df.iloc[index] = event
-        return df
+                data[index] = event
+        return pandas.DataFrame(data)
 
     @staticmethod
     def __get_empty_array(filename: Path, array_length: int) -> npy.ndarray:
