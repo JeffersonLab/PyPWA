@@ -127,8 +127,8 @@ class ChiSquared:
     def __call__(self, *args):
         return self.__interface.run(args)
 
-    def stop(self, force=False):
-        self.__interface.stop(force)
+    def close(self):
+        self.__interface.close()
 
 
 class _ChiSquaredKernel(process.Kernel):
@@ -195,8 +195,8 @@ class LogLikelihood:
     def __call__(self, *args):
         return self.__interface.run(args)
 
-    def stop(self, force=False):
-        self.__interface.stop(force)
+    def close(self):
+        self.__interface.close()
 
 
 class _LogLikelihoodKernel(process.Kernel):
@@ -279,8 +279,8 @@ class EmptyLikelihood:
     def __call__(self, *args):
         return self.__interface.run(args)
 
-    def stop(self, force=False):
-        self.__interface.stop(force)
+    def close(self):
+        self.__interface.close()
 
 
 class _EmptyKernel(process.Kernel):

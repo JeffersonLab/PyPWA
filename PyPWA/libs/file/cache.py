@@ -89,6 +89,7 @@ class _ReadCache(_IRead):
             self.__did_read = True
         except Exception:
             self.__did_read = False
+            self.__loaded_package = _Package("-1", Path(), None)
 
     def __load_data(self):
         with self.__package.location.open("rb") as stream:
