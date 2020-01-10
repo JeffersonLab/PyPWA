@@ -30,12 +30,14 @@ will not be saved in memory by these object.
 """
 
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
+import numpy as npy
+
+from PyPWA import info as _info
+from PyPWA.libs import vectors
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
-from PyPWA.libs import vectors
-from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -112,26 +114,26 @@ class _GampDataTest(templates.IReadTest):
         return True
 
 
-def _get_particle_pool(
-        filename: Path, particle_length: int = 1) -> vectors.ParticlePool:
-    with filename.open() as stream:
-        count = int(stream.readline())
-        lines = [stream.readline() for i in range(count)]
-
-    events = []
-    for line in lines:
-        p_id, charge, x, y, z, e = line.strip("\n").split(" ")
-        events.append(vectors.Particle(int(p_id), particle_length))
-    return vectors.ParticlePool(events)
-
-
 class _GampReader(templates.ReaderBase):
 
     def __init__(self, filename: Path):
         self.__event_count = None
         self.__file = filename
         self.__file_handle = filename.open()
-        self.__particle_pool = _get_particle_pool(filename)
+        self.__particle_pool = self.__get_particle_pool(filename)
+
+    @staticmethod
+    def __get_particle_pool(
+            filename: Path, particle_length: int = 1) -> vectors.ParticlePool:
+        with filename.open() as stream:
+            count = int(stream.readline())
+            lines = [stream.readline() for i in range(count)]
+
+        events = []
+        for line in lines:
+            p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+            events.append(vectors.Particle(int(p_id), particle_length))
+        return vectors.ParticlePool(events)
 
     def __repr__(self) -> str:
         return f"GampReader({self.__file})"
@@ -214,12 +216,45 @@ class _GampMemory(templates.IMemory):
 
     def parse(self, filename: Path) -> vectors.ParticlePool:
         with _GampReader(filename) as reader:
-            empty_pool = _get_particle_pool(filename, len(reader))
-            for ei, e in enumerate(reader):
-                for pi, p in enumerate(e.iter_particles()):
-                    # You must use get array to get a reference and not a copy
-                    empty_pool.stored[pi].dataframe.iloc[ei] = p.dataframe.loc[0]
-        return empty_pool
+            event_count = len(reader)
+
+        with filename.open() as stream:
+            particle_dict = self._make_particle_dict(filename, event_count)
+
+            for event_index, line in enumerate(stream):
+                particle_num = int(line)
+                for i in range(particle_num):
+                    line = stream.readline()
+                    p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+                    particle_dict[int(p_id)][event_index]["x"] = x
+                    particle_dict[int(p_id)][event_index]["y"] = y
+                    particle_dict[int(p_id)][event_index]["z"] = z
+                    particle_dict[int(p_id)][event_index]["e"] = e
+
+        particles = []
+        for p_id, momenta in particle_dict.items():
+            particles.append(
+                vectors.Particle(p_id, momenta)
+            )
+
+        return vectors.ParticlePool(particles)
+
+    @staticmethod
+    def _make_particle_dict(
+            filename: Path, particle_length: int = 1
+    ) -> Dict[int, npy.ndarray]:
+        with filename.open() as stream:
+            count = int(stream.readline())
+            lines = [stream.readline() for i in range(count)]
+
+        particles = dict()
+        for line in lines:
+            p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+            particles[int(p_id)] = npy.zeros(
+                particle_length,
+                dtype=[("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")]
+            )
+        return particles
 
     def write(self, filename: Path, data: vectors.ParticlePool):
         with _GampWriter(filename) as stream:

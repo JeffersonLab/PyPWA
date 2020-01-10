@@ -77,7 +77,9 @@ def _in_memory_intensities(
     manager = process.make_processes(
         {"data": data}, kernel, interface, processes, False
     )
-    return manager.run()
+    result = manager.run()
+    manager.close()
+    return result
 
 
 class _Kernel(process.Kernel):
@@ -110,6 +112,10 @@ class _Interface(process.Interface):
         list_of_data = list(range(len(communicator)))
         for communication in communicator:
             data = communication.recv()
+
+            if isinstance(data, process.ProcessCodes):
+                raise communication.recv()
+
             list_of_data[data[0]] = data[1]
         return list_of_data
 

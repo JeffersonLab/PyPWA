@@ -69,11 +69,11 @@ def get_writer(filename: str, dtype: DataType):
     return data.get_writer(filename, dtype)
 
 
-def read(filename: str):
-    data = _Data(True, False)
+def read(filename: str, cache=True, clear_cache=False):
+    data = _Data(cache, clear_cache)
     return data.parse(filename)
 
 
-def write(filename: str, data):
-    writer = _Data(True, False)
+def write(filename: str, data, cache=True, clear_cache=False):
+    writer = _Data(cache, clear_cache)
     return writer.write(filename, data)

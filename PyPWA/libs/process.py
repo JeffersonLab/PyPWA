@@ -43,6 +43,7 @@ File Layout
 """
 
 import copy
+import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from multiprocessing import cpu_count, Pipe, Process
@@ -220,34 +221,35 @@ class ProcessCodes(Enum):
 
 class ProcessInterface:
 
-    def __init__(self,
-                 interface_kernel: Interface,
-                 process_com: List[Connection],
-                 processes: List["_SmartProcess"]):
+    def __init__(
+            self, interface_kernel: Interface,
+            process_com: List[Connection], processes: List["_SmartProcess"]):
         self.__connections = process_com
         self.__interface = interface_kernel
         self.__processes = processes
 
     def run(self, *args):
-        return self.__interface.run(self.__connections, args)
+        try:
+            return self.__interface.run(self.__connections, args)
+        except Exception as error:
+            self.close()
+            raise error
 
-    def stop(self, force: bool = False):
-        if self.__connections[0].writable and not force:
-            self.__ask_processes_to_stop()
-        else:
-            self.__terminate_processes()
-
-    def __ask_processes_to_stop(self):
+    def close(self):
         for connection in self.__connections:
-            connection.send(ProcessCodes.SHUTDOWN)
+            if connection.writable:
+                connection.send(ProcessCodes.SHUTDOWN)
+            connection.close()
 
-    def __terminate_processes(self):
+        time.sleep(2)
+
         for process in self.__processes:
-            process.terminate()
+            if process.is_alive():
+                process.terminate()
 
     @property
     def is_alive(self) -> bool:
-        return True in [proc.is_alive() for proc in self.__processes]
+        return any([proc.is_alive() for proc in self.__processes])
 
 
 class _SmartProcess(Process):
@@ -267,8 +269,8 @@ class _SmartProcess(Process):
     def __run_duplex(self):
         try:
             self.__kernel.setup()
-        except Exception:
-            self.__connection.send(ProcessCodes.ERROR)
+        except Exception as error:
+            self.__handle_error(error)
             raise
         else:
             self.__loop()
@@ -277,14 +279,15 @@ class _SmartProcess(Process):
         while True:
             received = self.__connection.recv()
             if received == ProcessCodes.SHUTDOWN:
+                self.__connection.close()
                 break
             self.__process(received)
 
     def __process(self, received_data):
         try:
             value = self.__kernel.process(received_data)
-        except Exception:
-            self.__connection.send(ProcessCodes.ERROR)
+        except Exception as error:
+            self.__handle_error(error)
             raise
         else:
             self.__connection.send(value)
@@ -293,6 +296,11 @@ class _SmartProcess(Process):
         try:
             self.__kernel.setup()
             self.__connection.send(self.__kernel.process())
-        except Exception:
-            self.__connection.send(ProcessCodes.ERROR)
+        except Exception as error:
+            self.__handle_error(error)
             raise
+
+    def __handle_error(self, error):
+        self.__connection.send(ProcessCodes.ERROR)
+        self.__connection.send(error)
+        self.__connection.close()

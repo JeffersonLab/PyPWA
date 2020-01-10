@@ -98,7 +98,7 @@ def bin_by_range(
         raise ValueError("Input array and bin array must be the same length!")
 
     bin_edges = npy.linspace(
-        bin_series.min(), bin_series.max(), number_of_bins
+        bin_series.min(), bin_series.max(), number_of_bins + 1
     )
 
     bin_results = []

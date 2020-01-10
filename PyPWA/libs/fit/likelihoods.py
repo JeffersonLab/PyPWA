@@ -24,7 +24,7 @@ from abc import abstractmethod, ABC
 from typing import Any, Callable, Dict, List, Optional, Union
 import copy
 
-import numpy
+import numpy as npy
 
 from PyPWA import info as _info
 from PyPWA.libs import process
@@ -38,7 +38,7 @@ __version__ = _info.VERSION
 class AbstractAmplitude(ABC):
 
     @abstractmethod
-    def calculate(self, parameters) -> numpy.ndarray:
+    def calculate(self, parameters) -> npy.ndarray:
         ...
 
     @abstractmethod
@@ -50,7 +50,7 @@ class FunctionAmplitude(AbstractAmplitude):
 
     def __init__(
             self, setup: Callable[[], None],
-            processing: Callable[[numpy.ndarray, numpy.ndarray], numpy.ndarray]
+            processing: Callable[[npy.ndarray, npy.ndarray], npy.ndarray]
     ):
         self.__setup_function = setup
         self.__processing_function = processing
@@ -60,14 +60,14 @@ class FunctionAmplitude(AbstractAmplitude):
         self.__data = data
         self.__setup_function()
 
-    def calculate(self, parameters) -> numpy.ndarray:
+    def calculate(self, parameters) -> npy.ndarray:
         return self.__processing_function(self.__data, parameters)
 
 
 class TranslatorInterface(ABC):
 
     @abstractmethod
-    def __call__(self, *args) -> Union[Dict[str, float], numpy.ndarray]:
+    def __call__(self, *args) -> Union[Dict[str, float], npy.ndarray]:
         ...
 
 
@@ -87,19 +87,23 @@ class _LikelihoodInterface(process.Interface):
         for likelihood_process in communicator:
             likelihood_process.send(parameters)
 
-        results = []
+        result = npy.float(0)
         for likelihood_process in communicator:
-            results.append(likelihood_process.recv())
 
-        return numpy.sum(results)
+            data = likelihood_process.recv()
+            if isinstance(data, process.ProcessCodes):
+                raise likelihood_process.recv()
+
+            result += data
+        return result
 
 
 class ChiSquared:
 
     def __init__(
             self, amplitude: AbstractAmplitude,
-            initial_parameters: Union[Dict[str, Any], numpy.ndarray],
-            data: Dict[str, numpy.ndarray],
+            initial_parameters: Union[Dict[str, Any], npy.ndarray],
+            data: Dict[str, npy.ndarray],
             is_minimizer: Optional[bool] = True,
             num_of_processes=multiprocessing.cpu_count(),
             optimizer_translator: Optional[TranslatorInterface] = None
@@ -131,20 +135,20 @@ class _ChiSquaredKernel(process.Kernel):
 
     def __init__(
             self, multiplier: int, amplitude: AbstractAmplitude,
-            initial_parameters: Union[Dict[str, Any], numpy.ndarray]
+            initial_parameters: Union[Dict[str, Any], npy.ndarray]
     ):
         self.__multiplier = multiplier
         self.__amplitude = amplitude
         self.__initial_parameters = initial_parameters
 
         # These are set by the process lib
-        self.data: numpy.ndarray = None
-        self.binned: numpy.ndarray = None
-        self.event_errors: numpy.ndarray = None
-        self.expected_values: numpy.ndarray = None
+        self.data: npy.ndarray = None
+        self.binned: npy.ndarray = None
+        self.event_errors: npy.ndarray = None
+        self.expected_values: npy.ndarray = None
 
         # This is set at run time, after data has been loaded
-        self.__likelihood: Callable[[numpy.ndarray], numpy.float] = None
+        self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
         self.__amplitude.setup(self.data, self.__initial_parameters)
@@ -161,19 +165,19 @@ class _ChiSquaredKernel(process.Kernel):
 
     def __binned(self, results):
         difference = (results - self.binned) ** 2
-        return numpy.sum(difference / self.binned)
+        return npy.sum(difference / self.binned)
 
     def __expected_errors(self, results):
         difference = (results - self.expected_values) ** 2
-        return numpy.sum(difference / self.event_errors)
+        return npy.sum(difference / self.event_errors)
 
 
 class LogLikelihood:
 
     def __init__(
             self, amplitude: AbstractAmplitude,
-            initial_parameters: Union[Dict[str, Any], numpy.ndarray],
-            data: Dict[str, numpy.ndarray],
+            initial_parameters: Union[Dict[str, Any], npy.ndarray],
+            data: Dict[str, npy.ndarray],
             generated_length: Optional[int] = None,
             is_minimizer: Optional[bool] = True,
             num_of_processes=multiprocessing.cpu_count(),
@@ -199,7 +203,7 @@ class _LogLikelihoodKernel(process.Kernel):
 
     def __init__(
             self, multiplier: int, amplitude: AbstractAmplitude,
-            initial_parameters: Union[Dict[str, Any], numpy.ndarray],
+            initial_parameters: Union[Dict[str, Any], npy.ndarray],
             generated_length=Optional[int]
 
     ):
@@ -210,13 +214,13 @@ class _LogLikelihoodKernel(process.Kernel):
         self.__generated = 1/generated_length
 
         # These are set by the process lib
-        self.data: numpy.ndarray = None
-        self.monte_carlo: numpy.ndarray = None
-        self.binned: numpy.ndarray = None
-        self.quality_factor: numpy.ndarray = None
+        self.data: npy.ndarray = None
+        self.monte_carlo: npy.ndarray = None
+        self.binned: npy.ndarray = None
+        self.quality_factor: npy.ndarray = None
 
         # This is set at run time, after data has been loaded
-        self.__likelihood: Callable[[numpy.ndarray], numpy.float] = None
+        self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
         self.__data_amplitude.setup(self.data, self.__initial_parameters)
@@ -238,31 +242,31 @@ class _LogLikelihoodKernel(process.Kernel):
         return self.__multiplier * self.__likelihood(data)
 
     def __extended_likelihood(self, params):
-        data_result = numpy.sum(
-            self.quality_factor * numpy.log(
+        data_result = npy.sum(
+            self.quality_factor * npy.log(
                 self.__data_amplitude.calculate(params)
             )
         )
 
-        monte_carlo_result = self.__generated * numpy.sum(
+        monte_carlo_result = self.__generated * npy.sum(
             self.__monte_carlo_amplitude.calculate(params)
         )
 
-        return data_result + monte_carlo_result
+        return data_result - monte_carlo_result
 
     def __log_likelihood(self, params):
-        intensity = self.quality_factor * self.binned * numpy.log(
+        intensity = self.quality_factor * self.binned * npy.log(
             self.__data_amplitude.calculate(params)
         )
-        return numpy.sum(intensity)
+        return npy.sum(intensity)
 
 
 class EmptyLikelihood:
 
     def __init__(
             self, amplitude: AbstractAmplitude,
-            initial_parameters: Union[Dict[str, Any], numpy.ndarray],
-            data: Dict[str, numpy.ndarray],
+            initial_parameters: Union[Dict[str, Any], npy.ndarray],
+            data: Dict[str, npy.ndarray],
             num_of_processes=multiprocessing.cpu_count(),
             optimizer_translator: Optional[TranslatorInterface] = None
     ):
@@ -283,13 +287,13 @@ class _EmptyKernel(process.Kernel):
 
     def __init__(
             self, amplitude: AbstractAmplitude,
-            initial_parameters: Union[Dict[str, Any], numpy.ndarray]
+            initial_parameters: Union[Dict[str, Any], npy.ndarray]
     ):
         self.__amplitude = amplitude
         self.__initial_parameters = initial_parameters
 
         # These are set by the process lib
-        self.data: numpy.ndarray = None
+        self.data: npy.ndarray = None
 
     def setup(self):
         self.__amplitude.setup(self.data, self.__initial_parameters)

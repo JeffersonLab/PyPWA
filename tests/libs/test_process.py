@@ -51,14 +51,14 @@ class SimplexInterface(process.Interface):
         return npy.sum(value)
 
 
-@pytest.fixture(params=[True, False])
+@pytest.fixture
 def simplex_interface(request):
     interface = process.make_processes(
         TEST_DATA, SimplexKernel(), SimplexInterface(), 3, False
     )
 
     yield interface
-    interface.stop(request.param)
+    interface.close()
 
 
 def test_simplex_sum_matches_expected(simplex_interface):
@@ -96,13 +96,13 @@ class DuplexInterface(process.Interface):
         return npy.sum(value)
 
 
-@pytest.fixture(params=[True, False])
+@pytest.fixture
 def duplex_interface(request):
     interface = process.make_processes(
         TEST_DATA, DuplexKernel(), DuplexInterface(), 3, True
     )
     yield interface
-    interface.stop(request.param)
+    interface.close()
 
 
 def test_duplex_calculated_matches_expected(duplex_interface):
@@ -162,3 +162,4 @@ def test_process_error_handling(get_duplex_state):
     )
     values = interface.run()
     assert process.ProcessCodes.ERROR in values
+    interface.close()

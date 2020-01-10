@@ -77,6 +77,7 @@ class _ReadCache(_IRead):
     def __init__(self, package: _Package):
         self.__package = package
         self.__did_read = False
+        self.__loaded_package: _Package = None
         self.__graciously_load_cache()
 
     def __repr__(self) -> str:
@@ -91,7 +92,7 @@ class _ReadCache(_IRead):
 
     def __load_data(self):
         with self.__package.location.open("rb") as stream:
-            self.__package = pickle.load(stream)
+            self.__loaded_package = pickle.load(stream)
 
     def get_cache(self) -> Any:
         if self.is_valid:
@@ -101,8 +102,8 @@ class _ReadCache(_IRead):
 
     @property
     def is_valid(self) -> bool:
-        if self.__package.hash == self.__package.hash and self.__did_read:
-            return True
+        if self.__loaded_package.hash == self.__package.hash:
+            return self.__did_read
         else:
             return False
 
