@@ -44,9 +44,9 @@ class _Package:
     Stores the contents of any data that is loaded, as well as file
     source file hash, and the location of the cache.
 
-    .. note::
-        This is used both for finding the pickle and creating the
-        pickle.
+    Notes
+    -----
+    This is used both for finding the pickle and creating the pickle.
     """
     hash: str = None
     location: Path = None
@@ -81,30 +81,27 @@ class _ReadCache(_IRead):
         self.__graciously_load_cache()
 
     def __repr__(self) -> str:
-        return "{0}({1})".format(self.__class__.__name__, self.__package)
+        return f"{self.__class__.__name__}({self.__package})"
 
     def __graciously_load_cache(self):
         try:
-            self.__load_data()
+            with self.__package.location.open("rb") as stream:
+                self.__loaded_package = pickle.load(stream)
             self.__did_read = True
         except Exception:
             self.__did_read = False
             self.__loaded_package = _Package("-1", Path(), None)
 
-    def __load_data(self):
-        with self.__package.location.open("rb") as stream:
-            self.__loaded_package = pickle.load(stream)
-
     def get_cache(self) -> Any:
         if self.is_valid:
-            return self.__package.data
+            return self.__loaded_package.data
         else:
             raise RuntimeError("No valid data.")
 
     @property
     def is_valid(self) -> bool:
         if self.__loaded_package.hash == self.__package.hash:
-            return self.__did_read
+            return self.__did_read and self.__package.data is not None
         else:
             return False
 
@@ -116,7 +113,7 @@ class _ClearCache(_IRead):
         self.__attempt_to_remove_cache()
 
     def __repr__(self) -> str:
-        return "{0}({1})".format(self.__class__.__name__, self.__package)
+        return f"{self.__class__.__name__}({self.__package})"
 
     @property
     def is_valid(self):
@@ -127,8 +124,7 @@ class _ClearCache(_IRead):
 
     def __attempt_to_remove_cache(self):
         try:
-            if self.__package.location.exists():
-                self.__package.location.unlink()
+            self.__package.location.unlink()
         except Exception:
             pass
 
@@ -136,7 +132,7 @@ class _ClearCache(_IRead):
 class _NoRead(_IRead):
 
     def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
+        return f"{self.__class__.__name__}()"
 
     @property
     def is_valid(self) -> bool:
@@ -152,7 +148,7 @@ class _WriteCache(_IWrite):
         self.__package = package
 
     def __repr__(self):
-        return "{0}({1})".format(self.__class__.__name__, self.__package)
+        return f"{self.__class__.__name__}({self.__package})"
 
     def write_cache(self, data: Any):
         self.__package.data = data
@@ -169,7 +165,7 @@ class _WriteCache(_IWrite):
 class _NoWrite(_IWrite):
 
     def __repr__(self) -> str:
-        return "{0}()".format(self.__class__.__name__)
+        return f"{self.__class__.__name__}()"
 
     def write_cache(self, data: Any):
         pass
@@ -178,7 +174,10 @@ class _NoWrite(_IWrite):
 class Cache:
     """
     This class provides access to the file's cache
-    .. SeeAlso:: CacheFactory
+
+    See Also
+    --------
+    CacheFactory - Generates the cache object
     """
     def __init__(self, read_cache: _IRead, write_cache: _IWrite):
         self.__read_cache = read_cache
@@ -190,8 +189,11 @@ class Cache:
 
     def write_cache(self, data: Any):
         """
-        :param data: The data inside the source file, or the essential
-            excerpt, that needs to be accessed at a later time.
+        Parameters
+        ----------
+        data : Any
+            The data inside the source file, or the essential excerpt,
+            that needs to be accessed at a later time.
         """
         self.__write_cache.write_cache(data)
 
@@ -201,14 +203,22 @@ class Cache:
         Run this first, as read_cache will raise an error if you try to
         access an invalid cache.
 
-        :return: True if valid, False otherwise
+        Returns
+        -------
+        True if valid, False otherwise
         """
         return self.__read_cache.is_valid
 
     def read_cache(self) -> Any:
         """
-        :raises RuntimeError: If cache is invalid.
-        :return: The data that was stored in the pickle
+        Raises
+        ------
+        RuntimeError
+            If cache is invalid.
+
+        Returns
+        -------
+        The data that was stored in the pickle
         """
         return self.__read_cache.get_cache()
 
@@ -219,9 +229,14 @@ class CacheFactory:
         """
         Produces the cache object for the specific file that is
         provided.
-        :param use_cache: If False, caching will be disabled
-        :param clear_cache: If True, current cache will be removed even if
-            valid. Will remove cache even if use_cache is False.
+
+        Parameters
+        ----------
+        use_cache : bool
+            If False, caching will be disabled
+        clear_cache : bool
+            If True, current cache will be removed even if valid. Will
+            remove cache even if use_cache is False.
         """
         self.__use_cache = use_cache
         self.__clear_cache = clear_cache

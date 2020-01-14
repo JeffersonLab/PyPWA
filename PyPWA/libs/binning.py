@@ -16,15 +16,16 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union, List
+from typing import Union, List, Optional as Opt
 
 import numpy as npy
 import pandas as pd
 
 
 def bin_by_range(
-        dataframe: pd.DataFrame,
-        bin_series: Union[npy.ndarray, pd.Series], number_of_bins: int
+        dataframe: Union[pd.DataFrame, npy.ndarray],
+        bin_series: Union[npy.ndarray, pd.Series], number_of_bins: int,
+        lower_cut: Opt[float] = None, upper_cut: Opt[float] = None
 ) -> List[pd.DataFrame]:
     """Bins a dataframe by range using a series in memory
 
@@ -41,7 +42,12 @@ def bin_by_range(
         same length as dataframe
     number_of_bins : int
         The resulting number of bins that you would like to have.
-
+    lower_cut : float, optional
+        The lower cut off for the dataset, if not provided it will be set
+        to the smallest value in the bin_series
+    upper_cut : float, optional
+        The upper cut off for the dataset, if not provided  will be set
+        to the largest value in the bin_series
     Returns
     -------
     List[DataFrame or Structured Array]
@@ -97,6 +103,10 @@ def bin_by_range(
     if len(dataframe) != len(bin_series):
         raise ValueError("Input array and bin array must be the same length!")
 
+    dataframe, bin_series = _mask_binned_data(
+        dataframe, bin_series, lower_cut, upper_cut
+    )
+
     bin_edges = npy.linspace(
         bin_series.min(), bin_series.max(), number_of_bins + 1
     )
@@ -109,10 +119,33 @@ def bin_by_range(
 
         bin_results.append(dataframe[bin_mask])
 
+    bin_results[-1] = dataframe[
+        _make_bin_values(bin_series, bin_edges[-2], bin_edges[-1], True)
+    ]
+
     return bin_results
 
 
-def _make_bin_values(array: npy.ndarray, lower: float, upper: float):
-    lower_series = array > lower
-    upper_series = array < upper
+def _mask_binned_data(
+        array: Union[npy.ndarray, pd.DataFrame],
+        bin_values: Union[pd.Series, npy.ndarray],
+        lower: Opt[float] = None, upper: Opt[float] = None
+):
+    if lower is None:
+        lower = bin_values.min()
+    if upper is None:
+        upper = bin_values.max()
+    kept = _make_bin_values(bin_values, lower, upper, True)
+    return array[kept], bin_values[kept]
+
+
+def _make_bin_values(
+        array: Union[npy.ndarray, pd.Series], lower: float, upper: float,
+        last: Opt[bool] = False
+):
+    if last:
+        upper_series = array <= upper
+    else:
+        upper_series = array < upper
+    lower_series = array >= lower
     return npy.logical_and(lower_series, upper_series)

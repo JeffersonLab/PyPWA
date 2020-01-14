@@ -35,11 +35,12 @@ File Layout
 - Process and Interface Objects
 
 
-.. note::
-    Duplex processes will not shutdown automatically, you must shut them
-    down from the returned interface object. This is done so that when
-    new parameters are passed to the Duplex Processes there will not
-    be an associated "startup" cost.
+Notes
+-----
+Duplex processes will not shutdown automatically, you must shut them down
+from the returned interface object. This is done so that when new
+parameters are passed to the Duplex Processes there will not be an
+associated "startup" cost.
 """
 
 import copy
@@ -82,10 +83,11 @@ class Kernel(ABC):
       where you would place your intensity function, or something
       similar.
 
-    .. warning::
-        Do not change the value of process_id! It's value will be
-        set by make_process so that your data will be able to
-        stitched back into order.
+    Warnings
+    --------
+    Do not change the value of process_id! It's value will be set by 
+    make_process so that your data will be able to stitched back into
+    order.
     """
 
     @abstractmethod
@@ -102,9 +104,16 @@ class Kernel(ABC):
         The actual calculation or function of the program, can optionally
         support values from the main thread / process.
 
-        :param data: Any data that you want to pass to the kernel.
-        :return: The final value or object that should be sent back to the
-        main thread.
+        Parameters
+        ----------
+        data : Any
+            Any data that you want to pass to the kernel.
+
+        Returns
+        -------
+        Any
+            The final value or object that should be sent back to the main
+            thread.
         """
         ...
 
@@ -116,10 +125,18 @@ class Interface(ABC):
         The method that will be called to begin the calculation. This is
         the interface between the kernels and the calling object.
 
-        :param communicator: A list of objects that will be used to
-                             communicate with the kernels.
-        :param args: Any values that are sent to the main interface.
-        :return: Whatever value that is calculated locally from the kernels.
+        Parameters
+        ----------
+        communicator : List[multiprocessing.Pipe]
+            A list of pipes that will be used to communicate with
+            the kernels.
+        args : Any
+            Any values that are sent to the main interface.
+
+        Returns
+        -------
+        Any
+            Whatever value that is calculated locally from the kernels.
         """
         ...
 
@@ -236,16 +253,21 @@ class ProcessInterface:
             raise error
 
     def close(self):
+        # Close the pipes and shutdown the processes
         for connection in self.__connections:
             if connection.writable:
                 connection.send(ProcessCodes.SHUTDOWN)
             connection.close()
 
-        time.sleep(2)
+        # Wait at most 2 seconds for the processes to shutdown
+        for process in self.__processes:
+            process.join(2)
 
+        # Terminate and close the process
         for process in self.__processes:
             if process.is_alive():
                 process.terminate()
+            process.close()
 
     @property
     def is_alive(self) -> bool:

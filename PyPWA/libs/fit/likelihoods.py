@@ -20,15 +20,16 @@
 Main object for Parsing Data
 """
 
-from abc import abstractmethod, ABC
-from typing import Any, Callable, Dict, List, Optional, Union
 import copy
+import multiprocessing
+from abc import abstractmethod, ABC
+from typing import Any, Callable, Dict, List, Union, Optional as Opt
 
 import numpy as npy
+import pandas as pd
 
 from PyPWA import info as _info
 from PyPWA.libs import process
-import multiprocessing
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -74,7 +75,7 @@ class TranslatorInterface(ABC):
 class _LikelihoodInterface(process.Interface):
 
     def __init__(
-            self, optimizer_translator: Optional[TranslatorInterface] = None
+            self, optimizer_translator: Opt[TranslatorInterface] = None
     ):
         if optimizer_translator is None:
             self.__translator = lambda *x: x
@@ -103,26 +104,36 @@ class ChiSquared:
     def __init__(
             self, amplitude: AbstractAmplitude,
             initial_parameters: Union[Dict[str, Any], npy.ndarray],
-            data: Dict[str, npy.ndarray],
-            is_minimizer: Optional[bool] = True,
+            data: npy.ndarray,
+            binned: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            event_errors: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            expected_values: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            is_minimizer: Opt[bool] = True,
             num_of_processes=multiprocessing.cpu_count(),
-            optimizer_translator: Optional[TranslatorInterface] = None
+            optimizer_translator: Opt[TranslatorInterface] = None
     ):
         multiplier = 1 if is_minimizer else -1
 
-        if "binned" in data or (
-                "event_errors" in data and "expected_values" in data
-        ):
-            raise ValueError("ChiSquared needs Binned or Expected/Errors set!")
+        likelihood_data = {"data": data}
+        if binned is not None:
+            likelihood_data["binned"] = binned
+        elif event_errors is not None and expected_values is not None:
+            likelihood_data["event_errors"] = event_errors
+            likelihood_data["expected_values"] = expected_values
         else:
-            kernel = _ChiSquaredKernel(
-                multiplier, amplitude, initial_parameters
-            )
+            raise ValueError("ChiSquared needs Binned or Expected/Errors set!")
 
+        kernel = _ChiSquaredKernel(multiplier, amplitude, initial_parameters)
         interface = _LikelihoodInterface(optimizer_translator)
         self.__interface = process.make_processes(
-            data, kernel, interface, num_of_processes, True
+            likelihood_data, kernel, interface, num_of_processes
         )
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def __call__(self, *args):
         return self.__interface.run(args)
@@ -177,23 +188,42 @@ class LogLikelihood:
     def __init__(
             self, amplitude: AbstractAmplitude,
             initial_parameters: Union[Dict[str, Any], npy.ndarray],
-            data: Dict[str, npy.ndarray],
-            generated_length: Optional[int] = None,
-            is_minimizer: Optional[bool] = True,
+            data: Union[npy.ndarray, pd.DataFrame],
+            monte_carlo: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            binned: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            quality_factor: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            generated_length: Opt[int] = 1,
+            is_minimizer: Opt[bool] = True,
             num_of_processes=multiprocessing.cpu_count(),
-            optimizer_translator: Optional[TranslatorInterface] = None
+            optimizer_translator: Opt[TranslatorInterface] = None
     ):
         multiplier = -1 if is_minimizer else 1
+
         kernel = _LogLikelihoodKernel(
             multiplier, amplitude, initial_parameters, generated_length
         )
+
+        likelihood_data = {"data": data}
+        if monte_carlo is not None:
+            likelihood_data["monte_carlo"] = monte_carlo
+        if binned is not None:
+            likelihood_data["binned"] = binned
+        if quality_factor is not None:
+            likelihood_data["quality_factor"] = quality_factor
+
         interface = _LikelihoodInterface(optimizer_translator)
         self.__interface = process.make_processes(
-            data, kernel, interface, num_of_processes, True
+            likelihood_data, kernel, interface, num_of_processes
         )
 
     def __call__(self, *args):
         return self.__interface.run(args)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         self.__interface.close()
@@ -204,7 +234,7 @@ class _LogLikelihoodKernel(process.Kernel):
     def __init__(
             self, multiplier: int, amplitude: AbstractAmplitude,
             initial_parameters: Union[Dict[str, Any], npy.ndarray],
-            generated_length=Optional[int]
+            generated_length=Opt[int]
 
     ):
         self.__multiplier = multiplier
@@ -268,16 +298,22 @@ class EmptyLikelihood:
             initial_parameters: Union[Dict[str, Any], npy.ndarray],
             data: Dict[str, npy.ndarray],
             num_of_processes=multiprocessing.cpu_count(),
-            optimizer_translator: Optional[TranslatorInterface] = None
+            optimizer_translator: Opt[TranslatorInterface] = None
     ):
         kernel = _EmptyKernel(amplitude, initial_parameters)
         interface = _LikelihoodInterface(optimizer_translator)
         self.__interface = process.make_processes(
-            data, kernel, interface, num_of_processes, True
+            data, kernel, interface, num_of_processes
         )
 
     def __call__(self, *args):
         return self.__interface.run(args)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
 
     def close(self):
         self.__interface.close()

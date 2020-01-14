@@ -46,7 +46,7 @@ class Translator(_likelihoods.TranslatorInterface):
 def minimize(
         parameters: _Dict[str, _Any], settings: _Dict[str, _Any],
         likelihood: _likelihoods.ChiSquared, set_up: int, strategy=1,
-        num_of_calls=1000, end_process=True
+        num_of_calls=1000
 ):
     settings["forced_parameters"] = parameters
     settings["errordef"] = set_up
@@ -56,6 +56,4 @@ def minimize(
     optimizer.set_up(set_up)
     optimizer.migrad(num_of_calls)
 
-    if end_process:
-        likelihood.stop()
     return optimizer
