@@ -20,9 +20,11 @@
 
 """
 
-from PyPWA import info as _info
-from typing import Any as _Any, Dict as _Dict, List as _List
+from typing import Any as _Any, Callable as _Call, Dict as _Dict, List as _List
+
 import iminuit as _iminuit
+
+from PyPWA import info as _info
 from . import likelihoods as _likelihoods
 
 __credits__ = ["Mark Jones"]
@@ -30,27 +32,60 @@ __author__ = _info.AUTHOR
 __version__ = _info.VERSION
 
 
-class Translator(_likelihoods.TranslatorInterface):
+class _Translator:
 
-    def __init__(self, parameters: _List[str]):
+    def __init__(
+            self, parameters: _List[str], function_call: _Call[[_Any], float]
+    ):
         self.__parameters = parameters
+        self.__function = function_call
 
-    def __call__(self, *args: _List[float]) -> _Dict[str, _List[float]]:
+    def __call__(self, *args: _List[float]) -> float:
         parameters_with_values = {}
-        for parameter, arg in zip(self.__parameters, args[0][0]):
+        for parameter, arg in zip(self.__parameters, args):
             parameters_with_values[parameter] = arg
 
-        return parameters_with_values
+        return self.__function(parameters_with_values)
 
 
-def minimize(
-        parameters: _Dict[str, _Any], settings: _Dict[str, _Any],
+def minuit(
+        parameters: _List[str], settings: _Dict[str, _Any],
         likelihood: _likelihoods.ChiSquared, set_up: int, strategy=1,
         num_of_calls=1000
 ):
+    """Optimization using iminuit
+
+    Parameters
+    ----------
+    parameters : List[str]
+        The names of the parameters for iminuit to use
+    settings : Dict[str, Any]
+        The settings to be passed to iminuit. Look into the documentation
+        for iminuit for specifics
+    likelihood : Likelihood object from likelihoods or single function
+    set_up : float
+        Set to 1 for log-likelihoods, or .5 for Chi-Squared
+    strategy : int
+        Fitting strategy. Defaults to 1. 0 is slowest, 2 is fastest/
+    num_of_calls : int
+        A suggested max number of calls to minuit. This may or may not
+        be respected.
+
+    Returns
+    -------
+    iminuit.Minuit
+        The minuit object after the fit has been completed.
+
+    See Also
+    --------
+    iminuit's documentation : Should explain the various options that can
+        be passed to iminuit, and how to use the resulting object after
+        a fit has been completed/
+    """
     settings["forced_parameters"] = parameters
     settings["errordef"] = set_up
-    optimizer = _iminuit.Minuit(likelihood, **settings)
+    translator = _Translator(parameters, likelihood)
+    optimizer = _iminuit.Minuit(translator, **settings)
 
     optimizer.set_strategy(strategy)
     optimizer.set_up(set_up)

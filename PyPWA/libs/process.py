@@ -83,6 +83,9 @@ class Kernel(ABC):
       where you would place your intensity function, or something
       similar.
 
+    The kernel provides a run and close, so that it can be used in place
+    of the interface to aid debug or single thread execution.
+
     Warnings
     --------
     Do not change the value of process_id! It's value will be set by 
@@ -97,6 +100,12 @@ class Kernel(ABC):
         this will be called only once before any calculation begins.
         """
         ...
+
+    def run(self, data: Any = False) -> Any:
+        return self.process(data)
+
+    def close(self):
+        pass
 
     @abstractmethod
     def process(self, data: Any = False) -> Any:
@@ -120,7 +129,7 @@ class Kernel(ABC):
 
 class Interface(ABC):
 
-    def run(self, communicator: List[Any], args: Any) -> Any:
+    def run(self, communicator: List[Any], *args: Any) -> Any:
         """
         The method that will be called to begin the calculation. This is
         the interface between the kernels and the calling object.
@@ -247,7 +256,7 @@ class ProcessInterface:
 
     def run(self, *args):
         try:
-            return self.__interface.run(self.__connections, args)
+            return self.__interface.run(self.__connections, *args)
         except Exception as error:
             self.close()
             raise error

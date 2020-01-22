@@ -16,43 +16,41 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-****************
-Project Database
-****************
+"""Project Database
+
 This package handles reading and writing from HD5 files in the PyPWA,
 it supports multiple folders per file, larger than memory datasets,
 binning, and more. This is the go-to package for any analysis containing
 real data.
 
 Example
-=======
+-------
  - Start with opening a database and making your first folder::
-    db = ProjectDatabase("dataset.hd5", "w")
+>>> db = ProjectDatabase("dataset.hd5", "w")
 
-    # We need the base data, checkout `processor` for how this works
-    base_reader = get_reader("base_data.csv")
-    db.makefolder("my important data", base_reader, "base_data.csv")
-    important = db.get_folder("my important data")
+    We need the base data, checkout `processor` for how this works
+>>> base_reader = get_reader("base_data.csv")
+>>> db.makefolder("my important data", base_reader, "base_data.csv")
+>>> important = db.get_folder("my important data")
 
  - Add some data to your database::
-    important.data.add_data(DataTypes.QFactor, qfactor_data)
-    important.unmanaged.add("unique_name", some_unique_data)
+>>> important.data.add_data(DataTypes.QFactor, qfactor_data)
+>>> important.unmanaged.add("unique_name", some_unique_data)
 
  - Read your data::
-    x = important.data.read(DataTypes.QFactor)
-    y = important.unmanaged.read("unique_name")
+>>> x = important.data.read(DataTypes.QFactor)
+>>> y = important.unmanaged.read("unique_name")
 
  - Bin your data::
-    important.binning.add_fixed_count(BinVars.MASS, 1000)
-    important.execute()
+>>> important.binning.add_fixed_count(BinVars.MASS, 1000)
+>>> important.execute()
 
  - Walk over your freshly binned data::
-    base_bin_directory = important.binning.get_bin_directory()
-    for directory in base_bin_directory:
-        directory.root.read()
-        directory.data.read(DataTypes.QFactor)
-        directory.unmanaged.read("unique_name")
+>>> base_bin_directory = important.binning.get_bin_directory()
+>>> for directory in base_bin_directory:
+>>>    directory.root.read()
+>>>     directory.data.read(DataTypes.QFactor)
+>>>     directory.unmanaged.read("unique_name")
 """
 
 from PyPWA import info as _info

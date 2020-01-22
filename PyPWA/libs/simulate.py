@@ -24,7 +24,7 @@ import multiprocessing
 from typing import Any, Dict, List, Union
 
 import numpy as npy
-import pandas
+import pandas as pd
 
 from PyPWA import info as _info
 from PyPWA.libs import process
@@ -37,26 +37,54 @@ __version__ = _info.VERSION
 
 
 def monte_carlo_simulation(
-        amplitude: likelihoods.AbstractAmplitude,
-        data: Union[npy.ndarray, project.BaseFolder],
+        amplitude: likelihoods.NestedFunction,
+        data: Union[npy.ndarray, pd.DataFrame, project.BaseFolder],
         params: Dict[str, float] = None,
         processes: int = multiprocessing.cpu_count()) -> npy.ndarray:
     """Produces the rejection list
     This takes a user defined intensity object along with it's
     associated data, and generates a pass/fail array to be used to
-    mask the monte carlo.
+    mask any dataset of the same length as data.
 
-    :param amplitude: Users amplitude, an object extending from
-        AbstractAmplitude
-    :param data: Data to simulate against, either as a structured numpy
-        array or a pandas DataFrame
-    :param params: Dictionary of the parameters and their associated
-        values. These are the values for the intensity to simulate with.
-    :param processes: How many processes to execute with if applicable
-    :return: A pass/fail boolean array of the same length as data
+    Parameters
+    ----------
+    amplitude : Amplitude derived from AbstractAmplitude
+        A user defined amplitude or pre-made PyPWA amplitude that you
+        wish to carve your data with.
+    data : Structured Array, DataFrame, or BaseFolder from Project
+        This is the data you want to be passed to the `setup` function
+        of your amplitude. If you provide a Structured Array or DataFrame
+        the entire calculation will occur in memory with the selected
+        number of processes. If you provide a Project BaseFolder the
+        calculation will rely entirely on the Amplitude.
+    params : Dict[str, float], optional
+         An optional dictionary of parameters that will be passed to the
+         AbstractAmplitude's `calculate` function.
+    processes : int, optional
+        Selects the number of processes to run with, defaults to the
+        number of processes detected through multiprocessing
+
+    Returns
+    -------
+    boolean npy.ndarray
+        A masking array that can be used with any DataFrame or Structured
+        Array to cut the events to the generated shape
+
+    Raises
+    ------
+    ValueError
+        If the data is not understood. If you received this, check your
+        data to ensure its a supported type
+
+    Examples
+    --------
+    How to cut your data with results from monte_carlo_simulation
+
+    >>> rejection = monte_carlo_simulation(Amplitude(), data)
+    >>> carved = data[rejection]
     """
 
-    if isinstance(data, (npy.ndarray, pandas.DataFrame)):
+    if isinstance(data, (npy.ndarray, pd.DataFrame)):
         intensity = _in_memory_intensities(amplitude, data, params, processes)
     elif isinstance(data, project.BaseFolder):
         intensity = _in_table_intensities(amplitude, data, params)
@@ -67,12 +95,17 @@ def monte_carlo_simulation(
 
 
 def _in_memory_intensities(
-        amplitude: likelihoods.AbstractAmplitude,
-        data: Union[npy.ndarray, pandas.DataFrame],
+        amplitude: likelihoods.NestedFunction,
+        data: Union[npy.ndarray, pd.DataFrame],
         params: Dict[str, float],
         processes: int) -> npy.ndarray:
 
     kernel = _Kernel(amplitude, params)
+    if not amplitude.USE_MP or not processes:
+        kernel.data = data
+        kernel.setup()
+        return kernel.run()[1]
+
     interface = _Interface()
     manager = process.make_processes(
         {"data": data}, kernel, interface, processes, False
@@ -86,14 +119,14 @@ class _Kernel(process.Kernel):
 
     def __init__(
             self,
-            amplitude: likelihoods.AbstractAmplitude,
+            amplitude: likelihoods.NestedFunction,
             parameters: Dict[str, float]):
         self.__amplitude = amplitude
         self.__parameters = parameters
         self.data: npy.ndarray = None
 
     def setup(self):
-        self.__amplitude.setup(self.data, self.__parameters)
+        self.__amplitude.setup(self.data)
 
     def process(self, data: Any = False) -> Any:
         calculated = self.__amplitude.calculate(self.__parameters)
@@ -103,7 +136,7 @@ class _Kernel(process.Kernel):
 class _Interface(process.Interface):
     IS_DUPLEX = False
 
-    def run(self, communicator: List[Any], args: Any) -> npy.ndarray:
+    def run(self, communicator: List[Any], *args: Any) -> npy.ndarray:
         data = self.__receive_data(communicator)
         return npy.concatenate(data)
 
@@ -121,11 +154,11 @@ class _Interface(process.Interface):
 
 
 def _in_table_intensities(
-        amplitude: likelihoods.AbstractAmplitude,
+        amplitude: likelihoods.NestedFunction,
         data: project.BaseFolder,
         parameters: Dict[str, float]) -> npy.ndarray:
 
-    amplitude.setup(data, parameters)
+    amplitude.setup(data)
     return amplitude.calculate(parameters)
 
 

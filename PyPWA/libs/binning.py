@@ -77,7 +77,6 @@ def bin_by_range(
 
     .. math:: (max - min) / num_of_bins
 
-
     Examples
     --------
     Binning a DataFrame with values x, y, and z using z to bin

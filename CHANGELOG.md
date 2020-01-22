@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Resonance support now builtin using DataFrames as a backbone.
    Resonances are now saved as a two sheet excel file, and can be modified
    using the supplied wave and resonance objects.
+ - Adds support for Numexpr to accelerate computation.
 ### Changed
  - Separate release tag from version info
  - Package info is now stored in PyPWA.info

@@ -43,7 +43,7 @@ class SimplexKernel(process.Kernel):
 
 class SimplexInterface(process.Interface):
 
-    def run(self, connections, args):
+    def run(self, connections, *args):
         value = npy.zeros(len(connections))
         for index, connection in enumerate(connections):
             value[index] = connection.recv()
@@ -85,9 +85,9 @@ class DuplexKernel(process.Kernel):
 
 class DuplexInterface(process.Interface):
 
-    def run(self, connections, arguments):
+    def run(self, connections, *arguments):
         for connection in connections:
-            connection.send(arguments[0])
+            connection.send(arguments)
 
         value = npy.zeros(len(connections))
         for index, connection in enumerate(connections):
@@ -138,7 +138,7 @@ class InterfaceError(process.Interface):
     def __init__(self, is_duplex: bool):
         self.__duplex = is_duplex
 
-    def run(self, connections, args):
+    def run(self, connections, *args):
         if self.__duplex:
             for connection in connections:
                 connection.send("go")

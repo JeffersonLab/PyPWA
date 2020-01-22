@@ -26,12 +26,13 @@ objects you'll need to quickly start loading and writing data with PyPWA.
 
 Contained packages:
 ===================
-- processor: This parses and writes files either one event at a time,
-    or by the entire array
+- processor: This parses and writes files either one event at a time
+    through a reader or writer, or parses the entire file with a DataFrame
+    through read or write.
 - project: This package handles reading and writing to a HD5 file in the
     PyPWA data structure. This handles multiple data types, predetermined
     data types, and unknown data types.
-    This is also the package used for all binning in PyPWA.
+    This is also the package used for binning with large amounts of data
 
 Contained modules:
 ==================
@@ -47,6 +48,11 @@ Contained modules:
 from PyPWA import info as _info
 from .project import ProjectDatabase
 from .processor import DataProcessor as _Data, DataType
+from .processor import templates as _templates
+from PyPWA.libs.vectors import ParticlePool as _pp
+import numpy as _npy
+import pandas as _pd
+from typing import Union as _U
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -59,21 +65,141 @@ __all__ = [
 ]
 
 
-def get_reader(filename: str):
+def get_reader(filename: str) -> _templates.ReaderBase:
+    """Returns a reader that can read the file one event at a time
+
+    Parameters
+    ----------
+    filename : str, Path
+        The file that you want to read
+
+    Returns
+    -------
+    templates.ReaderBase
+        A reader that can read the file, defined in PyPWA.plugins.data
+
+    Raises
+    ------
+    RuntimeError
+        If there is no plugin that can load the data found
+
+    See Also
+    --------
+    read : Reads an entire file into a DataFrame, ParticlePool, or array
+
+    Examples
+    --------
+    The reader can be used inside a standard `for` loop
+
+    >>> reader = get_reader("example.gamp")
+    >>> for event in reader:
+    >>>     pass
+    >>> reader.close()
+    """
     data = _Data(True, False)
     return data.get_reader(filename)
 
 
-def get_writer(filename: str, dtype: DataType):
+def get_writer(filename: str, dtype: DataType) -> _templates.WriterBase:
+    """Returns a writer that can write to the file one event at a time
+
+    Parameters
+    ----------
+    filename : str, Path
+        The file that you want to write to
+    dtype : DataType
+        Specifies the type of that needs to be written. TREE_VECTOR is
+        used for ParticlePools and only works with the '.gamp' extension
+        for now. STRUCTURED_ARRAY is used for both numpy structured arrays
+        and pandas DataFrames. BASIC is used for standard numpy arrays.
+
+    Returns
+    -------
+    templates.WriterBase
+        A writer that can read the file, defined in PyPWA.plugins.data
+
+    Raises
+    ------
+    RuntimeError
+        If there is no plugin that can write the data found
+
+    See Also
+    --------
+    write : Writes a ParticlePool, DataFrame, or array to file
+
+    Examples
+    --------
+    The writer can be used to write a ParticlePool one event at a time
+
+    >>> writer = get_writer("example.gamp", DataType.TREE_VECTOR)
+    >>> for event in particles.iter_events():
+    >>>     writer.write(event)
+    >>> writer.close()
+    """
     data = _Data(True, False)
     return data.get_writer(filename, dtype)
 
 
-def read(filename: str, cache=True, clear_cache=False):
+def read(
+        filename: str, cache=True, clear_cache=False
+) -> _U[_pd.DataFrame, _pp, _npy.ndarray]:
+    """Reads the entire file and returns either DaataFrame, ParticlePool,
+    or standard numpy array depending on the data found inside the file.
+
+    Parameters
+    ----------
+    filename : Path, str
+        The filename of the file you wish to parse
+    cache : bool, optional
+        Enables or disables caching. Defaults to the enabled. Leaving this
+        enabled should do no harm unless there something is broken with
+        caching. Disable this if returning the wrong data for debug
+        purposes. If it continues to return the incorrect data when
+        disabled then caching isn't the issue.
+    clear_cache : bool, optional
+        Forcefully clears the cache for the files that are parsed. Instead
+        of loading the cache, it'll delete the cache and write a new cache
+        object instead if cache is enabled.
+
+    Returns
+    -------
+    DataFrame
+        If the file is a kVars file, CSV, or TSV
+    npy.ndarray
+        If the file is a numpy file, PF file, or single column txt file
+    ParticlePool
+        If parsing a gamp file
+
+    Raises
+    ------
+    RuntimeError
+        If there is no plugin that can load the data found
+    """
     data = _Data(cache, clear_cache)
     return data.parse(filename)
 
 
 def write(filename: str, data, cache=True, clear_cache=False):
+    """Reads the entire file and returns either DaataFrame, ParticlePool,
+    or standard numpy array depending on the data found inside the file.
+
+    Parameters
+    ----------
+    filename : Path, str
+        The filename of the file you wish to write
+    cache : bool, optional
+        Enables or disables caching. Defaults to the enabled. Leaving this
+        enabled should do no harm unless there something is broken with
+        caching.
+    clear_cache : bool, optional
+        Forcefully clears the cache for the files that are parsed. It'll
+        delete the cache and write a new cache object instead when cache
+        is enabled.
+
+    Raises
+    ------
+    RuntimeError
+        If there is no plugin that can load the data found
+    """
     writer = _Data(cache, clear_cache)
     return writer.write(filename, data)

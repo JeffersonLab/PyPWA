@@ -37,17 +37,18 @@ entry_points = {
 }
 
 requires = [
-    "tqdm",       # Progress Bars
-    "iminuit",    # Default minimizer
-    "scipy",      # Needed for Nestle with multiple ellipsoids.
-    "numpy",      # Arrays and optimizations
-    "pyyaml",     # YAML Parser
-    "tabulate",   # Tables for iminuit
-    "appdirs",    # Attempts to find data locations
-    "tables",     # Stores table in a specialized table format
-    "pandas",     # A powerful statistics package that's used everywhere
-    "openpyxl",   # Provides support for XLXS, used for resonance,
-    "matplotlib"  # Adds support for plotting
+    "tqdm",        # Progress Bars
+    "iminuit",     # Default minimizer
+    "scipy",       # Needed for Nestle with multiple ellipsoids.
+    "numpy",       # Arrays and optimizations
+    "pyyaml",      # YAML Parser
+    "tabulate",    # Tables for iminuit
+    "appdirs",     # Attempts to find data locations
+    "tables",      # Stores table in a specialized table format
+    "pandas",      # A powerful statistics package that's used everywhere
+    "openpyxl",    # Provides support for XLXS, used for resonance,
+    "matplotlib",  # Adds support for plotting
+    "numexpr"      # Accelerates numpy by removing intermediate steps
 ]
 
 extras = {

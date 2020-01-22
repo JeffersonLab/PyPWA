@@ -54,6 +54,34 @@ class BaseFolder(_common.CommonFolder):
 
 
 class ProjectDatabase:
+    """Larger than memory data manipulation inside an HDF5 file
+    Allows the user to operate on data larger than the systems RAM. This
+    supports all data types, multiprocessing, and binning of ParticlePool
+    data.
+    Data is stored in the HDF5 using groups, or `folders`. Each file
+    can have multiple different folders with different data and can be
+    accessed independently from the other folders. Each folder has `root`
+    data that must be either a ParticlePool or DataFrame, and then other
+    types of data can be added along with the root data either as a
+    `managed` data type that the table will `manage` for the user, or
+    `unmanaged` where the user must ensure there will be no name conflicts
+    or other issues.
+
+    Parameters
+    ----------
+    file : str, Path
+        The name of the HDF5 file, most commonly with a `hd5` extension
+    mode : str
+        Either 'a' or 'r' for append or read-only respectfully. If you
+        try to open the table in write mode using 'w' it'll be changed to
+        'a'ppend mode instead to avoid unintentionally overwriting data.
+        Use path to delete the file if you wish to start fresh.
+
+    See Also
+    --------
+    PyPWA.libs.binning, PyPWA.bin_by_range : For binning directly on an
+        array or dataframe
+    """
 
     def __init__(self, file: Union[Path, str], mode: str):
 
@@ -91,6 +119,18 @@ class ProjectDatabase:
         self.close()
 
     def get_folder(self, name: str) -> BaseFolder:
+        """Returns a base folder from the HDF5 file that was previously
+        created.
+
+        Parameters
+        ----------
+        name : str
+            The name of the folder to parse from the
+
+        Returns
+        -------
+
+        """
         try:
             return BaseFolder(self.__file, getattr(self.__group, name))
         except AttributeError:
