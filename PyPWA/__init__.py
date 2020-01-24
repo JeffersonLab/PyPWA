@@ -56,6 +56,8 @@ Note: Data can be loaded and writen with Pandas or Numpy if preferred,
 
 Tools:
 ------
+- bin_with_fixed_widths: Supports binning any dataset into a bins with
+    a fixed number of events per bin
 - bin_by_range: Supports binning any dataset into a fixed number of bins
 - make_lego: Produces a lego plot
 
@@ -70,7 +72,7 @@ Provided Data Types:
 """
 
 from PyPWA import info as _info
-from PyPWA.libs.binning import bin_by_range
+from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths
 from PyPWA.libs.file import (
     get_reader, get_writer, read, write, ProjectDatabase
 )
@@ -88,7 +90,7 @@ __all__ = [
     "get_writer", "get_reader", "read", "write", "ProjectDatabase",
     "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
     "EmptyLikelihood", "NestedFunction", "FunctionAmplitude",
-    "ResonanceData", "bin_by_range", "make_lego"
+    "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego"
 ]
 
 __author__ = _info.AUTHOR

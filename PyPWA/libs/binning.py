@@ -52,7 +52,7 @@ def bin_by_range(
     -------
     List[DataFrame or Structured Array]
         A list of array-likes that have been masked off of the input
-        dataframe.
+        bin_series.
 
     Raises
     ------
@@ -123,6 +123,121 @@ def bin_by_range(
     ]
 
     return bin_results
+
+
+def bin_with_fixed_widths(
+        dataframe: Union[pd.DataFrame, npy.ndarray],
+        bin_series: Union[npy.ndarray, pd.Series], fixed_size: int,
+        lower_cut: Opt[float] = None, upper_cut: Opt[float] = None
+) -> List[pd.DataFrame]:
+    """Bins a dataframe by fixed using a series in memory
+
+    Bins an input array by a fixed number of events in memory. You must
+    put all data you  want binned into the DataFrame or Structured Array
+    before use. Each resulting bin can be further binned if you desire.
+
+    If the fixed_size does not evenly divide into the length of
+    bin_series, the first and last bin will contain overflows.
+
+    Parameters
+    ----------
+    dataframe : DataFrame or Structured Array
+        The dataframe or numpy array that you wish to break into bins
+    bin_series : Array-like
+        Data that you want to bin by, selectable by user. Must have the
+        same length as dataframe
+    fixed_size : int
+        The number of events you want in each bin.
+    lower_cut : float, optional
+        The lower cut off for the dataset, if not provided it will be set
+        to the smallest value in the bin_series
+    upper_cut : float, optional
+        The upper cut off for the dataset, if not provided  will be set
+        to the largest value in the bin_series
+    Returns
+    -------
+    List[DataFrame or Structured Array]
+        A list of array-likes that have been masked off of the input
+        bin_series.
+
+    Raises
+    ------
+    ValueError
+        If the length of the input array and bin array don't match
+
+    Warnings
+    --------
+    This function does all binning in memory, if you are working with
+    a large dataset that doesn't fit in memory, or if you overflow while
+    you are binning, you must use a different binning method
+
+    See Also
+    --------
+    PyPWA.libs.file.project : A numerical dataset that supports binning
+        on disk instead of in-memory. It's slower and requires more steps
+        to use, but should work even on memory limited systems.
+
+    Examples
+    --------
+    Binning a DataFrame with values x, y, and z using z to bin
+
+    >>> data = {
+    >>>     "x": npy.random.rand(1000), "y": npy.random.rand(1000),
+    >>>     "z": (npy.random.rand(1000) * 100) - 50
+    >>>    }
+    >>> df = pd.DataFrame(data)
+    >>> list(df.columns)
+    ["x", "y", "z"]
+
+    This will give us a usable DataFrame, now to make a series out of z
+    and use it to make 10 bins.
+
+    >>> binning = df["z"]
+    >>> range_bins = bin_with_fixed_widths(df, binning, 250)
+    >>> len(range_bins)
+    4
+
+    Each bin should have exactly 250 events in size
+
+    >>> lengths = []
+    >>> for abin in range_bins:
+    >>>    lengths.append(len(abin))
+    [250, 250, 250, 250]
+
+    That will give you 4 bins with exaactly the same number of events
+    per bin, plus 2 more bins if needed.
+    """
+    if len(dataframe) != len(bin_series):
+        raise ValueError("Input array and bin array must be the same length!")
+
+    dataframe, bin_series = _mask_binned_data(
+        dataframe, bin_series, lower_cut, upper_cut
+    )
+
+    indexes = bin_series.argsort().argsort().astype("u4")
+
+    num_in_center = len(indexes) // fixed_size
+    lower_events = (len(indexes) % fixed_size) // 2
+    upper_events = lower_events + (num_in_center * fixed_size)
+
+    bins = []
+    if lower_events:
+        lower_slice = _make_bin_values(indexes, 0, lower_events)
+        bins.append(dataframe[lower_slice])
+
+    for i in range(num_in_center):
+        lower_value = lower_events + (i * fixed_size)
+        upper_value = lower_events + (fixed_size * (i + 1))
+        mask = _make_bin_values(indexes, lower_value, upper_value)
+        bins.append(dataframe[mask])
+
+    if upper_events != len(bin_series):
+        upper_slice = _make_bin_values(
+            indexes, upper_events, len(indexes), True
+        )
+        bins.append(dataframe[upper_slice])
+
+    return bins
 
 
 def _mask_binned_data(
