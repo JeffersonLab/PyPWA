@@ -24,8 +24,9 @@ import pandas as pd
 
 def bin_by_range(
         dataframe: Union[pd.DataFrame, npy.ndarray],
-        bin_series: Union[npy.ndarray, pd.Series], number_of_bins: int,
-        lower_cut: Opt[float] = None, upper_cut: Opt[float] = None
+        bin_series: Union[npy.ndarray, pd.Series, str],
+        number_of_bins: int, lower_cut: Opt[float] = None,
+        upper_cut: Opt[float] = None, sample_size: Opt[int] = None
 ) -> List[pd.DataFrame]:
     """Bins a dataframe by range using a series in memory
 
@@ -39,7 +40,8 @@ def bin_by_range(
         The dataframe or numpy array that you wish to break into bins
     bin_series : Array-like
         Data that you want to bin by, selectable by user. Must have the
-        same length as dataframe
+        same length as dataframe. If a column name is provided, that
+        column will be used from the dataframe.
     number_of_bins : int
         The resulting number of bins that you would like to have.
     lower_cut : float, optional
@@ -48,6 +50,10 @@ def bin_by_range(
     upper_cut : float, optional
         The upper cut off for the dataset, if not provided  will be set
         to the largest value in the bin_series
+    sample_size : int, optional
+        If provided each bin will have a randomly selected number of
+        events of length sample_size.
+
     Returns
     -------
     List[DataFrame or Structured Array]
@@ -99,7 +105,9 @@ def bin_by_range(
 
     That will give you 10 bins with a very close number of values per bin
     """
-    if len(dataframe) != len(bin_series):
+    if isinstance(bin_series, str):
+        bin_series = dataframe[bin_series]
+    elif len(dataframe) != len(bin_series):
         raise ValueError("Input array and bin array must be the same length!")
 
     dataframe, bin_series = _mask_binned_data(
@@ -110,17 +118,37 @@ def bin_by_range(
         bin_series.min(), bin_series.max(), number_of_bins + 1
     )
 
-    bin_results = []
+    bin_masks = []
     for bin_count in range(len(bin_edges) - 1):
-        bin_mask = _make_bin_values(
-            bin_series, bin_edges[bin_count], bin_edges[bin_count + 1]
+        bin_masks.append(
+            _make_bin_values(
+                bin_series, bin_edges[bin_count], bin_edges[bin_count + 1]
+            )
         )
 
-        bin_results.append(dataframe[bin_mask])
+    bin_masks[-1] = _make_bin_values(
+        bin_series, bin_edges[-2], bin_edges[-1], True
+    )
 
-    bin_results[-1] = dataframe[
-        _make_bin_values(bin_series, bin_edges[-2], bin_edges[-1], True)
-    ]
+    if sample_size:
+        new_masks = []
+        for mask in bin_masks:
+            indexes = npy.arange(len(mask))[mask]
+            choices = npy.random.choice(indexes, sample_size, False)
+            new_mask = npy.zeros(len(mask), bool)
+            new_mask[choices] = True
+            new_masks.append(new_mask)
+        bin_masks = new_masks
+
+    bin_results = []
+    for mask in bin_masks:
+        binned_data = dataframe[mask]
+        if sample_size:
+            indexes = npy.arange(len(binned_data))
+            sample_mask = npy.random.choice(indexes, sample_size, False)
+
+            binned_data = binned_data[sample_mask.astype(bool)]
+        bin_results.append(binned_data)
 
     return bin_results
 
@@ -145,7 +173,8 @@ def bin_with_fixed_widths(
         The dataframe or numpy array that you wish to break into bins
     bin_series : Array-like
         Data that you want to bin by, selectable by user. Must have the
-        same length as dataframe
+        same length as dataframe. If a column name is provided, that
+        column will be used from the dataframe.
     fixed_size : int
         The number of events you want in each bin.
     lower_cut : float, optional
@@ -207,7 +236,9 @@ def bin_with_fixed_widths(
     That will give you 4 bins with exaactly the same number of events
     per bin, plus 2 more bins if needed.
     """
-    if len(dataframe) != len(bin_series):
+    if isinstance(bin_series, str):
+        bin_series = dataframe[bin_series]
+    elif len(dataframe) != len(bin_series):
         raise ValueError("Input array and bin array must be the same length!")
 
     dataframe, bin_series = _mask_binned_data(
