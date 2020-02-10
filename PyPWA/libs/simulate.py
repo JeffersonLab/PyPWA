@@ -21,7 +21,7 @@ Defines how the simulation works for PyPWA
 """
 
 import multiprocessing
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Set, Tuple
 
 import numpy as npy
 import pandas as pd
@@ -83,7 +83,49 @@ def monte_carlo_simulation(
     >>> rejection = monte_carlo_simulation(Amplitude(), data)
     >>> carved = data[rejection]
     """
+    intensity, max_value = process_user_function(
+        amplitude, data, params, processes
+    )
+    return make_rejection_list(intensity, max_value)
 
+
+def process_user_function(amplitude: likelihoods.NestedFunction,
+        data: Union[npy.ndarray, pd.DataFrame, project.BaseFolder],
+        params: Dict[str, float] = None,
+        processes: int = multiprocessing.cpu_count()
+) -> Tuple[npy.ndarray, float]:
+    """Produces an array of values for the calculated function.
+
+    Parameters
+    ----------
+    amplitude : Amplitude derived from AbstractAmplitude
+        A user defined amplitude or pre-made PyPWA amplitude that you
+        wish to carve your data with.
+    data : Structured Array, DataFrame, or BaseFolder from Project
+        This is the data you want to be passed to the `setup` function
+        of your amplitude. If you provide a Structured Array or DataFrame
+        the entire calculation will occur in memory with the selected
+        number of processes. If you provide a Project BaseFolder the
+        calculation will rely entirely on the Amplitude.
+    params : Dict[str, float], optional
+         An optional dictionary of parameters that will be passed to the
+         AbstractAmplitude's `calculate` function.
+    processes : int, optional
+        Selects the number of processes to run with, defaults to the
+        number of processes detected through multiprocessing
+
+    Returns
+    -------
+    (float npy.ndarray, float)
+        The final values computed from the user's function and the max
+        value computed for that dataset.
+
+    Raises
+    ------
+    ValueError
+        If the data is not understood. If you received this, check your
+        data to ensure its a supported type
+    """
     if isinstance(data, (npy.ndarray, pd.DataFrame)):
         intensity = _in_memory_intensities(amplitude, data, params, processes)
     elif isinstance(data, project.BaseFolder):
@@ -91,7 +133,7 @@ def monte_carlo_simulation(
     else:
         raise ValueError("Unknown data type!")
 
-    return _make_reject_list(intensity)
+    return intensity, intensity.max()
 
 
 def _in_memory_intensities(
@@ -162,6 +204,31 @@ def _in_table_intensities(
     return amplitude.calculate(parameters)
 
 
-def _make_reject_list(intensities: npy.ndarray) -> npy.ndarray:
+def make_rejection_list(
+        intensities: npy.ndarray,
+        max_value: Union[List[float], npy.ndarray, float]
+) -> npy.ndarray:
+    """Produces the rejection list from pre-calculated function values.
+    Uses the values returned by process_user_function.
+
+    Parameters
+    ----------
+    intensities : Numpy array or Pandas Series
+        This is a single dimensional array containing the final values
+        for the user's function.
+    max_value : List, Tuple, Set, nd.ndarray, or float
+        The max value for the entire dataset, or list of all the max
+        values from each dataset. Only the largest value from the list
+        will be used.
+
+    Returns
+    -------
+    boolean npy.ndarray
+        A masking array that can be used with any DataFrame or Structured
+        Array to cut the events to the generated shape
+    """
+    if isinstance(max_value, (list, tuple, set, npy.ndarray)):
+        max_value = max(max_value)
+
     random_numbers = npy.random.rand(len(intensities))
-    return (intensities / intensities.max()) > random_numbers
+    return (intensities / max_value) > random_numbers

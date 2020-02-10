@@ -17,21 +17,26 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Pickle Cache
-------------
-Stores the data in a python pickle so that it can be easily read at a
-future time. Takes advantage of SHA512 file hashing to determine if the
-source file hash changed since its contents were previously loaded.
+Caching
+-------
+Stores the data in a pickle cache. By taking advantage of SHA-512 and
+python's pickle, caches can be loaded and stored rapidly, while allowing
+us to automatically invalidate the cache when the source file has changed
+in any way.
+
+Both read and write support being used as an intermediate step. The
+intermediate step would allow you to save your data quickly for loading
+later. The resulting file would only be readable in Python. This method
+is very fast.
 """
 
 import pickle
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Tuple, Union
 
-from PyPWA.libs.file import misc
 from PyPWA import info as _info
+from PyPWA.libs.file import misc
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -41,256 +46,102 @@ __version__ = _info.VERSION
 @dataclass
 class _Package:
     """
-    Stores the contents of any data that is loaded, as well as file
-    source file hash, and the location of the cache.
-
-    Notes
-    -----
-    This is used both for finding the pickle and creating the pickle.
+    Stores the contents of any data that is loaded and the files hash.
     """
     hash: str = None
-    location: Path = None
     data: Any = None
+    version: int = 1
 
 
-class _IWrite(ABC):
+def read(
+        path: Union[str, Path], intermediate=False, remove_cache=False
+) -> Tuple[bool, Any]:
+    """Reads a cache object
+    This reads caches objects from the disk. With it's default settings
+    it'll load the cache file as long as the source file's hash hasn't
+    changed. It can also be used to store an intermediate step directly
+    by providing a name and setting intermediate to True.
 
-    @abstractmethod
-    def write_cache(self, data: Any):
-        ...
+    Parameters
+    ----------
+    path : Path or str
+        The path of the source file, or path where you want the
+        intermediate step t0 be stored.
+    intermediate : bool
+        If set to true, the cache will be treated as an intermediate step,
+        this means it will assume there is no data file associated with
+        the data, and will not check file hashes.
+    remove_cache : bool
+        Setting this to true will remove the cache.
 
-
-class _IRead(ABC):
-
-    @property
-    @abstractmethod
-    def is_valid(self) -> bool:
-        ...
-
-    @abstractmethod
-    def get_cache(self) -> Any:
-        ...
-
-
-class _ReadCache(_IRead):
-
-    def __init__(self, package: _Package):
-        self.__package = package
-        self.__did_read = False
-        self.__loaded_package: _Package = None
-        self.__graciously_load_cache()
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.__package})"
-
-    def __graciously_load_cache(self):
-        try:
-            with self.__package.location.open("rb") as stream:
-                self.__loaded_package = pickle.load(stream)
-            self.__did_read = True
-        except Exception:
-            self.__did_read = False
-            self.__loaded_package = _Package("-1", Path(), None)
-
-    def get_cache(self) -> Any:
-        if self.is_valid:
-            return self.__loaded_package.data
-        else:
-            raise RuntimeError("No valid data.")
-
-    @property
-    def is_valid(self) -> bool:
-        if self.__loaded_package.hash == self.__package.hash:
-            return self.__did_read and self.__package.data is not None
-        else:
-            return False
-
-
-class _ClearCache(_IRead):
-
-    def __init__(self, package: _Package):
-        self.__package = package
-        self.__attempt_to_remove_cache()
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.__package})"
-
-    @property
-    def is_valid(self):
-        return False
-
-    def get_cache(self):
-        raise RuntimeError("No Valid Cache")
-
-    def __attempt_to_remove_cache(self):
-        try:
-            self.__package.location.unlink()
-        except Exception:
-            pass
-
-
-class _NoRead(_IRead):
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
-
-    @property
-    def is_valid(self) -> bool:
-        return False
-
-    def get_cache(self) -> Any:
-        raise RuntimeError("No valid cache.")
-
-
-class _WriteCache(_IWrite):
-
-    def __init__(self, package: _Package):
-        self.__package = package
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.__package})"
-
-    def write_cache(self, data: Any):
-        self.__package.data = data
-        self.__try_to_write_cache()
-
-    def __try_to_write_cache(self):
-        try:
-            with self.__package.location.open("wb") as stream:
-                pickle.dump(self.__package, stream)
-        except Exception:
-            pass
-
-
-class _NoWrite(_IWrite):
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
-
-    def write_cache(self, data: Any):
-        pass
-
-
-class Cache:
+    Returns
+    -------
+    Tuple[bool, any]
+        The first value in the tuple is whether the cache is valid or not
+        and the second value in the returned tuple is whatever data was
+        stored in the cache.
     """
-    This class provides access to the file's cache
+    path = Path(path)
+    cache_path = misc.get_cache_uri() / (path.stem + ".pickle")
 
-    See Also
-    --------
-    CacheFactory - Generates the cache object
-    """
-    def __init__(self, read_cache: _IRead, write_cache: _IWrite):
-        self.__read_cache = read_cache
-        self.__write_cache = write_cache
-
-    def __repr__(self) -> str:
-        return (f"{self.__class__.__name__}"
-                f"({self.__read_cache!r}, {self.__write_cache!r})")
-
-    def write_cache(self, data: Any):
-        """
-        Parameters
-        ----------
-        data : Any
-            The data inside the source file, or the essential excerpt,
-            that needs to be accessed at a later time.
-        """
-        self.__write_cache.write_cache(data)
-
-    @property
-    def is_valid(self) -> bool:
-        """
-        Run this first, as read_cache will raise an error if you try to
-        access an invalid cache.
-
-        Returns
-        -------
-        True if valid, False otherwise
-        """
-        return self.__read_cache.is_valid
-
-    def read_cache(self) -> Any:
-        """
-        Raises
-        ------
-        RuntimeError
-            If cache is invalid.
-
-        Returns
-        -------
-        The data that was stored in the pickle
-        """
-        return self.__read_cache.get_cache()
-
-
-class CacheFactory:
-
-    def __init__(self, use_cache: bool = True, clear_cache: bool = False):
-        """
-        Produces the cache object for the specific file that is
-        provided.
-
-        Parameters
-        ----------
-        use_cache : bool
-            If False, caching will be disabled
-        clear_cache : bool
-            If True, current cache will be removed even if valid. Will
-            remove cache even if use_cache is False.
-        """
-        self.__use_cache = use_cache
-        self.__clear_cache = clear_cache
-
-    def __repr__(self) -> str:
-        return (f"{self.__class__.__name__}"
-                f"({self.__use_cache}, {self.__clear_cache})")
-
-    def get_cache(self, file_location: Path) -> Cache:
+    if intermediate:
+        cache_path = Path(path.stem + ".pickle")
+        file_hash = ""
+    else:
         try:
-            file_hash = misc.get_sha512_hash(file_location)
+            file_hash = misc.get_sha512_hash(path)
         except FileNotFoundError:
-            file_hash = ""
+            return False, None
 
-        package = _Package(
-            hash=file_hash,
-            location=misc.get_cache_uri() / (file_location.stem + ".pickle")
-        )
-        reader = self.__get_reader(package)
-        writer = self.__get_writer(package)
-        return Cache(reader, writer)
+    if remove_cache:
+        cache_path.unlink()
+        return False, None
 
-    def __get_reader(self, package: _Package) -> _IRead:
-        if self.__clear_cache:
-            return _ClearCache(package)
-        elif not self.__use_cache or not package.hash:
-            return _NoRead()
-        else:
-            return _ReadCache(package)
+    try:
+        with cache_path.open("rb") as stream:
+            data_package = pickle.load(stream)  # type: _Package
+    except Exception:
+        return False, None
 
-    def __get_writer(self, package: _Package) -> _IWrite:
-        if not self.__use_cache:
-            return _NoWrite()
-        else:
-            return _WriteCache(package)
+    if data_package.hash == file_hash or intermediate:
+        return True, data_package.data
+    else:
+        return False, None
 
-    @property
-    def use_cache(self) -> bool:
-        return self.__use_cache
 
-    @use_cache.setter
-    def use_cache(self, use_cache: bool):
-        if isinstance(use_cache, bool):
-            self.__use_cache = use_cache
-        else:
-            raise ValueError("use_cache must be boolean")
+def write(path, data, intermediate=False):
+    """Writes a cache file.
+    With its default settings, it'll write the cache file into the cache
+    location and store the source file's hash in the cache for future
+    comparison. If intermediate is set to true though, it'll store the
+    cache in the provided location, and will not store a hash.
 
-    @property
-    def clear_cache(self) -> bool:
-        return self.__clear_cache
+    Parameters
+    ----------
+    path : Path or str
+        The path of the source file, or path where you want the
+        intermediate step t0 be stored.
+    data : Any
+        Whatever data you wish to be stored in the cache. Almost anything
+        that can be stored in a variable, can be stored on disk.
+    intermediate : bool
+        If set to true, the cache will be treated as an intermediate step,
+        this means it will assume there is no data file associated with
+        the data, and will not check file hashes.
+    """
+    path = Path(path)
+    cache_path = Path(path.stem + ".pickle")
+    file_hash = ""
+    if not intermediate:
+        file_hash = misc.get_sha512_hash(path)
+        cache_path = misc.get_cache_uri() / (path.stem + ".pickle")
 
-    @clear_cache.setter
-    def clear_cache(self, clear_cache: bool):
-        if isinstance(clear_cache, bool):
-            self.__clear_cache = clear_cache
-        else:
-            raise ValueError("clear_cache must be boolean")
+    data_package = _Package(file_hash, data)
+
+    try:
+        with cache_path.open("wb") as stream:
+            pickle.dump(data_package, stream)
+    except Exception:
+        if cache_path.exists():
+            cache_path.unlink()
+        raise RuntimeWarning("Your data can not be saved in cache!")

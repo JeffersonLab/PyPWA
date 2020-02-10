@@ -31,6 +31,10 @@ Fitting and Simulation:
 - FunctionAmplitude: Fallback for old functions for PyPWA 2.0, don't
     use unless you need.
 - monte_carlo_simulation: Function used for rejection sampling.
+- simulate.process_user_function: Processes the user function and returns
+    the functions final values and max value.
+- simulate.make_rejection_list: Takes the final values and max values to
+    produce a rejection list that can be used to mask the source data.
 - LogLikelihood: Sets up the log likelihood. Supports both the extended,
     binned, and standard likelihood.
 - ChiSquared: Sets up the ChiSquared likelihood, supports using working
@@ -45,7 +49,8 @@ Reading and Writing data:
 -------------------------
 Note: Data can be loaded and writen with Pandas or Numpy if preferred,
     however, read and write support caching which can make subsequent
-    reads significantly quicker.
+    reads significantly quicker. You can use the caching module separately
+    though if preferred.
 - read: Reads data from a file or path
 - write: Writes data from a file or path
 - get_writer: Returns an object that supports writing one event at a time
@@ -53,6 +58,10 @@ Note: Data can be loaded and writen with Pandas or Numpy if preferred,
 - ProjectDatabase: A numerical database based off of HDF5 that allows for
     working with data larger than memory. Only recommended if you have
     to use it.
+- cache.read: Reads the cache for a specific source file, or for an
+    intermediate step.
+- cache.write: Writes the cache for a specific source file, or for an
+    intermediate step.
 
 Tools:
 ------
@@ -72,9 +81,10 @@ Provided Data Types:
 """
 
 from PyPWA import info as _info
+from PyPWA.libs import simulate
 from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths
 from PyPWA.libs.file import (
-    get_reader, get_writer, read, write, ProjectDatabase
+    get_reader, get_writer, read, write, ProjectDatabase, cache
 )
 from PyPWA.libs.fit import (
     minuit, ChiSquared, LogLikelihood, EmptyLikelihood, NestedFunction,
@@ -89,8 +99,9 @@ __all__ = [
     "FourVector", "ThreeVector", "Particle", "ParticlePool",
     "get_writer", "get_reader", "read", "write", "ProjectDatabase",
     "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
-    "EmptyLikelihood", "NestedFunction", "FunctionAmplitude",
-    "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego"
+    "EmptyLikelihood", "NestedFunction", "FunctionAmplitude", "cache",
+    "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego",
+    "simulate"
 ]
 
 __author__ = _info.AUTHOR

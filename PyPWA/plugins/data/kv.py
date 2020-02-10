@@ -126,7 +126,7 @@ class _EVILReader(templates.ReaderBase):
             return self.__numpy_array
         else:
             # If you don't copy the Series will break next call
-            return pandas.Series(self.__numpy_array.copy())
+            return pandas.DataFrame(self.__numpy_array.copy()).loc[0]
 
     def __get_columns(self) -> List[str]:
         string = self.__file_handle.readline().strip("\n").strip(" ")

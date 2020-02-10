@@ -165,12 +165,12 @@ class _SvWriter(templates.WriterBase):
         else:
             return csv.excel
 
-    def write(self, data: pandas.DataFrame):
+    def write(self, data: pandas.Series):
         if not self.__writer:
             self.__setup_writer(data)
         self.__write_row(data)
 
-    def __setup_writer(self, data: pandas.DataFrame):
+    def __setup_writer(self, data: pandas.Series):
         self.__field_names = list(data.keys())
         self.__writer = csv.DictWriter(
             self.__file_handle,
@@ -180,10 +180,10 @@ class _SvWriter(templates.WriterBase):
         )
         self.__writer.writeheader()
 
-    def __write_row(self, data: pandas.DataFrame):
+    def __write_row(self, data: pandas.Series):
         dict_data = {}
         for field_name in self.__field_names:
-            dict_data[field_name] = repr(data[0][field_name])
+            dict_data[field_name] = repr(data[field_name])
         self.__writer.writerow(dict_data)
 
     def close(self):

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    Resonances are now saved as a two sheet excel file, and can be modified
    using the supplied wave and resonance objects.
  - Adds support for Numexpr to accelerate computation.
+ - Simulation can be done as two separate parts through PyPWA.simulate
 ### Changed
  - Separate release tag from version info
  - Package info is now stored in PyPWA.info
@@ -29,6 +30,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    powerful to use.
  - ProcessInterfaces now must be closed after use. This includes all
    Likelihood objects.
+ - Cache has been refactored to be easier to be completely usable by
+   itself.
 ### Removed
  - SlotTable has been removed in favor of Project. Both use PyTables
    for the backend.
@@ -40,7 +43,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - monte_carlo_simulation and likelihoods now correctly handle exceptions
    that occur in the child processes.
  - Pipes are correctly closed now.
- - Extended Log-likelihood is now correctly calculated 
+ - Extended Log-likelihood is now correctly calculated
+ - Sv Writer will now write data.
+ - Kv Reader will now read data.
 
 ## [3.0.0a1] - 2019-6-17
 ### Added

@@ -28,6 +28,8 @@ TEMP_LOCATION = ROOT / "temporary_write_data"
 ALL = [
     {
         "parse": sv.metadata.get_memory_parser(),
+        "reader": sv.metadata.get_reader,
+        "writer": sv.metadata.get_writer,
         "can_read": sv.metadata.get_read_test(),
         "set1": [
             ROOT / "set1.csv",
@@ -52,6 +54,8 @@ ALL = [
     },
     {
         "parse": kv.metadata.get_memory_parser(),
+        "reader": kv.metadata.get_reader,
+        "writer": kv.metadata.get_writer,
         "can_read": kv.metadata.get_read_test(),
         "set1": [ROOT / "set1.kvars"],
         "set2": [ROOT / "set2.kvars"],
@@ -67,6 +71,8 @@ ALL = [
     },
     {
         "parse": numpy.metadata.get_memory_parser(),
+        "reader": numpy.metadata.get_reader,
+        "writer": numpy.metadata.get_writer,
         "can_read": numpy.metadata.get_read_test(),
         "set1": [
             ROOT / "set1.txt",
@@ -169,6 +175,17 @@ def test_data_in_equals_data_out(parser, temp_location, pandas_flat):
         pandas.testing.assert_frame_equal(data, pandas_flat)
         location.unlink()
 
+
+def test_reader_and_writer(get_plugin, pandas_flat):
+    with get_plugin["writer"](get_plugin["temp"][0]) as writer:
+        for index, value in pandas_flat.iterrows():
+            writer.write(value)
+
+    with get_plugin["reader"](get_plugin["temp"][0]) as reader:
+        for value in reader:
+            pass
+
+    get_plugin["temp"][0].unlink()
 
 """
 SV Specific Tests
