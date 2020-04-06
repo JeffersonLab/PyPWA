@@ -109,7 +109,7 @@ class _GampDataTest(templates.IReadTest):
                 # Fail if particle data doesn't have correct number
                 # of fields.
                 for l in range(particle_count):
-                    if len(stream.readline().split(" ")) != 6:
+                    if len(stream.readline().split()) != 6:
                         return False
         return True
 
@@ -131,7 +131,7 @@ class _GampReader(templates.ReaderBase):
 
         events = []
         for line in lines:
-            p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+            p_id, charge, x, y, z, e = line.strip("\n").split()
             events.append(vectors.Particle(int(p_id), particle_length))
         return vectors.ParticlePool(events)
 
@@ -225,7 +225,7 @@ class _GampMemory(templates.IMemory):
                 particle_num = int(line)
                 for i in range(particle_num):
                     line = stream.readline()
-                    p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+                    p_id, charge, x, y, z, e = line.strip("\n").split()
                     particle_dict[int(p_id)][event_index]["x"] = x
                     particle_dict[int(p_id)][event_index]["y"] = y
                     particle_dict[int(p_id)][event_index]["z"] = z
@@ -249,7 +249,7 @@ class _GampMemory(templates.IMemory):
 
         particles = dict()
         for line in lines:
-            p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+            p_id, charge, x, y, z, e = line.strip("\n").split()
             particles[int(p_id)] = npy.zeros(
                 particle_length,
                 dtype=[("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")]
