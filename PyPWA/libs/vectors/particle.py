@@ -134,6 +134,8 @@ class Particle(FourVector):
             return Particle(self.__particle_id, self._vector.iloc[item])
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
             return self._vector[item].copy()
+        elif isinstance(item, npy.ndarray) and item.dtype == bool:
+            return Particle(self.__particle_id, self._vector[item])
         else:
             raise ValueError(f"Can not index with {item!r}")
 
@@ -226,6 +228,24 @@ class ParticlePool:
             else:
                 string += repr(particle) + ","
         return f"ParticlePool({string})"
+
+    def __len__(self):
+        return len(self.__particle_list)
+
+    def __getitem__(self, item):
+        if isinstance(item, npy.ndarray) and item.dtype == bool:
+            return self._mask(item)
+        return self.__particle_list[item]
+
+    def _mask(self, mask):
+        if not len(mask) == len(self.__particle_list[0]):
+            raise IndexError("Mask is the wrong length!")
+
+        masked_data = list()
+        for particle in self.iter_particles():
+            masked_data.append(particle[mask])
+
+        return ParticlePool(masked_data)
 
     def iter_particles(self):
         return _PoolParticleIterator(self.__particle_list)

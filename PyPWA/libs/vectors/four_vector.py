@@ -122,6 +122,8 @@ class FourVector(_base_vector.VectorMath):
             return FourVector(self._vector.iloc[item])
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
             return self._vector[item].copy()
+        elif isinstance(item, npy.ndarray) and item.dtype == bool:
+            return self._vector[item]
         else:
             raise ValueError(f"Can not index with {item!r}")
 
