@@ -148,7 +148,7 @@ class _GampReader(templates.ReaderBase):
     def __update_particle_pool(self):
         for p in self.__particle_pool.iter_particles():
             line = self.__file_handle.readline()
-            p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+            p_id, charge, x, y, z, e = line.strip("\n").split()
             p.x, p.y, p.z, p.e = (x, y, z, e)
 
     def get_event_count(self) -> int:
