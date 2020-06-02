@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
    using the supplied wave and resonance objects.
  - Adds support for Numexpr to accelerate computation.
  - Simulation can be done as two separate parts through PyPWA.simulate
+ - Github Templates to help users and developers contribute to PyPWA
 ### Changed
  - Separate release tag from version info
  - Package info is now stored in PyPWA.info

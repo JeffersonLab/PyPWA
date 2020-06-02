@@ -10,37 +10,25 @@ PyPWA can be installed with ``pip`` or ``conda`` with Python 3.7 or newer
 Conda
 #####
 
-**(Optional) Setup an environment**
+.. note::
+
+   PyPWA works on Macintosh, but we currently do not have a build for it in
+   Anaconda's cloud system. This will change soon, please be patient with us.
+
+
+Thanks to tools provided by Anaconda, you can easily install PyPWA and all
+it's dependencies with a simple one line command
 
 .. code-block:: sh
 
-   conda create -n pypwa python=3
-   conda activate pypwa
+   conda install -c markjonestx pypwa
 
-**Install dependencies**
-
-.. code-block:: sh
-
-   conda install tqdm iminuit numpy pyyaml tabulate appdirs pytables numba
-
-**Fetch the latest version of PyPWA and install**
+If you want tools from PWA2000 (GAMP, HGAMP, VAMP, PPGEN) we've included them
+as well
 
 .. code-block:: sh
 
-   git clone --depth=1 https://github.com/JeffersonLab/PyPWA.git
-   cd PyPWA
-   pip install .
-
-
-**(Optional) Install Fuzzywuzzy**
-
-Fuzzywuzzy allows for minor issues in configuration files to be corrected,
-such as simple mistypes, minor misspelling, or case errors.
-
-.. code-block:: sh
-
-   conda install -c conda-forge fuzzywuzzy python-Levenshtein
-
+   conda install -c markjonesyx pwa2000
 
 Pip
 ###

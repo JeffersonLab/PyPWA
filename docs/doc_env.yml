@@ -7,4 +7,3 @@ dependencies:
     - recommonmark
     - sphinx-autodoc-typehints
     - sphinxcontrib-bibtex
-

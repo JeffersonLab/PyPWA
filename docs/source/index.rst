@@ -25,22 +25,3 @@ You can take a look at our code directly
    getting_started/CHANGELOG
    getting_started/references
 
-.. .. toctree::
-   :maxdepth: 1
-   :caption: User Documentation
-
-..   user_docs/binning
-
-.. .. toctree::
-   :maxdepth: 1
-   :caption: Using with Jupyter / Scripting
-
-..   jupyter/hdf
-
-.. toctree::
-  :maxdepth: 1
-  :caption: For Developers
-
-  developer_guide/setup-git
-  developer_guide/environments/index
-
