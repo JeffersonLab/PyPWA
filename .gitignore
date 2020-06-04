@@ -80,3 +80,6 @@ target/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Vscode
+.vscode/
