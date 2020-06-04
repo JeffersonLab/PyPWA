@@ -17,112 +17,78 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-A python a cython minimizer
----------------------------
-Attempts to find a minima, for information about how it works read Iminuit's
-documentation online.
 
-- _ParserObject - Translates the received value inside run to something the
-  user can easily interact with.
-- Minuit - The main optimizer object.
 """
 
-from dataclasses import dataclass
-import numpy
-import tabulate
-import iminuit
-from typing import Any, Dict, List, Union
+from typing import Any as _Any, Callable as _Call, Dict as _Dict, List as _List
 
-from PyPWA import AUTHOR, VERSION, Path
-from PyPWA.libs.components.fit import fit_plugin
+import iminuit as _iminuit
+
+from PyPWA import info as _info
+from . import likelihoods as _likelihoods
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
-@dataclass
-class Settings:
-    parameters: List[str]
-    settings: Dict[str, Any]
-    strategy: Union[0, 1, 2]
-    number_of_calls: int
+class _Translator:
 
-
-class ParserObject:
-
-    def __init__(self, parameters: List[str]):
+    def __init__(
+            self, parameters: _List[str], function_call: _Call[[_Any], float]
+    ):
         self.__parameters = parameters
+        self.__function = function_call
 
-    def convert(self, *args: List[float]) -> Dict[str, List[float]]:
+    def __call__(self, *args: _List[float]) -> float:
         parameters_with_values = {}
         for parameter, arg in zip(self.__parameters, args):
             parameters_with_values[parameter] = arg
 
-        return parameters_with_values
+        return self.__function(parameters_with_values)
 
 
-class MinuitWrap:
+def minuit(
+        parameters: _List[str], settings: _Dict[str, _Any],
+        likelihood: _likelihoods.ChiSquared, set_up: int, strategy=1,
+        num_of_calls=1000
+):
+    """Optimization using iminuit
 
-    def __init__(self):
-        self.__minimal = None
+    Parameters
+    ----------
+    parameters : List[str]
+        The names of the parameters for iminuit to use
+    settings : Dict[str, Any]
+        The settings to be passed to iminuit. Look into the documentation
+        for iminuit for specifics
+    likelihood : Likelihood object from likelihoods or single function
+    set_up : float
+        Set to 1 for log-likelihoods, or .5 for Chi-Squared
+    strategy : int
+        Fitting strategy. Defaults to 1. 0 is slowest, 2 is fastest/
+    num_of_calls : int
+        A suggested max number of calls to minuit. This may or may not
+        be respected.
 
-    def get_argument_parser(self, settings: Settings) -> ParserObject:
-        return ParserObject(settings.parameters)
+    Returns
+    -------
+    iminuit.Minuit
+        The minuit object after the fit has been completed.
 
-    def optimize(self, optimize_function, settings, fitting_type):
-        self.__minimal = iminuit.Minuit(
-            optimize_function, forced_parameters=settings.parameters,
-            **settings.settings
-        )
-        self.__minimal.set_strategy(settings.strategy)
-        self.__setup_set_up(fitting_type)
-        self.__minimal.migrad(settings.num_of_calls)
-        return self.__minimal
+    See Also
+    --------
+    iminuit's documentation : Should explain the various options that can
+        be passed to iminuit, and how to use the resulting object after
+        a fit has been completed/
+    """
+    settings["forced_parameters"] = parameters
+    settings["errordef"] = set_up
+    translator = _Translator(parameters, likelihood)
+    optimizer = _iminuit.Minuit(translator, **settings)
 
-    def __setup_set_up(self, fitting_type):
-        if fitting_type is fit_plugin.LikelihoodType.CHI_SQUARED:
-            self.__minimal.set_up(1)
-        else:
-            self.__minimal.set_up(.5)
+    optimizer.set_strategy(strategy)
+    optimizer.set_up(set_up)
+    optimizer.migrad(num_of_calls)
 
-    def print_results(self):
-        print(self.__make_table(self.__minimal.covariance))
-
-    def __make_table(self, use_fancy):
-        if use_fancy:
-            table_type = 'fancy_grid'
-        else:
-            table_type = 'grid'
-
-        xs, ys = set(), set()
-        covariance = list()
-
-        for field in self.__minimal.covariance:
-            xs.add(field[0])
-            ys.add(field[1])
-
-        for x in xs:
-            row = [x]
-            for y in ys:
-                row.append(self.__minimal.covariance[(x, y)])
-            covariance.append(row)
-
-        return tabulate.tabulate(
-            covariance, ys, table_type, numalign='center'
-        )
-
-    def __make_data(self, save_location, table_data):
-        text_path = Path(str(save_location.stem) + ".txt")
-        with text_path.open("w") as stream:
-            stream.write(
-                "Covariance.\n{0}\nvalues: {1}".format(
-                    table_data, self.__minimal.values
-                )
-            )
-
-        numpy.save(str(save_location), {
-            "covariance": self.__minimal.covariance,
-            "fval": self.__minimal.fval,
-            "values": self.__minimal.values
-        })
+    return optimizer

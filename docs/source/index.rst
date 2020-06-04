@@ -1,25 +1,27 @@
+#####
+PyPWA
+#####
 
-#################################
-Welcome to PyPWA's documentation!
-#################################
-A python based software framework designed to perform Partial Wave and
-Amplitude Analysis with the goal of extracting resonance information from
-multi-particle final states. Though due to the generic nature of PyPWA's design,
-it should be able to be used with any statistical analysis project.
+Partial Wave Analysis done right.
 
-PyPWA is constantly tested to work with Python Versions 2.7, 3.4, 3.5, and 3.6.
+PyPWA is a Python partial wave analysis package that utilizes Numpy,
+iminuit, and PyTables to provide a high speed analysis framework that
+strives to help you get your work done without getting in your way.
+
+It's a package that can be used either as a standalone program inside
+your terminal, or as Python script or Jupyter Notebook, whatever your
+preference may be.
+
+You can take a look at our code directly
+`here <https://github.com/JeffersonLab/PyPWA>`_
 
 
 .. toctree::
-   :maxdepth: 2
-   :caption: User Documentation
+   :maxdepth: 1
+   :caption: Getting Started
 
-   user/requirements
-   user/installing
+   getting_started/about
+   getting_started/installing
+   getting_started/CHANGELOG
+   getting_started/references
 
-.. toctree::
-  :maxdepth: 2
-  :caption: Developer Documentation
-
-  devel/setup-git
-  devel/environments/index

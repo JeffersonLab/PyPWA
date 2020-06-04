@@ -23,39 +23,44 @@ data module.
 
 import enum
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import List
 
-import numpy as npy
+import pandas
 
-from PyPWA import AUTHOR, VERSION
-from pathlib import Path
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 class DataType(enum.Enum):
+    # Single arrays with no attached data names
     BASIC = 0
+
+    # Structured data, such as CSV or Evil data
     STRUCTURED = 1
+
+    # Tree-like data. At this moment, only GAMP
     TREE_VECTOR = 2
 
 
 class IMemory(ABC):
 
     @abstractmethod
-    def parse(self, filename: Path) -> npy.ndarray:
+    def parse(self, filename: Path) -> pandas.DataFrame:
         ...
 
     @abstractmethod
-    def write(self, filename: Path, data: npy.ndarray):
+    def write(self, filename: Path, data: pandas.DataFrame):
         ...
 
 
 class ReaderBase(ABC):
 
     @abstractmethod
-    def next(self) -> npy.ndarray:
+    def next(self) -> pandas.DataFrame:
         """
         Called to get the next event from the reader.
 
@@ -112,11 +117,21 @@ class ReaderBase(ABC):
     def fields(self) -> List[str]:
         ...
 
+    @property
+    @abstractmethod
+    def data_type(self) -> DataType:
+        ...
+
+    @property
+    @abstractmethod
+    def input_path(self) -> Path:
+        ...
+
 
 class WriterBase(ABC):
 
     @abstractmethod
-    def write(self, data: npy.ndarray):
+    def write(self, data: pandas.DataFrame):
         """
         Should write the received event to the stream.
 
@@ -135,6 +150,11 @@ class WriterBase(ABC):
         """
         Should close the stream and any open streams or objects.
         """
+        ...
+
+    @property
+    @abstractmethod
+    def output_path(self) -> Path:
         ...
 
 

@@ -41,7 +41,7 @@ from typing import Any, Dict, Union, Optional, List
 import numpy as npy
 import yaml
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import info as _info
 
 """fuzzywuzzy is an optional dependency
 Fuzzywuzzy handles correcting string values when there is a known list
@@ -60,9 +60,10 @@ try:
 except ImportError:
     _FUZZING = False
 
+
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 """

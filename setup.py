@@ -20,30 +20,35 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "3.0.0.dev"
+__version__ = "3.0.0"
 __email__ = "pypwa@jlab.org"
-__status__ = "development"
+__status__ = "release"
 
 
 progs = "PyPWA.progs"
 
 entry_points = {
     "console_scripts": [
-        f"pydata = {progs}.data:data",
+        f"pymask = {progs}.masking:start_masking",
         f"pybin = {progs}.binner:start_binning",
-        f"pysimulate = {progs}.simulation:simulation"
+#        f"pysimulate = {progs}.simulation:simulation",
+#        f"pyfit = {progs}.pyfit:start_fitting"
     ]
 }
 
 requires = [
-    "tqdm",          # Progress Bars
-    "iminuit<2.0",   # Default minimizer
-    "scipy",         # Needed for Nestle with multiple ellipsoids.
-    "numpy>1,<2.0",  # Arrays and optimizations
-    "pyyaml",        # YAML Parser
-    "tabulate",      # Tables for iminuit
-    "appdirs",       # Attempts to find data locations
-    "tables"       # Stores table in a specialized table format
+    "tqdm",        # Progress Bars
+    "iminuit",     # Default minimizer
+    "scipy",       # Needed for Nestle with multiple ellipsoids.
+    "numpy",       # Arrays and optimizations
+    "pyyaml",      # YAML Parser
+    "tabulate",    # Tables for iminuit
+    "appdirs",     # Attempts to find data locations
+    "tables",      # Stores table in a specialized table format
+    "pandas",      # A powerful statistics package that's used everywhere
+    "openpyxl",    # Provides support for XLXS, used for resonance,
+    "matplotlib",  # Adds support for plotting
+    "numexpr"      # Accelerates numpy by removing intermediate steps
 ]
 
 extras = {
@@ -81,10 +86,10 @@ setuptools.setup(
         "Natural Language :: English",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Scientific/Engineering :: Physics"
     ]

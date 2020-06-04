@@ -35,14 +35,16 @@ File Layout
 - Process and Interface Objects
 
 
-.. note::
-    Duplex processes will not shutdown automatically, you must shut them
-    down from the returned interface object. This is done so that when
-    new parameters are passed to the Duplex Processes there will not
-    be an associated "startup" cost.
+Notes
+-----
+Duplex processes will not shutdown automatically, you must shut them down
+from the returned interface object. This is done so that when new
+parameters are passed to the Duplex Processes there will not be an
+associated "startup" cost.
 """
 
 import copy
+import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from multiprocessing import cpu_count, Pipe, Process
@@ -50,14 +52,14 @@ from multiprocessing.connection import Connection
 from typing import Any, Dict, List, Tuple, Union
 
 import numpy as npy
+import pandas as pd
 
-from PyPWA import AUTHOR as _AUTHOR, VERSION as _VERSION
-from PyPWA.libs.math import vectors
+from PyPWA import info as _info
+from PyPWA.libs import vectors
 
 __credits__ = ["Mark Jones"]
-__author__ = _AUTHOR
-__version__ = _VERSION
-__all__ = ["make_processes", "ProcessCodes", "MAX_PROC"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 MAX_PROC = cpu_count()
@@ -81,10 +83,14 @@ class Kernel(ABC):
       where you would place your intensity function, or something
       similar.
 
-    .. warning::
-        Do not change the value of process_id! It's value will be
-        set by make_process so that your data will be able to
-        stitched back into order.
+    The kernel provides a run and close, so that it can be used in place
+    of the interface to aid debug or single thread execution.
+
+    Warnings
+    --------
+    Do not change the value of process_id! It's value will be set by 
+    make_process so that your data will be able to stitched back into
+    order.
     """
 
     @abstractmethod
@@ -95,30 +101,51 @@ class Kernel(ABC):
         """
         ...
 
+    def run(self, data: Any = False) -> Any:
+        return self.process(data)
+
+    def close(self):
+        pass
+
     @abstractmethod
     def process(self, data: Any = False) -> Any:
         """
         The actual calculation or function of the program, can optionally
         support values from the main thread / process.
 
-        :param data: Any data that you want to pass to the kernel.
-        :return: The final value or object that should be sent back to the
-        main thread.
+        Parameters
+        ----------
+        data : Any
+            Any data that you want to pass to the kernel.
+
+        Returns
+        -------
+        Any
+            The final value or object that should be sent back to the main
+            thread.
         """
         ...
 
 
 class Interface(ABC):
 
-    def run(self, communicator: List[Any], args: Any) -> Any:
+    def run(self, communicator: List[Any], *args: Any) -> Any:
         """
         The method that will be called to begin the calculation. This is
         the interface between the kernels and the calling object.
 
-        :param communicator: A list of objects that will be used to
-                             communicate with the kernels.
-        :param args: Any values that are sent to the main interface.
-        :return: Whatever value that is calculated locally from the kernels.
+        Parameters
+        ----------
+        communicator : List[multiprocessing.Pipe]
+            A list of pipes that will be used to communicate with
+            the kernels.
+        args : Any
+            Any values that are sent to the main interface.
+
+        Returns
+        -------
+        Any
+            Whatever value that is calculated locally from the kernels.
         """
         ...
 
@@ -130,7 +157,7 @@ Predefined Types
 
 _main = Tuple[List["_SmartProcess"], List[Connection]]
 _pipe = Tuple[List[Connection], List[Connection]]
-_supported_types = Union[npy.ndarray, vectors.ParticlePool]
+_supported_types = Union[npy.ndarray, vectors.ParticlePool, pd.DataFrame]
 _data = Dict[str, _supported_types]
 _data_packet = List[_data]
 
@@ -160,7 +187,7 @@ def _make_data_packets(data: _data, number_of_processes: int) -> _data_packet:
     list_of_dicts = [dict() for i in range(number_of_processes)]
 
     for key in data.keys():
-        if isinstance(data[key], npy.ndarray):
+        if isinstance(data[key], (npy.ndarray, pd.Series, pd.DataFrame)):
             split = npy.array_split(data[key], number_of_processes)
         elif isinstance(data[key], vectors.ParticlePool):
             split = data[key].split(number_of_processes)
@@ -220,40 +247,46 @@ class ProcessCodes(Enum):
 
 class ProcessInterface:
 
-    def __init__(self,
-                 interface_kernel: Interface,
-                 process_com: List[Connection],
-                 processes: List["_SmartProcess"]):
+    def __init__(
+            self, interface_kernel: Interface,
+            process_com: List[Connection], processes: List["_SmartProcess"]):
         self.__connections = process_com
         self.__interface = interface_kernel
         self.__processes = processes
 
     def run(self, *args):
-        return self.__interface.run(self.__connections, args)
+        try:
+            return self.__interface.run(self.__connections, *args)
+        except Exception as error:
+            self.close()
+            raise error
 
-    def stop(self, force: bool = False):
-        if self.__connections[0].writable and not force:
-            self.__ask_processes_to_stop()
-        else:
-            self.__terminate_processes()
-
-    def __ask_processes_to_stop(self):
+    def close(self):
+        # Close the pipes and shutdown the processes
         for connection in self.__connections:
-            connection.send(ProcessCodes.SHUTDOWN)
+            if connection.writable:
+                connection.send(ProcessCodes.SHUTDOWN)
+            connection.close()
 
-    def __terminate_processes(self):
+        # Wait at most 2 seconds for the processes to shutdown
         for process in self.__processes:
-            process.terminate()
+            process.join(2)
+
+        # Terminate and close the process
+        for process in self.__processes:
+            if process.is_alive():
+                process.terminate()
+            process.close()
 
     @property
     def is_alive(self) -> bool:
-        return True in [proc.is_alive() for proc in self.__processes]
+        return any([proc.is_alive() for proc in self.__processes])
 
 
 class _SmartProcess(Process):
 
     def __init__(self, kernel: Kernel, connect: Connection):
-        super(Process, self).__init__()
+        super(_SmartProcess, self).__init__()
         self.__kernel = kernel
         self.__connection = connect
         self.daemon = True
@@ -267,8 +300,8 @@ class _SmartProcess(Process):
     def __run_duplex(self):
         try:
             self.__kernel.setup()
-        except Exception:
-            self.__connection.send(ProcessCodes.ERROR)
+        except Exception as error:
+            self.__handle_error(error)
             raise
         else:
             self.__loop()
@@ -277,14 +310,15 @@ class _SmartProcess(Process):
         while True:
             received = self.__connection.recv()
             if received == ProcessCodes.SHUTDOWN:
+                self.__connection.close()
                 break
             self.__process(received)
 
     def __process(self, received_data):
         try:
             value = self.__kernel.process(received_data)
-        except Exception:
-            self.__connection.send(ProcessCodes.ERROR)
+        except Exception as error:
+            self.__handle_error(error)
             raise
         else:
             self.__connection.send(value)
@@ -293,6 +327,11 @@ class _SmartProcess(Process):
         try:
             self.__kernel.setup()
             self.__connection.send(self.__kernel.process())
-        except Exception:
-            self.__connection.send(ProcessCodes.ERROR)
+        except Exception as error:
+            self.__handle_error(error)
             raise
+
+    def __handle_error(self, error):
+        self.__connection.send(ProcessCodes.ERROR)
+        self.__connection.send(error)
+        self.__connection.close()

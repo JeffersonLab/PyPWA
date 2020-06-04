@@ -4,6 +4,49 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [Unreleased]
+### Added
+ - ProjectDatabase has been added handle large data manipulation on disk
+   instead of in memory.
+ - Reader/Writer now share path of the file being operated on.
+ - Binning now works in both fixed count and ranges, and can be done
+   entirely in memory.
+ - Initial Jupyter and IPython support.
+ - Adding lego plotting.
+ - Likelihoods are now standalone objects that can be combined with any
+   optimizer.
+ - Resonance support now builtin using DataFrames as a backbone.
+   Resonances are now saved as a two sheet excel file, and can be modified
+   using the supplied wave and resonance objects.
+ - Adds support for Numexpr to accelerate computation.
+ - Simulation can be done as two separate parts through PyPWA.simulate
+ - Github Templates to help users and developers contribute to PyPWA
+### Changed
+ - Separate release tag from version info
+ - Package info is now stored in PyPWA.info
+ - pydata has officially been updated to PyPWA 3.0.
+ - Structured Arrays have been replaces for Pandas DataFrames.
+ - Reactions have been merged into ParticlePool.
+ - Vectors have been simplified to be easier to test while still being
+   powerful to use.
+ - ProcessInterfaces now must be closed after use. This includes all
+   Likelihood objects.
+ - Cache has been refactored to be easier to be completely usable by
+   itself.
+### Removed
+ - SlotTable has been removed in favor of Project. Both use PyTables
+   for the backend.
+ - Unsupported Python versions removed from package's classifiers.
+### Fixed
+ - GAMP no longer claims that it can read PF files.
+ - Cache will correctly report invalid when it's contents differ from the
+   source file.
+ - monte_carlo_simulation and likelihoods now correctly handle exceptions
+   that occur in the child processes.
+ - Pipes are correctly closed now.
+ - Extended Log-likelihood is now correctly calculated
+ - Sv Writer will now write data.
+ - Kv Reader will now read data.
 
 ## [3.0.0a1] - 2019-6-17
 ### Added

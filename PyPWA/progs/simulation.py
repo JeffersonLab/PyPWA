@@ -31,10 +31,16 @@ from typing import Any, Dict, List, Tuple
 import numpy as npy
 import yaml
 
+from PyPWA import info as _info
 from PyPWA.libs import configuration
 from PyPWA.libs import function
 from PyPWA.libs import simulate
-from PyPWA.libs.file import slot_table, processor
+from PyPWA.libs.file import project, processor
+
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
+
 
 _LOGGER = logging.getLogger(__file__)
 
@@ -52,8 +58,7 @@ _EXAMPLE = {
     "Processes": multiprocessing.cpu_count(),
     "Function": {
         "Path": 'function.py',
-        "Intensity Name": "intensity",
-        "Setup Name": "setup"
+        "Amplitude Name": "MyAmplitude"
     },
 
     "Parameters": {
@@ -64,8 +69,7 @@ _EXAMPLE = {
 
     "Data": {
         "Path": "data.type",
-        "Slot": "slot_name_if_table remove if not using tables.",
-        "Output": "output.txt remove if using tables"
+        "Output": "output.txt"
     }
 }
 
@@ -74,6 +78,7 @@ _TEMPLATE = {
     "Processes": int,
     "Function": {
         "Path": str,
+        "Amplitude Name": str,
         "Intensity Name": str,
         "Setup Name": str
     },
@@ -99,13 +104,13 @@ def simulation(arguments: List[str] = sys.argv[1:]):
 
     print("Parsing provided parameters")
     function_path, intensity_name, setup_name, \
-        parameters, data_path, slot_name, output, use_cache = \
+        parameters, data_path, folder_name, output, use_cache = \
         _process_arguments(config, args)
 
     print("Loading data")
-    if slot_name:
-        factory = slot_table.SlotFactory(data_path, "r")
-        data = factory.get_slot(slot_name)
+    if folder_name:
+        factory = project.ProjectDatabase(data_path, "r")
+        data = factory.get_folder(folder_name)
 
     else:
         data = processor.DataProcessor(use_cache).parse(data_path)
@@ -124,17 +129,17 @@ def simulation(arguments: List[str] = sys.argv[1:]):
         raise error
 
     print("Starting Simulation")
-    rejection = simulate.calculate_intensities(
+    rejection = simulate.monte_carlo_simulation(
         intensity, setup, parameters, data
     )
 
-    if slot_name:
-        data.add_data("rejection", rejection)
+    if folder_name:
+        data.data.add_data(data.data.PASSFAIL, rejection)
 
     if output:
         processor.DataProcessor().write(output, rejection)
 
-    if not slot_name and not output:
+    if not folder_name and not output:
         _LOGGER.warn("No output was provided! Using stdout for output!")
         [print(int(x)) for x in rejection]
 
@@ -152,23 +157,23 @@ def _arguments(args: List[str]) -> argparse.ArgumentParser.parse_args:
     )
 
     config_subparser.add_argument(
-        "--example", "-e", action="store_true",
+        "--example", action="store_true",
         help="Print an example configuration for PySimulate"
     )
 
     arguments.add_argument(
-        "--data", "-d", type=Path, metavar="DATA_FILE",
+        "--data", type=Path, metavar="DATA_FILE",
         help="Data File or table to use for simulation"
     )
 
     arguments.add_argument(
-        "--output", "-o", type=Path, metavar="OUTPUT_FILE",
+        "--output", type=Path, metavar="OUTPUT_FILE",
         help="File to right rejection list out too, "
              "omit if you are using tables"
     )
 
     arguments.add_argument(
-        "--slot", "-s", metavar="SLOT_NAME",
+        "--folder", metavar="FOLDER_NAME",
         help="The name of the slot to load from in the table. Omitted if not"
              " using a table."
     )
@@ -184,19 +189,14 @@ def _arguments(args: List[str]) -> argparse.ArgumentParser.parse_args:
     )
 
     arguments.add_argument(
-        "--function", "-f", metavar="PYTHON_FILE", type=Path,
+        "--function", metavar="PYTHON_FILE", type=Path,
         help="Python source file containing the functions for intensity for "
              "the simulation"
     )
 
     arguments.add_argument(
-        "--intensity", metavar="INTENSITY_NAME", default="intensity",
+        "--amplitude", metavar="AMPLITUDE_NAME", default="MyAmplitude",
         help="Name of the intensity function inside the source file."
-    )
-
-    arguments.add_argument(
-        "--setup", metavar="SETUP_NAME", default="setup",
-        help="Name of the setup function inside the source file"
     )
 
     return arguments.parse_args(args)
@@ -261,8 +261,8 @@ def _process_arguments(
         combined["Data"]["Path"] = args.data
 
     # Even if we don't have a slot, the value needs to be set
-    if args.slot or "Slot" not in combined["Data"]:
-        combined["Data"]["Slot"] = args.slot
+    if args.folder or "Folder" not in combined["Data"]:
+        combined["Data"]["Folder"] = args.folder
 
     # Replace function path if provided and exists
     if args.function and args.function.exists():
@@ -314,6 +314,6 @@ def _process_arguments(
     return (
         func_path, combined["Function"]["Intensity Name"],
         combined["Function"]["Setup Name"], combined["Parameters"],
-        data_path, combined["Data"]["Slot"], combined["Data"]["Output"],
+        data_path, combined["Data"]["Folder"], combined["Data"]["Output"],
         combined["Data"]["Cache"]
     )

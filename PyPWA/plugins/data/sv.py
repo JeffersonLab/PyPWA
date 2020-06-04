@@ -22,14 +22,15 @@ from pathlib import Path
 from typing import List
 
 import numpy as npy
+import pandas
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import info as _info
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 HEADER_SEARCH_BITS = 8192
@@ -109,7 +110,7 @@ class _SvReader(templates.ReaderBase):
         array_type = [(name, "f8") for name in self.__elements]
         return npy.zeros(1, array_type)
 
-    def next(self) -> npy.ndarray:
+    def next(self) -> pandas.Series:
         values = next(self.__reader)
         if not len(values):
             raise StopIteration
@@ -117,7 +118,7 @@ class _SvReader(templates.ReaderBase):
         for column_index, element in enumerate(self.__elements):
             self.__array[0][element] = values[column_index]
 
-        return self.__array
+        return pandas.DataFrame(self.__array).loc[0]
 
     def get_event_count(self) -> int:
         if not self.__event_count:
@@ -135,6 +136,14 @@ class _SvReader(templates.ReaderBase):
     @property
     def fields(self):
         return [name for name in self.__array.dtype.names]
+
+    @property
+    def data_type(self) -> DataType:
+        return DataType.STRUCTURED
+
+    @property
+    def input_path(self) -> Path:
+        return self.__filename
 
 
 class _SvWriter(templates.WriterBase):
@@ -156,13 +165,13 @@ class _SvWriter(templates.WriterBase):
         else:
             return csv.excel
 
-    def write(self, data: npy.ndarray):
+    def write(self, data: pandas.Series):
         if not self.__writer:
             self.__setup_writer(data)
         self.__write_row(data)
 
-    def __setup_writer(self, data: npy.ndarray):
-        self.__field_names = list(data.dtype.names)
+    def __setup_writer(self, data: pandas.Series):
+        self.__field_names = list(data.keys())
         self.__writer = csv.DictWriter(
             self.__file_handle,
             fieldnames=self.__field_names,
@@ -171,14 +180,18 @@ class _SvWriter(templates.WriterBase):
         )
         self.__writer.writeheader()
 
-    def __write_row(self, data: npy.ndarray):
+    def __write_row(self, data: pandas.Series):
         dict_data = {}
         for field_name in self.__field_names:
-            dict_data[field_name] = repr(data[0][field_name])
+            dict_data[field_name] = repr(data[field_name])
         self.__writer.writerow(dict_data)
 
     def close(self):
         self.__file_handle.close()
+
+    @property
+    def output_path(self) -> Path:
+        return self.__filename
 
 
 class _SvMemory(templates.IMemory):
@@ -186,20 +199,14 @@ class _SvMemory(templates.IMemory):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def parse(self, filename: Path) -> npy.ndarray:
-        data_array = self.__get_array(filename)
-        with _SvReader(filename) as reader:
-            for index, event in enumerate(reader):
-                data_array[index] = event
-        return data_array
+    def parse(self, filename: Path) -> pandas.DataFrame:
+        if filename.suffix == ".tsv":
+            return pandas.read_csv(filename, sep="\t")
+        else:
+            return pandas.read_csv(filename)
 
-    @staticmethod
-    def __get_array(filename: Path) -> npy.ndarray:
-        with _SvReader(filename) as reader:
-            event = reader.next()
-        return npy.zeros(reader.get_event_count(), event.dtype)
-
-    def write(self, filename: Path, data: npy.ndarray):
-        with _SvWriter(filename) as writer:
-            for event in data:
-                writer.write(npy.array([event], dtype=data.dtype))
+    def write(self, filename: Path, data: pandas.DataFrame):
+        if filename.suffix == ".tsv":
+            data.to_csv(filename, sep="\t", index=False)
+        else:
+            data.to_csv(filename, index=False)

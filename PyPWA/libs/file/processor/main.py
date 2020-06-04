@@ -25,19 +25,21 @@ from pathlib import Path
 from typing import Union
 
 import numpy as npy
+import pandas as pd
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import info as _info
 from PyPWA.libs.file import cache
-from PyPWA.libs.math import vectors
 from PyPWA.plugins import load, data as data_plugins
 from . import templates
+from ... import vectors
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
-SUPPORTED_DATA = Union[npy.ndarray, vectors.ParticlePool]
+SUPPORTED_DATA = Union[npy.ndarray, vectors.ParticlePool, pd.DataFrame]
+INPUT_TYPE = Union[Path, str]
 
 
 def _get_read_plugin(filename: Path) -> templates.IDataPlugin:
@@ -65,50 +67,49 @@ class _DataLoader:
     __LOGGER = logging.getLogger(__name__ + "._DataLoader")
 
     def __init__(self, use_cache: bool, clear_cache: bool):
-        self.__args = (use_cache, clear_cache)
-        self.__cache_builder = cache.CacheFactory(use_cache, clear_cache)
+        self.__use_cache = use_cache
+        self.__clear_cache = clear_cache
 
     def __repr__(self):
         return (f"{self.__class__.__name__}"
-                f"({self.__args[0]}, {self.__args[1]})")
+                f"({self.__use_cache}, {self.__clear_cache})")
 
-    def parse(self, filename: Path) -> npy.ndarray:
-        cache_obj = self.__cache_builder.get_cache(filename)
-        if cache_obj.is_valid:
+    def parse(self, filename: Path) -> Union[pd.DataFrame, pd.Series]:
+        valid, cache_obj = cache.read(filename, remove_cache=self.__clear_cache)
+        if valid and self.__use_cache:
             self.__LOGGER.info("Loading cache for %s" % filename)
-            return cache_obj.read_cache()
+            return cache_obj
         else:
             self.__LOGGER.info("No cache found, loading file directly.")
-            return self.__read_data(cache_obj, filename)
+            return self.__read_data(filename)
 
-    @staticmethod
-    def __read_data(cache_obj, filename):
+    def __read_data(self, filename):
         plugin = _get_read_plugin(filename)
         data = plugin.get_memory_parser().parse(filename)
-        cache_obj.write_cache(data)
+        if self.__use_cache:
+            cache.write(filename, data)
         return data
 
 
 class _DataDumper:
 
     def __init__(self, use_cache: bool, clear_cache: bool):
-        self.__args = (use_cache, clear_cache)
-        self.__cache_builder = cache.CacheFactory(use_cache, clear_cache)
+        self.__use_cache = use_cache
+        self.__clear_cache = clear_cache
 
     def __repr__(self):
         return (f"{self.__class__.__name__}"
-                f"({self.__args[0]}, {self.__args[1]})")
+                f"({self.__use_cache}, {self.__clear_cache})")
 
     def write(self, filename: Path, data: SUPPORTED_DATA):
         parser = self.__get_write_plugin(filename, data).get_memory_parser()
-        cache_obj = self.__cache_builder.get_cache(filename)
         parser.write(filename, data)
-        cache_obj.write_cache(data)
+        if self.__use_cache:
+            cache.write(filename, data)
 
     @staticmethod
-    def __get_write_plugin(
-            filename: Path, data: SUPPORTED_DATA
-            )-> templates.IDataPlugin:
+    def __get_write_plugin(filename: Path,
+                           data: SUPPORTED_DATA) -> templates.IDataPlugin:
         if isinstance(data, vectors.ParticlePool):
             data_type = templates.DataType.TREE_VECTOR
         elif not data.dtype.names:
@@ -130,21 +131,24 @@ class DataProcessor:
         return (f"{self.__class__.__name__}"
                 f"({self.__args[0]}, {self.__args[1]})")
 
-    def parse(self, filename: Union[Path, str]) -> SUPPORTED_DATA:
-        f = filename if isinstance(filename, Path) else Path(filename)
-        return self.__loader.parse(f)
+    def parse(self, filename: INPUT_TYPE) -> SUPPORTED_DATA:
+        filename = Path(filename)
+        return self.__loader.parse(filename)
 
     @staticmethod
-    def get_reader(filename: Union[Path, str]) -> templates.ReaderBase:
-        plugin = _get_read_plugin(Path(filename))
-        return plugin.get_reader(Path(filename))
+    def get_reader(filename: INPUT_TYPE) -> templates.ReaderBase:
+        filename = Path(filename)
+        plugin = _get_read_plugin(filename)
+        return plugin.get_reader(filename)
 
-    def write(self, filename: Union[Path, str], data: SUPPORTED_DATA):
-        self.__dumper.write(Path(filename), data)
+    def write(self, filename: INPUT_TYPE, data: SUPPORTED_DATA):
+        filename = Path(filename)
+        self.__dumper.write(filename, data)
 
     @staticmethod
-    def get_writer(
-            filename: Union[Path, str],
-            data_type=templates.DataType.STRUCTURED) -> templates.WriterBase:
-        plugin = _get_write_plugin(Path(filename), data_type)
-        return plugin.get_writer(Path(filename))
+    def get_writer(filename: INPUT_TYPE,
+                   data_type=templates.DataType.STRUCTURED
+                   ) -> templates.WriterBase:
+        filename = Path(filename)
+        plugin = _get_write_plugin(filename, data_type)
+        return plugin.get_writer(filename)

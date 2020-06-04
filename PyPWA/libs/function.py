@@ -17,11 +17,16 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import importlib
+import logging
 import sys
 from pathlib import Path
 from typing import Any, Callable
 
-import logging
+from PyPWA import info as _info
+
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 _LOGGER = logging.getLogger(__file__)
 
@@ -34,16 +39,18 @@ def load(file: Path, name: str) -> Callable[[Any], Any]:
     # We need the absolute path for the PythonPath
     file = file.absolute()
 
-    # Check to make sure the path isn't already in PtyhonPath
+    # Check to make sure the path isn't already in PythonPath
     if file.parent not in sys.path:
         sys.path.append(str(file.parent))
 
-    # Import the module
+    # Import the module and handle any issues in the file
     try:
         module = importlib.import_module(file.stem)
     except ModuleNotFoundError:
-        _LOGGER.error(f"{file.stem} not found!")
-        raise ImportError(f"Can not find {file.stem} with {file}")
+        error = f"{file.stem} not found!"
+        raise AttributeError(error)
+    except SyntaxError:
+        raise
 
     # Extract the function
     try:

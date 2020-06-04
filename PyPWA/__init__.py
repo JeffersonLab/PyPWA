@@ -17,74 +17,95 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-============
-General Docs
-============
+Welcome to PyPWA!
+=================
+To make using PyPWA easier from IPython or Jupyter, useful modules have
+been imported directly into this package so that you can get up and
+running as quickly as possible. To know more about the following modules,
+use help. i.e. ? read or help(read)
 
-PyPWA is statistical analysis toolkit that was built with Partial Wave
-Analysis in mind, however you should be able to use the tools included for
-anything statistical analysis.
+Fitting and Simulation:
+-----------------------
+- NestedFunction: Abstract object that should be used to define whatever
+    function you want to simulate or fit.
+- FunctionAmplitude: Fallback for old functions for PyPWA 2.0, don't
+    use unless you need.
+- monte_carlo_simulation: Function used for rejection sampling.
+- simulate.process_user_function: Processes the user function and returns
+    the functions final values and max value.
+- simulate.make_rejection_list: Takes the final values and max values to
+    produce a rejection list that can be used to mask the source data.
+- LogLikelihood: Sets up the log likelihood. Supports both the extended,
+    binned, and standard likelihood.
+- ChiSquared: Sets up the ChiSquared likelihood, supports using working
+    with expected values or binned
+- EmptyLikelihood: Sets up an empty likelihood. For use when you want
+    to use the multiprocessing without a likelihood, or have included
+    a likelihood directly into your NestedFunction.
+- minuit: A wrapper around iminuit to make it easier to use with our
+    likelihoods.
 
-Currently there are 4 different applications defined inside this package:
+Reading and Writing data:
+-------------------------
+Note: Data can be loaded and writen with Pandas or Numpy if preferred,
+    however, read and write support caching which can make subsequent
+    reads significantly quicker. You can use the caching module separately
+    though if preferred.
+- read: Reads data from a file or path
+- write: Writes data from a file or path
+- get_writer: Returns an object that supports writing one event at a time
+- get_reader: Returns an object that supports reading one event at a time
+- ProjectDatabase: A numerical database based off of HDF5 that allows for
+    working with data larger than memory. Only recommended if you have
+    to use it.
+- cache.read: Reads the cache for a specific source file, or for an
+    intermediate step.
+- cache.write: Writes the cache for a specific source file, or for an
+    intermediate step.
 
-- PyFit - Fitting with any likelihood.
+Tools:
+------
+- bin_with_fixed_widths: Supports binning any dataset into a bins with
+    a fixed number of events per bin
+- bin_by_range: Supports binning any dataset into a fixed number of bins
+- make_lego: Produces a lego plot
 
-- PyLikelihood - Fitting with the log-likelihood.
-
-- PyChiSquared - Fitting with the ChiSquared likelihood.
-
-- PySimulate - Simulation of an amplitude.
-
-- PyIntensities - Just the calculation half of PySimulate.
-
-- PyRejection - Just the rejection-method half of PySimulate.
-
-For information about how to use each of the programs, look in the docs folder
-included with the source code, or check the user docs at ReadTheDocs.io.
-
-Developer Docs
-==============
-
-To attempt to achieve a flexible fitter that could be quickly adapted to
-changing needs, we actually built the entire package around a generalized
-plugin loader. The "main" objects ore defined as plugins, along with each
-task that needed to be solved. This means that fitting, data loading,
-the processing module, simulation, optimizers, etc are all defined as
-plugins internally.
-
-Package purposes
-----------------
-
-- builtin_plugins - This is where each included plugins are defined, the
-  optimizers, the processing module, the builtin parser, and iterators are
-  all defined here.
-
-- entries - The various entry points for each program contained in this
-  package are here, each function defined here is a starting point for
-  setuptools.
-
-- initializers - This is where the loaders for the programs are defined, this
-  either processes and setups the arguments or a configuration file to load
-  and send the needed plugins to the main objects.
-
-- libs - The main libraries for the program. Core file libs, interfaces,
-  and mathematics are defined here.
-
-- progs - This is where the various programs are defined that are provided by
-  PyPWA.
-
-For more information on how each module works, view their documentation
-respectively.
+Provided Data Types:
+--------------------
+- FourVector: Represents 4 vectors
+- ThreeVector: Represents 3 vectors
+- Particle: A 4 vector that includes extra particle data
+- ParticlePool: A collection of Particles.
+- ResonanceData: Represents Resonances, this is not stable and could
+    change at any point in the future.
 """
 
+from PyPWA import info as _info
+from PyPWA.libs import simulate
+from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths
+from PyPWA.libs.file import (
+    get_reader, get_writer, read, write, ProjectDatabase, cache
+)
+from PyPWA.libs.fit import (
+    minuit, ChiSquared, LogLikelihood, EmptyLikelihood, NestedFunction,
+    FunctionAmplitude
+)
+from PyPWA.libs.plotting import make_lego
+from PyPWA.libs.resonance import ResonanceData
+from PyPWA.libs.simulate import monte_carlo_simulation
+from PyPWA.libs.vectors import FourVector, ThreeVector, ParticlePool, Particle
 
-__author__ = "PyPWA Team and Contributors"
+__all__ = [
+    "FourVector", "ThreeVector", "Particle", "ParticlePool",
+    "get_writer", "get_reader", "read", "write", "ProjectDatabase",
+    "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
+    "EmptyLikelihood", "NestedFunction", "FunctionAmplitude", "cache",
+    "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego",
+    "simulate"
+]
+
+__author__ = _info.AUTHOR
 __credits__ = ["Mark Jones"]
-__version__ = "3.0.0.dev"
-
-
-LICENSE = "GPLv3"
-STATUS = "development"
-MAINTAINER = "Mark Jones"
-AUTHOR = __author__
-VERSION = __version__
+__version__ = _info.VERSION
+__release__ = _info.RELEASE
+__license__ = _info.LICENSE

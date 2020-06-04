@@ -13,12 +13,14 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from pathlib import Path
+
 import numpy as npy
+import pandas
+import pandas.testing
 import pytest
 
-from pathlib import Path
 from PyPWA.plugins.data import sv, kv, numpy
-
 
 ROOT = (Path(__file__).parent / "../../test_data/docs").resolve()
 TEMP_LOCATION = ROOT / "temporary_write_data"
@@ -26,6 +28,8 @@ TEMP_LOCATION = ROOT / "temporary_write_data"
 ALL = [
     {
         "parse": sv.metadata.get_memory_parser(),
+        "reader": sv.metadata.get_reader,
+        "writer": sv.metadata.get_writer,
         "can_read": sv.metadata.get_read_test(),
         "set1": [
             ROOT / "set1.csv",
@@ -36,8 +40,7 @@ ALL = [
             ROOT / "set2.tsv"
         ],
         "bad_set": [
-            ROOT / "bad_set.csv",
-            ROOT / "bad_set.tsv"
+            ROOT / "bad_set.csv"
         ],
         "wrong": [
             ROOT / "set1.kvars",
@@ -51,6 +54,8 @@ ALL = [
     },
     {
         "parse": kv.metadata.get_memory_parser(),
+        "reader": kv.metadata.get_reader,
+        "writer": kv.metadata.get_writer,
         "can_read": kv.metadata.get_read_test(),
         "set1": [ROOT / "set1.kvars"],
         "set2": [ROOT / "set2.kvars"],
@@ -66,6 +71,8 @@ ALL = [
     },
     {
         "parse": numpy.metadata.get_memory_parser(),
+        "reader": numpy.metadata.get_reader,
+        "writer": numpy.metadata.get_writer,
         "can_read": numpy.metadata.get_read_test(),
         "set1": [
             ROOT / "set1.txt",
@@ -154,20 +161,31 @@ def temp_location(get_plugin):
 
 
 @pytest.fixture(scope="module")
-def numpy_flat():
+def pandas_flat():
     data = npy.zeros(30, [(name, "f8") for name in ['x', 'y', 'z']])
     for column in data.dtype.names:
         data[column] = npy.random.rand(30)
-    return data
+    return pandas.DataFrame(data)
 
 
-def test_data_in_equals_data_out(parser, temp_location, numpy_flat):
+def test_data_in_equals_data_out(parser, temp_location, pandas_flat):
     for location in temp_location:
-        parser.write(location, numpy_flat)
+        parser.write(location, pandas_flat)
         data = parser.parse(location)
-        npy.testing.assert_array_equal(numpy_flat, data)
+        pandas.testing.assert_frame_equal(data, pandas_flat)
         location.unlink()
 
+
+def test_reader_and_writer(get_plugin, pandas_flat):
+    with get_plugin["writer"](get_plugin["temp"][0]) as writer:
+        for index, value in pandas_flat.iterrows():
+            writer.write(value)
+
+    with get_plugin["reader"](get_plugin["temp"][0]) as reader:
+        for value in reader:
+            pass
+
+    get_plugin["temp"][0].unlink()
 
 """
 SV Specific Tests
@@ -180,7 +198,7 @@ def sv_data_sets(request):
 
 
 def test_tsv_matches_csv(sv_data_sets):
-    npy.testing.assert_array_equal(
+    pandas.testing.assert_frame_equal(
         sv.metadata.get_memory_parser().parse(sv_data_sets[0]),
         sv.metadata.get_memory_parser().parse(sv_data_sets[1])
     )
@@ -193,36 +211,36 @@ Numpy Specific Tests
 
 def test_numpy_read_and_write_pf():
     pf_file = Path(TEMP_LOCATION.stem + ".pf")
-    pass_fail = npy.random.choice([True, False], 1000)
+    pass_fail = pandas.Series(npy.random.choice([True, False], 1000))
 
     numpy.metadata.get_memory_parser().write(pf_file, pass_fail)
     read = numpy.metadata.get_memory_parser().parse(pf_file)
     pf_file.unlink()
 
-    npy.testing.assert_array_equal(read, pass_fail)
+    pandas.testing.assert_series_equal(read, pass_fail)
 
 
 def test_numpy_read_and_write_floats():
     float_file = Path(TEMP_LOCATION.stem + ".txt")
-    floats = npy.random.random(1000)
+    floats = pandas.Series(npy.random.random(1000))
 
     numpy.metadata.get_memory_parser().write(float_file, floats)
     read = numpy.metadata.get_memory_parser().parse(float_file)
     float_file.unlink()
 
-    npy.testing.assert_array_equal(floats, read)
+    pandas.testing.assert_series_equal(floats, read)
 
 
-def test_numpy_reader_and_writer(numpy_flat):
+def test_numpy_reader_and_writer(pandas_flat):
     npy_file = Path(TEMP_LOCATION.stem + ".npy")
-    data = numpy_flat[:100]
+    data = pandas_flat[:100]
 
     with numpy.metadata.get_writer(npy_file) as writer:
-        for event in npy.nditer(data):
+        for index, event in data.iterrows():
             writer.write(event)
 
     with numpy.metadata.get_reader(npy_file) as reader:
         for index, event in enumerate(reader):
-            npy.testing.assert_array_equal(data[index], event)
+            pandas.testing.assert_series_equal(data.iloc[index], event)
 
     npy_file.unlink()

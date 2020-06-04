@@ -20,89 +20,165 @@
 Defines how the simulation works for PyPWA
 """
 
-import secrets
-from typing import Any, Callable, Dict, List, Union
+import multiprocessing
+from typing import Any, Dict, List, Union, Set, Tuple
 
 import numpy as npy
+import pandas as pd
 
-from PyPWA.libs.file import slot_table
+from PyPWA import info as _info
 from PyPWA.libs import process
-import multiprocessing
+from PyPWA.libs.file import project
+from PyPWA.libs.fit import likelihoods
+
+__credits__ = ["Mark Jones"]
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
-def calculate_intensities(
-        function: Callable[[Any, Any], npy.ndarray],
-        setup: Callable[[], None],
-        params: Dict[str, float],
-        data: Union[npy.ndarray, slot_table.DataSlot],
-        processes: int = multiprocessing.cpu_count()
-) -> npy.ndarray:
-    """Calculates the rejection list
-    This takes a user defined intensity function along with it's
+def monte_carlo_simulation(
+        amplitude: likelihoods.NestedFunction,
+        data: Union[npy.ndarray, pd.DataFrame, project.BaseFolder],
+        params: Dict[str, float] = None,
+        processes: int = multiprocessing.cpu_count()) -> npy.ndarray:
+    """Produces the rejection list
+    This takes a user defined intensity object along with it's
     associated data, and generates a pass/fail array to be used to
-    mask the monte carlo.
+    mask any dataset of the same length as data.
 
-    :param function: Function defining the intensity
-    :param setup: A function called once to setup the intensity,
-        if needed.
-    :param params: Dictionary of the parameters and their associated
-        values. These are the values for the intensity to simulate with.
-    :param data: The data to simulate against
-    :param processes: How many processes to execute with if applicable
-    :return: A pass/fail boolean array of the same length as data
+    Parameters
+    ----------
+    amplitude : Amplitude derived from AbstractAmplitude
+        A user defined amplitude or pre-made PyPWA amplitude that you
+        wish to carve your data with.
+    data : Structured Array, DataFrame, or BaseFolder from Project
+        This is the data you want to be passed to the `setup` function
+        of your amplitude. If you provide a Structured Array or DataFrame
+        the entire calculation will occur in memory with the selected
+        number of processes. If you provide a Project BaseFolder the
+        calculation will rely entirely on the Amplitude.
+    params : Dict[str, float], optional
+         An optional dictionary of parameters that will be passed to the
+         AbstractAmplitude's `calculate` function.
+    processes : int, optional
+        Selects the number of processes to run with, defaults to the
+        number of processes detected through multiprocessing
+
+    Returns
+    -------
+    boolean npy.ndarray
+        A masking array that can be used with any DataFrame or Structured
+        Array to cut the events to the generated shape
+
+    Raises
+    ------
+    ValueError
+        If the data is not understood. If you received this, check your
+        data to ensure its a supported type
+
+    Examples
+    --------
+    How to cut your data with results from monte_carlo_simulation
+
+    >>> rejection = monte_carlo_simulation(Amplitude(), data)
+    >>> carved = data[rejection]
     """
+    intensity, max_value = process_user_function(
+        amplitude, data, params, processes
+    )
+    return make_rejection_list(intensity, max_value)
 
-    if isinstance(data, npy.ndarray):
-        intensity = _in_memory_intensities(
-            setup, function, data, params, processes
-        )
-    elif isinstance(data, slot_table.DataSlot):
-        intensity = _in_table_intensities(setup, function, data, params)
+
+def process_user_function(amplitude: likelihoods.NestedFunction,
+        data: Union[npy.ndarray, pd.DataFrame, project.BaseFolder],
+        params: Dict[str, float] = None,
+        processes: int = multiprocessing.cpu_count()
+) -> Tuple[npy.ndarray, float]:
+    """Produces an array of values for the calculated function.
+
+    Parameters
+    ----------
+    amplitude : Amplitude derived from AbstractAmplitude
+        A user defined amplitude or pre-made PyPWA amplitude that you
+        wish to carve your data with.
+    data : Structured Array, DataFrame, or BaseFolder from Project
+        This is the data you want to be passed to the `setup` function
+        of your amplitude. If you provide a Structured Array or DataFrame
+        the entire calculation will occur in memory with the selected
+        number of processes. If you provide a Project BaseFolder the
+        calculation will rely entirely on the Amplitude.
+    params : Dict[str, float], optional
+         An optional dictionary of parameters that will be passed to the
+         AbstractAmplitude's `calculate` function.
+    processes : int, optional
+        Selects the number of processes to run with, defaults to the
+        number of processes detected through multiprocessing
+
+    Returns
+    -------
+    (float npy.ndarray, float)
+        The final values computed from the user's function and the max
+        value computed for that dataset.
+
+    Raises
+    ------
+    ValueError
+        If the data is not understood. If you received this, check your
+        data to ensure its a supported type
+    """
+    if isinstance(data, (npy.ndarray, pd.DataFrame)):
+        intensity = _in_memory_intensities(amplitude, data, params, processes)
+    elif isinstance(data, project.BaseFolder):
+        intensity = _in_table_intensities(amplitude, data, params)
     else:
         raise ValueError("Unknown data type!")
 
-    return _make_reject_list(intensity)
+    return intensity, intensity.max()
 
 
 def _in_memory_intensities(
-        setup_function: Callable[[], None],
-        processing_function: Callable[[Any, Any], npy.ndarray],
-        data: npy.ndarray,
+        amplitude: likelihoods.NestedFunction,
+        data: Union[npy.ndarray, pd.DataFrame],
         params: Dict[str, float],
         processes: int) -> npy.ndarray:
 
-    kernel = _Kernel(setup_function, processing_function, params)
+    kernel = _Kernel(amplitude, params)
+    if not amplitude.USE_MP or not processes:
+        kernel.data = data
+        kernel.setup()
+        return kernel.run()[1]
+
     interface = _Interface()
     manager = process.make_processes(
         {"data": data}, kernel, interface, processes, False
     )
-    return manager.run()
+    result = manager.run()
+    manager.close()
+    return result
 
 
 class _Kernel(process.Kernel):
 
     def __init__(
             self,
-            setup_function: Callable[[], None],
-            processing_function: Callable[[Any, Any], npy.ndarray],
+            amplitude: likelihoods.NestedFunction,
             parameters: Dict[str, float]):
-        self.__setup_function = setup_function
-        self.__processing_function = processing_function
+        self.__amplitude = amplitude
         self.__parameters = parameters
         self.data: npy.ndarray = None
 
     def setup(self):
-        self.__setup_function()
+        self.__amplitude.setup(self.data)
 
     def process(self, data: Any = False) -> Any:
-        calculated = self.__processing_function(self.data, self.__parameters)
+        calculated = self.__amplitude.calculate(self.__parameters)
         return self.PROCESS_ID, calculated
 
 
 class _Interface(process.Interface):
     IS_DUPLEX = False
 
-    def run(self, communicator: List[Any], args: Any) -> npy.ndarray:
+    def run(self, communicator: List[Any], *args: Any) -> npy.ndarray:
         data = self.__receive_data(communicator)
         return npy.concatenate(data)
 
@@ -111,28 +187,48 @@ class _Interface(process.Interface):
         list_of_data = list(range(len(communicator)))
         for communication in communicator:
             data = communication.recv()
+
+            if isinstance(data, process.ProcessCodes):
+                raise communication.recv()
+
             list_of_data[data[0]] = data[1]
         return list_of_data
 
 
 def _in_table_intensities(
-        setup_function: Callable[[], None],
-        processing_function: Callable[[Any, Any], Any],
-        data: slot_table.DataSlot,
+        amplitude: likelihoods.NestedFunction,
+        data: project.BaseFolder,
         parameters: Dict[str, float]) -> npy.ndarray:
 
-    setup_function()
-
-    chunk_collection = []
-    for index, chunk in enumerate(slot_table.iter_root(data.get_root())):
-        chunk_collection.append(processing_function(chunk, parameters))
-
-    return npy.concatenate(chunk_collection)
+    amplitude.setup(data)
+    return amplitude.calculate(parameters)
 
 
-def _make_reject_list(intensities: npy.ndarray) -> npy.ndarray:
-    rejection_list = npy.zeros(len(intensities), bool)
-    for index, event in enumerate(intensities / intensities.max()):
-        if event > secrets.SystemRandom().random():
-            rejection_list[index] = True
-    return rejection_list
+def make_rejection_list(
+        intensities: npy.ndarray,
+        max_value: Union[List[float], npy.ndarray, float]
+) -> npy.ndarray:
+    """Produces the rejection list from pre-calculated function values.
+    Uses the values returned by process_user_function.
+
+    Parameters
+    ----------
+    intensities : Numpy array or Pandas Series
+        This is a single dimensional array containing the final values
+        for the user's function.
+    max_value : List, Tuple, Set, nd.ndarray, or float
+        The max value for the entire dataset, or list of all the max
+        values from each dataset. Only the largest value from the list
+        will be used.
+
+    Returns
+    -------
+    boolean npy.ndarray
+        A masking array that can be used with any DataFrame or Structured
+        Array to cut the events to the generated shape
+    """
+    if isinstance(max_value, (list, tuple, set, npy.ndarray)):
+        max_value = max(max_value)
+
+    random_numbers = npy.random.rand(len(intensities))
+    return (intensities / max_value) > random_numbers

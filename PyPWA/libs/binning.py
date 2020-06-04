@@ -1,7 +1,7 @@
 #  coding=utf-8
 #
 #  PyPWA, a scientific analysis toolkit.
-#  Copyright (C) 2019 JLab
+#  Copyright (C) 2016 JLab
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -16,328 +16,281 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
-import warnings
-from collections import OrderedDict
-from enum import Enum
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import Union, List, Optional as Opt
 
 import numpy as npy
-import tables
-
-from PyPWA import AUTHOR, VERSION
-from PyPWA.libs.file import slot_table
-from PyPWA.libs.file.processor import DataProcessor
-from PyPWA.libs.math import reaction
-
-__credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
-
-"""
-    
-"""
-
-_EVENT_CHUNK = 250000
+import pandas as pd
 
 
-class BinType(Enum):
-    MASS = "mass"
-    T_PRIME = "tp"
-    T = "t"
-    BEAM = "beam"
+def bin_by_range(
+        dataframe: Union[pd.DataFrame, npy.ndarray],
+        bin_series: Union[npy.ndarray, pd.Series, str],
+        number_of_bins: int, lower_cut: Opt[float] = None,
+        upper_cut: Opt[float] = None, sample_size: Opt[int] = None
+) -> List[pd.DataFrame]:
+    """Bins a dataframe by range using a series in memory
 
+    Bins an input array by range in memory. You must put all data you want
+    binned into the DataFrame or Structured Array before use. Each
+    resulting bin can be further binned if you desire.
 
-def make_bin_table(slot: slot_table.DataSlot):
-    bin_types = [(name, "f8") for name in ["mass", "beam", "t", "tp"]]
-    bin_array = npy.zeros(len(slot), bin_types)
-    root = slot.get_root()
+    Parameters
+    ----------
+    dataframe : DataFrame or Structured Array
+        The dataframe or numpy array that you wish to break into bins
+    bin_series : Array-like
+        Data that you want to bin by, selectable by user. Must have the
+        same length as dataframe. If a column name is provided, that
+        column will be used from the dataframe.
+    number_of_bins : int
+        The resulting number of bins that you would like to have.
+    lower_cut : float, optional
+        The lower cut off for the dataset, if not provided it will be set
+        to the smallest value in the bin_series
+    upper_cut : float, optional
+        The upper cut off for the dataset, if not provided  will be set
+        to the largest value in the bin_series
+    sample_size : int, optional
+        If provided each bin will have a randomly selected number of
+        events of length sample_size.
 
-    # lower limit (ll), upper limit (ul)
-    for ll in range(0, len(slot), _EVENT_CHUNK):
-        ul = ll + _EVENT_CHUNK
-        root_chunk = root.read(ll, ul)
+    Returns
+    -------
+    List[DataFrame or Structured Array]
+        A list of array-likes that have been masked off of the input
+        bin_series.
 
-        bin_array["mass"][ll:ul] = reaction.get_event_mass(root_chunk)
-        bin_array["tp"][ll:ul] = reaction.get_t_prime(root_chunk)
-        bin_array["t"][ll:ul] = reaction.get_t(root_chunk)
-        bin_array["beam"][ll:ul] = root_chunk.get_particles_by_id(1)[0].z
+    Raises
+    ------
+    ValueError
+        If the length of the input array and bin array don't match
 
-    slot.add_data("bin_data", bin_array)
-    slot.flush()
+    Warnings
+    --------
+    This function does all binning in memory, if you are working with
+    a large dataset that doesn't fit in memory, or if you overflow while
+    you are binning, you must use a different binning method
 
+    See Also
+    --------
+    PyPWA.libs.file.project : A numerical dataset that supports binning
+        on disk instead of in-memory. It's slower and requires more steps
+        to use, but should work even on memory limited systems.
 
-def bin_by_width(bins: npy.ndarray,
-                 queue: OrderedDict,
-                 position: int) -> Dict[str, npy.ndarray]:
-    # Unpack queue
-    upper = queue[position]["upper"]
-    lower = queue[position]["lower"]
-    count = queue[position]["count"]
-    variable = queue[position]["variable"]
+    Notes
+    -----
+    The range is selected using a simple method:
 
-    # Size of each step in the standard data
-    step_size = (upper - lower) / count
-    truth_table = dict()
+    .. math:: (max - min) / num_of_bins
 
-    # Handle events outside of the range
-    truth_table["lower"] = bins[variable.value] < lower
-    truth_table["upper"] = bins[variable.value] > upper
+    Examples
+    --------
+    Binning a DataFrame with values x, y, and z using z to bin
 
-    step_with_count = enumerate(npy.arange(lower, upper, step_size))
-    for index, lower_limit in step_with_count:
-        x = bins[variable.value] > lower_limit
-        y = bins[variable.value] < lower_limit + step_size
-        truth_table[str(index)] = npy.logical_and(x, y)
+    >>> data = {
+    >>>     "x": npy.random.rand(1000), "y": npy.random.rand(1000),
+    >>>     "z": (npy.random.rand(1000) * 100) - 50
+    >>>    }
+    >>> df = pd.DataFrame(data)
+    >>> list(df.columns)
+    ["x", "y", "z"]
 
-    return truth_table
+    This will give us a usable DataFrame, now to make a series out of z
+    and use it to make 10 bins.
 
+    >>> binning = df["z"]
+    >>> range_bins = bin_by_range(df, binning, 10)
+    >>> len(range_bins)
+    10
 
-class _BinFixed:
-
+    That will give you 10 bins with a very close number of values per bin
     """
-    .. Todo::
-        This currently just splits the variable by length. This needs
-        to be changed so that variables are ordered before they are
-        binned.
-    """
+    if isinstance(bin_series, str):
+        bin_series = dataframe[bin_series]
+    elif len(dataframe) != len(bin_series):
+        raise ValueError("Input array and bin array must be the same length!")
 
-    def __init__(self, bins: npy.ndarray, queue: OrderedDict):
-        self.__bins = bins
-        self.__queue = queue
-        self.__truth_table: npy.ndarray = None
+    dataframe, bin_series = _mask_binned_data(
+        dataframe, bin_series, lower_cut, upper_cut
+    )
 
-        self.__reset()
+    bin_edges = npy.linspace(
+        bin_series.min(), bin_series.max(), number_of_bins + 1
+    )
 
-    def __reset(self):
-        self.__index = 0
-        self.__list = []
-
-    def get_fixed(
-            self, position: int, truth_table: npy.ndarray = True
-    ) -> List[npy.ndarray]:
-        self.__reset()
-        self.__truth_table = truth_table
-
-        variable, fixed_size = self.__get_fixed_vars(position)
-        lower, center, upper = self.__get_binning_information(fixed_size)
-
-        self.__get_edge_events(lower)
-        self.__get_center_events(upper, fixed_size)
-        self.__get_edge_events(upper)
-        return self.__list
-
-    def __get_fixed_vars(self, position):
-        val = self.__queue[position]
-        return val["variable"], val["count"]
-
-    def __get_binning_information(self, fixed_size):
-        total = self.__truth_table.sum()
-        num_in_center = total // fixed_size
-        lower_extra = (total % fixed_size) // 2
-
-        if (lower_extra * 2 + num_in_center * fixed_size) == total:
-            upper_extra = lower_extra
-        else:
-            upper_extra = lower_extra + 1
-
-        return lower_extra, num_in_center, upper_extra
-
-    def __get_edge_events(self, limit):
-        self.__list.append(self.__loop_until_limit(limit))
-
-    def __get_center_events(self, center, fixed_size):
-        for i in range(center):
-            self.__list.append(self.__loop_until_limit(fixed_size))
-
-    def __loop_until_limit(self, limit):
-        count = 0
-        while True:
-            array = npy.zeros(len(self.__truth_table), bool)
-
-            if self.__truth_table[self.__index]:
-                count = count + 1
-                array[self.__index] = True
-
-            self.__index = self.__index + 1
-
-            if count == limit:
-                return array
-
-
-class BinFactory:
-
-    def __init__(self, slot: slot_table.DataSlot):
-        self.__slot = slot
-        if "bin_data" not in slot.extra_data:
-            make_bin_table(slot)
-        self.__bins = slot.get_data("bin_data").read()
-        self.__queue = OrderedDict()
-        self.__tree = dict()
-
-        self.__fixed = _BinFixed(self.__bins, self.__queue)
-
-    def add_fixed_range(
-            self, variable: BinType, lower: int, upper: int, count: int):
-        self.__queue[len(self.__queue)] = {
-            "type": "width",
-            "variable": variable,
-            "lower": lower,
-            "upper": upper,
-            "count": count
-        }
-
-    def add_fixed_count(self, variable: BinType, count: int):
-        self.__queue[len(self.__queue)] = {
-            "type": "fixed",
-            "variable": variable,
-            "count": count
-        }
-
-    def clear(self):
-        self.__queue.clear()
-
-    def execute(self):
-        self.__tree = self.__production_loop()
-
-    def __production_loop(
-            self, position: int = 0, previous: npy.ndarray = True
-    ) -> Dict[int, npy.ndarray]:
-
-        temp_storage = dict()
-        truth_table_dict = self.__get_truth_tables(position, previous)
-
-        for key, truth_table in truth_table_dict.items():
-            if len(self.__queue) - 1 == position:
-                temp_storage[key] = npy.logical_and(truth_table, previous)
-            else:
-                temp_storage[key] = self.__production_loop(
-                    position + 1, truth_table
-                )
-        return truth_table_dict
-
-    def __get_truth_tables(
-            self, position, previous: npy.ndarray = True
-    ) -> Dict[Any, npy.ndarray]:
-
-        if not isinstance(previous, npy.ndarray):
-            previous = npy.ones(len(self.__slot), bool)
-
-        if self.__queue[position]["type"] == "width":
-            return bin_by_width(self.__bins, self.__queue, position)
-        else:
-            # TODO: Actually implement this functionality
-            raise NotImplementedError("Fixed bins are still a WIP")
-
-    @property
-    def produced_truth_table(self):
-        return self.__tree
-
-
-class BinSlot(slot_table.CustomSlot):
-
-    def __init__(self, slot: slot_table.DataSlot):
-        self.__file: tables.File = None
-        self.__group: tables.Group = None
-        self.__bin_group: tables.Group = None
-        self.__data_group: tables.Group = None
-        self.__data_slot = slot  # Data is slot is needed for names only
-        warnings.simplefilter('ignore', tables.NaturalNameWarning)
-
-    def setup_slot(self, file: tables.File, group: tables.Group):
-        self.__file = file
-        self.__group = group
-        self.__data_group = getattr(
-            file.root.data, self.__data_slot.group_name
-        )
-
-    def bin(self, truth_table: Dict[Any, npy.ndarray]):
-        self.__make_bin_slot()
-        metadata = self.__create_metadata(truth_table)
-        self.__slot_to_bin(metadata, truth_table, self.__bin_group)
-        self.__file.flush()
-        self.__write_metadata(metadata)
-
-    def __make_bin_slot(self):
-        if self.__data_slot.group_name in self.__group._v_groups.keys():
-            self.__file.remove_node(
-                self.__group, self.__data_slot.group_name, True
+    bin_masks = []
+    for bin_count in range(len(bin_edges) - 1):
+        bin_masks.append(
+            _make_bin_values(
+                bin_series, bin_edges[bin_count], bin_edges[bin_count + 1]
             )
-
-        self.__bin_group = self.__file.create_group(
-            self.__group, self.__data_slot.group_name
         )
 
-    def __create_metadata(self,
-                          truth_table: Dict[Any, Any]) -> Dict[Any, Any]:
-        metadata = dict()
-        for leaf in truth_table.keys():
-            if isinstance(truth_table[leaf], dict):
-                metadata[leaf] = self.__create_metadata(truth_table[leaf])
-            else:
-                metadata[leaf] = {
-                    "total": int(truth_table[leaf].sum())
-                }
-        return metadata
+    bin_masks[-1] = _make_bin_values(
+        bin_series, bin_edges[-2], bin_edges[-1], True
+    )
 
-    def __slot_to_bin(self,
-                      metadata: Dict[int, Any],
-                      truth: Dict[int, Any],
-                      current_group: tables.Group):
-        for leaf in truth.keys():
-            if isinstance(truth[leaf], dict):
-                child = self.__file.create_group(current_group, str(leaf))
-                self.__slot_to_bin(metadata[leaf], truth[leaf], child)
-            else:
-                child = self.__file.create_group(current_group, str(leaf))
-                for array in self.__data_group._v_leaves.keys():
-                    data = getattr(self.__data_group, array)
-                    new_array = data.read_coordinates(truth[leaf])
-                    if new_array.dtype.names:
-                        self.__file.create_table(child, array, new_array)
-                    else:
-                        self.__file.create_array(child, array, new_array)
+    if sample_size:
+        new_masks = []
+        for mask in bin_masks:
+            indexes = npy.arange(len(mask))[mask]
+            choices = npy.random.choice(indexes, sample_size, False)
+            new_mask = npy.zeros(len(mask), bool)
+            new_mask[choices] = True
+            new_masks.append(new_mask)
+        bin_masks = new_masks
 
-    def __write_metadata(self, metadata: Dict[int, Any]):
-        file = self.__file.filename.strip(".h5")
-        with open(file + "_bin_data.json", "w") as stream:
-            json.dump(metadata, stream)
+    bin_results = []
+    for mask in bin_masks:
+        binned_data = dataframe[mask]
+        if sample_size:
+            indexes = npy.arange(len(binned_data))
+            sample_mask = npy.random.choice(indexes, sample_size, False)
 
-    def slot_to_folder(self):
-        self.__write_out_data(
-            Path("bin_folder"),
-            getattr(self.__group, self.__data_slot.group_name)
+            binned_data = binned_data[sample_mask.astype(bool)]
+        bin_results.append(binned_data)
+
+    return bin_results
+
+
+def bin_with_fixed_widths(
+        dataframe: Union[pd.DataFrame, npy.ndarray],
+        bin_series: Union[npy.ndarray, pd.Series], fixed_size: int,
+        lower_cut: Opt[float] = None, upper_cut: Opt[float] = None
+) -> List[pd.DataFrame]:
+    """Bins a dataframe by fixed using a series in memory
+
+    Bins an input array by a fixed number of events in memory. You must
+    put all data you  want binned into the DataFrame or Structured Array
+    before use. Each resulting bin can be further binned if you desire.
+
+    If the fixed_size does not evenly divide into the length of
+    bin_series, the first and last bin will contain overflows.
+
+    Parameters
+    ----------
+    dataframe : DataFrame or Structured Array
+        The dataframe or numpy array that you wish to break into bins
+    bin_series : Array-like
+        Data that you want to bin by, selectable by user. Must have the
+        same length as dataframe. If a column name is provided, that
+        column will be used from the dataframe.
+    fixed_size : int
+        The number of events you want in each bin.
+    lower_cut : float, optional
+        The lower cut off for the dataset, if not provided it will be set
+        to the smallest value in the bin_series
+    upper_cut : float, optional
+        The upper cut off for the dataset, if not provided  will be set
+        to the largest value in the bin_series
+    Returns
+    -------
+    List[DataFrame or Structured Array]
+        A list of array-likes that have been masked off of the input
+        bin_series.
+
+    Raises
+    ------
+    ValueError
+        If the length of the input array and bin array don't match
+
+    Warnings
+    --------
+    This function does all binning in memory, if you are working with
+    a large dataset that doesn't fit in memory, or if you overflow while
+    you are binning, you must use a different binning method
+
+    See Also
+    --------
+    PyPWA.libs.file.project : A numerical dataset that supports binning
+        on disk instead of in-memory. It's slower and requires more steps
+        to use, but should work even on memory limited systems.
+
+    Examples
+    --------
+    Binning a DataFrame with values x, y, and z using z to bin
+
+    >>> data = {
+    >>>     "x": npy.random.rand(1000), "y": npy.random.rand(1000),
+    >>>     "z": (npy.random.rand(1000) * 100) - 50
+    >>>    }
+    >>> df = pd.DataFrame(data)
+    >>> list(df.columns)
+    ["x", "y", "z"]
+
+    This will give us a usable DataFrame, now to make a series out of z
+    and use it to make 10 bins.
+
+    >>> binning = df["z"]
+    >>> range_bins = bin_with_fixed_widths(df, binning, 250)
+    >>> len(range_bins)
+    4
+
+    Each bin should have exactly 250 events in size
+
+    >>> lengths = []
+    >>> for abin in range_bins:
+    >>>    lengths.append(len(abin))
+    [250, 250, 250, 250]
+
+    That will give you 4 bins with exaactly the same number of events
+    per bin, plus 2 more bins if needed.
+    """
+    if isinstance(bin_series, str):
+        bin_series = dataframe[bin_series]
+    elif len(dataframe) != len(bin_series):
+        raise ValueError("Input array and bin array must be the same length!")
+
+    dataframe, bin_series = _mask_binned_data(
+        dataframe, bin_series, lower_cut, upper_cut
+    )
+
+    indexes = bin_series.argsort().argsort().astype("u4")
+
+    num_in_center = len(indexes) // fixed_size
+    lower_events = (len(indexes) % fixed_size) // 2
+    upper_events = lower_events + (num_in_center * fixed_size)
+
+    bins = []
+    if lower_events:
+        lower_slice = _make_bin_values(indexes, 0, lower_events)
+        bins.append(dataframe[lower_slice])
+
+    for i in range(num_in_center):
+        lower_value = lower_events + (i * fixed_size)
+        upper_value = lower_events + (fixed_size * (i + 1))
+        mask = _make_bin_values(indexes, lower_value, upper_value)
+        bins.append(dataframe[mask])
+
+    if upper_events != len(bin_series):
+        upper_slice = _make_bin_values(
+            indexes, upper_events, len(indexes), True
         )
+        bins.append(dataframe[upper_slice])
 
-    def __write_out_data(self, current_folder, group):
-        current_folder.mkdir()
-        if group._v_groups.keys():
-            for key in group._v_groups.keys():
-                new_folder = current_folder / key
-                new_group = getattr(group, key)
-                self.__write_out_data(new_folder, new_group)
-        else:
-            dp = DataProcessor()
-            slot = slot_table.DataSlot(self.__file, group)
+    return bins
 
-            if slot.is_particle:
-                dp.write(current_folder / "root.gamp", slot.get_root().read())
-            else:
-                dp.write(current_folder / "root.csv", slot.get_root().read())
 
-            for extra in slot.extra_data:
-                data = slot.get_data(extra).read()
-                if data.dtype.names:
-                    location = current_folder / (extra + ".csv")
-                    dp.write(location, data)
-                elif data.dtype == 'bool':
-                    location = current_folder / (extra + ".pf")
-                    dp.write(location, data)
-                else:
-                    location = current_folder / (extra + ".txt")
-                    dp.write(location, data)
+def _mask_binned_data(
+        array: Union[npy.ndarray, pd.DataFrame],
+        bin_values: Union[pd.Series, npy.ndarray],
+        lower: Opt[float] = None, upper: Opt[float] = None
+):
+    if lower is None:
+        lower = bin_values.min()
+    if upper is None:
+        upper = bin_values.max()
+    kept = _make_bin_values(bin_values, lower, upper, True)
+    return array[kept], bin_values[kept]
 
-    @property
-    def root_name(self):
-        return "bin_slot"
+
+def _make_bin_values(
+        array: Union[npy.ndarray, pd.Series], lower: float, upper: float,
+        last: Opt[bool] = False
+):
+    if last:
+        upper_series = array <= upper
+    else:
+        upper_series = array < upper
+    lower_series = array >= lower
+    return npy.logical_and(lower_series, upper_series)

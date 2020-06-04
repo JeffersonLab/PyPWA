@@ -20,7 +20,7 @@
 from pathlib import Path
 
 from PyPWA.progs import simulation
-
+import pytest
 
 """
 Ensures that when given a simple dataset, the builtin programs are
@@ -28,6 +28,7 @@ capable of executing.
 """
 
 
+@pytest.mark.skip()
 def test_simulation_execute():
     output = Path("output.txt")
 

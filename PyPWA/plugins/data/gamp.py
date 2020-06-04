@@ -30,16 +30,18 @@ will not be saved in memory by these object.
 """
 
 from pathlib import Path
-from typing import List
+from typing import Dict, List
 
-from PyPWA import AUTHOR, VERSION
+import numpy as npy
+
+from PyPWA import info as _info
+from PyPWA.libs import vectors
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
-from PyPWA.libs.math import vectors
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 _COUNT = 3  # number of events to check
@@ -88,33 +90,28 @@ class _GampDataTest(templates.IReadTest):
         with filename.open() as stream:
             for i in range(_COUNT):
                 line = stream.readline().strip("\n")
+
+                # Fail on empty files
                 if line == "":
                     if i == 0:
                         return False
-                    return True
 
+                # Fail if particle count is zero
+                if line == "0":
+                    return False
+
+                # Fail if first line isn't a single integer
                 try:
                     particle_count = int(line)
                 except Exception:
                     return False
 
+                # Fail if particle data doesn't have correct number
+                # of fields.
                 for l in range(particle_count):
-                    if len(stream.readline().split(" ")) != 6:
+                    if len(stream.readline().split()) != 6:
                         return False
         return True
-
-
-def _get_particle_pool(
-        filename: Path, particle_length: int = 1) -> vectors.ParticlePool:
-    with filename.open() as stream:
-        count = int(stream.readline())
-        lines = [stream.readline() for i in range(count)]
-
-    events = []
-    for line in lines:
-        p_id, charge, x, y, z, e = line.strip("\n").split(" ")
-        events.append(vectors.Particle(int(p_id), particle_length))
-    return vectors.ParticlePool(events)
 
 
 class _GampReader(templates.ReaderBase):
@@ -123,7 +120,20 @@ class _GampReader(templates.ReaderBase):
         self.__event_count = None
         self.__file = filename
         self.__file_handle = filename.open()
-        self.__particle_pool = _get_particle_pool(filename)
+        self.__particle_pool = self.__get_particle_pool(filename)
+
+    @staticmethod
+    def __get_particle_pool(
+            filename: Path, particle_length: int = 1) -> vectors.ParticlePool:
+        with filename.open() as stream:
+            count = int(stream.readline())
+            lines = [stream.readline() for i in range(count)]
+
+        events = []
+        for line in lines:
+            p_id, charge, x, y, z, e = line.strip("\n").split()
+            events.append(vectors.Particle(int(p_id), particle_length))
+        return vectors.ParticlePool(events)
 
     def __repr__(self) -> str:
         return f"GampReader({self.__file})"
@@ -138,7 +148,7 @@ class _GampReader(templates.ReaderBase):
     def __update_particle_pool(self):
         for p in self.__particle_pool.iter_particles():
             line = self.__file_handle.readline()
-            p_id, charge, x, y, z, e = line.strip("\n").split(" ")
+            p_id, charge, x, y, z, e = line.strip("\n").split()
             p.x, p.y, p.z, p.e = (x, y, z, e)
 
     def get_event_count(self) -> int:
@@ -163,6 +173,14 @@ class _GampReader(templates.ReaderBase):
     def fields(self) -> List[str]:
         return [p.id for p in self.__particle_pool.iter_particles()]
 
+    @property
+    def data_type(self) -> DataType:
+        return DataType.TREE_VECTOR
+
+    @property
+    def input_path(self) -> Path:
+        return self.__file
+
 
 class _GampWriter(templates.WriterBase):
 
@@ -179,12 +197,16 @@ class _GampWriter(templates.WriterBase):
         for p in data.iter_particles():
             self.__file_handle.write(
                 "%d %d %.20f %.20f %.20f %.20f\n" % (
-                    p.id, p.charge, p.x[0], p.y[0], p.z[0], p.e[0]
+                    p.id, p.charge, p.x, p.y, p.z, p.e
                 )
             )
 
     def close(self):
         self.__file_handle.close()
+
+    @property
+    def output_path(self) -> Path:
+        return self.__filename
 
 
 class _GampMemory(templates.IMemory):
@@ -194,12 +216,45 @@ class _GampMemory(templates.IMemory):
 
     def parse(self, filename: Path) -> vectors.ParticlePool:
         with _GampReader(filename) as reader:
-            empty_pool = _get_particle_pool(filename, len(reader))
-            for ei, e in enumerate(reader):
-                for pi, p in enumerate(e.iter_particles()):
-                    # You must use get array to get a reference and not a copy
-                    empty_pool.stored[pi].get_array()[ei] = p.get_array()
-        return empty_pool
+            event_count = len(reader)
+
+        with filename.open() as stream:
+            particle_dict = self._make_particle_dict(filename, event_count)
+
+            for event_index, line in enumerate(stream):
+                particle_num = int(line)
+                for i in range(particle_num):
+                    line = stream.readline()
+                    p_id, charge, x, y, z, e = line.strip("\n").split()
+                    particle_dict[int(p_id)][event_index]["x"] = x
+                    particle_dict[int(p_id)][event_index]["y"] = y
+                    particle_dict[int(p_id)][event_index]["z"] = z
+                    particle_dict[int(p_id)][event_index]["e"] = e
+
+        particles = []
+        for p_id, momenta in particle_dict.items():
+            particles.append(
+                vectors.Particle(p_id, momenta)
+            )
+
+        return vectors.ParticlePool(particles)
+
+    @staticmethod
+    def _make_particle_dict(
+            filename: Path, particle_length: int = 1
+    ) -> Dict[int, npy.ndarray]:
+        with filename.open() as stream:
+            count = int(stream.readline())
+            lines = [stream.readline() for i in range(count)]
+
+        particles = dict()
+        for line in lines:
+            p_id, charge, x, y, z, e = line.strip("\n").split()
+            particles[int(p_id)] = npy.zeros(
+                particle_length,
+                dtype=[("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")]
+            )
+        return particles
 
     def write(self, filename: Path, data: vectors.ParticlePool):
         with _GampWriter(filename) as stream:

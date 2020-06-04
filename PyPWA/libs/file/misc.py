@@ -26,11 +26,11 @@ from pathlib import Path
 
 import appdirs
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
 
 _BUFFER = 40960

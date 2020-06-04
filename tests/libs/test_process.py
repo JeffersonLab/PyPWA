@@ -43,7 +43,7 @@ class SimplexKernel(process.Kernel):
 
 class SimplexInterface(process.Interface):
 
-    def run(self, connections, args):
+    def run(self, connections, *args):
         value = npy.zeros(len(connections))
         for index, connection in enumerate(connections):
             value[index] = connection.recv()
@@ -51,14 +51,14 @@ class SimplexInterface(process.Interface):
         return npy.sum(value)
 
 
-@pytest.fixture(params=[True, False])
+@pytest.fixture
 def simplex_interface(request):
     interface = process.make_processes(
         TEST_DATA, SimplexKernel(), SimplexInterface(), 3, False
     )
 
     yield interface
-    interface.stop(request.param)
+    interface.close()
 
 
 def test_simplex_sum_matches_expected(simplex_interface):
@@ -85,9 +85,9 @@ class DuplexKernel(process.Kernel):
 
 class DuplexInterface(process.Interface):
 
-    def run(self, connections, arguments):
+    def run(self, connections, *arguments):
         for connection in connections:
-            connection.send(arguments[0])
+            connection.send(arguments)
 
         value = npy.zeros(len(connections))
         for index, connection in enumerate(connections):
@@ -96,13 +96,13 @@ class DuplexInterface(process.Interface):
         return npy.sum(value)
 
 
-@pytest.fixture(params=[True, False])
+@pytest.fixture
 def duplex_interface(request):
     interface = process.make_processes(
         TEST_DATA, DuplexKernel(), DuplexInterface(), 3, True
     )
     yield interface
-    interface.stop(request.param)
+    interface.close()
 
 
 def test_duplex_calculated_matches_expected(duplex_interface):
@@ -138,7 +138,7 @@ class InterfaceError(process.Interface):
     def __init__(self, is_duplex: bool):
         self.__duplex = is_duplex
 
-    def run(self, connections, args):
+    def run(self, connections, *args):
         if self.__duplex:
             for connection in connections:
                 connection.send("go")
@@ -162,3 +162,4 @@ def test_process_error_handling(get_duplex_state):
     )
     values = interface.run()
     assert process.ProcessCodes.ERROR in values
+    interface.close()

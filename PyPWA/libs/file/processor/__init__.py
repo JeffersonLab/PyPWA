@@ -17,28 +17,37 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-This package reads and writes data for PyPWA.
+************************
+Processes data for PyPWA
+************************
+This package reads and writes data for PyPWA in a variety of formats
+defined by the plugins in PyPWA/plugins/data
+
+.. seealso::
+    ::mod:: `PyPWA.plugins.data`
 
 Examples:
-    To load data from file:
-        data = DataProcessor()
-        data.parse(path_to_file)
-        reader = data.get_reader(path_to_file)
-    To write data to file:
-        data = DataProcessor()
-        data.write(path_to_file, the_data)
-        writer = data.get_writer(path_to_file, is_particle_pool, is_basic)
+=========
+ - To load data from file::
+    data = DataProcessor()
+    data.parse(path_to_file)
+    reader = data.get_reader(path_to_file)
 
-Writer two extra bools, is_particle_pool tells the writer to fetch a
-writer that writes particle data, is_basic specifies an array that is
-unstructured.
+ - To write data to file::
+    data = DataProcessor()
+    data.write(path_to_file, the_data)
+    writer = data.get_writer(path_to_file, DataType.BASIC)
+
+Writer takes in DataType as an argument so that it can select which writer
+to use depending on the type of data the user wants to write. You can
+see what types are supported at :class:`PyPWA.libs.file.templates.DataType`.
 """
 
-from PyPWA import AUTHOR, VERSION
+from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
-__author__ = AUTHOR
-__version__ = VERSION
+__author__ = _info.AUTHOR
+__version__ = _info.VERSION
 
-from .main import DataProcessor, SUPPORTED_DATA
+from .main import DataProcessor, SUPPORTED_DATA, INPUT_TYPE
 from .templates import DataType, ReaderBase, WriterBase
