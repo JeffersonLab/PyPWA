@@ -20,9 +20,9 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "3.0.0.dev"
+__version__ = "3.0.0"
 __email__ = "pypwa@jlab.org"
-__status__ = "development"
+__status__ = "release"
 
 
 progs = "PyPWA.progs"
@@ -88,6 +88,8 @@ setuptools.setup(
         "Operating System :: MacOS :: MacOS X",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Scientific/Engineering :: Mathematics",
         "Topic :: Scientific/Engineering :: Physics"
     ]

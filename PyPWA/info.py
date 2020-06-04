@@ -92,6 +92,6 @@ __credits__ = ["Mark Jones"]
 
 AUTHOR = "PyPWA Team and Contributors"
 VERSION = "3.0.0"
-RELEASE = f"{VERSION}.rc1"
+RELEASE = f"{VERSION}"
 LICENSE = "GPLv3"
-STATUS = "development"
+STATUS = "release"
