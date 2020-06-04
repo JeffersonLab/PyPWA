@@ -4,7 +4,7 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
-## [Unreleased]
+## [3.0.0] - 2020-6-4
 ### Added
  - ProjectDatabase has been added handle large data manipulation on disk
    instead of in memory.
@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
  - Separate release tag from version info
  - Package info is now stored in PyPWA.info
  - pydata has officially been updated to PyPWA 3.0.
- - Structured Arrays have been replaces for Pandas DataFrames.
+ - Structured Arrays have been replaces for Pandas DataFrames in some
+   cases. Vectors still wrap regular numpy arrays to maintain performance.
  - Reactions have been merged into ParticlePool.
  - Vectors have been simplified to be easier to test while still being
    powerful to use.
@@ -154,6 +155,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 
 
 [Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...development
+[3.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...v3.0.0
 [3.0.0a1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.1...v3.0.0a1
 [2.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v2.1.0...v2.2.0
