@@ -122,16 +122,16 @@ class Particle(FourVector):
             return (
                 f"Particle("
                 f"name={self.__particle_name}, id={self.__particle_id},"
-                f"vector=\n{self._vector.describe()}"
+                f"vector=\n{self.dataframe.describe()}"
             )
 
     def __getitem__(
             self, item: Union[int, str, slice]
     ) -> Union["Particle", pandas.Series]:
         if isinstance(item, slice):
-            return Particle(self.__particle_id, self._vector.loc[item])
+            return Particle(self.__particle_id, self._vector[item])
         elif isinstance(item, int):
-            return Particle(self.__particle_id, self._vector.iloc[item])
+            return Particle(self.__particle_id, self._vector[item])
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
             return self._vector[item].copy()
         elif isinstance(item, npy.ndarray) and item.dtype == bool:

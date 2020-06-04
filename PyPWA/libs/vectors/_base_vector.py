@@ -36,65 +36,91 @@ __version__ = _info.VERSION
 
 
 def sanitize_vector_input(x, y=None, z=None, e=None, has_e=False):
-    try:
-        df = pd.DataFrame(x)
-    except Exception:
-        df = None
+    dtype = [("x", "f8"), ("y", "f8"), ("z", "f8")]
 
-    if isinstance(x, pd.Series):
-        df = x
-
-    if all(hasattr(df, col) for col in ["x", "y", "z"]):
-        if has_e and hasattr(df, "e"):
-            return df
-        elif not has_e:
-            try:
-                return df.drop("e")
-            except KeyError:
-                return df
-
-    elif all([isinstance(var, (int, float)) for var in [x, y, z]]):
-        vector = pd.DataFrame()
-        vector["x"] = npy.array([x])
-        vector["y"] = npy.array([y])
-        vector["z"] = npy.array([z])
-
-        if has_e:
-            if isinstance(e, type(None)):
-                raise ValueError("No E value provided!")
-            else:
-                vector["e"] = npy.array([e])
-
-        return vector
-
-    elif all([hasattr(var, "__len__") for var in [x, y, z]]):
-        df = pd.DataFrame()
-        df["x"] = x
-        df["y"] = y
-        df["z"] = z
-        if has_e:
-            if hasattr(e, "__len__"):
-                df["e"] = e
-            else:
-                raise ValueError("E not provided or wrong type!")
-        return df
-
-    elif isinstance(x, int):
-        dtype = [("x", "f8"), ("y", "f8"), ("z", "f8")]
+    if isinstance(x, int):
         if has_e:
             dtype.append(("e", "f8"))
-        return pd.DataFrame(npy.zeros(x, dtype))
+        return npy.zeros(x, dtype)
+
+    elif isinstance(x, (npy.void, npy.record)):
+        return x
+
+    elif isinstance(x, npy.ndarray) and hasattr(x.dtype, "names"):
+        return x
+
+    elif all([isinstance(var, (int, float)) for var in [x, y, z]]):
+        if has_e:
+            if not isinstance(e, (int, float)):
+                raise ValueError("No E value provided!")
+            else:
+                dtype.append(("e", "f8"))
+                array = npy.empty(1, dtype)
+                array["x"], array["x"], array["x"], array["x"] = x, y, z, e
+        else:
+            array = npy.empty(1, dtype)
+            array['x'], array['x'],  array['x'] = x, y, z
+
+        return array[0]
+
+    elif all([isinstance(var, npy.ndarray) for var in [x, y, z]]):
+        if has_e:
+            if not isinstance(e, npy.ndarray):
+                raise ValueError("No E Value provided!")
+            else:
+                dtype.append(("e", "f8"))
+                array = npy.empty(len(x), dtype)
+                array["x"], array["x"], array["x"], array["x"] = x, y, z, e
+        else:
+            array = npy.empty(len(x), dtype)
+            array['x'], array['x'], array['x'] = x, y, z
+
+        return array
+
+    elif isinstance(x, pd.DataFrame):
+        return x.to_records(False)
+
+    elif isinstance(x, pd.Series):
+        temp_storage = pd.DataFrame()
+        temp_storage.append(x)
+        return temp_storage.to_records(False)[0]
 
     else:
-        raise ValueError("Can't sanitize vector input!")
+        raise ValueError(
+            f"Can't sanitize vector input! Uknown data type {type(x)}!"
+        )
 
 
 class VectorMath:
 
     __slots__ = ["_vector"]
 
-    def __init__(self, vector):
+    def __init__(self, vector: npy.ndarray):
         self._vector = vector
+
+    def _add_vectors(self, other):
+        results = self._vector.copy()
+
+        if isinstance(other, (float, int)):
+            for name in results.dtype.names:
+                results[name] += other
+        else:
+            for name in results.dtype.names:
+                results[name] += other[name]
+        return results
+
+    def _mul_vectors(self, other):
+        results = self._vector.copy()
+        for name in results.dtype.names:
+            results[name] *= other
+        return results
+
+    def _div_vectors(self, other):
+        results = self._vector.copy()
+
+        for name in results.dtype.names:
+            results[name] /= other
+        return results
 
     def get_length(self) -> Union[pd.Series, float]:
         return npy.sqrt(self.x**2 + self.y**2 + self.z**2)
@@ -113,7 +139,7 @@ class VectorMath:
 
     @property
     def dataframe(self) -> pd.DataFrame:
-        return self._vector
+        return pd.DataFrame(self._vector)
 
     @property
     def x(self) -> pd.Series:

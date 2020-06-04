@@ -68,7 +68,7 @@ class ThreeVector(_base_vector.VectorMath):
         if len(self) == 1:
             return f"ThreeVector(\n{str(self._vector)})"
         else:
-            return f"ThreeVector(\n{self._vector.describe()})"
+            return f"ThreeVector(\n{self.dataframe.describe()})"
 
     def __eq__(self, vector: "ThreeVector") -> bool:
         if isinstance(vector, ThreeVector):
@@ -79,11 +79,11 @@ class ThreeVector(_base_vector.VectorMath):
     def __add__(self, vector: Union["ThreeVector", float]) -> "ThreeVector":
         if isinstance(vector, ThreeVector):
             if len(vector) == len(self):
-                return ThreeVector(vector._vector + self._vector)
+                return ThreeVector(self._add_vectors(vector._vector))
             else:
                 raise ValueError("Vectors have different lengths!")
         elif isinstance(vector, (int, float, npy.float)):
-            return ThreeVector(self._vector + vector)
+            return ThreeVector(self._add_vectors(vector))
         else:
             raise ValueError(f"Can not add ThreeVector and {type(vector)}")
 
@@ -120,9 +120,9 @@ class ThreeVector(_base_vector.VectorMath):
             self, item: Union[int, str, slice]
     ) -> Union["ThreeVector", pd.Series]:
         if isinstance(item, slice):
-            return ThreeVector(self._vector.loc[item])
+            return ThreeVector(self._vector[item])
         elif isinstance(item, int):
-            return ThreeVector(self._vector.iloc[item])
+            return ThreeVector(self._vector[item])
         elif isinstance(item, str) and item in ("x", "y", "z"):
             return self._vector[item].copy()
         elif isinstance(item, npy.ndarray) and item.dtype == bool:
@@ -139,11 +139,11 @@ class ThreeVector(_base_vector.VectorMath):
     def get_copy(self):
         return ThreeVector(self._vector.copy())
 
-    def get_dot(self, vector: "ThreeVector") -> Union[pd.Series]:
+    def get_dot(self, vector: "ThreeVector") -> npy.ndarray:
         if isinstance(vector, ThreeVector):
             return self.x * vector.x + self.y * vector.y + self.z * vector.z
         else:
             raise ValueError("Dot product only works with another ThreeVector")
 
-    def get_length_squared(self) -> Union[pd.Series, float]:
+    def get_length_squared(self) -> Union[npy.ndarray, float]:
         return self.x**2 + self.y**2 + self.z**2

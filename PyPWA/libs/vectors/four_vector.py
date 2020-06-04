@@ -1,4 +1,5 @@
 #  coding=utf-8
+#  coding=utf-8
 #
 #  PyPWA, a scientific analysis toolkit.
 #  Copyright (C) 2016 JLab
@@ -70,7 +71,7 @@ class FourVector(_base_vector.VectorMath):
         if len(self) == 1:
             return f"FourVector(\n{str(self._vector)})"
         else:
-            return f"FourVector({self._vector.describe()})"
+            return f"FourVector({self.dataframe.describe()})"
 
     def __eq__(self, vector: "FourVector") -> bool:
         if isinstance(vector, FourVector):
@@ -78,9 +79,21 @@ class FourVector(_base_vector.VectorMath):
         else:
             return False
 
+    def __truediv__(self, other: Union[float, int]) -> "FourVector":
+        if isinstance(other, (int, float)):
+            return FourVector(self._div_vectors(other))
+        else:
+            raise ValueError("FourVectors can only be divided by scalars")
+
+    def __rtruediv__(self, other: Union[float, int]):
+        if isinstance(other, (int, float)):
+            return FourVector(self._div_vectors(other))
+        else:
+            raise ValueError("FourVectors can only be divided by scalars")
+
     def __mul__(self, vector: Union[float, int]) -> "FourVector":
         if isinstance(vector, (int, float)):
-            return FourVector(vector * self._vector)
+            return FourVector(self._mul_vectors(vector))
         else:
             raise ValueError("FourVectors can only be multiplied by scalars")
 
@@ -90,11 +103,11 @@ class FourVector(_base_vector.VectorMath):
     def __add__(self, vector: Union["FourVector", float]) -> "FourVector":
         if isinstance(vector, FourVector):
             if len(vector) == len(self):
-                return FourVector(vector._vector + self._vector)
+                return FourVector(self._add_vectors(vector._vector))
             else:
                 raise ValueError("Vectors have different lengths!")
         elif isinstance(vector, (int, float, npy.float)):
-            return FourVector(self._vector + vector)
+            return FourVector(self._add_vectors(vector))
         else:
             raise ValueError(f"Can not add FourVector and {type(vector)}")
 
@@ -117,9 +130,9 @@ class FourVector(_base_vector.VectorMath):
             self, item: Union[int, str, slice]
     ) -> Union["FourVector", pd.Series]:
         if isinstance(item, slice):
-            return FourVector(self._vector.loc[item])
+            return FourVector(self._vector[item])
         elif isinstance(item, int):
-            return FourVector(self._vector.iloc[item])
+            return FourVector(self._vector[item])
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
             return self._vector[item].copy()
         elif isinstance(item, npy.ndarray) and item.dtype == bool:
@@ -149,14 +162,14 @@ class FourVector(_base_vector.VectorMath):
     def get_three_vector(self) -> three_vector.ThreeVector:
         return three_vector.ThreeVector(self._vector[["x", "y", "z"]])
 
-    def get_length_squared(self) -> Union[float, pd.Series]:
+    def get_length_squared(self) -> Union[float, npy.ndarray]:
         return self.e**2 - self.get_length()**2
 
-    def get_mass(self) -> Union[float, pd.Series]:
+    def get_mass(self) -> Union[float, npy.ndarray]:
         return npy.sqrt(self.get_dot(self))
 
     @property
-    def e(self) -> pd.Series:
+    def e(self) -> npy.ndarray:
         return self._vector["e"].copy()
 
     @e.setter

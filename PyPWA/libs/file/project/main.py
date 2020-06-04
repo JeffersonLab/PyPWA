@@ -235,10 +235,10 @@ class _CreateRoot:
                 data, disable=disable, unit=" event", desc="Parsing root data",
                 postfix=f"file={data.input_path.name}"):
             for p, leaf in zip(event.iter_particles(), leaves):
-                leaf.row['x'] = p.x.to_numpy()
-                leaf.row['y'] = p.y.to_numpy()
-                leaf.row['z'] = p.z.to_numpy()
-                leaf.row['e'] = p.e.to_numpy()
+                leaf.row['x'] = p.x
+                leaf.row['y'] = p.y
+                leaf.row['z'] = p.z
+                leaf.row['e'] = p.e
                 leaf.row.append()
 
         for leaf in leaves:
