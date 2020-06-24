@@ -8,23 +8,14 @@ Is constantly tested to work with Python Version 3.7+
 
 Has support for multiple likelihoods, including:
 
- - Extended Log Likelihood
- - Standard Log Likelihood, Optionally Binned
- - Binned ChiSquared Likelihood
- - Standard ChiSquared Likelihood
- 
+- Extended Log Likelihood
+- Standard Log Likelihood, Optionally Binned
+- Binned ChiSquared Likelihood
+- Standard ChiSquared Likelihood
+
 You can even define your own likelihood, or calculate entirely without one
 if you chose to do so!
 
- 
-Currently being updated to PyPWA 3 (Summer 2020)
-------------------------------------------------
-
-We're currently adding fixes and documentation as we prepare for an
-official PyPWA 3 release! If you notice inconsistencies in our 
-documentation, or unusual slow-downs, please let us know in the issues!
- 
- 
 Features
 --------
 
@@ -45,8 +36,7 @@ Installing into Anaconda
 We've setup an user channel on Anaconda so that you can install PyPWA
 into your Anaconda installation with the following command
 
-    $ conda install -c markjonestx pypwa
-
+    conda install -c markjonestx pypwa
 
 Notes for Apple Users
 ---------------------
@@ -55,36 +45,38 @@ With testing, we've found that PyPWA's environment in Anaconda doesn't
 work well with Xterm in Mac OS X, however, Terminal found in your
 Utilities folder does not seem to have the same issues.
 
-
 Using from GitHub
 -----------------
 
-Clone the master branch onto your computer, or if you are daring clone the 
+Clone the master branch onto your computer, or if you are daring clone the
 development branch
 
-     $ git clone https://github.com/JeffersonLab/PyPWA
+     git clone https://github.com/JeffersonLab/PyPWA
 
 Setup and activate a virtualenv:
 
-     $ virtualenv --system-site-packages venv
-     $ source venv/bin/activate
+     virtualenv --system-site-packages venv
+     source venv/bin/activate
 
 Install the package inside the virtualenv:
 
-     $ pip install .
-
+     pip install .
 
 Contribute or Support
 ---------------------
-If you have any issues, or would like to see any features added to the 
+
+If you have any issues, or would like to see any features added to the
 project, let us know!
 
 - Issue and Feature Tracker: <https://www.github.com/JeffersonLab/PyPWA/issues>
 - Source Code: <https://www.github.com/JeffersonLab/PyPWA>
-
 
 License
 -------
 
 The project is licensed under the GPLv3 license.
 
+Funding
+-------
+
+This project is partially supported by NSF Grants #1507208 and #1820235

@@ -3,7 +3,6 @@
 from datetime import datetime
 import sphinx_rtd_theme
 
-from PyPWA import __version__, __release__, __author__
 
 # Extensions
 extensions = [
@@ -21,9 +20,9 @@ master_doc = 'index'
 # Project information
 project = 'PyPWA'
 copyright = f'{datetime.now().year}, Norfolk State University'
-author = __author__
-version = __version__
-release = __release__
+author = "PyPWA Team"
+version = "3.0.0"
+release = "Production"
 
 
 # Sphinx Extra Options
