@@ -22,7 +22,7 @@ project = 'PyPWA'
 copyright = f'{datetime.now().year}, Norfolk State University'
 author = "PyPWA Team"
 version = "3.0.0"
-release = "Production"
+release = "Development"
 
 
 # Sphinx Extra Options
