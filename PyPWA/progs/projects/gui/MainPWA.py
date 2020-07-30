@@ -1,14 +1,31 @@
+# Author: Michael F Harris Jr and Mark Jones
+
 import sys
+import random
+import matplotlib
+
+from GUIProject.Seaborntest import MplCanvas
+
+matplotlib.use('Qt5Agg')
 from pathlib import Path
-
 from PyQt5 import QtCore, QtWidgets, QtGui
-
+from PyQt5.QtWidgets import QSizePolicy
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 # from PyPWA.libs.file import processor
 
+"""New Import adds down below 10/11/2019"""
+import matplotlib as plt
+import seaborn as viz
+import seaborn as sns
+import numpy as np
+import matplotlib.pyplot as plt
+
+viz.set()
+
+
 # Introduction GUI Window
-
-
 class IntroductionPWA(QtWidgets.QWidget):
 
     def __init__(self):
@@ -36,12 +53,12 @@ class IntroductionPWA(QtWidgets.QWidget):
         pwa.move(125, 50)
 
         jlab = QtWidgets.QLabel('Thomas Jefferson National Accelerator Facility', self)
-        jlab.setFont(QtGui.QFont("Times", 12, QtGui.QFont.Black))
-        jlab.move(250, 165)
+        jlab.setFont(QtGui.QFont("Times", 14, QtGui.QFont.Black))
+        jlab.move(160, 175)
 
         nsu = QtWidgets.QLabel('Norfolk State University', self)
-        nsu.setFont(QtGui.QFont("Times", 12, QtGui.QFont.Black))
-        nsu.move(325, 200)
+        nsu.setFont(QtGui.QFont("Times", 14, QtGui.QFont.Black))
+        nsu.move(280, 215)
 
     def toggle_new_project(self):
         new_project = MagicWizard(self)
@@ -50,6 +67,7 @@ class IntroductionPWA(QtWidgets.QWidget):
     def toggle_open_project(self):
         open_project = MainPWA()
         open_project.show()
+
 
 # Setup Window(Wizard)
 class MagicWizard(QtWidgets.QWizard):
@@ -149,13 +167,13 @@ class Fitting(QtWidgets.QWizardPage):
         # Simulation
 
     def fitting_layout(self):
-        #pwa = QtWidgets.QLabel(self)
-        #pwa.setPixmap(QtGui.QPixmap('pypwa.png'))
+        # pwa = QtWidgets.QLabel(self)
+        # pwa.setPixmap(QtGui.QPixmap('pypwa.png'))
         information_layout = QtWidgets.QVBoxLayout()
         fitting_title = QtWidgets.QLabel("Fitting")
         fitting_title.setFont(QtGui.QFont("Times", 12, QtGui.QFont.Black))
         information_layout.addWidget(fitting_title)
-        #information_layout.addWidget(pwa)
+        # information_layout.addWidget(pwa)
         information_layout.addWidget(self.setup_box_two)
         self.setLayout(information_layout)
 
@@ -191,18 +209,15 @@ class Fitting(QtWidgets.QWizardPage):
         # Minuit / Nestle
         minuit_nestle_layout = QtWidgets.QHBoxLayout()
         minuit_nestle_label = QtWidgets.QLabel("Minuit/Nestle:")
-        minuit_nestle_label.sefFont(QtGui.QFont("Times", 12, QtGui.QFont.Black))
-
-
-
+        minuit_nestle_label.setFont(QtGui.QFont("Times", 12, QtGui.QFont.Black))
 
         # Setup master Layout
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.addLayout(keyfiles_layout)
         main_layout.addLayout(fitting_raw_layout)
 
-
         self.setup_box_two.setLayout(main_layout)
+
 
 class Simulation(QtWidgets.QWizardPage):
     def __init__(self, parent=None):
@@ -240,7 +255,7 @@ class Simulation(QtWidgets.QWizardPage):
 
         # Use VS
         simulation_vs_layout = QtWidgets.QHBoxLayout()
-        simulation_vs = QtWidgets.QLabel('Use VS:') # Check Box would go beside it
+        simulation_vs = QtWidgets.QLabel('Use VS:')  # Check Box would go beside it
         simulation_vs.setFont(QtGui.QFont("Times", 12, QtGui.QFont.Black))
         simulation_vs_checkbox = QtWidgets.QCheckBox()
         simulation_vs_layout.addWidget(simulation_vs)
@@ -263,11 +278,11 @@ class Simulation(QtWidgets.QWizardPage):
 
         self.setup_box_two.setLayout(main_layout)
 
-    def VS_Checkbox(self):
-        if state == QtCore.Qt.Checked:
-            print('Checked')
-        else:
-            print('Unchecked')
+    # def VS_Checkbox(self):
+    #   if state == QtCore.Qt.Checked:
+    #       print('Checked')
+    #   else:
+    #       print('Unchecked')
 
 
 class BinSettings(QtWidgets.QWizardPage):
@@ -275,13 +290,12 @@ class BinSettings(QtWidgets.QWizardPage):
         super(BinSettings, self).__init__(parent)
 
 
-
 # Main GUI Window
 class MainPWA(QtWidgets.QMainWindow, QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
-# Set the size of window box
+        # Set the size of window box
         self.Width = 1060
         self.height = int(0.618 * self.Width)
         self.resize(self.Width, self.height)
@@ -298,7 +312,6 @@ class MainPWA(QtWidgets.QMainWindow, QtWidgets.QWidget):
         self.__edit_menu()
 
     def __file_menu(self):
-
         file_menu = self.__menu_bar.addMenu("File")
         new_project = QtWidgets.QAction(QtGui.QIcon(), 'New Project', self)
         new_project.setStatusTip('Created A New Project name: ')
@@ -352,7 +365,6 @@ class MainPWA(QtWidgets.QMainWindow, QtWidgets.QWidget):
         self.__view_menu()
 
     def __view_menu(self):
-
         view_menu = self.__menu_bar.addMenu("View")
 
         # Maximize Screen
@@ -414,13 +426,10 @@ class MainPWA(QtWidgets.QMainWindow, QtWidgets.QWidget):
         self.status_bar()
 
     def status_bar(self):
-
         # Set the status bar
         self.statusBar().showMessage("Status Bar: ")
 
         self.__file_browser_side_bar()
-
-
 
         self.__jobs_side_bar()
 
@@ -458,29 +467,27 @@ class MainPWA(QtWidgets.QMainWindow, QtWidgets.QWidget):
         self.file_browser_side_bar.setWidget(self.dockedWidget)
 
 
-
-
-#class MyDialog(QtWidgets.QPlainTextEdit):
- #   def __init__(self, parent=None):
-  #      super(MyDialog, self).__init__(parent)
+# class MyDialog(QtWidgets.QPlainTextEdit):
+#   def __init__(self, parent=None):
+#      super(MyDialog, self).__init__(parent)
 #
- #       log_text_box = QPlainTextEdit()
-         # You can format what is printed to text box
-    #   log_text_box.setFormatter(
-    #        logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-     #   logging.getLogger().addHandler(log_text_box)
-        # You can control the logging level
-      #  logging.getLogger().setLevel(logging.DEBUG)
+#       log_text_box = QPlainTextEdit()
+# You can format what is printed to text box
+#   log_text_box.setFormatter(
+#        logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+#   logging.getLogger().addHandler(log_text_box)
+# You can control the logging level
+#  logging.getLogger().setLevel(logging.DEBUG)
 
-       # l = logging.getLogger()
+# l = logging.getLogger()
 
-        #for index in range(0, 10):
-         #   l.info(f"At place{index}")
+# for index in range(0, 10):
+#   l.info(f"At place{index}")
 #    def test(self):
- #       logging.debug('damn, a bug')
-  #      logging.info('something to remember')
-   #     logging.warning('that\'s not right')
-    #    logging.error('foobar')
+#       logging.debug('damn, a bug')
+#      logging.info('something to remember')
+#     logging.warning('that\'s not right')
+#    logging.error('foobar')
 
 
 class FileBrowser(QtWidgets.QTreeWidget):
@@ -505,6 +512,7 @@ class FileBrowser(QtWidgets.QTreeWidget):
                 else:
                     new_parent.setIcon(0, QtGui.QIcon().fromTheme("text-x-generic"))
 
+
 class TableWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, is_simulation=False):
@@ -518,7 +526,9 @@ class TableWidget(QtWidgets.QWidget):
         self.data = QtWidgets.QWidget()
         self.data_box()
         self.grid = QtWidgets.QGridLayout()
-        self.plots = QtWidgets.QWidget()
+
+        self.plots = Plots(self)
+
         self.tabs.resize(300, 200)
         self.lbl = QtWidgets.QLabel("", self)
 
@@ -551,6 +561,7 @@ class TableWidget(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.data_table)
         self.data.setLayout(layout)
+
 
 class Controls(QtWidgets.QWidget):
 
@@ -622,7 +633,6 @@ class Resonance(QtWidgets.QWidget):
         new_window = ResonanceSaveWindow(self)
         new_window.show()
 
-
     def __restore_toggle_resonance_window(self):
         new_window = ResonanceRestoreWindow(self)
         new_window.show()
@@ -646,7 +656,7 @@ class ResonanceRestoreWindow(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         super(ResonanceRestoreWindow, self).__init__(parent)
-        #ISSUE: whenever file dialog is open, if you push cancel it'll close out the whole window
+        # ISSUE: whenever file dialog is open, if you push cancel it'll close out the whole window
         options = QtWidgets.QFileDialog.Option()
         options |= QtWidgets.QFileDialog.DontUseNativeDialog
         filename, = QtWidgets.QFileDialog.getSaveFileName(
@@ -655,10 +665,33 @@ class ResonanceRestoreWindow(QtWidgets.QWidget):
         if filename:
             print(filename)
 
-            
+
+class Plots(FigureCanvas):
+    """Design: top box would have tabs for display controls, middle box is plotting, and bottom box would be
+   main controls.
+   Imports: seaborn, matplotlib"""
+
+    def __init__(self, parent=None, width=5, height=5, dpi=100):
+        fig = Figure(figsize=(width, height), dpi=dpi)
+        self.axes = fig.add_subplot(111)
+
+        FigureCanvas.__init__(self, fig)
+        self.setParent(parent)
+
+    #     self.plot()
+    #
+    # def plot(self):
+    #
+    #     x = np.array([50, 30, 40])
+    #     labels = ["TESTING", "TESTING", "TESTING"]
+    #     ax = self.figure.add_subplot(111)
+    #     ax.pie(x, labels=labels)
+
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon('pypwaicon1.png'))
     gui = IntroductionPWA()
     gui.show()
     app.exec_()
+
