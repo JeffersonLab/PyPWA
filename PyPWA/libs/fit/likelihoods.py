@@ -39,6 +39,7 @@ __version__ = _info.VERSION
 
 class NestedFunction(ABC):
     """Interface for Amplitudes
+
     These objects are used for calculating the users amplitude. They're
     expected to be initialized by the time they are sent to the kernel,
     and will be deep-copied for each process. The setup will be called
@@ -79,6 +80,7 @@ class NestedFunction(ABC):
     @abstractmethod
     def setup(self, data):
         """Sets up the amplitude for use.
+
         This is where the data that will be used for this specific process
         will be passed to.
 
@@ -92,6 +94,7 @@ class NestedFunction(ABC):
 
 class FunctionAmplitude(NestedFunction):
     """Wrapper for Legacy PyPWA 2.X amplitudes
+
     The old amplitudes were two simple functions that would be passed to
     the kernels, a single setup function and a calculate function. Now
     the amplitudes are objects. This wraps the functions and presents
@@ -106,7 +109,7 @@ class FunctionAmplitude(NestedFunction):
 
     See Also
     --------
-    AbstractAmplitude : For defining new functions
+    NestedFunction : For defining new functions
     """
 
     def __init__(
@@ -172,6 +175,7 @@ class _GeneralLikelihood:
 
 class ChiSquared(_GeneralLikelihood):
     """Computes the Chi-Squared Likelihood with a given amplitude.
+
     This likelihood supports two different types of the ChiSquared,
     one with binned or one with expected values.
 
@@ -210,12 +214,12 @@ class ChiSquared(_GeneralLikelihood):
     Binned ChiSquare:
 
     .. math::
-        \chi^{2} = \frac{(Amp(data) - binned)^{2}}{binned}
+        \chi^{2} = \\frac{(Amp(data) - binned)^{2}}{binned}
 
     Expected values:
 
     .. math::
-        \chi^{2} = \frac{(Amp(data) - expected)^{2}}{errors}
+        \chi^{2} = \\frac{(Amp(data) - expected)^{2}}{errors}
 
     """
 
@@ -228,6 +232,7 @@ class ChiSquared(_GeneralLikelihood):
             is_minimizer: Opt[bool] = True,
             num_of_processes=multiprocessing.cpu_count(),
     ):
+
         super(ChiSquared, self).__init__(amplitude, num_of_processes)
         multiplier = 1 if is_minimizer else -1
 
@@ -267,7 +272,7 @@ class ChiSquared(_GeneralLikelihood):
     def close(self):
         """Closes the likelihood
         This needs to be called after you're done with the likelihood,
-        UNLESS, you created the likelihood using the `with` statement
+        _Unless_, you created the likelihood using the `with` statement
         """
         self._interface.close()
 
@@ -317,6 +322,7 @@ class _ChiSquaredKernel(process.Kernel):
 
 class LogLikelihood(_GeneralLikelihood):
     """Computes the log likelihood with a given amplitude.
+
     To use the standard log likelihood, you only need to provide data,
     If binned and quality factor are not provided, they will default to
     1. If you wish to use the Extended Log Likelihood, you must provide
@@ -350,18 +356,18 @@ class LogLikelihood(_GeneralLikelihood):
 
     Notes
     -----
-    Standard Log-Likelihood. If not provided, Q_f and binned will be set
-    to 1:
+    Standard Log-Likelihood. If not provided, :math:`Q_f` and binned will
+    be set to 1:
 
     .. math::
-        L = \sum{Q_f \cdot binned \cdot log (Amp(data))}
+        L = \\sum{Q_f \\cdot binned \\cdot log (Amp(data))}
 
     Extended Log-Likelihood. If not provided, the Q_f will be set to 1,
     and generated_length will be set to len(monte_carlo)
 
     .. math::
-        L = \sum{Q_f \cdot log (Amp(data))} - \\
-            \frac{1}{generated\_length} \cdot \sum{Amp(monte\_carlo)}
+        L = \\sum{Q_f \\cdot log (Amp(data))} - \\
+            \\frac{1}{generated\_length} \\cdot \\sum{Amp(monte\_carlo)}
 
     """
 
@@ -475,10 +481,11 @@ class _LogLikelihoodKernel(process.Kernel):
 class EmptyLikelihood(_GeneralLikelihood):
     """Provides the multiprocessing benefits of a standard likelihood
     without a defined likelihood.
+
     This allows you to include a likelihood into your amplitude or to run
     your amplitude without a likelihood entirely.
 
-    Parameters
+    Attributes
     ----------
     amplitude : AbstractAmplitude
         Either an user defined amplitude, or an amplitude from PyPWA

@@ -19,7 +19,7 @@
 
 from typing import List, Union, Optional as Opt
 
-import numpy as npy
+import numpy as np
 import pandas as pd
 from . import _base_vector
 
@@ -53,37 +53,55 @@ class ThreeVector(_base_vector.VectorMath):
 
     def __init__(
             self,
-            x: Union[int, npy.ndarray, float, pd.DataFrame],
-            y: Opt[Union[float, pd.Series, npy.ndarray]] = None,
-            z: Opt[Union[float, pd.Series, npy.ndarray]] = None
+            x: Union[int, np.ndarray, float, pd.DataFrame],
+            y: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            z: Opt[Union[float, pd.Series, np.ndarray]] = None
     ):
-
-        self._vector = _base_vector.sanitize_vector_input(x, y, z)
-        super(ThreeVector, self).__init__(self._vector)
+        if isinstance(x, ThreeVector):
+            self._x = x._x
+            self._y = x._y
+            self._z = x._z
+        self._x, self._y, self._z = _base_vector.sanitize_vector_input(x, y, z)
+        super(ThreeVector, self).__init__(self._x, self._y, self._z)
 
     def __repr__(self) -> str:
-        return f"ThreeVector(\n{self._vector!r})"
-
-    def __str__(self) -> str:
-        if len(self) == 1:
-            return f"ThreeVector(\n{str(self._vector)})"
+        if isinstance(self._x, np.ndarray):
+            theta = self.get_theta().mean()
+            phi = self.get_phi().mean()
         else:
-            return f"ThreeVector(\n{self.dataframe.describe()})"
+            theta = self.get_theta()
+            phi = self.get_phi()
+
+        return f"ThreeVector(x̅Θ={theta}, x̅ϕ={phi})"
 
     def __eq__(self, vector: "ThreeVector") -> bool:
         if isinstance(vector, ThreeVector):
-            return self._vector.equals(vector._vector)
+            if isinstance(self._x, np.ndarray):
+                return (
+                    all(self._x == vector._x) and all(self._y == vector._y) and
+                    all(self._z == vector._z)
+                )
+            else:
+                return (
+                        self._x == vector._x and self._y == vector._y and
+                        self._z == vector._z
+                )
         else:
             return False
 
     def __add__(self, vector: Union["ThreeVector", float]) -> "ThreeVector":
         if isinstance(vector, ThreeVector):
             if len(vector) == len(self):
-                return ThreeVector(self._add_vectors(vector._vector))
+                return ThreeVector(
+                    self._x + vector._x, self._y + vector._y,
+                    self._z + vector._z
+                )
             else:
                 raise ValueError("Vectors have different lengths!")
-        elif isinstance(vector, (int, float, npy.float)):
-            return ThreeVector(self._add_vectors(vector))
+        elif isinstance(vector, (int, float, np.float)):
+            return ThreeVector(
+                self._x + vector, self._y + vector, self._z + vector
+            )
         else:
             raise ValueError(f"Can not add ThreeVector and {type(vector)}")
 
@@ -91,7 +109,7 @@ class ThreeVector(_base_vector.VectorMath):
         return self.__add__(other)
 
     def __sub__(self, vector: Union["ThreeVector", float]) -> "ThreeVector":
-        if isinstance(vector, (int, float, npy.float, ThreeVector)):
+        if isinstance(vector, (int, float, np.float, ThreeVector)):
             return self.__add__(-1 * vector)
         else:
             raise ValueError(f"Can not subtract ThreeVector and {type(vector)}")
@@ -101,12 +119,14 @@ class ThreeVector(_base_vector.VectorMath):
 
     def __mul__(self, vector: Union["ThreeVector", float]) -> "ThreeVector":
         if isinstance(vector, ThreeVector):
-            new_x = self.y * vector.z - self.z * vector.y
-            new_y = self.z * vector.x - self.x * vector.z
-            new_z = self.x * vector.y - self.y * vector.x
+            new_x = self._y * vector._z - self._z * vector._y
+            new_y = self._z * vector._x - self._x * vector._z
+            new_z = self._x * vector._y - self._y * vector._x
             return ThreeVector(new_x, new_y, new_z)
-        elif isinstance(vector, (int, float, npy.float)):
-            return ThreeVector(vector * self._vector)
+        elif isinstance(vector, (int, float, np.float)):
+            return ThreeVector(
+                self._x * vector, self._y * vector, self._z * vector
+            )
         else:
             raise ValueError(f"Can not multiply ThreeVector by {type(vector)}")
 
@@ -119,31 +139,36 @@ class ThreeVector(_base_vector.VectorMath):
     def __getitem__(
             self, item: Union[int, str, slice]
     ) -> Union["ThreeVector", pd.Series]:
-        if isinstance(item, slice):
-            return ThreeVector(self._vector[item])
-        elif isinstance(item, int):
-            return ThreeVector(self._vector[item])
+        if isinstance(item, (slice, int)) or \
+                isinstance(item, np.ndarray) and item.dtype == bool:
+            return ThreeVector(
+                self._x[item], self._y[item], self._z[item]
+            )
         elif isinstance(item, str) and item in ("x", "y", "z"):
-            return self._vector[item].copy()
-        elif isinstance(item, npy.ndarray) and item.dtype == bool:
-            return self._vector[item]
+            return getattr(self, f"_{item}").copy()
         else:
             raise ValueError(f"Can not index with {item!r}")
 
     def split(self, count) -> List["ThreeVector"]:
         vectors = []
-        for vector in npy.split(self._vector, count):
-            vectors.append(ThreeVector(vector))
+        xs = np.split(self._x, count)
+        ys = np.split(self._y, count)
+        zs = np.split(self._z, count)
+        for x, y, z in zip(xs, ys, zs):
+            vectors.append(ThreeVector(x, y, z))
         return vectors
 
     def get_copy(self):
-        return ThreeVector(self._vector.copy())
+        return ThreeVector(self._x.copy(), self._y.copy(), self._z.copy())
 
-    def get_dot(self, vector: "ThreeVector") -> npy.ndarray:
+    def get_dot(self, vector: "ThreeVector") -> np.ndarray:
         if isinstance(vector, ThreeVector):
-            return self.x * vector.x + self.y * vector.y + self.z * vector.z
+            return (
+                    self._x * vector._x + self._y * vector._y +
+                    self._z * vector._z
+            )
         else:
             raise ValueError("Dot product only works with another ThreeVector")
 
-    def get_length_squared(self) -> Union[npy.ndarray, float]:
-        return self.x**2 + self.y**2 + self.z**2
+    def get_length_squared(self) -> Union[np.ndarray, float]:
+        return self._x**2 + self._y**2 + self._z**2

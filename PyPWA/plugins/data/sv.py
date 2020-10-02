@@ -19,12 +19,13 @@
 import csv
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
-import numpy as npy
-import pandas
+import numpy as np
+import pandas as pd
 
 from PyPWA import info as _info
+from PyPWA.libs import common
 from PyPWA.libs.file import misc
 from PyPWA.libs.file.processor import templates, DataType
 
@@ -48,8 +49,8 @@ class _SvDataPlugin(templates.IDataPlugin):
     def get_memory_parser(self):
         return _SvMemory()
 
-    def get_reader(self, file_location):
-        return _SvReader(file_location)
+    def get_reader(self, file_location, use_pandas):
+        return _SvReader(file_location, use_pandas)
 
     def get_writer(self, file_location):
         return _SvWriter(file_location)
@@ -88,13 +89,15 @@ class _SvDataTest(templates.IReadTest):
 
 class _SvReader(templates.ReaderBase):
 
-    def __init__(self, filename: Path):
+    def __init__(self, filename: Path, use_pandas: bool):
         self.__event_count: int = 0
+        self.__current_count: int = 0
         self.__filename = filename
         self.__file_handle = open(str(filename), "r")
         self.__reader = self.__get_reader()
         self.__elements = next(self.__reader)  # First call is header
         self.__array = self.__get_data_array()
+        self.__use_series = use_pandas
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__filename})"
@@ -108,9 +111,9 @@ class _SvReader(templates.ReaderBase):
 
     def __get_data_array(self):
         array_type = [(name, "f8") for name in self.__elements]
-        return npy.zeros(1, array_type)
+        return np.zeros(1, array_type)
 
-    def next(self) -> pandas.Series:
+    def next(self) -> Union[pd.Series, np.ndarray]:
         values = next(self.__reader)
         if not len(values):
             raise StopIteration
@@ -118,7 +121,14 @@ class _SvReader(templates.ReaderBase):
         for column_index, element in enumerate(self.__elements):
             self.__array[0][element] = values[column_index]
 
-        return pandas.DataFrame(self.__array).loc[0]
+        if self.__use_series:
+            self.__current_count += 1
+            return pd.Series(
+                [a for a in self.__array[0]], self.__array.dtype.names,
+                name=self.__current_count - 1
+            )
+        else:
+            return self.__array[0]
 
     def get_event_count(self) -> int:
         if not self.__event_count:
@@ -165,13 +175,16 @@ class _SvWriter(templates.WriterBase):
         else:
             return csv.excel
 
-    def write(self, data: pandas.Series):
+    def write(self, data: Union[pd.Series, np.ndarray]):
         if not self.__writer:
             self.__setup_writer(data)
         self.__write_row(data)
 
-    def __setup_writer(self, data: pandas.Series):
-        self.__field_names = list(data.keys())
+    def __setup_writer(self, data: Union[pd.Series, np.ndarray]):
+        if isinstance(data, pd.Series):
+            self.__field_names = list(data.keys())
+        else:
+            self.__field_names = list(data.dtype.names)
         self.__writer = csv.DictWriter(
             self.__file_handle,
             fieldnames=self.__field_names,
@@ -180,7 +193,7 @@ class _SvWriter(templates.WriterBase):
         )
         self.__writer.writeheader()
 
-    def __write_row(self, data: pandas.Series):
+    def __write_row(self, data: Union[pd.Series, np.ndarray]):
         dict_data = {}
         for field_name in self.__field_names:
             dict_data[field_name] = repr(data[field_name])
@@ -199,13 +212,16 @@ class _SvMemory(templates.IMemory):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def parse(self, filename: Path) -> pandas.DataFrame:
+    def parse(self, filename: Path) -> np.ndarray:
         if filename.suffix == ".tsv":
-            return pandas.read_csv(filename, sep="\t")
+            data = pd.read_csv(filename, sep="\t")
         else:
-            return pandas.read_csv(filename)
+            data = pd.read_csv(filename)
 
-    def write(self, filename: Path, data: pandas.DataFrame):
+        return common.pandas_to_numpy(data)
+
+    def write(self, filename: Path, data: Union[pd.DataFrame]):
+        data = pd.DataFrame(data)
         if filename.suffix == ".tsv":
             data.to_csv(filename, sep="\t", index=False)
         else:

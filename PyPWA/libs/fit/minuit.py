@@ -76,19 +76,20 @@ def minuit(
     iminuit.Minuit
         The minuit object after the fit has been completed.
 
-    See Also
-    --------
-    iminuit's documentation : Should explain the various options that can
-        be passed to iminuit, and how to use the resulting object after
-        a fit has been completed/
+    Note
+    ----
+        See `Iminuit's documentation <https://iminuit.readthedocs.io/>`_
+        for more imformation, as it should explain the various options
+        that can be passed to iminuit, and how to use the resulting object
+        after a fit has been completed.
     """
     settings["forced_parameters"] = parameters
     settings["errordef"] = set_up
     translator = _Translator(parameters, likelihood)
     optimizer = _iminuit.Minuit(translator, **settings)
 
-    optimizer.set_strategy(strategy)
-    optimizer.set_up(set_up)
+    optimizer.strategy = strategy
+    optimizer.errordef = set_up
     optimizer.migrad(num_of_calls)
 
     return optimizer

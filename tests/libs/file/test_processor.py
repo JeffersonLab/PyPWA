@@ -1,6 +1,7 @@
 from pathlib import Path
 
-import pandas
+import pandas as pd
+import numpy as np
 import pytest
 
 from PyPWA.libs.file import processor
@@ -25,17 +26,20 @@ def parser():
 
 
 def test_can_load_csv(parser):
-    data = parser.parse(CSV)
-    assert isinstance(data, pandas.DataFrame)
+    assert isinstance(parser.parse(CSV), np.ndarray)
+    assert isinstance(parser.parse(CSV, True), pd.DataFrame)
 
 
 def test_can_read_evil(parser):
-    reader = parser.get_reader(EVIL)
-    data = reader.next()
-    assert isinstance(data, pandas.Series)
+    with parser.get_reader(EVIL) as reader:
+        assert isinstance(next(reader), np.void)
+
+    with parser.get_reader(EVIL, True) as reader:
+        assert isinstance(next(reader), pd.Series)
 
 
 def test_can_load_pass_fail(parser):
-    data = parser.parse(BOOL)
-    assert isinstance(data, pandas.Series)
-    assert data.dtype == bool
+    assert isinstance(parser.parse(BOOL, True), pd.Series)
+    assert parser.parse(BOOL, True).dtype == bool
+    assert isinstance(parser.parse(BOOL), np.ndarray)
+    assert parser.parse(BOOL).dtype == bool

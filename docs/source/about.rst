@@ -46,4 +46,12 @@ Further Reading
 
 
 
-.. include:: ../../../CONTRIBUTORS.rst
+.. include:: ../../CONTRIBUTORS.rst
+
+
+Citations
+---------
+
+.. bibliography:: pypwa.bib
+   :list: bullet
+   :all:

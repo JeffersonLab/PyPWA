@@ -65,13 +65,21 @@ __all__ = [
 ]
 
 
-def get_reader(filename: str) -> _templates.ReaderBase:
+def get_reader(filename: str, use_pandas=False) -> _templates.ReaderBase:
     """Returns a reader that can read the file one event at a time
+
+    .. note::
+        The return value from the reader coule bd a pointer, if you need
+        to keep the event without it being overwrote on the next call, you
+        must call the copy method on the returned data to get a unique
+        copy.
 
     Parameters
     ----------
     filename : str, Path
-        The file that you want to read
+        File to read
+    use_pandas : bool
+        Determines if a numpy data type or pandas data type is returned.
 
     Returns
     -------
@@ -93,11 +101,12 @@ def get_reader(filename: str) -> _templates.ReaderBase:
 
     >>> reader = get_reader("example.gamp")
     >>> for event in reader:
-    >>>     pass
+    >>>     my_kept_event = event.copy()
+    >>>     regular_event = event
     >>> reader.close()
     """
     data = _Data(True, False)
-    return data.get_reader(filename)
+    return data.get_reader(filename, use_pandas)
 
 
 def get_writer(filename: str, dtype: DataType) -> _templates.WriterBase:
@@ -141,7 +150,7 @@ def get_writer(filename: str, dtype: DataType) -> _templates.WriterBase:
 
 
 def read(
-        filename: str, cache=True, clear_cache=False
+        filename: str, use_pandas=False, cache=True, clear_cache=False
 ) -> _U[_pd.DataFrame, _pp, _npy.ndarray]:
     """Reads the entire file and returns either DaataFrame, ParticlePool,
     or standard numpy array depending on the data found inside the file.
@@ -149,7 +158,9 @@ def read(
     Parameters
     ----------
     filename : Path, str
-        The filename of the file you wish to parse
+        File to read.
+    use_pandas : bool
+        Determines if a numpy data type or pandas data type is returned.
     cache : bool, optional
         Enables or disables caching. Defaults to the enabled. Leaving this
         enabled should do no harm unless there something is broken with
@@ -176,7 +187,7 @@ def read(
         If there is no plugin that can load the data found
     """
     data = _Data(cache, clear_cache)
-    return data.parse(filename)
+    return data.parse(filename, use_pandas)
 
 
 def write(filename: str, data, cache=True, clear_cache=False):

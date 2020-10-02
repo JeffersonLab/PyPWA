@@ -54,9 +54,10 @@ class _Package:
 
 
 def read(
-        path: Union[str, Path], intermediate=False, remove_cache=False
+        path: Union[str, Path], intermediate=True, remove_cache=False
 ) -> Tuple[bool, Any]:
     """Reads a cache object
+
     This reads caches objects from the disk. With it's default settings
     it'll load the cache file as long as the source file's hash hasn't
     changed. It can also be used to store an intermediate step directly
@@ -110,7 +111,8 @@ def read(
 
 
 def write(path, data, intermediate=False):
-    """Writes a cache file.
+    """Writes a cache file
+
     With its default settings, it'll write the cache file into the cache
     location and store the source file's hash in the cache for future
     comparison. If intermediate is set to true though, it'll store the

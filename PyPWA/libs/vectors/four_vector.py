@@ -19,7 +19,7 @@
 
 from typing import List, Union, Optional as Opt
 
-import numpy as npy
+import numpy as np
 import pandas as pd
 from . import _base_vector, three_vector
 
@@ -36,14 +36,14 @@ class FourVector(_base_vector.VectorMath):
     
     Parameters
     ----------
-    x : int, npy.ndarray, float, or DataFrame
+    e : int, np.ndarray, float, or DataFrame
         Can be an integer to specify size, a structured array or DataFrame
         with x y z and e values, a single float value, or a Series or
         single dimensional array, If you provide a float, series, or
         array, you need to provide a float for the other options as well.
-    y : int, npy.ndarray, float, or DataFrame, optional
-    z : int, npy.ndarray, float, or DataFrame, optional
-    e : int, npy.ndarray, float, or DataFrame, optional
+    x : int, np.ndarray, float, or Series, optional
+    y : int, np.ndarray, float, or Series, optional
+    z : int, np.ndarray, float, or Series, optional
 
     See Also
     --------
@@ -51,49 +51,78 @@ class FourVector(_base_vector.VectorMath):
     Particle : For storing a particle, adds support for a particle ID
     """
 
-    __slots__ = ["_vector"]
+    __slots__ = ["_x", "_y", "_z", "_e"]
 
     def __init__(
             self,
-            x: Union[int, npy.ndarray, float, pd.DataFrame],
-            y: Opt[Union[float, pd.Series, npy.ndarray]] = None,
-            z: Opt[Union[float, pd.Series, npy.ndarray]] = None,
-            e: Opt[Union[float, pd.Series, npy.ndarray]] = None
+            e: Union[int, np.ndarray, float, pd.DataFrame],
+            x: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            y: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            z: Opt[Union[float, pd.Series, np.ndarray]] = None
     ):
-
-        self._vector = _base_vector.sanitize_vector_input(x, y, z, e, True)
-        super(FourVector, self).__init__(self._vector)
+        if isinstance(e, FourVector):
+            self._e = e._e
+            self._x = e._x
+            self._y = e._y
+            self._z = e._z
+        else:
+            self._x, self._y, self._z, self._e = \
+                _base_vector.sanitize_vector_input(e, x, y, z, True)
+        super(FourVector, self).__init__(self._x, self._y, self._z)
 
     def __repr__(self) -> str:
-        return f"FourVector(\n{self._vector!r})"
+        theta, phi, mass = self._get_repr_data()
 
-    def __str__(self) -> str:
-        if len(self) == 1:
-            return f"FourVector(\n{str(self._vector)})"
+        return f"FourVector(x̅Θ={theta}, x̅ϕ={phi}, x̅Mass={mass})"
+
+    def _get_repr_data(self):
+        if isinstance(self._e, np.ndarray):
+            theta = self.get_theta().mean()
+            phi = self.get_phi().mean()
+            mass = self.get_mass().mean()
         else:
-            return f"FourVector({self.dataframe.describe()})"
+            theta = self.get_theta()
+            phi = self.get_phi()
+            mass = self.get_mass()
+        return theta, phi, mass
 
     def __eq__(self, vector: "FourVector") -> bool:
-        if isinstance(vector, FourVector):
-            return self._vector.equals(vector._vector)
+        return self._compare_vectors(vector)
+
+    def _compare_vectors(self, other):
+        if all([hasattr(other, attr)] for attr in self.__slots__):
+            equality = []
+            for slot in self.__slots__:
+                result = np.equal(getattr(self, slot), getattr(other, slot))
+
+                if isinstance(self._x, np.ndarray):
+                    equality.append(all(result))
+                else:
+                    equality.append(result)
+
+            return all(equality)
+
         else:
             return False
 
-    def __truediv__(self, other: Union[float, int]) -> "FourVector":
-        if isinstance(other, (int, float)):
-            return FourVector(self._div_vectors(other))
+    def __truediv__(self, scalar: Union[float, int]) -> "FourVector":
+        if isinstance(scalar, (int, float)):
+            return FourVector(
+                self._e / scalar, self._x / scalar,
+                self._y / scalar, self._z / scalar
+            )
         else:
             raise ValueError("FourVectors can only be divided by scalars")
 
     def __rtruediv__(self, other: Union[float, int]):
-        if isinstance(other, (int, float)):
-            return FourVector(self._div_vectors(other))
-        else:
-            raise ValueError("FourVectors can only be divided by scalars")
+        return self.__truediv__(other)
 
-    def __mul__(self, vector: Union[float, int]) -> "FourVector":
-        if isinstance(vector, (int, float)):
-            return FourVector(self._mul_vectors(vector))
+    def __mul__(self, scalar: Union[float, int]) -> "FourVector":
+        if isinstance(scalar, (int, float)):
+            return FourVector(
+                self._e * scalar, self._x * scalar,
+                self._y * scalar, self._z * scalar
+            )
         else:
             raise ValueError("FourVectors can only be multiplied by scalars")
 
@@ -103,11 +132,17 @@ class FourVector(_base_vector.VectorMath):
     def __add__(self, vector: Union["FourVector", float]) -> "FourVector":
         if isinstance(vector, FourVector):
             if len(vector) == len(self):
-                return FourVector(self._add_vectors(vector._vector))
+                return FourVector(
+                    self._e + vector._e, self._x + vector._x,
+                    self._y + vector._y, self._z + vector._z
+                )
             else:
                 raise ValueError("Vectors have different lengths!")
-        elif isinstance(vector, (int, float, npy.float)):
-            return FourVector(self._add_vectors(vector))
+        elif isinstance(vector, (int, float)):
+            return FourVector(
+                self._e + vector, self._x + vector,
+                self._y + vector, self._z + vector
+            )
         else:
             raise ValueError(f"Can not add FourVector and {type(vector)}")
 
@@ -115,7 +150,7 @@ class FourVector(_base_vector.VectorMath):
         return self.__add__(other)
 
     def __sub__(self, vector: Union["FourVector", float]) -> "FourVector":
-        if isinstance(vector, (int, float, npy.float, FourVector)):
+        if isinstance(vector, (int, float, FourVector)):
             return self.__add__(-1 * vector)
         else:
             raise ValueError(f"Can not subtract FourVector and {type(vector)}")
@@ -124,57 +159,67 @@ class FourVector(_base_vector.VectorMath):
         return self.__sub__(other)
 
     def __len__(self):
-        return len(self._vector)
+        return len(self._x)
 
     def __getitem__(
             self, item: Union[int, str, slice]
     ) -> Union["FourVector", pd.Series]:
-        if isinstance(item, slice):
-            return FourVector(self._vector[item])
-        elif isinstance(item, int):
-            return FourVector(self._vector[item])
-        elif isinstance(item, str) and item in ("x", "y", "z", "e"):
-            return self._vector[item].copy()
-        elif isinstance(item, npy.ndarray) and item.dtype == bool:
-            return self._vector[item]
+        if isinstance(item, (slice, int)) or \
+                isinstance(item, np.ndarray) and item.dtype == bool:
+            return FourVector(
+                self._e[item], self._x[item], self._y[item], self._z[item]
+            )
+        elif isinstance(item, str) and item in ("e", "x", "y", "z"):
+            return getattr(self, f"_{item}").copy()
         else:
             raise ValueError(f"Can not index with {item!r}")
 
     def split(self, count) -> List["FourVector"]:
         vectors = []
-        for vector in npy.split(self._vector, count):
-            vectors.append(FourVector(vector))
+        es = np.split(self._e, count)
+        xs = np.split(self._x, count)
+        ys = np.split(self._y, count)
+        zs = np.split(self._z, count)
+        for e, x, y, z in zip(es, xs, ys, zs):
+            vectors.append(FourVector(e, x, y, z))
         return vectors
 
     def get_copy(self):
-        return FourVector(self._vector.copy())
+        return FourVector(
+            self._e.copy(), self._x.copy(), self._y.copy(), self._z.copy()
+        )
 
     def get_dot(self, vector: "FourVector") -> Union[pd.Series, float]:
         if isinstance(vector, FourVector):
-            e = self.e * vector.e
-            x = self.x * vector.x
-            y = self.y * vector.y
-            z = self.z * vector.z
+            e = self._e * vector._e
+            x = self._x * vector._x
+            y = self._y * vector._y
+            z = self._z * vector._z
             return e - x - y - z
         else:
             raise ValueError("Dot product only works with another FourVector")
 
     def get_three_vector(self) -> three_vector.ThreeVector:
-        return three_vector.ThreeVector(self._vector[["x", "y", "z"]])
+        return three_vector.ThreeVector(self._x, self._y, self._z)
 
-    def get_length_squared(self) -> Union[float, npy.ndarray]:
-        return self.e**2 - self.get_length()**2
+    def get_length_squared(self) -> Union[float, np.ndarray]:
+        return self._e**2 - self.get_length()**2
 
-    def get_mass(self) -> Union[float, npy.ndarray]:
-        return npy.sqrt(self.get_dot(self))
+    def get_mass(self) -> Union[float, np.ndarray]:
+        return np.sqrt(self.get_dot(self))
 
     @property
-    def e(self) -> npy.ndarray:
-        return self._vector["e"].copy()
+    def e(self) -> Union[float, np.ndarray]:
+        if isinstance(self._e, np.ndarray):
+            return self._e.copy()
+        return self._e
 
     @e.setter
-    def e(self, value: Union[float, npy.ndarray, pd.Series]):
-        if isinstance(value, str):
-            self._vector['e'] = npy.float64(value)
+    def e(self, value: Union[float, np.ndarray, pd.Series]):
+        if isinstance(value, np.ndarray):
+            if len(value) != len(self._e):
+                raise ValueError("Size does not match vector!")
+            self._e = value
         else:
-            self._vector['e'] = value
+            self._e *= 0
+            self._e += np.float64(value)

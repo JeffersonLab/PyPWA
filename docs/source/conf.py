@@ -8,8 +8,12 @@ import sphinx_rtd_theme
 extensions = [
     'sphinx.ext.mathjax', 'sphinx.ext.todo',
     'sphinx.ext.autodoc', 'sphinx_autodoc_typehints',
-    'sphinxcontrib.bibtex', 'recommonmark'
+    'sphinxcontrib.bibtex', 'recommonmark',
+    'sphinx.ext.napoleon', 'nbsphinx'
 ]
+
+# We put the returns in the docstring, this prevents duplication
+typehints_document_rtype = False
 
 
 # Basic file information
@@ -21,8 +25,8 @@ master_doc = 'index'
 project = 'PyPWA'
 copyright = f'{datetime.now().year}, Norfolk State University'
 author = "PyPWA Team"
-version = "3.0.0"
-release = "Development"
+version = "3.1.0"
+release = "Stable"
 
 
 # Sphinx Extra Options

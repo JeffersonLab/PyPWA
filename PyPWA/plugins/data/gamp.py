@@ -32,7 +32,7 @@ will not be saved in memory by these object.
 from pathlib import Path
 from typing import Dict, List
 
-import numpy as npy
+import numpy as np
 
 from PyPWA import info as _info
 from PyPWA.libs import vectors
@@ -62,7 +62,7 @@ class _GampDataPlugin(templates.IDataPlugin):
     def get_writer(self, file_location):
         return _GampWriter(file_location)
 
-    def get_reader(self, file_location):
+    def get_reader(self, file_location, use_pandas):
         return _GampReader(file_location)
 
     def get_read_test(self):
@@ -242,7 +242,7 @@ class _GampMemory(templates.IMemory):
     @staticmethod
     def _make_particle_dict(
             filename: Path, particle_length: int = 1
-    ) -> Dict[int, npy.ndarray]:
+    ) -> Dict[int, np.ndarray]:
         with filename.open() as stream:
             count = int(stream.readline())
             lines = [stream.readline() for i in range(count)]
@@ -250,9 +250,12 @@ class _GampMemory(templates.IMemory):
         particles = dict()
         for line in lines:
             p_id, charge, x, y, z, e = line.strip("\n").split()
-            particles[int(p_id)] = npy.zeros(
+            particles[int(p_id)] = np.empty(
                 particle_length,
-                dtype=[("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")]
+                dtype=np.dtype(
+                    [("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")],
+                    align=True
+                )
             )
         return particles
 
