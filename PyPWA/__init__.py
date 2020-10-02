@@ -53,6 +53,7 @@ Note: Data can be loaded and writen with Pandas or Numpy if preferred,
     though if preferred.
 - read: Reads data from a file or path
 - write: Writes data from a file or path
+- DataType: Enum to select type for get_writer and get_reader
 - get_writer: Returns an object that supports writing one event at a time
 - get_reader: Returns an object that supports reading one event at a time
 - ProjectDatabase: A numerical database based off of HDF5 that allows for
@@ -84,7 +85,7 @@ from PyPWA import info as _info
 from PyPWA.libs import simulate
 from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths
 from PyPWA.libs.file import (
-    get_reader, get_writer, read, write, ProjectDatabase, cache
+    get_reader, get_writer, read, write, ProjectDatabase, cache, DataType
 )
 from PyPWA.libs.fit import (
     minuit, ChiSquared, LogLikelihood, EmptyLikelihood, NestedFunction,
@@ -101,7 +102,7 @@ __all__ = [
     "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
     "EmptyLikelihood", "NestedFunction", "FunctionAmplitude", "cache",
     "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego",
-    "simulate"
+    "simulate", "DataType"
 ]
 
 __author__ = _info.AUTHOR

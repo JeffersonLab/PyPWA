@@ -15,13 +15,26 @@ preference may be.
 You can take a look at our code directly
 `here <https://github.com/JeffersonLab/PyPWA>`_
 
+.. toctree::
+   :hidden:
+
+   about
+   installing
+   CHANGELOG
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Getting Started
+   :caption: Examples
+   :hidden:
 
-   getting_started/about
-   getting_started/installing
-   getting_started/CHANGELOG
-   getting_started/references
+   examples/2Dgauss
+   examples/demo_JPAC_sim
+   examples/demo_JPAC_fit
+   examples/demo_JPAC_pre
 
+.. toctree::
+   :caption: References
+   :hidden:
+
+   references/data
+   references/sim_fit
+   references/plotting

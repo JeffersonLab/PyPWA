@@ -10,14 +10,10 @@ PyPWA can be installed with ``pip`` or ``conda`` with Python 3.7 or newer
 Conda
 #####
 
-.. note::
-
-   PyPWA works on Macintosh, but we currently do not have a build for it in
-   Anaconda's cloud system. This will change soon, please be patient with us.
-
-
 Thanks to tools provided by Anaconda, you can easily install PyPWA and all
-it's dependencies with a simple one line command
+it's dependencies with a simple one line command. Check out `Anaconda's
+user guide <https://docs.anaconda.com/anaconda/user-guide/>`_ if you're
+new to using Anaconda.
 
 .. code-block:: sh
 
@@ -25,6 +21,9 @@ it's dependencies with a simple one line command
 
 If you want tools from PWA2000 (GAMP, HGAMP, VAMP, PPGEN) we've included them
 as well
+
+.. note::
+    PWA2000 is currently only available on Linux installs of Anaconda.
 
 .. code-block:: sh
 
@@ -38,13 +37,13 @@ Pip
    Pip can interfere with your system python. Make sure to never run
    pip as root, and only perform local installs.
 
+**Fetch the latest version of PyPWA and install locally**
+
 .. note::
 
    If you are using pip somewhere behind a firewall, you may need to
    pin pip's servers using
    ``pip install --trusted-host pypi.org --trusted-host pythonhosted.org``
-
-**Fetch the latest version of PyPWA and install locally**
 
 .. code-block:: sh
 

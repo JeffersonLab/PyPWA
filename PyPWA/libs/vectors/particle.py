@@ -25,7 +25,7 @@ are defined in _abstract_vectors.AbstractVectors.
 
 from typing import List, Union, Tuple, Optional as Opt
 
-import numpy as npy
+import numpy as np
 import pandas
 from PyPWA.libs.vectors import FourVector
 from PyPWA import info as _info
@@ -69,19 +69,21 @@ def get_particle_by_id(particle_id: int) -> Tuple[str, int]:
 
 
 class Particle(FourVector):
-    """DataFrame backed Particle object for vector operations inside
+    """Numpy backed Particle object for vector operations inside
     PyPWA.
 
     Parameters
     ----------
-    x : int, npy.ndarray, float, or DataFrame
+    particle_id : int
+        The Particle ID, used to determine the particle's name and charge.
+    e : int, npy.ndarray, float, or DataFrame
         Can be an integer to specify size, a structured array or DataFrame
         with x y z and e values, a single float value, or a Series or
         single dimensional array, If you provide a float, series, or
         array, you need to provide a float for the other options as well.
+    x : int, npy.ndarray, float, or DataFrame, optional
     y : int, npy.ndarray, float, or DataFrame, optional
     z : int, npy.ndarray, float, or DataFrame, optional
-    e : int, npy.ndarray, float, or DataFrame, optional
 
     See Also
     --------
@@ -94,70 +96,106 @@ class Particle(FourVector):
     def __init__(
             self,
             particle_id: int,
-            x: Union[int, npy.ndarray, float, pandas.DataFrame],
-            y: Opt[Union[float, pandas.Series, npy.ndarray]] = None,
-            z: Opt[Union[float, pandas.Series, npy.ndarray]] = None,
-            e: Opt[Union[float, pandas.Series, npy.ndarray]] = None
+            e: Union[int, np.ndarray, float, pandas.DataFrame],
+            x: Opt[Union[float, pandas.Series, np.ndarray]] = None,
+            y: Opt[Union[float, pandas.Series, np.ndarray]] = None,
+            z: Opt[Union[float, pandas.Series, np.ndarray]] = None
     ):
-        super(Particle, self).__init__(x, y, z, e)
+        super(Particle, self).__init__(e, x, y, z)
         self.__particle_id = particle_id
         self.__particle_name, self.__charge = get_particle_by_id(particle_id)
 
     def __eq__(self, other: "Particle") -> bool:
-        arrays_equal = self._vector.equals(other._vector)
+        arrays_equal = self._compare_vectors(other)
         id_equals = self.id == other.id
         return arrays_equal and id_equals
 
     def __repr__(self) -> str:
-        return f"Particle({self.__particle_id}, \n{self._vector!r})"
+        theta, phi, mass = self._get_repr_data()
 
-    def __str__(self) -> str:
-        if len(self) == 1:
-            return (
-                f"Particle("
-                f"name={self.__particle_name}, id={self.__particle_id},"
-                f"vector=\n{str(self._vector)})"
-            )
-        else:
-            return (
-                f"Particle("
-                f"name={self.__particle_name}, id={self.__particle_id},"
-                f"vector=\n{self.dataframe.describe()}"
-            )
+        return (
+            f"Particle("
+            f"Name={self.__particle_name}"
+            f" PID={self.__particle_id},"
+            f" x̅Θ={theta},"
+            f" x̅ϕ={phi},"
+            f" x̅Mass={mass})"
+        )
 
     def __getitem__(
             self, item: Union[int, str, slice]
     ) -> Union["Particle", pandas.Series]:
-        if isinstance(item, slice):
-            return Particle(self.__particle_id, self._vector[item])
-        elif isinstance(item, int):
-            return Particle(self.__particle_id, self._vector[item])
+        if isinstance(item, (int, slice)) or \
+                isinstance(item, np.ndarray) and item.dtype == bool:
+            return Particle(
+                self.__particle_id, self._e, self._x, self._y, self._z
+            )
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
-            return self._vector[item].copy()
-        elif isinstance(item, npy.ndarray) and item.dtype == bool:
-            return Particle(self.__particle_id, self._vector[item])
+            return getattr(self, f"_{item}").copy()
         else:
             raise ValueError(f"Can not index with {item!r}")
 
-    def split(self, count) -> List["FourVector"]:
+    def split(self, count: int) -> List["Particle"]:
+        """
+        Splits the Particle for distributed computing.
+
+        Will return N Particles which together will have the same number
+        of elements as the original Particle.
+
+        Parameters
+        ----------
+        count : int
+            The amount of Particles to produce from current particle.
+
+        Returns
+        -------
+        List[Particle] :
+            The list of Particles
+
+        """
         particles = []
-        for vector in npy.split(self._vector, count):
-            particles.append(Particle(self.__particle_id, vector))
+        es = np.split(self._e, count)
+        xs = np.split(self._x, count)
+        ys = np.split(self._y, count)
+        zs = np.split(self._z, count)
+        for e, x, y, z in zip(es, xs, ys, zs):
+            particles.append(Particle(self.__particle_id, e, x, y, z))
         return particles
 
     def get_copy(self):
-        return Particle(self.__particle_id, self._vector.copy())
+        """
+        Returns a deep copy of the Particle.
+
+        Returns
+        -------
+        Particle:
+            Copy of the particle.
+        """
+
+        return Particle(
+            self.__particle_id, self._e.copy(), self._x.copy(),
+            self._y.copy(), self._z.copy()
+        )
 
     @property
     def id(self) -> int:
+        """
+        Immutable provided ID at initialization.
+        """
         return self.__particle_id
 
     @property
     def name(self) -> str:
+        """
+        Immutable name for the particle produced from the ID.
+        """
         return self.__particle_name
 
     @property
     def charge(self) -> int:
+        """
+        Immutable charge for the particle produced from the ID.
+        """
         return self.__charge
 
 
@@ -216,6 +254,12 @@ class _PoolParticleIterator:
 
 
 class ParticlePool:
+    """
+    Stores a collection of particles together.
+
+
+
+    """
 
     def __init__(self, particle_list: List[Particle]):
         self.__particle_list = particle_list
@@ -233,7 +277,7 @@ class ParticlePool:
         return len(self.__particle_list)
 
     def __getitem__(self, item):
-        if isinstance(item, npy.ndarray) and item.dtype == bool:
+        if isinstance(item, np.ndarray) and item.dtype == bool:
             return self._mask(item)
         return self.__particle_list[item]
 
@@ -276,7 +320,7 @@ class ParticlePool:
                 particles[index].append(particle_segment)
         return [ParticlePool(pool) for pool in particles]
 
-    def get_event_mass(self) -> npy.ndarray:
+    def get_event_mass(self) -> np.ndarray:
         found_photon, found_proton = 0, 0
         vector_sum = FourVector(self.event_count)
         for event_particle in self.iter_particles():
@@ -288,28 +332,28 @@ class ParticlePool:
                 vector_sum += event_particle
         return vector_sum.get_mass()
 
-    def get_t(self) -> npy.ndarray:
+    def get_t(self) -> np.ndarray:
         proton = self.get_particles_by_name("Proton")[0]
         momenta = proton.x ** 2 + proton.y ** 2 + proton.z ** 2
         energy = (proton.e - _PROTON_GEV) ** 2
         return energy - momenta
 
-    def get_s(self) -> npy.ndarray:
+    def get_s(self) -> np.ndarray:
         proton = self.get_particles_by_name("Proton")[0]
         momenta = proton.x ** 2 + proton.y ** 2 + proton.z ** 2
         energy = (proton.e + _PROTON_GEV) ** 2
         return energy - momenta
 
-    def get_t_prime(self) -> npy.ndarray:
+    def get_t_prime(self) -> np.ndarray:
         # Get initial values
         proton = self.get_particles_by_name("Proton")[0]
         s_value = self.get_s()
-        sqrt_s = npy.sqrt(s_value)
+        sqrt_s = np.sqrt(s_value)
         mx2 = self.get_event_mass() ** 2
 
         # Calculate for Px and Ex
         ex = (s_value * mx2 * _PROTON_GEV ** 2) / 2 * sqrt_s
-        px = npy.sqrt((ex ** 2) - mx2)
+        px = np.sqrt((ex ** 2) - mx2)
 
         # Calculate t0
         t0_left = (mx2 / (2 * sqrt_s)) ** 2

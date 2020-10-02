@@ -24,10 +24,12 @@ usable, and the base object for math that is similar for all vector types.
 """
 
 from typing import Union, Tuple
+from abc import abstractmethod
 
-import numpy as npy
+import numpy as np
 import pandas as pd
 
+from PyPWA.libs import common
 from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
@@ -35,141 +37,139 @@ __author__ = _info.AUTHOR
 __version__ = _info.VERSION
 
 
-def sanitize_vector_input(x, y=None, z=None, e=None, has_e=False):
-    dtype = [("x", "f8"), ("y", "f8"), ("z", "f8")]
+def sanitize_vector_input(a, b=None, c=None, d=None, has_e=False):
+    names = ["x", "y", "z"]
+    if has_e:
+        names.insert(0, "e")
 
-    if isinstance(x, int):
+    # Produce empty arrays of length X
+    if isinstance(a, int):
+        d = [np.zeros(a), np.zeros(a), np.zeros(a)]
         if has_e:
-            dtype.append(("e", "f8"))
-        return npy.zeros(x, dtype)
+            d.append(np.zeros(a))
+        return tuple(d)
 
-    elif isinstance(x, (npy.void, npy.record)):
-        return x
+    # Convert numpy storage types to contiguous arrays
+    elif isinstance(a, (np.void, np.record)) or \
+            isinstance(a, np.ndarray) and a.dtype.names:
+        return common.to_contiguous(a, names)
 
-    elif isinstance(x, npy.ndarray) and hasattr(x.dtype, "names"):
-        return x
-
-    elif all([isinstance(var, (int, float)) for var in [x, y, z]]):
+    # Pass through single values
+    elif all([isinstance(var, (int, float)) for var in [a, b, c]]):
+        returns = [a, b, c]
         if has_e:
-            if not isinstance(e, (int, float)):
+            if not isinstance(d, (int, float)):
                 raise ValueError("No E value provided!")
             else:
-                dtype.append(("e", "f8"))
-                array = npy.empty(1, dtype)
-                array["x"], array["x"], array["x"], array["x"] = x, y, z, e
-        else:
-            array = npy.empty(1, dtype)
-            array['x'], array['x'],  array['x'] = x, y, z
+                returns.insert(0, d)
+        return returns
 
-        return array[0]
-
-    elif all([isinstance(var, npy.ndarray) for var in [x, y, z]]):
+    # Convert Structured Arrays to Contiguous Arrays
+    elif all([isinstance(var, np.ndarray) for var in [a, b, c]]):
         if has_e:
-            if not isinstance(e, npy.ndarray):
+            if not isinstance(d, np.ndarray):
                 raise ValueError("No E Value provided!")
             else:
-                dtype.append(("e", "f8"))
-                array = npy.empty(len(x), dtype)
-                array["x"], array["x"], array["x"], array["x"] = x, y, z, e
+                if all([d.flags["C_CONTIGUOUS"]] for d in [a, b, c, d]):
+                    return a, b, c, d
+                else:
+                    return common.to_contiguous(
+                        {"x": a, "y": b, "z": c, "e": d}, names
+                    )
         else:
-            array = npy.empty(len(x), dtype)
-            array['x'], array['x'], array['x'] = x, y, z
+            if all([d.flags["C_CONTIGUOUS"]] for d in [a, b, c]):
+                return a, b, c
+            else:
+                return common.to_contiguous({"x": a, "y": b, "z": c}, names)
 
-        return array
+    # Convert DataFrame to Contiguous Arrays
+    elif isinstance(a, pd.DataFrame):
+        return common.to_contiguous(a, names)
 
-    elif isinstance(x, pd.DataFrame):
-        return x.to_records(False)
-
-    elif isinstance(x, pd.Series):
+    # Pass the tuple from the records array directly
+    elif isinstance(a, pd.Series):
         temp_storage = pd.DataFrame()
-        temp_storage.append(x)
+        temp_storage.append(a)
         return temp_storage.to_records(False)[0]
 
     else:
         raise ValueError(
-            f"Can't sanitize vector input! Uknown data type {type(x)}!"
+            f"Can't sanitize vector input! Unknown data type {type(a)}!"
         )
 
 
 class VectorMath:
 
-    __slots__ = ["_vector"]
+    __slots__ = ["_x", "_y", "_z"]
 
-    def __init__(self, vector: npy.ndarray):
-        self._vector = vector
-
-    def _add_vectors(self, other):
-        results = self._vector.copy()
-
-        if isinstance(other, (float, int)):
-            for name in results.dtype.names:
-                results[name] += other
-        else:
-            for name in results.dtype.names:
-                results[name] += other[name]
-        return results
-
-    def _mul_vectors(self, other):
-        results = self._vector.copy()
-        for name in results.dtype.names:
-            results[name] *= other
-        return results
-
-    def _div_vectors(self, other):
-        results = self._vector.copy()
-
-        for name in results.dtype.names:
-            results[name] /= other
-        return results
+    def __init__(self, x, y, z: np.ndarray):
+        self._x = x
+        self._y = y
+        self._z = z
 
     def get_length(self) -> Union[pd.Series, float]:
-        return npy.sqrt(self.x**2 + self.y**2 + self.z**2)
+        return np.sqrt(self._x**2 + self._y**2 + self._z**2)
 
     def get_theta(self) -> Union[pd.Series, float]:
-        return npy.arccos(self.get_cos_theta())
+        return np.arccos(self.get_cos_theta())
 
     def get_phi(self) -> Union[pd.Series, float]:
-        return npy.arctan2(self.y, self.x)
+        return np.arctan2(self._y, self._x)
 
     def get_sin_theta(self) -> Union[pd.Series, float]:
-        return (self.x**2 + self.y**2) / self.get_length()
+        return (self._x**2 + self._y**2) / self.get_length()
 
     def get_cos_theta(self) -> Union[pd.Series, float]:
-        return self.z / self.get_length()
+        return self._z / self.get_length()
 
     @property
     def dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame(self._vector)
+        return pd.DataFrame({"x": self._x, "y": self._y, "z": self._z})
 
     @property
-    def x(self) -> pd.Series:
-        return self._vector['x'].copy()
+    def x(self) -> Union[float, np.ndarray]:
+        if isinstance(self._x, np.ndarray):
+            return self._x.copy()
+        return self._x
 
     @x.setter
-    def x(self, value: Union[npy.ndarray, float, pd.Series, str]):
-        if isinstance(value, str):
-            self._vector['x'] = npy.float64(value)
+    def x(self, value: Union[np.ndarray, float, pd.Series, str]):
+        if isinstance(value, np.ndarray):
+            if len(value) != len(self._x):
+                raise ValueError("Size does not match vector!")
+            self._x = value
         else:
-            self._vector['x'] = value
+            self._x *= 0
+            self._x += np.float64(value)
 
     @property
-    def y(self) -> pd.Series:
-        return self._vector['y'].copy()
+    def y(self) -> Union[float, np.ndarray]:
+        if isinstance(self._y, np.ndarray):
+            return self._y.copy()
+        return self._y
 
     @y.setter
-    def y(self, value: Union[npy.ndarray, float, pd.Series]):
-        if isinstance(value, str):
-            self._vector['y'] = npy.float64(value)
+    def y(self, value: Union[np.ndarray, float, pd.Series]):
+        if isinstance(value, np.ndarray):
+            if len(value) != len(self._y):
+                raise ValueError("Size does not match vector!")
+            self._y = value
         else:
-            self._vector['y'] = value
+            self._y *= 0
+            self._y += np.float64(value)
 
     @property
-    def z(self) -> pd.Series:
-        return self._vector['z'].copy()
+    def z(self) -> Union[float, np.ndarray]:
+        if isinstance(self._z, np.ndarray):
+            return self._z.copy()
+        return self._z
 
     @z.setter
-    def z(self, value: Union[npy.ndarray, float, pd.Series]):
-        if isinstance(value, str):
-            self._vector['z'] = npy.float64(value)
+    def z(self, value: Union[np.ndarray, float, pd.Series]):
+        if isinstance(value, np.ndarray):
+            if len(value) != len(self._z):
+                raise ValueError("Size does not match vector!")
+            self._z = value
         else:
-            self._vector['z'] = value
+            self._z *= 0
+            self._z += np.float64(value)

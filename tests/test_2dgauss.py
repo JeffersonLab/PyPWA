@@ -69,8 +69,7 @@ def test_2d_gauss(gauss_function):
     with pwa.LogLikelihood(gauss_function(), carved_data) as likelihood:
         results = pwa.minuit(param_names, fitting_settings, likelihood, 1)
 
-    params = results.get_param_states()
-    for param in params:
+    for param in results.params:
         assert simulation_params[param.name] == round(param.value)
 
 

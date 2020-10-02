@@ -24,9 +24,10 @@ data module.
 import enum
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List
+from typing import List, Union
 
-import pandas
+import pandas as pd
+import numpy as np
 
 from PyPWA import info as _info
 
@@ -36,6 +37,19 @@ __version__ = _info.VERSION
 
 
 class DataType(enum.Enum):
+    """
+    Enumeration for type of data to be read or written using the reader
+    and writer.
+
+    Because of how the reader and writer are designed they can not
+    inspect the data before it starts working with the data. This enum
+    is used to specify the type of data you're working with.
+
+    * BASIC = Standard arrays with no columns
+    * STRUCTURED = Columned array (CSV, TSV, DataFrames)
+    * TREE_VECTOR = Particle Data (GAMP)
+    """
+
     # Single arrays with no attached data names
     BASIC = 0
 
@@ -49,18 +63,18 @@ class DataType(enum.Enum):
 class IMemory(ABC):
 
     @abstractmethod
-    def parse(self, filename: Path) -> pandas.DataFrame:
+    def parse(self, filename: Path) -> np.ndarray:
         ...
 
     @abstractmethod
-    def write(self, filename: Path, data: pandas.DataFrame):
+    def write(self, filename: Path, data: Union[pd.DataFrame, np.ndarray]):
         ...
 
 
 class ReaderBase(ABC):
 
     @abstractmethod
-    def next(self) -> pandas.DataFrame:
+    def next(self) -> pd.DataFrame:
         """
         Called to get the next event from the reader.
 
@@ -131,7 +145,7 @@ class ReaderBase(ABC):
 class WriterBase(ABC):
 
     @abstractmethod
-    def write(self, data: pandas.DataFrame):
+    def write(self, data: Union[pd.DataFrame, np.ndarray]):
         """
         Should write the received event to the stream.
 
@@ -177,8 +191,7 @@ class IDataPlugin:
         ...
 
     @abstractmethod
-    def get_reader(
-            self, filename: Path) -> ReaderBase:
+    def get_reader(self, filename: Path, use_pandas: bool) -> ReaderBase:
         ...
 
     @abstractmethod
@@ -198,3 +211,11 @@ class IDataPlugin:
     @abstractmethod
     def supported_data_types(self) -> List[DataType]:
         ...
+
+    @property
+    def use_caching(self) -> bool:
+        return True
+
+    @property
+    def supports_iterators(self) -> bool:
+        return True

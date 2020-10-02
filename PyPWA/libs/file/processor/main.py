@@ -28,6 +28,7 @@ import numpy as npy
 import pandas as pd
 
 from PyPWA import info as _info
+from PyPWA.libs import common
 from PyPWA.libs.file import cache
 from PyPWA.plugins import load, data as data_plugins
 from . import templates
@@ -42,16 +43,19 @@ SUPPORTED_DATA = Union[npy.ndarray, vectors.ParticlePool, pd.DataFrame]
 INPUT_TYPE = Union[Path, str]
 
 
-def _get_read_plugin(filename: Path) -> templates.IDataPlugin:
+def _get_read_plugin(
+        filename: Path, needs_iterator: bool
+) -> templates.IDataPlugin:
     found_plugins = load(data_plugins, "Data")
     for plugin in found_plugins:
         if plugin.get_read_test().can_read(filename):
-            return plugin
+            if not needs_iterator or plugin.supports_iterators:
+                return plugin
     raise RuntimeError("Couldn't find plugin for {0}".format(filename))
 
 
 def _get_write_plugin(
-        filename: Path, data_type: templates.DataType
+        filename: Path, data_type: templates.DataType, needs_iterator: bool
         ) -> templates.IDataPlugin:
     found_plugins = load(data_plugins, "Data")
     for plugin in found_plugins:
@@ -74,19 +78,28 @@ class _DataLoader:
         return (f"{self.__class__.__name__}"
                 f"({self.__use_cache}, {self.__clear_cache})")
 
-    def parse(self, filename: Path) -> Union[pd.DataFrame, pd.Series]:
+    def parse(
+            self, filename: Path, use_pandas: bool
+    ) -> Union[pd.DataFrame, pd.Series]:
         valid, cache_obj = cache.read(filename, remove_cache=self.__clear_cache)
         if valid and self.__use_cache:
             self.__LOGGER.info("Loading cache for %s" % filename)
-            return cache_obj
+            data = cache_obj
         else:
             self.__LOGGER.info("No cache found, loading file directly.")
-            return self.__read_data(filename)
+            data = self.__read_data(filename)
+
+        if use_pandas:
+            if data.dtype.names:
+                return pd.DataFrame(data)
+            return pd.Series(data)
+        else:
+            return data
 
     def __read_data(self, filename):
-        plugin = _get_read_plugin(filename)
+        plugin = _get_read_plugin(filename, False)
         data = plugin.get_memory_parser().parse(filename)
-        if self.__use_cache:
+        if self.__use_cache and plugin.use_caching:
             cache.write(filename, data)
         return data
 
@@ -102,9 +115,12 @@ class _DataDumper:
                 f"({self.__use_cache}, {self.__clear_cache})")
 
     def write(self, filename: Path, data: SUPPORTED_DATA):
-        parser = self.__get_write_plugin(filename, data).get_memory_parser()
+        plugin = self.__get_write_plugin(filename, data)
+        parser = plugin.get_memory_parser()
         parser.write(filename, data)
-        if self.__use_cache:
+        if self.__use_cache and plugin.use_caching:
+            if isinstance(data, (pd.DataFrame, pd.Series)):
+                data = common.pandas_to_numpy(data)
             cache.write(filename, data)
 
     @staticmethod
@@ -112,17 +128,19 @@ class _DataDumper:
                            data: SUPPORTED_DATA) -> templates.IDataPlugin:
         if isinstance(data, vectors.ParticlePool):
             data_type = templates.DataType.TREE_VECTOR
-        elif not data.dtype.names:
+        elif isinstance(data, pd.DataFrame):
+            data_type = templates.DataType.STRUCTURED
+        elif isinstance(data, pd.Series) or not data.dtype.names:
             data_type = templates.DataType.BASIC
         else:
             data_type = templates.DataType.STRUCTURED
 
-        return _get_write_plugin(filename, data_type)
+        return _get_write_plugin(filename, data_type, False)
 
 
 class DataProcessor:
 
-    def __init__(self, enable_cache=False, clear_cache=False):
+    def __init__(self, enable_cache=True, clear_cache=False):
         self.__args = (enable_cache, clear_cache)
         self.__loader = _DataLoader(enable_cache, clear_cache)
         self.__dumper = _DataDumper(enable_cache, clear_cache)
@@ -131,15 +149,19 @@ class DataProcessor:
         return (f"{self.__class__.__name__}"
                 f"({self.__args[0]}, {self.__args[1]})")
 
-    def parse(self, filename: INPUT_TYPE) -> SUPPORTED_DATA:
+    def parse(
+            self, filename: INPUT_TYPE, use_pandas: bool = False
+    ) -> SUPPORTED_DATA:
         filename = Path(filename)
-        return self.__loader.parse(filename)
+        return self.__loader.parse(filename, use_pandas)
 
     @staticmethod
-    def get_reader(filename: INPUT_TYPE) -> templates.ReaderBase:
+    def get_reader(
+            filename: INPUT_TYPE, use_pandas: bool = False
+    ) -> templates.ReaderBase:
         filename = Path(filename)
-        plugin = _get_read_plugin(filename)
-        return plugin.get_reader(filename)
+        plugin = _get_read_plugin(filename, True)
+        return plugin.get_reader(filename, use_pandas)
 
     def write(self, filename: INPUT_TYPE, data: SUPPORTED_DATA):
         filename = Path(filename)
@@ -150,5 +172,5 @@ class DataProcessor:
                    data_type=templates.DataType.STRUCTURED
                    ) -> templates.WriterBase:
         filename = Path(filename)
-        plugin = _get_write_plugin(filename, data_type)
+        plugin = _get_write_plugin(filename, data_type, True)
         return plugin.get_writer(filename)

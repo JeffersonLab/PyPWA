@@ -71,7 +71,7 @@ def make_lego(
     one half of Sturge's Rule rounded up:
 
     .. math::
-        ceil(\frac{1 + 3.322 \cdot log(N_{events})}{2})
+        \lceil (1/2)(1 + 3.322 \cdot log(N_{events})\\rceil
     """
 
     if bins is None:

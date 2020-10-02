@@ -38,8 +38,8 @@ attention to CSV/TSV in the SV object and forget that this ever existed.
 from pathlib import Path
 from typing import List, Union
 
-import numpy as npy
-import pandas
+import numpy as np
+import pandas as pd
 
 from PyPWA import info as _info
 from PyPWA.libs.file import misc
@@ -62,8 +62,8 @@ class _EVILDataPlugin(templates.IDataPlugin):
     def get_memory_parser(self):
         return _EVILMemory()
 
-    def get_reader(self, filename):
-        return _EVILReader(filename)
+    def get_reader(self, filename, use_pandas):
+        return _EVILReader(filename, use_pandas)
 
     def get_writer(self, filename):
         return _EVILWriter(filename)
@@ -101,9 +101,10 @@ class _EVILDataTest(templates.IReadTest):
 
 class _EVILReader(templates.ReaderBase):
 
-    def __init__(self, filename: Path, output_array=False):
-        self.__output_array = output_array
+    def __init__(self, filename: Path, use_pandas):
+        self.__use_pandas = use_pandas
         self.__num_event: int = None
+        self.__current_event_count: int = 0
         self.__filename = filename
         self.__file_handle = filename.open()
         self.__numpy_array = self.__get_numpy_array()
@@ -111,22 +112,27 @@ class _EVILReader(templates.ReaderBase):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__filename})"
 
-    def __get_numpy_array(self) -> npy.ndarray:
+    def __get_numpy_array(self) -> np.ndarray:
         names = [column.split("=")[0] for column in self.__get_columns()]
         types = [(str(name), "f8") for name in names]
         self.__file_handle.seek(0)
-        return npy.zeros(1, types)
+        return np.empty(1, types)
 
-    def next(self) -> Union[pandas.Series, npy.ndarray]:
+    def next(self) -> Union[pd.Series, np.ndarray]:
         for column in self.__get_columns():
             name, value = column.split("=")
             self.__numpy_array[name] = value
 
-        if self.__output_array:
-            return self.__numpy_array
+        if not self.__use_pandas:
+            return self.__numpy_array[0]
         else:
             # If you don't copy the Series will break next call
-            return pandas.DataFrame(self.__numpy_array.copy()).loc[0]
+            self.__current_event_count += 1
+            return pd.Series(
+                [a for a in self.__numpy_array[0]],
+                self.__numpy_array.dtype.names,
+                name=self.__current_event_count - 1
+            )
 
     def __get_columns(self) -> List[str]:
         string = self.__file_handle.readline().strip("\n").strip(" ")
@@ -168,16 +174,21 @@ class _EVILWriter(templates.WriterBase):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__filename})"
 
-    def write(self, data: pandas.DataFrame):
+    def write(self, data: Union[np.ndarray, pd.Series]):
         self.__error_check(data)
         line = self.__get_line(data)
         self.__file_handle.write(line)
 
-    def __error_check(self, data: pandas.DataFrame):
+    def __error_check(self, data: Union[np.ndarray, pd.Series]):
         if not self.__column_names:
-            self.__column_names = list(data.keys())
+            if isinstance(data, pd.Series):
+                self.__column_names = list(data.keys())
+            elif hasattr(data, "dtype") and data.dtype.names:
+                self.__column_names = data.dtype.names
+            else:
+                raise ValueError(f"KV doesn't understand type {type(data)}")
 
-    def __get_line(self, data: pandas.DataFrame) -> str:
+    def __get_line(self, data: Union[pd.DataFrame, np.ndarray]) -> str:
         line = ""
         for column_index, column in enumerate(self.__column_names):
             line += "," if column_index > 0 else ""
@@ -200,21 +211,25 @@ class _EVILMemory(templates.IMemory):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def parse(self, filename: Path) -> pandas.DataFrame:
-        with _EVILReader(filename, True) as reader:
+    def parse(self, filename: Path) -> np.ndarray:
+        with _EVILReader(filename, False) as reader:
             data = self.__get_empty_array(filename, len(reader))
             for index, event in enumerate(reader):
                 data[index] = event
-        return pandas.DataFrame(data)
+        return data
 
     @staticmethod
-    def __get_empty_array(filename: Path, array_length: int) -> npy.ndarray:
+    def __get_empty_array(filename: Path, array_length: int) -> np.ndarray:
         with filename.open() as stream:
             split = stream.readline().split(",")
             types = [(column.split("=")[0], "f8") for column in split]
-        return npy.zeros(array_length, types)
+        return np.empty(array_length, np.dtype(types, align=True))
 
-    def write(self, filename: Path, data: pandas.DataFrame):
+    def write(self, filename: Path, data: Union[pd.DataFrame, np.ndarray]):
         with _EVILWriter(filename) as iterator:
-            for index, event in data.iterrows():
-                iterator.write(event)
+            if isinstance(data, pd.DataFrame):
+                for index, event in data.iterrows():
+                    iterator.write(event)
+            else:
+                for i in range(len(data)):
+                    iterator.write(data[i])
