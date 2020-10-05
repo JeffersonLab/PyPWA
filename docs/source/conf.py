@@ -25,8 +25,8 @@ master_doc = 'index'
 project = 'PyPWA'
 copyright = f'{datetime.now().year}, Norfolk State University'
 author = "PyPWA Team"
-version = "3.1.0"
-release = "Stable"
+version = "3.2.0"
+release = "Development"
 
 
 # Sphinx Extra Options

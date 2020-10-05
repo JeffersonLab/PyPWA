@@ -5,6 +5,12 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [Unreleased]
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [3.1.0] - 2020-10-2
 ### Added
 - Helper functions `pwa.pandas_to_numpy` to convert Pandas data types to
