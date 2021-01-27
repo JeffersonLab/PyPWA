@@ -88,8 +88,8 @@ from PyPWA.libs.file import (
     get_reader, get_writer, read, write, ProjectDatabase, cache, DataType
 )
 from PyPWA.libs.fit import (
-    minuit, ChiSquared, LogLikelihood, EmptyLikelihood, NestedFunction,
-    FunctionAmplitude
+    minuit, mcmc, ChiSquared, LogLikelihood, EmptyLikelihood,
+    sweightedLogLikelihood, NestedFunction, FunctionAmplitude
 )
 from PyPWA.libs.plotting import make_lego
 from PyPWA.libs.resonance import ResonanceData
@@ -99,10 +99,10 @@ from PyPWA.libs.vectors import FourVector, ThreeVector, ParticlePool, Particle
 __all__ = [
     "FourVector", "ThreeVector", "Particle", "ParticlePool",
     "get_writer", "get_reader", "read", "write", "ProjectDatabase",
-    "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
-    "EmptyLikelihood", "NestedFunction", "FunctionAmplitude", "cache",
-    "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego",
-    "simulate", "DataType"
+    "monte_carlo_simulation", "minuit", "mcmc", "ChiSquared", "LogLikelihood",
+    "EmptyLikelihood", "sweightedLogLikelihood", "NestedFunction",
+    "FunctionAmplitude", "cache", "ResonanceData", "bin_by_range",
+    "bin_with_fixed_widths", "make_lego", "simulate", "DataType"
 ]
 
 __author__ = _info.AUTHOR

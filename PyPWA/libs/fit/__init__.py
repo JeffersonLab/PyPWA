@@ -29,7 +29,9 @@ __version__ = _info.VERSION
 
 from .likelihoods import (
     ChiSquared, LogLikelihood, EmptyLikelihood,
-    NestedFunction, FunctionAmplitude
+    NestedFunction, FunctionAmplitude, sweightedLogLikelihood
 )
 
 from .minuit import minuit
+
+from .mcmc import mcmc
