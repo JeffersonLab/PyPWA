@@ -270,6 +270,83 @@ def bin_with_fixed_widths(
 
     return bins
 
+def bin_by_list(
+    data: Union[pd.DataFrame, npy.ndarray],
+    bin_series: Union[npy.ndarray, pd.Series, str],
+    bin_list : List
+) -> List[pd.DataFrame]:
+    """Bins a dataframe by list of bin limits using a series in memory
+
+    Bins an input array by list of bin limits in memory. You must put all data
+    you want binned into the DataFrame or Structured Array before use. Each
+    resulting bin can be further binned if you desire.
+
+    Parameters
+    ----------
+    dataframe : DataFrame or Structured Array
+        The dataframe or numpy array that you wish to break into bins
+    bin_series : Array-like
+        Data that you want to bin by, selectable by user. Must have the
+        same length as dataframe. If a column name is provided, that
+        column will be used from the dataframe.
+    bin_list : list
+        The list of bin limits used to create the bins.
+
+    Returns
+    -------
+    List[DataFrame or Structured Array]
+        A list of array-likes that have been masked off of the input
+        bin_series.
+
+    Raises
+    ------
+    ValueError
+        If the length of the input array and bin array don't match
+
+    Warnings
+    --------
+    This function does all binning in memory, if you are working with
+    a large dataset that doesn't fit in memory, or if you overflow while
+    you are binning, you must use a different binning method
+
+    See Also
+    --------
+    PyPWA.libs.file.project : A numerical dataset that supports binning
+        on disk instead of in-memory. It's slower and requires more steps
+        to use, but should work even on memory limited systems.
+
+
+    Examples
+    --------
+    Binning a DataFrame with values x, y, and z using z to bin
+
+    First create the list which defines all the bin limits
+    >>> bin_limits = [1,3,7,10]
+
+    >>> data = {
+    >>>     "x": npy.random.rand(1000), "y": npy.random.rand(1000),
+    >>>     "z": (npy.random.rand(1000) * 100) - 50
+    >>>    }
+    >>> df = pd.DataFrame(data)
+    >>> list(df.columns)
+    ["x", "y", "z"]
+
+    This will give us a usable DataFrame, now to make a series out of z
+    and use it to make the 3 defined bins bins.
+
+    >>> binning = df["z"]
+    >>> range_bins = bin_by_list(df, binning, bin_limits)
+    >>> len(range_bins)
+    3
+
+    That will give you 3 bins with custom bin limits
+    """
+    binneddata = []
+    for i in range(len(bin_list)-1):
+        tempbin = bin_by_range(data, bin_series, 1, bin_list[i], bin_list[i+1])
+        binneddata.append(tempbin[0])
+    return binneddata
+
 
 def _mask_binned_data(
         array: Union[npy.ndarray, pd.DataFrame],
