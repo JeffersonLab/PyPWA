@@ -137,7 +137,7 @@ for directory in os.environ["PATH"].split(os.pathsep):
         base_dir = Path(os.environ["CONDA_PREFIX"])
         break
 
-if base_dir and base_dir.exists():
+if base_dir and base_dir.exists() and False:
     print("Compiling with CUDA support.")
 
     class custom_build_extension(build_ext):
