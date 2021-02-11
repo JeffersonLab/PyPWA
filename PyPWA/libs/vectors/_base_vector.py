@@ -43,7 +43,12 @@ def sanitize_vector_input(a, b=None, c=None, d=None, has_e=False):
         names.insert(0, "e")
 
     # Produce empty arrays of length X
-    if isinstance(a, int):
+    if isinstance(a, int) and isinstance(b, type(None)):
+        if a == 0:
+            if has_e:
+                return np.float(0), np.float(0), np.float(0), np.float(0)
+            return np.float(0), np.float(0), np.float(0)
+
         d = [np.zeros(a), np.zeros(a), np.zeros(a)]
         if has_e:
             d.append(np.zeros(a))
@@ -56,25 +61,25 @@ def sanitize_vector_input(a, b=None, c=None, d=None, has_e=False):
 
     # Pass through single values
     elif all([isinstance(var, (int, float)) for var in [a, b, c]]):
-        returns = [a, b, c]
+        returns = [np.float(a), np.float(b), np.float(c)]
         if has_e:
             if not isinstance(d, (int, float)):
-                raise ValueError("No E value provided!")
+                raise ValueError("No Z value provided!")
             else:
-                returns.insert(0, d)
+                returns.append(np.float(d))
         return returns
 
     # Convert Structured Arrays to Contiguous Arrays
     elif all([isinstance(var, np.ndarray) for var in [a, b, c]]):
         if has_e:
             if not isinstance(d, np.ndarray):
-                raise ValueError("No E Value provided!")
+                raise ValueError("No Z Value provided!")
             else:
                 if all([d.flags["C_CONTIGUOUS"]] for d in [a, b, c, d]):
                     return a, b, c, d
                 else:
                     return common.to_contiguous(
-                        {"x": a, "y": b, "z": c, "e": d}, names
+                        {"e": a, "x": b, "y": c, "z": d}, names
                     )
         else:
             if all([d.flags["C_CONTIGUOUS"]] for d in [a, b, c]):

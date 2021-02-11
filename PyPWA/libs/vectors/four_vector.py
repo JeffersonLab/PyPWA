@@ -66,22 +66,38 @@ class FourVector(_base_vector.VectorMath):
             self._y = e._y
             self._z = e._z
         else:
-            self._x, self._y, self._z, self._e = \
+            self._e, self._x, self._y, self._z = \
                 _base_vector.sanitize_vector_input(e, x, y, z, True)
         super(FourVector, self).__init__(self._x, self._y, self._z)
 
-    def __repr__(self) -> str:
-        theta, phi, mass = self._get_repr_data()
+    def __repr__(self):
+        return f"FourVector(e={self.e}, x={self.x}, y={self.y}, z={self.z})"
 
-        return f"FourVector(x̅Θ={theta}, x̅ϕ={phi}, x̅Mass={mass})"
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text("FourVector( ?.)")
+
+        else:
+            theta, phi, mass = self._get_repr_data()
+            p.text(f"FourVector(x̅Θ={theta}, x̅ϕ={phi}, x̅Mass={mass})")
 
     def _get_repr_data(self):
+        # Theta needs to be set to NaN if we're working with
+        # uninitialized values
         if isinstance(self._e, np.ndarray):
-            theta = self.get_theta().mean()
+            if all(self._z) == 0.0:
+                theta = np.NaN
+            else:
+                theta = self.get_theta().mean()
+
             phi = self.get_phi().mean()
             mass = self.get_mass().mean()
         else:
-            theta = self.get_theta()
+            if self._z == 0.0:
+                theta = np.NaN
+            else:
+                theta = self.get_theta()
+
             phi = self.get_phi()
             mass = self.get_mass()
         return theta, phi, mass
@@ -159,6 +175,8 @@ class FourVector(_base_vector.VectorMath):
         return self.__sub__(other)
 
     def __len__(self):
+        if isinstance(self._x, float):
+            return 0
         return len(self._x)
 
     def __getitem__(

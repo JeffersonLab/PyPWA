@@ -65,14 +65,28 @@ class ThreeVector(_base_vector.VectorMath):
         super(ThreeVector, self).__init__(self._x, self._y, self._z)
 
     def __repr__(self) -> str:
-        if isinstance(self._x, np.ndarray):
-            theta = self.get_theta().mean()
-            phi = self.get_phi().mean()
-        else:
-            theta = self.get_theta()
-            phi = self.get_phi()
+        return f"ThreeVector(x={self._x}, y={self._y}, z={self._z})"
 
-        return f"ThreeVector(x̅Θ={theta}, x̅ϕ={phi})"
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text("ThreeVector( ?.)")
+        else:
+            if isinstance(self._x, np.ndarray):
+                if all(self._z) == 0.0:
+                    theta = np.NaN
+                else:
+                    theta = self.get_theta().mean()
+
+                phi = self.get_phi().mean()
+            else:
+                if self._z == 0:
+                    theta = np.NaN
+                else:
+                    theta = self.get_theta()
+
+                phi = self.get_phi()
+
+            p.text(f"ThreeVector(x̅Θ={theta}, x̅ϕ={phi})")
 
     def __eq__(self, vector: "ThreeVector") -> bool:
         if isinstance(vector, ThreeVector):

@@ -41,3 +41,14 @@ def test_particle_pool_split(random_particle_pool):
             if index == 0:
                 particle_length = len(particle)
             assert len(particle) == particle_length
+
+
+def test_particle_can_do_math():
+    a = vectors.Particle(1, 1.0, 2.0, 3.0, 4.0)
+    b = vectors.Particle(14, 1.1, 2.1, 3.1, 4.1)
+    c = (a + b) * 2
+
+    assert c.e == 4.2
+    assert c.x == 8.2
+    assert c.y == 12.2
+    assert c.z == 16.2

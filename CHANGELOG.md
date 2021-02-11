@@ -8,9 +8,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ## [Unreleased]
 ### Added
 - Support for building Cython and CUDA code.
+- Vectors now support iPython and Jupyter Pretty printing
 ### Changed
+- Vector sanitization function has improved handling of non-array inputs
 ### Removed
 ### Fixed
+- FourVectors variable order is now in the correct order
+- Vectors now work with inputs that aren't arrays
 
 ## [3.1.0] - 2020-10-2
 ### Added

@@ -111,16 +111,24 @@ class Particle(FourVector):
         return arrays_equal and id_equals
 
     def __repr__(self) -> str:
-        theta, phi, mass = self._get_repr_data()
-
         return (
-            f"Particle("
-            f"Name={self.__particle_name}"
-            f" PID={self.__particle_id},"
-            f" x̅Θ={theta},"
-            f" x̅ϕ={phi},"
-            f" x̅Mass={mass})"
+            f"Particle(id={self.__particle_id}, e={self.e},"
+            f" x={self.x}, y={self.y}, z={self.z})"
         )
+
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text("Particle( ?.)")
+        else:
+            theta, phi, mass = self._get_repr_data()
+            p.text(
+                f"Particle("
+                f"Name={self.__particle_name}"
+                f" PID={self.__particle_id},"
+                f" x̅Θ={theta},"
+                f" x̅ϕ={phi},"
+                f" x̅Mass={mass})"
+            )
 
     def __getitem__(
             self, item: Union[int, str, slice]

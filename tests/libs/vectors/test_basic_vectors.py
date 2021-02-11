@@ -3,6 +3,7 @@ import numpy
 import pandas
 
 from PyPWA.libs import vectors
+from PyPWA.libs.vectors import _base_vector
 
 ARRAY_LENGTH = 20
 
@@ -85,6 +86,14 @@ def test_three_vector_set_array(three_vector):
 def test_four_vector_can_not_get_q(four_vector):
     with pytest.raises(AttributeError):
         four_vector.q
+
+
+def test_create_four_vector_without_numpy():
+    a = vectors.FourVector(1.0, 2.0, 3.0, 4.0)
+    assert a.e == 1.0
+    assert a.x == 2.0
+    assert a.y == 3.0
+    assert a.z == 4.0
 
 
 # Test Utilities
@@ -184,3 +193,36 @@ def test_three_vector_length_squared(three_vector):
 
 def test_four_vector_length_squared(four_vector):
     assert isinstance(four_vector.get_length_squared(), numpy.ndarray)
+
+
+# Test sanitization
+
+def test_three_integers_results_in_floats():
+    result = _base_vector.sanitize_vector_input(1, 2, 3)
+
+    assert isinstance(result[0], float)
+    assert result[0] == 1.0
+    assert result[1] == 2.0
+    assert result[2] == 3.0
+
+
+# Test with standard floats
+
+@pytest.fixture(params=[True, False])
+def four_vector_without_arrays(request):
+    if request.param:
+        return vectors.FourVector(
+            numpy.random.random(), numpy.random.random(),
+            numpy.random.random(), numpy.random.random()
+        )
+    else:
+        return vectors.FourVector(0.0, 0.0, 0.0, 0.0)
+
+
+def test_four_vector_math(four_vector_without_arrays):
+    result = four_vector_without_arrays + four_vector_without_arrays
+
+    assert result.e == 2 * four_vector_without_arrays.e
+    assert result.x == 2 * four_vector_without_arrays.x
+    assert result.y == 2 * four_vector_without_arrays.y
+    assert result.z == 2 * four_vector_without_arrays.z
