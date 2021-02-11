@@ -87,7 +87,7 @@ setup_kargs = {
     "install_requires": [
         "cython",      # C/C++ Optimizations
         "tqdm",        # Progress Bars
-        "iminuit",     # Default minimizer
+        "iminuit<2",     # Default minimizer
         "scipy",       # Needed for Nestle with multiple ellipsoids.
         "numpy",       # Arrays and optimizations
         "pyyaml",      # YAML Parser
