@@ -83,7 +83,7 @@ Provided Data Types:
 
 from PyPWA import info as _info
 from PyPWA.libs import simulate
-from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths
+from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths, bin_by_list
 from PyPWA.libs.file import (
     get_reader, get_writer, read, write, ProjectDatabase, cache, DataType
 )
