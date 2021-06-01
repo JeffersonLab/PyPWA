@@ -20,6 +20,7 @@
 from typing import List, Union, Optional as Opt
 
 import numpy as np
+import pandas
 import pandas as pd
 from . import _base_vector, three_vector
 
@@ -73,6 +74,13 @@ class FourVector(_base_vector.VectorMath):
     def __repr__(self):
         return f"FourVector(e={self.e}, x={self.x}, y={self.y}, z={self.z})"
 
+    def _repr_html_(self):
+        df = pandas.DataFrame()
+        df['Θ'] = self.get_theta()
+        df['̅ϕ'] = self.get_phi()
+        df['Mass'] = self.get_mass()
+        return df._repr_html_()
+
     def _repr_pretty_(self, p, cycle):
         if cycle:
             p.text("FourVector( ?.)")
@@ -101,6 +109,12 @@ class FourVector(_base_vector.VectorMath):
             phi = self.get_phi()
             mass = self.get_mass()
         return theta, phi, mass
+
+    def display_raw(self):
+        df = pandas.DataFrame()
+        df['e'], df['x'] = self.e, self.x
+        df['y'], df['z'] = self.y, self.z
+        print(df)
 
     def __eq__(self, vector: "FourVector") -> bool:
         return self._compare_vectors(vector)

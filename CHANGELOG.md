@@ -5,15 +5,15 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
-## [Unreleased]
+## [3.2.0] - 2021-6-1
 ### Added
 - Vectors now support iPython and Jupyter Pretty printing
 ### Changed
 - Vector sanitization function has improved handling of non-array inputs
-### Removed
 ### Fixed
 - FourVectors variable order is now in the correct order
 - Vectors now work with inputs that aren't arrays
+- Patched issue with GAMP failing to write to file
 
 ## [3.1.0] - 2020-10-2
 ### Added
@@ -189,7 +189,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - PySim plugin
 - Packaging
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...development
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...main
+[3.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...v3.0.0
 [3.0.0a1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.1...v3.0.0a1

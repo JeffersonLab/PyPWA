@@ -197,7 +197,7 @@ class _GampWriter(templates.WriterBase):
         for p in data.iter_particles():
             self.__file_handle.write(
                 "%d %d %.20f %.20f %.20f %.20f\n" % (
-                    p.id, p.charge, p.x, p.y, p.z, p.e
+                    p.id, p.charge, p.x[0], p.y[0], p.z[0], p.e[0]
                 )
             )
 

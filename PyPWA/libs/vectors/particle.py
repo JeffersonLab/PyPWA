@@ -26,9 +26,15 @@ are defined in _abstract_vectors.AbstractVectors.
 from typing import List, Union, Tuple, Optional as Opt
 
 import numpy as np
-import pandas
+import pandas as pd
 from PyPWA.libs.vectors import FourVector
 from PyPWA import info as _info
+
+try:
+    from IPython.display import display
+except ImportError:
+    display = print
+
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -96,10 +102,10 @@ class Particle(FourVector):
     def __init__(
             self,
             particle_id: int,
-            e: Union[int, np.ndarray, float, pandas.DataFrame],
-            x: Opt[Union[float, pandas.Series, np.ndarray]] = None,
-            y: Opt[Union[float, pandas.Series, np.ndarray]] = None,
-            z: Opt[Union[float, pandas.Series, np.ndarray]] = None
+            e: Union[int, np.ndarray, float, pd.DataFrame],
+            x: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            y: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            z: Opt[Union[float, pd.Series, np.ndarray]] = None
     ):
         super(Particle, self).__init__(e, x, y, z)
         self.__particle_id = particle_id
@@ -130,9 +136,27 @@ class Particle(FourVector):
                 f" x̅Mass={mass})"
             )
 
+    def _repr_html_(self):
+        df = pd.DataFrame()
+        df['Θ'], df['ϕ'] = self.get_theta(), self.get_phi()
+        df['Mass'] = self.get_mass()
+        return (
+            f'<h2>{self.__particle_id}: {self.__particle_name}</h2>'
+            f'{df._repr_html_()}'
+        )
+
+    def display_raw(self):
+        df = pd.DataFrame()
+        df['e'], df['x'], df['y'], df['z'] = self.e, self.x, self.y, self.z
+
+        display(
+            f'{self.__particle_id}: {self.__particle_name}', raw=True
+        )
+        display(df)
+
     def __getitem__(
             self, item: Union[int, str, slice]
-    ) -> Union["Particle", pandas.Series]:
+    ) -> Union["Particle", pd.Series]:
         if isinstance(item, (int, slice)) or \
                 isinstance(item, np.ndarray) and item.dtype == bool:
             return Particle(
@@ -280,6 +304,23 @@ class ParticlePool:
             else:
                 string += repr(particle) + ","
         return f"ParticlePool({string})"
+
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            return 'ParticlePool( ?.)'
+        else:
+            for particle in self.__particle_list:
+                particle._repr_pretty_(p, cycle)
+
+    def _repr_html_(self):
+        html = ""
+        for p in self.__particle_list:
+            html += p._repr_html_()
+        return html
+
+    def display_raw(self):
+        for p in self.__particle_list:
+            p.display_raw()
 
     def __len__(self):
         return len(self.__particle_list)
