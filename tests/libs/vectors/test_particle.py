@@ -52,3 +52,7 @@ def test_particle_can_do_math():
     assert c.x == 8.2
     assert c.y == 12.2
     assert c.z == 16.2
+
+
+def test_particle_raw_display(random_particle_pool):
+    random_particle_pool.display_raw()

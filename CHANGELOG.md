@@ -5,6 +5,11 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [3.2.1] - 2021-6-10
+### Fixed
+- Gamp no longer combines particles with the same ID
+- Fixed issue where display_raw would fail in Jupyter with Particles
+
 ## [3.2.0] - 2021-6-1
 ### Added
 - Vectors now support iPython and Jupyter Pretty printing
@@ -189,7 +194,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - PySim plugin
 - Packaging
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...main
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.1...main
+[3.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...v3.0.0

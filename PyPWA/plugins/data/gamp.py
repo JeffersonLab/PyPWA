@@ -30,7 +30,7 @@ will not be saved in memory by these object.
 """
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -223,16 +223,16 @@ class _GampMemory(templates.IMemory):
 
             for event_index, line in enumerate(stream):
                 particle_num = int(line)
-                for i in range(particle_num):
+                for index in range(particle_num):
                     line = stream.readline()
                     p_id, charge, x, y, z, e = line.strip("\n").split()
-                    particle_dict[int(p_id)][event_index]["x"] = x
-                    particle_dict[int(p_id)][event_index]["y"] = y
-                    particle_dict[int(p_id)][event_index]["z"] = z
-                    particle_dict[int(p_id)][event_index]["e"] = e
+                    particle_dict[index][1][event_index]["x"] = x
+                    particle_dict[index][1][event_index]["y"] = y
+                    particle_dict[index][1][event_index]["z"] = z
+                    particle_dict[index][1][event_index]["e"] = e
 
         particles = []
-        for p_id, momenta in particle_dict.items():
+        for index, (p_id, momenta) in particle_dict.items():
             particles.append(
                 vectors.Particle(p_id, momenta)
             )
@@ -242,19 +242,22 @@ class _GampMemory(templates.IMemory):
     @staticmethod
     def _make_particle_dict(
             filename: Path, particle_length: int = 1
-    ) -> Dict[int, np.ndarray]:
+    ) -> Dict[int, Tuple[int, np.ndarray]]:
         with filename.open() as stream:
             count = int(stream.readline())
             lines = [stream.readline() for i in range(count)]
 
         particles = dict()
-        for line in lines:
+        for index, line in enumerate(lines):
             p_id, charge, x, y, z, e = line.strip("\n").split()
-            particles[int(p_id)] = np.empty(
-                particle_length,
-                dtype=np.dtype(
-                    [("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")],
-                    align=True
+            particles[index] = (
+                int(p_id),
+                np.empty(
+                    particle_length,
+                    dtype=np.dtype(
+                        [("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")],
+                        align=True
+                    )
                 )
             )
         return particles

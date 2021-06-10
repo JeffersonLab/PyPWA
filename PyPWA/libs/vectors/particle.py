@@ -149,9 +149,8 @@ class Particle(FourVector):
         df = pd.DataFrame()
         df['e'], df['x'], df['y'], df['z'] = self.e, self.x, self.y, self.z
 
-        display(
-            f'{self.__particle_id}: {self.__particle_name}', raw=True
-        )
+        name = f"{self.__particle_id}: {self.__particle_name}"
+        display(name)
         display(df)
 
     def __getitem__(
@@ -311,6 +310,7 @@ class ParticlePool:
         else:
             for particle in self.__particle_list:
                 particle._repr_pretty_(p, cycle)
+                p.text('\n')
 
     def _repr_html_(self):
         html = ""
@@ -320,6 +320,7 @@ class ParticlePool:
 
     def display_raw(self):
         for p in self.__particle_list:
+            print('\n')
             p.display_raw()
 
     def __len__(self):
