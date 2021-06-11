@@ -1,9 +1,8 @@
+from pathlib import Path
+
 import pytest
 
 from PyPWA.plugins.data import gamp
-from PyPWA.libs.vectors import particle
-
-from pathlib import Path
 
 ROOT = (Path(__file__).parent / "../../test_data/docs").resolve()
 LARGE = ROOT / "large.gamp"
