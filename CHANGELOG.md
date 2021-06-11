@@ -5,6 +5,16 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [3.2.3] - 2021-6-11
+### Added
+- Particle Pools can now compared against other Particle Pools to see if they
+  are storing the same content.
+### Fixed
+- Regression from 3.2.0 where Gamp would not write out data to disk. This time
+  by wrapping the data in a float, which should catch instances where the value
+  stored is a pure scalar, verses instances where the data is an array with a
+  len == 1
+
 ## [3.2.2] - 2021-6-11
 ### Fixed
 - Particles can now be masked again, the mask is no longer silently deleted
@@ -202,7 +212,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - PySim plugin
 - Packaging
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...main
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.3...main
+[3.2.3]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...v.3.2.3
 [3.2.2]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.1...3.2.2
 [3.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...v3.2.0

@@ -120,20 +120,15 @@ class FourVector(_base_vector.VectorMath):
         return self._compare_vectors(vector)
 
     def _compare_vectors(self, other):
-        if all([hasattr(other, attr)] for attr in self.__slots__):
-            equality = []
-            for slot in self.__slots__:
-                result = np.equal(getattr(self, slot), getattr(other, slot))
-
-                if isinstance(self._x, np.ndarray):
-                    equality.append(all(result))
-                else:
-                    equality.append(result)
-
-            return all(equality)
-
-        else:
+        if not all(other.e == self.e):
             return False
+        if not all(other.x == self.x):
+            return False
+        if not all(other.y == self.y):
+            return False
+        if not all(other.z == self.z):
+            return False
+        return True
 
     def __truediv__(self, scalar: Union[float, int]) -> "FourVector":
         if isinstance(scalar, (int, float)):

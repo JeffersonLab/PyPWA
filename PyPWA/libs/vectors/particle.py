@@ -97,7 +97,9 @@ class Particle(FourVector):
     ParticlePool : For storing a collection of particles
     """
 
-    __slots__ = ["_vector", "__particle_id", "__particle_name", "__charge"]
+    __slots__ = [
+        "_e", "_x", "_y", "_z", "__particle_id", "__particle_name", "__charge"
+    ]
 
     def __init__(
             self,
@@ -331,6 +333,21 @@ class ParticlePool:
         if isinstance(item, np.ndarray) and item.dtype == bool:
             return self._mask(item)
         return self.__particle_list[item]
+
+    def __eq__(self, other):
+        if not isinstance(other, ParticlePool):
+            return False
+        if other.event_count != self.event_count:
+            return False
+        if other.particle_count != self.particle_count:
+            return False
+
+        particle_pair = zip(self.iter_particles(), other.iter_particles())
+        for current_particle, other_particle in particle_pair:
+            if current_particle != other_particle:
+                return False
+
+        return True
 
     def _mask(self, mask):
         print("PP Masking")
