@@ -5,6 +5,14 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [3.2.2] - 2021-6-11
+### Fixed
+- Particles can now be masked again, the mask is no longer silently deleted
+  when passed to the object.
+- Numpy's warning about numpy.float being deprecation should be resolved.
+- Any warnings about the LaTeX in the Likelihood's Docstrings being
+  deprecated should be resolved as well.
+
 ## [3.2.1] - 2021-6-10
 ### Fixed
 - Gamp no longer combines particles with the same ID
@@ -194,7 +202,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - PySim plugin
 - Packaging
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.1...main
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...main
+[3.2.2]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.1...3.2.2
 [3.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0...v3.1.0
