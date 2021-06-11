@@ -141,7 +141,7 @@ class _LikelihoodInterface(process.Interface):
         for likelihood_process in communicator:
             likelihood_process.send(args)
 
-        result = npy.float(0)
+        result = npy.float64(0)
         for likelihood_process in communicator:
 
             data = likelihood_process.recv()
@@ -214,12 +214,12 @@ class ChiSquared(_GeneralLikelihood):
     Binned ChiSquare:
 
     .. math::
-        \chi^{2} = \\frac{(Amp(data) - binned)^{2}}{binned}
+        \\chi^{2} = \\frac{(Amp(data) - binned)^{2}}{binned}
 
     Expected values:
 
     .. math::
-        \chi^{2} = \\frac{(Amp(data) - expected)^{2}}{errors}
+        \\chi^{2} = \\frac{(Amp(data) - expected)^{2}}{errors}
 
     """
 
@@ -367,7 +367,7 @@ class LogLikelihood(_GeneralLikelihood):
 
     .. math::
         L = \\sum{Q_f \\cdot log (Amp(data))} - \\
-            \\frac{1}{generated\_length} \\cdot \\sum{Amp(monte\_carlo)}
+            \\frac{1}{generated\\_length} \\cdot \\sum{Amp(monte\\_carlo)}
 
     """
 
