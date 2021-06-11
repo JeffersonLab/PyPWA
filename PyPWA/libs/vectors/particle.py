@@ -157,9 +157,10 @@ class Particle(FourVector):
             self, item: Union[int, str, slice]
     ) -> Union["Particle", pd.Series]:
         if isinstance(item, (int, slice)) or \
-                isinstance(item, np.ndarray) and item.dtype == bool:
+                isinstance(item, np.ndarray) and item.dtype in (bool, int):
             return Particle(
-                self.__particle_id, self._e, self._x, self._y, self._z
+                self.__particle_id,
+                self._e[item], self._x[item], self._y[item], self._z[item]
             )
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
             return getattr(self, f"_{item}").copy()
@@ -332,6 +333,7 @@ class ParticlePool:
         return self.__particle_list[item]
 
     def _mask(self, mask):
+        print("PP Masking")
         if not len(mask) == len(self.__particle_list[0]):
             raise IndexError("Mask is the wrong length!")
 

@@ -1,3 +1,5 @@
+import numpy as np
+
 from PyPWA.libs import vectors
 
 
@@ -56,3 +58,9 @@ def test_particle_can_do_math():
 
 def test_particle_raw_display(random_particle_pool):
     random_particle_pool.display_raw()
+
+
+def test_particle_pool_can_be_masked(random_particle_pool):
+    mask = np.random.choice([True, False], random_particle_pool.event_count)
+    result = random_particle_pool[mask]
+    assert result.event_count == sum(mask)
