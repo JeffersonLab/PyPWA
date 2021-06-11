@@ -46,8 +46,8 @@ def sanitize_vector_input(a, b=None, c=None, d=None, has_e=False):
     if isinstance(a, int) and isinstance(b, type(None)):
         if a == 0:
             if has_e:
-                return np.float(0), np.float(0), np.float(0), np.float(0)
-            return np.float(0), np.float(0), np.float(0)
+                return np.float64(0), np.float64(0), np.float64(0), np.float64(0)
+            return np.float64(0), np.float64(0), np.float64(0)
 
         d = [np.zeros(a), np.zeros(a), np.zeros(a)]
         if has_e:
@@ -61,12 +61,12 @@ def sanitize_vector_input(a, b=None, c=None, d=None, has_e=False):
 
     # Pass through single values
     elif all([isinstance(var, (int, float)) for var in [a, b, c]]):
-        returns = [np.float(a), np.float(b), np.float(c)]
+        returns = [np.float64(a), np.float64(b), np.float64(c)]
         if has_e:
             if not isinstance(d, (int, float)):
                 raise ValueError("No Z value provided!")
             else:
-                returns.append(np.float(d))
+                returns.append(np.float64(d))
         return returns
 
     # Convert Structured Arrays to Contiguous Arrays
