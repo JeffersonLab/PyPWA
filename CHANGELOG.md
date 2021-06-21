@@ -5,6 +5,24 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [3.3.0] - 2021-6-20
+### Added
+- 2D Gauss introductory tutorial to the documentation
+- CuPy support for Likelihoods and Simulation. This means we now officially
+  support NVIDIA GPU acceleration, however for now it is limited to a single
+  GPU. If there is enough demand for this to be expanded on, support for 
+  multiple GPUs will be added.
+### CHanged
+- Particle now requires a charge to be supplied during the creation of the
+  object. GAMP has also been modified to support the Charge being passed
+  through to the Particle
+- Depreciated internal options that were passed to Minuit have been
+  replaced with the modern alternatives.
+## Fixed
+- Likelihoods were spawning multiple processes even when USE_MP was set
+  to false. This has been corrected, and will avoid spawning extra
+  processes as it was intended. 
+
 ## [3.2.3] - 2021-6-11
 ### Added
 - Particle Pools can now compared against other Particle Pools to see if they
@@ -212,7 +230,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - PySim plugin
 - Packaging
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.3...main
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.3.0...main
+[3.3.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...v.3.2.3
 [3.2.3]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...v.3.2.3
 [3.2.2]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.1...3.2.2
 [3.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...v3.2.1

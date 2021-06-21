@@ -59,6 +59,10 @@ Note: Data can be loaded and writen with Pandas or Numpy if preferred,
 - ProjectDatabase: A numerical database based off of HDF5 that allows for
     working with data larger than memory. Only recommended if you have
     to use it.
+- to_contiguous: Converts an numpy array to contiguous arrays to be used
+    with Cython modules.
+- pandas_to_numpy: Converts a pandas dataframe to a contiguous numpy
+    structured array.
 - cache.read: Reads the cache for a specific source file, or for an
     intermediate step.
 - cache.write: Writes the cache for a specific source file, or for an
@@ -84,6 +88,7 @@ Provided Data Types:
 from PyPWA import info as _info
 from PyPWA.libs import simulate
 from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths, bin_by_list
+from PyPWA.libs.common import to_contiguous, pandas_to_numpy
 from PyPWA.libs.file import (
     get_reader, get_writer, read, write, ProjectDatabase, cache, DataType
 )
@@ -102,7 +107,7 @@ __all__ = [
     "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
     "EmptyLikelihood", "NestedFunction", "FunctionAmplitude", "cache",
     "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego",
-    "simulate", "DataType"
+    "simulate", "DataType", "to_contiguous", "pandas_to_numpy"
 ]
 
 __author__ = _info.AUTHOR

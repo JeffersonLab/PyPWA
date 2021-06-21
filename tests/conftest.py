@@ -7,7 +7,8 @@ from PyPWA.libs import vectors
 
 
 def make_new_particle(geant_id):
-    p = vectors.Particle(geant_id, 500)
+    charge = numpy.random.choice([0, 1])
+    p = vectors.Particle(geant_id, charge, 500)
     p.x, p.y = numpy.random.rand(500), numpy.random.rand(500)
     p.z, p.e = numpy.random.rand(500), numpy.random.rand(500)
     return p

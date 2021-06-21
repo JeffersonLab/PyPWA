@@ -44,7 +44,6 @@ associated "startup" cost.
 """
 
 import copy
-import time
 from abc import ABC, abstractmethod
 from enum import Enum
 from multiprocessing import cpu_count, Pipe, Process
@@ -73,6 +72,7 @@ Templates and Abstract Classes
 class Kernel(ABC):
 
     PROCESS_ID: int = 0
+    USE_GPU: bool = False
 
     """Kernel that will be placed inside each spawned process
 

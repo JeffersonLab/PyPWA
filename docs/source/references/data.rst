@@ -12,6 +12,7 @@ inside PyPWA that can be used for parsing and writing data to disk.
 There exists four different methods to do so:
 
 * :ref:`Reading and Writing Data<reading>`
+* :ref:`Basic Data Sanitization<sanitization>`
 * :ref:`Data Iterators and Writers<iterator>`
 * :ref:`Working with HDF5<hdf5>`
 * :ref:`Caching<caching>`
@@ -31,6 +32,19 @@ dataset straight into RAM, or write a dataset straight from RAM  onto disk.
 
 .. autofunction:: PyPWA.read
 .. autofunction:: PyPWA.write
+
+
+.. _sanitization:
+
+Basic Data Sanitization
+-----------------------
+
+Allows quick converting of data from Pandas to Numpy, as well as preps
+data to be passed to non-Python function's and classes; Such as Fortran
+modules compiled with f2py, or C/C++ modules bound by Cython.
+
+.. autofunction:: PyPWA.pandas_to_numpy
+.. autofunction:: PyPWA.to_contiguous
 
 
 .. _iterator:

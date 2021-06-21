@@ -132,7 +132,9 @@ class _GampReader(templates.ReaderBase):
         events = []
         for line in lines:
             p_id, charge, x, y, z, e = line.strip("\n").split()
-            events.append(vectors.Particle(int(p_id), particle_length))
+            events.append(
+                vectors.Particle(int(p_id), int(charge), particle_length)
+            )
         return vectors.ParticlePool(events)
 
     def __repr__(self) -> str:
@@ -170,8 +172,11 @@ class _GampReader(templates.ReaderBase):
         return True
 
     @property
-    def fields(self) -> List[str]:
-        return [p.id for p in self.__particle_pool.iter_particles()]
+    def fields(self) -> List[Tuple[str, int]]:
+        particles = [p.id for p in self.__particle_pool.iter_particles()]
+        charges = [p.charge for p in self.__particle_pool.iter_particles()]
+        charges = [int(charge) + 1 for charge in charges]
+        return list(zip(particles, charges))
 
     @property
     def data_type(self) -> DataType:
@@ -227,15 +232,15 @@ class _GampMemory(templates.IMemory):
                 for index in range(particle_num):
                     line = stream.readline()
                     p_id, charge, x, y, z, e = line.strip("\n").split()
-                    particle_dict[index][1][event_index]["x"] = x
-                    particle_dict[index][1][event_index]["y"] = y
-                    particle_dict[index][1][event_index]["z"] = z
-                    particle_dict[index][1][event_index]["e"] = e
+                    particle_dict[index][2][event_index]["x"] = x
+                    particle_dict[index][2][event_index]["y"] = y
+                    particle_dict[index][2][event_index]["z"] = z
+                    particle_dict[index][2][event_index]["e"] = e
 
         particles = []
-        for index, (p_id, momenta) in particle_dict.items():
+        for index, (p_id, charge, momenta) in particle_dict.items():
             particles.append(
-                vectors.Particle(p_id, momenta)
+                vectors.Particle(p_id, charge, momenta)
             )
 
         return vectors.ParticlePool(particles)
@@ -243,7 +248,7 @@ class _GampMemory(templates.IMemory):
     @staticmethod
     def _make_particle_dict(
             filename: Path, particle_length: int = 1
-    ) -> Dict[int, Tuple[int, np.ndarray]]:
+    ) -> Dict[int, Tuple[int, int, np.ndarray]]:
         with filename.open() as stream:
             count = int(stream.readline())
             lines = [stream.readline() for i in range(count)]
@@ -253,6 +258,7 @@ class _GampMemory(templates.IMemory):
             p_id, charge, x, y, z, e = line.strip("\n").split()
             particles[index] = (
                 int(p_id),
+                int(charge),
                 np.empty(
                     particle_length,
                     dtype=np.dtype(

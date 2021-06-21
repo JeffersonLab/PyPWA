@@ -83,7 +83,7 @@ def minuit(
         that can be passed to iminuit, and how to use the resulting object
         after a fit has been completed.
     """
-    settings["forced_parameters"] = parameters
+    settings["name"] = parameters
     settings["errordef"] = set_up
     translator = _Translator(parameters, likelihood)
     optimizer = _iminuit.Minuit(translator, **settings)

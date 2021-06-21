@@ -32,6 +32,15 @@ import numexpr as ne
 from PyPWA import info as _info
 from PyPWA.libs import process
 
+# Handle GPU calculation being available... or not.
+GPU_AVAIL = True
+try:
+    import cupy as cp
+except ImportError:
+    GPU_AVAIL = False
+    cp = npy
+
+
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
 __version__ = _info.VERSION
@@ -48,7 +57,12 @@ class NestedFunction(ABC):
     likelihood.
 
     Set USE_MP to false to execute on the main thread only, this is best
-    for when using packages like numexpr
+    for when using packages like numexpr.
+
+    Set USE_GPU to calculate the likelihood entirely on the GPU. Assumes that
+    all data returned from the NestedFunction will already be in CuPy. If
+    this is set to True, then GPU acceleration will be used over
+    multiprocessing, and will effectively implicitly set USE_MP to false.
 
     See Also
     --------
@@ -56,6 +70,7 @@ class NestedFunction(ABC):
     """
 
     USE_MP = True
+    USE_GPU = False
 
     def __call__(self, *args):
         return self.calculate(*args)
@@ -157,11 +172,12 @@ class _GeneralLikelihood:
     def __init__(self, amplitude: NestedFunction, num_of_process: int):
         self._amplitude = amplitude
         self._num_of_processes = num_of_process
+        self._single_process = amplitude.USE_GPU or not amplitude.USE_MP
 
     def _setup_interface(
             self, likelihood_data: Dict[str, Any], kernel: process.Kernel
     ):
-        if not self._amplitude.USE_MP or not self._num_of_processes:
+        if self._single_process or not self._num_of_processes:
             [setattr(kernel, n, v) for n, v in likelihood_data.items()]
             kernel.setup()
             self._interface = kernel
@@ -305,19 +321,29 @@ class _ChiSquaredKernel(process.Kernel):
         return self.__multiplier * self.__likelihood(intensity)
 
     def __binned(self, results):
-        return ne.evaluate(
-            "sum(((results - binned)**2)/binned)", local_dict={
-                "results": results, "binned": self.__binned
-            }
-        )
+        if self.__amplitude.USE_GPU:
+            return cp.asnumpy(
+                cp.sum((results - self.binned)**2/self.binned)
+            )
+        else:
+            return ne.evaluate(
+                "sum(((results - binned)**2)/binned)", local_dict={
+                    "results": results, "binned": self.binned
+                }
+            )
 
     def __expected_errors(self, results):
-        return ne.evaluate(
-            "sum(((results - expected)**2)/errors)", local_dict={
-                "results": results, "expected": self.expected_values,
-                "errors": self.event_errors
-            }
-        )
+        if self.__amplitude.USE_GPU:
+            return cp.asnumpy(
+                cp.sum((results - self.expected_values)**2/self.event_errors)
+            )
+        else:
+            return ne.evaluate(
+                "sum(((results - expected)**2)/errors)", local_dict={
+                    "results": results, "expected": self.expected_values,
+                    "errors": self.event_errors
+                }
+            )
 
 
 class LogLikelihood(_GeneralLikelihood):
@@ -462,20 +488,36 @@ class _LogLikelihoodKernel(process.Kernel):
     def __extended_likelihood(self, params):
         data = self.__data_amplitude.calculate(params)
         monte_carlo = self.__monte_carlo_amplitude.calculate(params)
-        likelihood = ne.evaluate(
-            "sum(qf * log(data))", local_dict={
-                "qf": self.quality_factor, "data": data
-            }
-        )
-        return likelihood - self.__generated * npy.sum(monte_carlo)
+
+        if self.__data_amplitude.USE_GPU:
+            likelihood = cp.asnumpy(
+                cp.sum(self.quality_factor * cp.log(data))
+            )
+            monte_carlo_sum = cp.asnumpy(cp.sum(monte_carlo))
+        else:
+            likelihood = ne.evaluate(
+                "sum(qf * log(data))", local_dict={
+                    "qf": self.quality_factor, "data": data
+                }
+            )
+            monte_carlo_sum = npy.sum(monte_carlo)
+
+        return likelihood - self.__generated * monte_carlo_sum
 
     def __log_likelihood(self, params):
         data = self.__data_amplitude.calculate(params)
-        return ne.evaluate(
-            "sum(qf*binned*log(data))", local_dict={
-                "qf": self.quality_factor, "binned": self.binned, "data": data
-            }
-        )
+
+        if self.__data_amplitude.USE_GPU:
+            return cp.asnumpy(
+                cp.sum(self.quality_factor * self.binned * cp.log(data))
+            )
+
+        else:
+            return ne.evaluate(
+                "sum(qf*binned*log(data))", local_dict={
+                    "qf": self.quality_factor, "binned": self.binned, "data": data
+                }
+            )
 
 
 class EmptyLikelihood(_GeneralLikelihood):
@@ -536,4 +578,7 @@ class _EmptyKernel(process.Kernel):
         self.__amplitude.setup(self.data)
 
     def process(self, data: Any = False) -> float:
-        return npy.sum(self.__amplitude.calculate(data))
+        if self.__amplitude.USE_GPU:
+            return cp.asnumpy(cp.sum(self.__amplitude.calculate(data)))
+        else:
+            return npy.sum(self.__amplitude.calculate(data))

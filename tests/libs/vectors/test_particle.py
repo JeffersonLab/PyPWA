@@ -46,8 +46,8 @@ def test_particle_pool_split(random_particle_pool):
 
 
 def test_particle_can_do_math():
-    a = vectors.Particle(1, 1.0, 2.0, 3.0, 4.0)
-    b = vectors.Particle(14, 1.1, 2.1, 3.1, 4.1)
+    a = vectors.Particle(1, 1, 1.0, 2.0, 3.0, 4.0)
+    b = vectors.Particle(14, 1, 1.1, 2.1, 3.1, 4.1)
     c = (a + b) * 2
 
     assert c.e == 4.2
