@@ -582,3 +582,159 @@ class _EmptyKernel(process.Kernel):
             return cp.asnumpy(cp.sum(self.__amplitude.calculate(data)))
         else:
             return npy.sum(self.__amplitude.calculate(data))
+
+
+class sweightedLogLikelihood(_GeneralLikelihood):
+    """Computes the log likelihood with a given amplitude for sWeighted data.
+    To use the sWeighted log likelihood, you only need to provide unbinned data,
+    if sWeights are not provided, they will default to
+    1. You must provide monte_carlo data. The generated length will be set to
+    the length of the monte_carlo, unless a generated length is provided.
+    Parameters
+    ----------
+    amplitude : AbstractAmplitude
+        Either an user defined amplitude, or an amplitude from PyPWA
+    data : DataFrame or npy.ndarray
+        Data that will be passed directly to the amplitude
+    monte_carlo : DataFrame or npy.ndarray, optional
+        Data that will be passed to the monte_carlo
+    sweight : Series or npy.ndarray, optional
+        Array with sWeight values
+    mcweight : Series or npy.ndarray, optional
+        Array with MC weight values
+    generated_length : int, optional
+        The generated length of values for use with the monte_carlo,
+        this value will default to the length of monte_carlo
+    multiplier : float, optional
+        Specify if the final value of the likelihood should be multiplied
+        by a value, e.g. sum(weights)/sum(weights^2). Has to be negative
+        for minimizer. Defaults to -1.
+    num_of_processes : int, optional
+        How many processes to be used to calculate the amplitude. Defaults
+        to the number of threads available on the machine. If USE_MP is
+        set to false or this is set to zero, no extra processes will
+        be spawned
+    Notes
+    -----
+    Extended Log-Likelihood. If not provided, the sW will be set to 1,
+    and generated_length will be set to len(monte_carlo)
+    .. math::
+        L = \\sum{sW \\cdot log (Amp(data))} - \\
+            \\frac{1}{generated\_length} \\cdot \\sum{Amp(monte\_carlo)}
+    """
+
+    def __init__(
+            self, amplitude: NestedFunction,
+            data: Union[npy.ndarray, pd.DataFrame],
+            monte_carlo: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            sweight: Opt[Union[npy.ndarray, pd.Series]] = None,
+            mcweight: Opt[Union[npy.ndarray, pd.Series]] = None,
+            generated_length: Opt[int] = 1,
+            multiplier: Opt[float] = -1,
+            num_of_processes=multiprocessing.cpu_count(),
+    ):
+        super(sweightedLogLikelihood, self).__init__(
+            amplitude, num_of_processes
+        )
+
+        if monte_carlo is not None and generated_length == 1:
+            generated_length = len(monte_carlo)
+
+        kernel = _sweightedLogLikelihoodKernel(
+            multiplier, amplitude, generated_length
+        )
+        likelihood_data = self.__prep_data(
+            data, monte_carlo, sweight, mcweight
+        )
+
+        self._setup_interface(likelihood_data, kernel)
+
+    @staticmethod
+    def __prep_data(
+            data: Union[npy.ndarray, pd.DataFrame],
+            monte_carlo: Opt[Union[npy.ndarray, pd.DataFrame]] = None,
+            sweight: Opt[Union[npy.ndarray, pd.Series]] = None,
+            mcweight: Opt[Union[npy.ndarray, pd.Series]] = None,
+    ) -> Dict[str, Union[npy.ndarray, pd.DataFrame, pd.Series]]:
+        likelihood_data = {"data": data}
+        if monte_carlo is not None:
+            likelihood_data["monte_carlo"] = monte_carlo
+        if sweight is not None:
+            likelihood_data["sweight"] = sweight
+        if mcweight is not None:
+            likelihood_data["mcweight"] = mcweight
+        return likelihood_data
+
+    def __call__(self, *args):
+        return self._interface.run(*args)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+    def close(self):
+        """Closes the likelihood
+        This needs to be called after you're done with the likelihood,
+        UNLESS, you created the likelihood using the `with` statement
+        """
+        self._interface.close()
+
+
+class _sweightedLogLikelihoodKernel(process.Kernel):
+
+    def __init__(
+            self, multiplier: float, amplitude: NestedFunction,
+            generated_length=Opt[int]
+    ):
+        self.__multiplier = multiplier
+        self.__data_amplitude = amplitude
+        self.__monte_carlo_amplitude = copy.deepcopy(amplitude)
+        self.__generated = 1/generated_length
+
+        # These are set by the process lib
+        self.data: npy.ndarray = None
+        self.monte_carlo: npy.ndarray = None
+        self.sweight: Union[npy.ndarray, float] = 1
+        self.mcweight: Union[npy.ndarray, float] = 1
+
+        # This is set at run time, after data has been loaded
+        self.__likelihood: Callable[[npy.ndarray], npy.float] = None
+
+    def setup(self):
+        self.__data_amplitude.setup(self.data)
+
+        try:
+            self.__monte_carlo_amplitude.setup(self.monte_carlo)
+            self.__likelihood = self.__extended_likelihood
+        except:
+            print("Couldn't setup sweightedLogLikelihood")
+
+    def process(self, data: Any = False) -> float:
+        return self.__multiplier * self.__likelihood(data)
+
+    def __extended_likelihood(self, params):
+        data = self.__data_amplitude.calculate(params)
+        mcdata = self.__monte_carlo_amplitude.calculate(params)
+        
+        if self.__data_amplitude.USE_GPU:
+            likelihood_data = cp.sum(self.sweight * cp.log(data))
+            likelihood_mc = cp.sum(self.mcweight * mcdata)
+            return cp.asnumpy(
+                likelihood_data - self.__generated * likelihood_mc
+            )
+        else:
+            likelihood_data = ne.evaluate(
+                "sum(sw * log(data))", local_dict={
+                    "sw": self.sweight,
+                    "data": data
+                }
+            )
+            likelihood_mc = ne.evaluate(
+                "sum(mcw * mcdata)", local_dict={
+                    "mcw": self.mcweight,
+                    "mcdata": mcdata
+                }
+            )
+            return likelihood_data - self.__generated * likelihood_mc

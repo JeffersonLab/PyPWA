@@ -93,8 +93,8 @@ from PyPWA.libs.file import (
     get_reader, get_writer, read, write, ProjectDatabase, cache, DataType
 )
 from PyPWA.libs.fit import (
-    minuit, ChiSquared, LogLikelihood, EmptyLikelihood, NestedFunction,
-    FunctionAmplitude
+    minuit, mcmc, ChiSquared, LogLikelihood, EmptyLikelihood,
+    sweightedLogLikelihood, NestedFunction, FunctionAmplitude
 )
 from PyPWA.libs.plotting import make_lego
 from PyPWA.libs.resonance import ResonanceData
@@ -102,12 +102,15 @@ from PyPWA.libs.simulate import monte_carlo_simulation
 from PyPWA.libs.vectors import FourVector, ThreeVector, ParticlePool, Particle
 
 __all__ = [
-    "FourVector", "ThreeVector", "Particle", "ParticlePool",
-    "get_writer", "get_reader", "read", "write", "ProjectDatabase",
-    "monte_carlo_simulation", "minuit", "ChiSquared", "LogLikelihood",
-    "EmptyLikelihood", "NestedFunction", "FunctionAmplitude", "cache",
-    "ResonanceData", "bin_by_range", "bin_with_fixed_widths", "make_lego",
-    "simulate", "DataType", "to_contiguous", "pandas_to_numpy"
+   'ChiSquared', 'DataType', 'EmptyLikelihood',
+   'FourVector', 'FunctionAmplitude', 'LogLikelihood',
+   'NestedFunction', 'Particle', 'ParticlePool',
+   'ProjectDatabase', 'ResonanceData', 'ThreeVector',
+   'bin_by_range', 'bin_with_fixed_widths', 'cache',
+   'get_reader', 'get_writer', 'make_lego', 'mcmc',
+   'minuit', 'monte_carlo_simulation', 'pandas_to_numpy',
+   'read', 'simulate', 'sweightedLogLikelihood',
+   'to_contiguous', 'write'
 ]
 
 __author__ = _info.AUTHOR
