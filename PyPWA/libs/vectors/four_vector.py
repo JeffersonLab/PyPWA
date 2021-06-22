@@ -20,6 +20,7 @@
 from typing import List, Union, Optional as Opt
 
 import numpy as np
+import pandas
 import pandas as pd
 from . import _base_vector, three_vector
 
@@ -66,44 +67,68 @@ class FourVector(_base_vector.VectorMath):
             self._y = e._y
             self._z = e._z
         else:
-            self._x, self._y, self._z, self._e = \
+            self._e, self._x, self._y, self._z = \
                 _base_vector.sanitize_vector_input(e, x, y, z, True)
         super(FourVector, self).__init__(self._x, self._y, self._z)
 
-    def __repr__(self) -> str:
-        theta, phi, mass = self._get_repr_data()
+    def __repr__(self):
+        return f"FourVector(e={self.e}, x={self.x}, y={self.y}, z={self.z})"
 
-        return f"FourVector(x̅Θ={theta}, x̅ϕ={phi}, x̅Mass={mass})"
+    def _repr_html_(self):
+        df = pandas.DataFrame()
+        df['Θ'] = self.get_theta()
+        df['̅ϕ'] = self.get_phi()
+        df['Mass'] = self.get_mass()
+        return df._repr_html_()
+
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text("FourVector( ?.)")
+
+        else:
+            theta, phi, mass = self._get_repr_data()
+            p.text(f"FourVector(x̅Θ={theta}, x̅ϕ={phi}, x̅Mass={mass})")
 
     def _get_repr_data(self):
+        # Theta needs to be set to NaN if we're working with
+        # uninitialized values
         if isinstance(self._e, np.ndarray):
-            theta = self.get_theta().mean()
+            if all(self._z) == 0.0:
+                theta = np.NaN
+            else:
+                theta = self.get_theta().mean()
+
             phi = self.get_phi().mean()
             mass = self.get_mass().mean()
         else:
-            theta = self.get_theta()
+            if self._z == 0.0:
+                theta = np.NaN
+            else:
+                theta = self.get_theta()
+
             phi = self.get_phi()
             mass = self.get_mass()
         return theta, phi, mass
+
+    def display_raw(self):
+        df = pandas.DataFrame()
+        df['e'], df['x'] = self.e, self.x
+        df['y'], df['z'] = self.y, self.z
+        print(df)
 
     def __eq__(self, vector: "FourVector") -> bool:
         return self._compare_vectors(vector)
 
     def _compare_vectors(self, other):
-        if all([hasattr(other, attr)] for attr in self.__slots__):
-            equality = []
-            for slot in self.__slots__:
-                result = np.equal(getattr(self, slot), getattr(other, slot))
-
-                if isinstance(self._x, np.ndarray):
-                    equality.append(all(result))
-                else:
-                    equality.append(result)
-
-            return all(equality)
-
-        else:
+        if not all(other.e == self.e):
             return False
+        if not all(other.x == self.x):
+            return False
+        if not all(other.y == self.y):
+            return False
+        if not all(other.z == self.z):
+            return False
+        return True
 
     def __truediv__(self, scalar: Union[float, int]) -> "FourVector":
         if isinstance(scalar, (int, float)):
@@ -159,6 +184,8 @@ class FourVector(_base_vector.VectorMath):
         return self.__sub__(other)
 
     def __len__(self):
+        if isinstance(self._x, float):
+            return 0
         return len(self._x)
 
     def __getitem__(

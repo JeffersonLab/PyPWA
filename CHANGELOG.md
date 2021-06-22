@@ -5,12 +5,56 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
-## [Unreleased]
+## [3.3.0] - 2021-6-20
 ### Added
-- Support for building Cython and CUDA code.
-### Changed
-### Removed
+- 2D Gauss introductory tutorial to the documentation
+- CuPy support for Likelihoods and Simulation. This means we now officially
+  support NVIDIA GPU acceleration, however for now it is limited to a single
+  GPU. If there is enough demand for this to be expanded on, support for 
+  multiple GPUs will be added.
+### CHanged
+- Particle now requires a charge to be supplied during the creation of the
+  object. GAMP has also been modified to support the Charge being passed
+  through to the Particle
+- Depreciated internal options that were passed to Minuit have been
+  replaced with the modern alternatives.
+## Fixed
+- Likelihoods were spawning multiple processes even when USE_MP was set
+  to false. This has been corrected, and will avoid spawning extra
+  processes as it was intended. 
+
+## [3.2.3] - 2021-6-11
+### Added
+- Particle Pools can now compared against other Particle Pools to see if they
+  are storing the same content.
 ### Fixed
+- Regression from 3.2.0 where Gamp would not write out data to disk. This time
+  by wrapping the data in a float, which should catch instances where the value
+  stored is a pure scalar, verses instances where the data is an array with a
+  len == 1
+
+## [3.2.2] - 2021-6-11
+### Fixed
+- Particles can now be masked again, the mask is no longer silently deleted
+  when passed to the object.
+- Numpy's warning about numpy.float being deprecation should be resolved.
+- Any warnings about the LaTeX in the Likelihood's Docstrings being
+  deprecated should be resolved as well.
+
+## [3.2.1] - 2021-6-10
+### Fixed
+- Gamp no longer combines particles with the same ID
+- Fixed issue where display_raw would fail in Jupyter with Particles
+
+## [3.2.0] - 2021-6-1
+### Added
+- Vectors now support iPython and Jupyter Pretty printing
+### Changed
+- Vector sanitization function has improved handling of non-array inputs
+### Fixed
+- FourVectors variable order is now in the correct order
+- Vectors now work with inputs that aren't arrays
+- Patched issue with GAMP failing to write to file
 
 ## [3.1.0] - 2020-10-2
 ### Added
@@ -186,7 +230,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - PySim plugin
 - Packaging
 
-[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...development
+[Unreleased]: https://github.com/JeffersonLab/PyPWA/compare/v3.3.0...main
+[3.3.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...v.3.2.3
+[3.2.3]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.2...v.3.2.3
+[3.2.2]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.1...3.2.2
+[3.2.1]: https://github.com/JeffersonLab/PyPWA/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/JeffersonLab/PyPWA/compare/v3.0.0a1...v3.0.0
 [3.0.0a1]: https://github.com/JeffersonLab/PyPWA/compare/v2.2.1...v3.0.0a1

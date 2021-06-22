@@ -31,6 +31,12 @@ from PyPWA.libs import process
 from PyPWA.libs.file import project
 from PyPWA.libs.fit import likelihoods
 
+try:
+    import cupy as cp
+except ImportError:
+    cp = npy
+
+
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
 __version__ = _info.VERSION
@@ -143,9 +149,11 @@ def _in_memory_intensities(
         processes: int) -> npy.ndarray:
 
     kernel = _Kernel(amplitude, params)
-    if not amplitude.USE_MP or not processes:
+    if not amplitude.USE_MP or not processes or amplitude.USE_GPU:
         kernel.data = data
         kernel.setup()
+        if amplitude.USE_GPU:
+            return cp.asnumpy(kernel.run()[1])
         return kernel.run()[1]
 
     interface = _Interface()

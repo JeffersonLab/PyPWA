@@ -103,7 +103,7 @@ class ProjectDatabase:
         else:
             self.__group = self.__file.create_group(
                 self.__file.root, "pypwa",
-                title=f"v:0; Created with PyPWA {_info.VERSION}"
+                title=f"v:1; Created with PyPWA {_info.VERSION}"
             )
 
     def __repr__(self):
@@ -221,10 +221,11 @@ class _CreateRoot:
     def __parse_particle_pool(self, data: ReaderBase, disable: bool, desc):
         # Initialize the tables for the particles
         leaves = list()
-        for index, the_id in enumerate(data.fields):
+        # data.fields charge will already be in the correct 0-2 range
+        for index, (the_id, charge) in enumerate(data.fields):
             leaves.append(
                 self.__file.create_table(
-                    where=self.__folder, name=f"root{index}_{the_id}",
+                    where=self.__folder, name=f"root{index}_{the_id}_{charge}",
                     description=self._PARTICLE, title=desc,
                     expectedrows=data.get_event_count()
                 )
@@ -266,7 +267,8 @@ class _CreateRoot:
     def __particle_pool_to_root(self, data: vectors.ParticlePool, desc):
         for index, particle in enumerate(data.iter_particles()):
             table = self.__file.create_table(
-                where=self.__folder, name=f"root{index}_{particle.id}",
+                where=self.__folder,
+                name=f"root{index}_{particle.id}_{particle.charge + 1}",
                 description=particle.data_frame, expectedrows=len(particle),
                 title=desc
             )

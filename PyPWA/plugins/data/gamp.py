@@ -30,7 +30,7 @@ will not be saved in memory by these object.
 """
 
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import numpy as np
 
@@ -132,7 +132,9 @@ class _GampReader(templates.ReaderBase):
         events = []
         for line in lines:
             p_id, charge, x, y, z, e = line.strip("\n").split()
-            events.append(vectors.Particle(int(p_id), particle_length))
+            events.append(
+                vectors.Particle(int(p_id), int(charge), particle_length)
+            )
         return vectors.ParticlePool(events)
 
     def __repr__(self) -> str:
@@ -170,8 +172,11 @@ class _GampReader(templates.ReaderBase):
         return True
 
     @property
-    def fields(self) -> List[str]:
-        return [p.id for p in self.__particle_pool.iter_particles()]
+    def fields(self) -> List[Tuple[str, int]]:
+        particles = [p.id for p in self.__particle_pool.iter_particles()]
+        charges = [p.charge for p in self.__particle_pool.iter_particles()]
+        charges = [int(charge) + 1 for charge in charges]
+        return list(zip(particles, charges))
 
     @property
     def data_type(self) -> DataType:
@@ -197,7 +202,8 @@ class _GampWriter(templates.WriterBase):
         for p in data.iter_particles():
             self.__file_handle.write(
                 "%d %d %.20f %.20f %.20f %.20f\n" % (
-                    p.id, p.charge, p.x, p.y, p.z, p.e
+                    p.id, p.charge,
+                    float(p.x), float(p.y), float(p.z), float(p.e)
                 )
             )
 
@@ -223,18 +229,18 @@ class _GampMemory(templates.IMemory):
 
             for event_index, line in enumerate(stream):
                 particle_num = int(line)
-                for i in range(particle_num):
+                for index in range(particle_num):
                     line = stream.readline()
                     p_id, charge, x, y, z, e = line.strip("\n").split()
-                    particle_dict[int(p_id)][event_index]["x"] = x
-                    particle_dict[int(p_id)][event_index]["y"] = y
-                    particle_dict[int(p_id)][event_index]["z"] = z
-                    particle_dict[int(p_id)][event_index]["e"] = e
+                    particle_dict[index][2][event_index]["x"] = x
+                    particle_dict[index][2][event_index]["y"] = y
+                    particle_dict[index][2][event_index]["z"] = z
+                    particle_dict[index][2][event_index]["e"] = e
 
         particles = []
-        for p_id, momenta in particle_dict.items():
+        for index, (p_id, charge, momenta) in particle_dict.items():
             particles.append(
-                vectors.Particle(p_id, momenta)
+                vectors.Particle(p_id, charge, momenta)
             )
 
         return vectors.ParticlePool(particles)
@@ -242,19 +248,23 @@ class _GampMemory(templates.IMemory):
     @staticmethod
     def _make_particle_dict(
             filename: Path, particle_length: int = 1
-    ) -> Dict[int, np.ndarray]:
+    ) -> Dict[int, Tuple[int, int, np.ndarray]]:
         with filename.open() as stream:
             count = int(stream.readline())
             lines = [stream.readline() for i in range(count)]
 
         particles = dict()
-        for line in lines:
+        for index, line in enumerate(lines):
             p_id, charge, x, y, z, e = line.strip("\n").split()
-            particles[int(p_id)] = np.empty(
-                particle_length,
-                dtype=np.dtype(
-                    [("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")],
-                    align=True
+            particles[index] = (
+                int(p_id),
+                int(charge),
+                np.empty(
+                    particle_length,
+                    dtype=np.dtype(
+                        [("x", "f8"), ("y", "f8"), ("z", "f8"), ("e", "f8")],
+                        align=True
+                    )
                 )
             )
         return particles

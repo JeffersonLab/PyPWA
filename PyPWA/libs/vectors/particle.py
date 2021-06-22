@@ -26,9 +26,15 @@ are defined in _abstract_vectors.AbstractVectors.
 from typing import List, Union, Tuple, Optional as Opt
 
 import numpy as np
-import pandas
+import pandas as pd
 from PyPWA.libs.vectors import FourVector
 from PyPWA import info as _info
+
+try:
+    from IPython.display import display
+except ImportError:
+    display = print
+
 
 __credits__ = ["Mark Jones"]
 __author__ = _info.AUTHOR
@@ -38,44 +44,53 @@ __version__ = _info.VERSION
 _PROTON_GEV = .9382720813
 
 
-def get_particle_by_id(particle_id: int) -> Tuple[str, int]:
+def get_particle_by_id(particle_id: int) -> str:
     """
     ... seealso::
         https://www.star.bnl.gov/public/comp/simu/gstar/Manual/particle_id.html
 
     :return: Tuple containing particle's name, particle's charge
     """
-    return {
-        1:  ('Gamma', 0),         2:  ('Positron', 1),
-        3:  ('Electron', -1),     4:  ('Neutrino', 0),
-        5:  ('Muon +', 1),        6:  ('Muon -', -1),
-        7:  ('Pion 0', 0),        8:  ('Pion +', 1),
-        9:  ('Pion -', -1),       10: ('Kaon 0 Long', 0),
-        11: ('Kaon +', 1),        12: ('Kaon -', -1),
-        13: ('Neutron', 0),       14: ('Proton', 1),
-        15: ('Antiproton', -1),   16: ('Kaon 0 Short', 0),
-        17: ('Eta', 0),           18: ('Lambda', 0),
-        19: ('Sigma +', 1),       20: ('Sigma 0', 0),
-        21: ('Sigma -', -1),      22: ('Xi 0', 0),
-        23: ('Xi -', -1),         24: ('Omega -', -1),
-        25: ('Antineutron', 0),   26: ('Antilambda', 0),
-        27: ('Antisigma -', -1),  28: ('Antisigma 0', 0),
-        29: ('Antisigma +', 1),   30: ('Antixi 0', 0),
-        31: ('Antixi +', 1),      32: ('Antiomega +', 1),
-        45: ('Deuteron', 1),      46: ('Triton', 1),
-        47: ('Alpha', 2),         48: ('Geantino', 0),
-        49: ('He3', 2),           50: ('Cerenkov', 0)
-    }[particle_id]
+    try:
+        return {
+            1:  'Gamma',        2: 'Positron',
+            3:  'Electron',     4:  'Neutrino',
+            5:  'Muon +',       6:  'Muon -',
+            7:  'Pion 0',       8:  'Pion +',
+            9:  'Pion -',       10: 'Kaon 0 Long',
+            11: 'Kaon +',       12: 'Kaon -',
+            13: 'Neutron',      14: 'Proton',
+            15: 'Antiproton',   16: 'Kaon 0 Short',
+            17: 'Eta',          18: 'Lambda',
+            19: 'Sigma +',      20: 'Sigma 0',
+            21: 'Sigma -',      22: 'Xi 0',
+            23: 'Xi -',         24: 'Omega -',
+            25: 'Antineutron',  26: 'Antilambda',
+            27: 'Antisigma -',  28: 'Antisigma 0',
+            29: 'Antisigma +',  30: 'Antixi 0',
+            31: 'Antixi +',     32: 'Antiomega +',
+            45: 'Deuteron',     46: 'Triton',
+            47: 'Alpha',        48: 'Geantino',
+            49: 'He3',          50: 'Cerenkov',
+        }[particle_id]
+    except KeyError:
+        return "Unknown"
 
 
 class Particle(FourVector):
     """Numpy backed Particle object for vector operations inside
     PyPWA.
 
+    By default, Particle is represented through the particles
+    angles and mass. However, internally the particle is stored
+    as four momenta just as it's stored in the GAMP format.
+
     Parameters
     ----------
     particle_id : int
         The Particle ID, used to determine the particle's name and charge.
+    charge : int
+        The particle's Charge as read from the GAMP file.
     e : int, npy.ndarray, float, or DataFrame
         Can be an integer to specify size, a structured array or DataFrame
         with x y z and e values, a single float value, or a Series or
@@ -91,19 +106,23 @@ class Particle(FourVector):
     ParticlePool : For storing a collection of particles
     """
 
-    __slots__ = ["_vector", "__particle_id", "__particle_name", "__charge"]
+    __slots__ = [
+        "_e", "_x", "_y", "_z", "__particle_id", "__particle_name", "__charge"
+    ]
 
     def __init__(
             self,
             particle_id: int,
-            e: Union[int, np.ndarray, float, pandas.DataFrame],
-            x: Opt[Union[float, pandas.Series, np.ndarray]] = None,
-            y: Opt[Union[float, pandas.Series, np.ndarray]] = None,
-            z: Opt[Union[float, pandas.Series, np.ndarray]] = None
+            charge: int,
+            e: Union[int, np.ndarray, float, pd.DataFrame],
+            x: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            y: Opt[Union[float, pd.Series, np.ndarray]] = None,
+            z: Opt[Union[float, pd.Series, np.ndarray]] = None
     ):
         super(Particle, self).__init__(e, x, y, z)
         self.__particle_id = particle_id
-        self.__particle_name, self.__charge = get_particle_by_id(particle_id)
+        self.__charge = charge
+        self.__particle_name = get_particle_by_id(particle_id)
 
     def __eq__(self, other: "Particle") -> bool:
         arrays_equal = self._compare_vectors(other)
@@ -111,24 +130,53 @@ class Particle(FourVector):
         return arrays_equal and id_equals
 
     def __repr__(self) -> str:
-        theta, phi, mass = self._get_repr_data()
-
         return (
-            f"Particle("
-            f"Name={self.__particle_name}"
-            f" PID={self.__particle_id},"
-            f" x̅Θ={theta},"
-            f" x̅ϕ={phi},"
-            f" x̅Mass={mass})"
+            f"Particle(id={self.__particle_id}, e={self.e},"
+            f" x={self.x}, y={self.y}, z={self.z})"
         )
+
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            p.text("Particle( ?.)")
+        else:
+            theta, phi, mass = self._get_repr_data()
+            p.text(
+                f"Particle("
+                f"Name={self.__particle_name}"
+                f" PID={self.__particle_id},"
+                f" x̅Θ={theta},"
+                f" x̅ϕ={phi},"
+                f" x̅Mass={mass})"
+            )
+
+    def _repr_html_(self):
+        df = pd.DataFrame()
+        df['Θ'], df['ϕ'] = self.get_theta(), self.get_phi()
+        df['Mass'] = self.get_mass()
+        return (
+            f'<h2>{self.__particle_id}: {self.__particle_name}</h2>'
+            f'{df._repr_html_()}'
+        )
+
+    def display_raw(self):
+        """
+        Displays the contents of the Particle as Four Momenta
+        """
+        df = pd.DataFrame()
+        df['e'], df['x'], df['y'], df['z'] = self.e, self.x, self.y, self.z
+
+        name = f"{self.__particle_id}: {self.__particle_name}"
+        display(name)
+        display(df)
 
     def __getitem__(
             self, item: Union[int, str, slice]
-    ) -> Union["Particle", pandas.Series]:
+    ) -> Union["Particle", pd.Series]:
         if isinstance(item, (int, slice)) or \
-                isinstance(item, np.ndarray) and item.dtype == bool:
+                isinstance(item, np.ndarray) and item.dtype in (bool, int):
             return Particle(
-                self.__particle_id, self._e, self._x, self._y, self._z
+                self.__particle_id, self.__charge,
+                self._e[item], self._x[item], self._y[item], self._z[item]
             )
         elif isinstance(item, str) and item in ("x", "y", "z", "e"):
             return getattr(self, f"_{item}").copy()
@@ -159,7 +207,9 @@ class Particle(FourVector):
         ys = np.split(self._y, count)
         zs = np.split(self._z, count)
         for e, x, y, z in zip(es, xs, ys, zs):
-            particles.append(Particle(self.__particle_id, e, x, y, z))
+            particles.append(
+                Particle(self.__particle_id, self.__charge, e, x, y, z)
+            )
         return particles
 
     def get_copy(self):
@@ -255,10 +305,10 @@ class _PoolParticleIterator:
 
 class ParticlePool:
     """
-    Stores a collection of particles together.
+    Stores a collection of particles together as a list.
 
-
-
+    By default the particles are represented as their angles and mass,
+    however internally the particles are still stored as the Four Momenta.
     """
 
     def __init__(self, particle_list: List[Particle]):
@@ -273,6 +323,28 @@ class ParticlePool:
                 string += repr(particle) + ","
         return f"ParticlePool({string})"
 
+    def _repr_pretty_(self, p, cycle):
+        if cycle:
+            return 'ParticlePool( ?.)'
+        else:
+            for particle in self.__particle_list:
+                particle._repr_pretty_(p, cycle)
+                p.text('\n')
+
+    def _repr_html_(self):
+        html = ""
+        for p in self.__particle_list:
+            html += p._repr_html_()
+        return html
+
+    def display_raw(self):
+        """
+        Display's the file
+        """
+        for p in self.__particle_list:
+            print('\n')
+            p.display_raw()
+
     def __len__(self):
         return len(self.__particle_list)
 
@@ -281,7 +353,23 @@ class ParticlePool:
             return self._mask(item)
         return self.__particle_list[item]
 
+    def __eq__(self, other):
+        if not isinstance(other, ParticlePool):
+            return False
+        if other.event_count != self.event_count:
+            return False
+        if other.particle_count != self.particle_count:
+            return False
+
+        particle_pair = zip(self.iter_particles(), other.iter_particles())
+        for current_particle, other_particle in particle_pair:
+            if current_particle != other_particle:
+                return False
+
+        return True
+
     def _mask(self, mask):
+        print("PP Masking")
         if not len(mask) == len(self.__particle_list[0]):
             raise IndexError("Mask is the wrong length!")
 
@@ -313,6 +401,23 @@ class ParticlePool:
             return value
 
     def split(self, count):
+        """
+        Split's the particles in N groups.
+
+        This is required to be a method on any object that needs to be
+        passed to the processing module.
+
+        Parameters
+        ----------
+        count : int
+            How many ParticlePools to return
+
+        Returns
+        -------
+        List[ParticlePool]
+            A list of particle pools that can be passed to different
+            process groups.
+        """
         particles = [[] for i in range(count)]
         for particle in self.__particle_list:
             split_particles = particle.split(count)

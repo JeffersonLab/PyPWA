@@ -60,10 +60,14 @@ class ParticleLeaf:
     def __init__(self, leaves: List[tables.Table]):
         self.__leaves = leaves
         self.__ids = [int(pid.name.split("_")[1]) for pid in leaves]
+        self.__charges = [int(pid.name.split("_")[2]) for pid in leaves]
+        # negative values can't be stored as metadata, so we need to
+        # shift the charges back into the correct range
+        self.__charges = [charge - 1 for charge in self.__charges]
 
         particles = []
-        for pid in self.__ids:
-            particles.append(vectors.Particle(pid, 1))
+        for pid, charge in zip(self.__ids, self.__charges):
+            particles.append(vectors.Particle(pid, charge, 1))
 
         self.__pool = vectors.ParticlePool(particles)
 
@@ -194,7 +198,8 @@ class ParticleLeaf:
             particle.e = array["e"]
 
     def __replace_particle_pool(self, data: List[npy.ndarray]):
-        ps = [vectors.Particle(pid, d) for pid, d in zip(self.__ids, data)]
+        p_data = zip(self.__ids, self.__charges, data)
+        ps = [vectors.Particle(pid, charge, d) for pid, charge, d in p_data]
         self.__pool = vectors.ParticlePool(ps)
 
     @property
