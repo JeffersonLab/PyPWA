@@ -20,7 +20,7 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "3.3.0"
+__version__ = "3.4.0"
 __email__ = "pypwa@jlab.org"
 __status__ = "development"
 
@@ -30,9 +30,7 @@ progs = "PyPWA.progs"
 entry_points = {
     "console_scripts": [
         f"pymask = {progs}.masking:start_masking",
-        f"pybin = {progs}.binner:start_binning",
-#        f"pysimulate = {progs}.simulation:simulation",
-#        f"pyfit = {progs}.pyfit:start_fitting"
+        f"pybin = {progs}.binner:start_binning"
     ]
 }
 
@@ -48,7 +46,8 @@ requires = [
     "pandas",      # A powerful statistics package that's used everywhere
     "openpyxl",    # Provides support for XLXS, used for resonance,
     "matplotlib",  # Adds support for plotting
-    "numexpr"      # Accelerates numpy by removing intermediate steps
+    "numexpr",     # Accelerates numpy by removing intermediate steps
+    "emcee",       # Provides MCMC fitting
 ]
 
 extras = {

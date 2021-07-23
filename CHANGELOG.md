@@ -5,6 +5,17 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+## [3.4.0] - 2021-7-23
+### Added
+- Peter's emcee wrapper, available at PyPWA.mcmc
+### Changed
+- System tests are now located in tests/system_tests
+- PyMask will now return exit values on call
+### Removed
+- PySimulate has been removed since it was limited in use, and it's
+  functionality has been consumed by the PyPWA scripting libs.
+  
+
 ## [3.3.0] - 2021-6-20
 ### Added
 - 2D Gauss introductory tutorial to the documentation

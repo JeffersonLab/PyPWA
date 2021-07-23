@@ -45,7 +45,7 @@ def start_masking(arguments: List[str] = sys.argv[1:]):
         output_file = file_manager.get_writer(args.output, input_file.data_type)
     else:
         print(f"{args.input} must exist!")
-        sys.exit(1)
+        return 1
 
     # Load the correct file
     if args.use_or:
@@ -54,7 +54,7 @@ def start_masking(arguments: List[str] = sys.argv[1:]):
         logic = npy.logical_xor
     elif args.use_or and args.use_xor:
         print("Only select OR or XOR, not both!")
-        sys.exit(1)
+        return 1
     else:
         logic = npy.logical_and
 
@@ -71,7 +71,7 @@ def start_masking(arguments: List[str] = sys.argv[1:]):
             current_pf = file_manager.parse(mask_file)
         else:
             print(f"{mask_file} must exist!")
-            sys.exit(1)
+            return 1
 
         # Convert selection array to a boolean mask.
         if "u8" == current_pf.dtype or "u4" == current_pf.dtype:
@@ -93,7 +93,7 @@ def start_masking(arguments: List[str] = sys.argv[1:]):
             f"Masking data isn't the same length as input!"
             f" Mask is {len(pf)} and input is {len(input_file)}."
         )
-        sys.exit(1)
+        return 1
 
     # Setup description
     if pf.all() == 1:
