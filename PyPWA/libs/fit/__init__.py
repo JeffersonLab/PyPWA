@@ -34,4 +34,9 @@ from .likelihoods import (
 
 from .minuit import minuit
 
-from .mcmc import mcmc
+try:
+    from .mcmc import mcmc
+except ImportError:
+    # EMCEE not installed, so pass over it
+    pass
+

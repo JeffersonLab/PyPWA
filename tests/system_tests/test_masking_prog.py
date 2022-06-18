@@ -12,7 +12,7 @@ def test_masking_errors_with_too_many_flags():
         ]
     )
     assert result == 1
-    Path("masked.gamp").unlink(True)
+    Path("error_masked.gamp").unlink(True)
 
 
 def test_masking_errors_with_unmatching_data():
@@ -24,7 +24,7 @@ def test_masking_errors_with_unmatching_data():
         ]
     )
     assert result == 1
-    Path("masked.gamp").unlink(True)
+    Path("error_masked.gamp").unlink(True)
 
 
 def test_can_mask_data():

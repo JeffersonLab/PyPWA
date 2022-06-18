@@ -46,7 +46,6 @@ Contained modules:
 """
 
 from PyPWA import info as _info
-from .project import ProjectDatabase
 from .processor import DataProcessor as _Data, DataType
 from .processor import templates as _templates
 from PyPWA.libs.vectors import ParticlePool as _pp
@@ -60,7 +59,6 @@ __version__ = _info.VERSION
 
 
 __all__ = [
-    "ProjectDatabase",
     "get_reader", "get_writer", "read", "write"
 ]
 

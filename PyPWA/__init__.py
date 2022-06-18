@@ -87,31 +87,38 @@ Provided Data Types:
 
 from PyPWA import info as _info
 from PyPWA.libs import simulate
-from PyPWA.libs.binning import bin_by_range, bin_with_fixed_widths, bin_by_list
+from PyPWA.libs.binning import (
+    bin_by_range, bin_with_fixed_widths, bin_by_list
+)
 from PyPWA.libs.common import to_contiguous, pandas_to_numpy
 from PyPWA.libs.file import (
-    get_reader, get_writer, read, write, ProjectDatabase, cache, DataType
+    get_reader, get_writer, read, write, cache, DataType
 )
 from PyPWA.libs.fit import (
-    minuit, mcmc, ChiSquared, LogLikelihood, EmptyLikelihood,
+    minuit, ChiSquared, LogLikelihood, EmptyLikelihood,
     sweightedLogLikelihood, NestedFunction, FunctionAmplitude
 )
 from PyPWA.libs.plotting import make_lego
-from PyPWA.libs.resonance import ResonanceData
 from PyPWA.libs.simulate import monte_carlo_simulation
 from PyPWA.libs.vectors import FourVector, ThreeVector, ParticlePool, Particle
 
 __all__ = [
-   'ChiSquared', 'DataType', 'EmptyLikelihood',
-   'FourVector', 'FunctionAmplitude', 'LogLikelihood',
-   'NestedFunction', 'Particle', 'ParticlePool',
-   'ProjectDatabase', 'ResonanceData', 'ThreeVector',
-   'bin_by_range', 'bin_with_fixed_widths', 'cache',
-   'get_reader', 'get_writer', 'make_lego', 'mcmc',
-   'minuit', 'monte_carlo_simulation', 'pandas_to_numpy',
-   'read', 'simulate', 'sweightedLogLikelihood',
-   'to_contiguous', 'write'
+    'ChiSquared', 'DataType', 'EmptyLikelihood',
+    'FourVector', 'FunctionAmplitude', 'LogLikelihood',
+    'NestedFunction', 'Particle', 'ParticlePool',
+    'ThreeVector', 'bin_by_list', 'bin_by_range', 'bin_with_fixed_widths',
+    'cache', 'get_reader', 'get_writer', 'make_lego', 'mcmc',
+    'minuit', 'monte_carlo_simulation', 'pandas_to_numpy',
+    'read', 'simulate', 'sweightedLogLikelihood',
+    'to_contiguous', 'write'
 ]
+
+try:
+    from PyPWA.libs.fit import mcmc
+    __all__.append('mcmc')
+except ImportError:
+    # EMCEE not installed, pass over the module
+    pass
 
 __author__ = _info.AUTHOR
 __credits__ = ["Mark Jones"]

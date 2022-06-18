@@ -50,8 +50,8 @@ class _Translator:
 
 def minuit(
         parameters: _List[str], settings: _Dict[str, _Any],
-        likelihood: _likelihoods.ChiSquared, set_up: int, strategy=1,
-        num_of_calls=1000
+        likelihood: _likelihoods.ChiSquared, set_up: int, limits=None,
+        strategy=1, num_of_calls=1000
 ):
     """Optimization using iminuit
 
@@ -65,6 +65,8 @@ def minuit(
     likelihood : Likelihood object from likelihoods or single function
     set_up : float
         Set to 1 for log-likelihoods, or .5 for Chi-Squared
+    limits : Optional Dictionary
+        Provide limits for the parameters.
     strategy : int
         Fitting strategy. Defaults to 1. 0 is slowest, 2 is fastest/
     num_of_calls : int
@@ -84,9 +86,15 @@ def minuit(
         after a fit has been completed.
     """
     settings["name"] = parameters
-    settings["errordef"] = set_up
+
     translator = _Translator(parameters, likelihood)
     optimizer = _iminuit.Minuit(translator, **settings)
+
+    # Set limits
+    if limits is not None:
+        for key, value in limits.items():
+            optimizer.limits[key] = value
+
 
     optimizer.strategy = strategy
     optimizer.errordef = set_up
