@@ -1,10 +1,14 @@
-from typing import Any as _Any, Callable as _Call, Dict as _Dict, List as _List
+from typing import Any as _Any, Callable as _Call, List as _List
 
-import emcee as _emcee
 import numpy as np
 
 from PyPWA import info as _info
 from PyPWA.libs.fit import likelihoods as _likelihoods
+
+try:
+    import emcee as _emcee
+except ImportError:
+    raise ImportError("Emcee must be installed!")
 
 # modelled after minuit.py
 
@@ -19,10 +23,10 @@ class _Translator:
             self, parameters: _List[str],
             parameterlimits: _List[str],
             function_call: _Call[[_Any], float],
-            prior: _Call[[_Any], float]
+            prior: _Call[[_Any, _List[str]], float]
     ):
         self.__parameters = parameters
-        self.__parameterlimits = parameterlimits
+        self.__parameter_limits = parameterlimits
         self.__function = function_call
         self.__prior = prior
 
@@ -30,10 +34,10 @@ class _Translator:
         parameters_with_values = {}
         for parameter, arg in zip(self.__parameters, args):
             parameters_with_values[parameter] = arg
-        prior = self.__prior(args,self.__parameterlimits)
+        prior = self.__prior(args, self.__parameter_limits)
         if not np.isfinite(prior):
             return -np.inf
-        nll = self.__function(parameters_with_values)+prior
+        nll = self.__function(parameters_with_values) + prior
         if np.any(np.isnan(nll)):
             return -np.inf
         return nll
@@ -42,12 +46,12 @@ class _Translator:
 def mcmc(
         parlist: _List[str],
         likelihood: _likelihoods.ChiSquared,
-        nwalker = 20,
-        prior = 1,
-        nsteps = 100,
-        startpars = None,
-        parlimits = None,
-        emceemoves = _emcee.moves.GaussianMove(0.05, mode='vector', factor=None)
+        nwalker=20,
+        prior=1,
+        nsteps=100,
+        startpars=None,
+        parlimits=None,
+        emceemoves=_emcee.moves.GaussianMove(0.05, mode='vector', factor=None)
 ):
     """Inference using the emcee package (<https://emcee.readthedocs.io/>)
     Parameters
@@ -82,23 +86,30 @@ def mcmc(
         the chain has been produced.
     """
 
-    if prior==1:
-        translator = _Translator(parlist, parlimits, likelihood,log_uniform_prior)
+    if prior == 1:
+        translator = _Translator(
+            parlist, parlimits, likelihood, log_uniform_prior
+        )
     else:
         print("So far only uniform prior is implemented.")
         return 0
 
     ndimension = len(parlist)
 
-    if startpars.any()==None:
-        startpars = np.zeros((nwalker,ndimension))
+    if startpars.any() is None:
+        startpars = np.zeros((nwalker, ndimension))
 
-    optimizer = _emcee.EnsembleSampler(nwalker, ndimension, translator, moves=emceemoves)
-    output = optimizer.run_mcmc(startpars,nsteps,progress=True,skip_initial_state_check=True)
+    optimizer = _emcee.EnsembleSampler(
+        nwalker, ndimension, translator, moves=emceemoves
+    )
+    output = optimizer.run_mcmc(
+        startpars, nsteps, progress=True, skip_initial_state_check=True
+    )
     return optimizer
 
-def log_uniform_prior(pars,parlimits):
+
+def log_uniform_prior(pars, parlimits):
     for index, par in enumerate(pars):
-        if par<parlimits[index][0] or par>parlimits[index][1] :
+        if par < parlimits[index][0] or par > parlimits[index][1]:
             return -np.inf
     return 0.
