@@ -17,5 +17,6 @@ dependencies:
   - matplotlib   # Adds support for plotting
   - numexpr      # Accelerates numpy by removing intermediate steps
   - pytest            # Used to run the PyPWA unit tests
+  - pytest-cov        # Coverage reports for PyTest
   - sphinx            # Document generating engine
   - sphinc_rtd_theme  # The theme used by PyPWA for Sphinx
