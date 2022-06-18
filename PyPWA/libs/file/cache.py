@@ -58,7 +58,7 @@ def read(
 ) -> Tuple[bool, Any]:
     """Reads a cache object
 
-    This reads caches objects from the disk. With it's default settings
+    This reads caches objects from the disk. With its default settings
     it'll load the cache file as long as the source file's hash hasn't
     changed. It can also be used to store an intermediate step directly
     by providing a name and setting intermediate to True.
@@ -83,10 +83,10 @@ def read(
         stored in the cache.
     """
     path = Path(path)
-    cache_path = misc.get_cache_uri() / (path.stem + ".pickle")
+    cache_path = path.parent / (path.stem + ".cache")
 
     if intermediate:
-        cache_path = Path(path.stem + ".pickle")
+        cache_path = Path(path.stem + ".intermediate")
         file_hash = ""
     else:
         try:
@@ -132,11 +132,11 @@ def write(path, data, intermediate=False):
         the data, and will not check file hashes.
     """
     path = Path(path)
-    cache_path = Path(path.stem + ".pickle")
+    cache_path = Path(path.stem + ".intermediate")
     file_hash = ""
     if not intermediate:
         file_hash = misc.get_sha512_hash(path)
-        cache_path = misc.get_cache_uri() / (path.stem + ".pickle")
+        cache_path = path.stem / Path(path.stem + ".cache")
 
     data_package = _Package(file_hash, data)
 
