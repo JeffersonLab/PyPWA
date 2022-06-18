@@ -28,7 +28,6 @@ import pandas as pd
 
 from PyPWA import info as _info
 from PyPWA.libs import process
-from PyPWA.libs.file import project
 from PyPWA.libs.fit import likelihoods
 
 try:
@@ -44,7 +43,7 @@ __version__ = _info.VERSION
 
 def monte_carlo_simulation(
         amplitude: likelihoods.NestedFunction,
-        data: Union[npy.ndarray, pd.DataFrame, project.BaseFolder],
+        data: Union[npy.ndarray, pd.DataFrame],
         params: Dict[str, float] = None,
         processes: int = multiprocessing.cpu_count()) -> npy.ndarray:
     """Produces the rejection list
@@ -96,7 +95,7 @@ def monte_carlo_simulation(
 
 
 def process_user_function(amplitude: likelihoods.NestedFunction,
-        data: Union[npy.ndarray, pd.DataFrame, project.BaseFolder],
+        data: Union[npy.ndarray, pd.DataFrame],
         params: Dict[str, float] = None,
         processes: int = multiprocessing.cpu_count()
 ) -> Tuple[npy.ndarray, float]:
@@ -134,8 +133,6 @@ def process_user_function(amplitude: likelihoods.NestedFunction,
     """
     if isinstance(data, (npy.ndarray, pd.DataFrame)):
         intensity = _in_memory_intensities(amplitude, data, params, processes)
-    elif isinstance(data, project.BaseFolder):
-        intensity = _in_table_intensities(amplitude, data, params)
     else:
         raise ValueError("Unknown data type!")
 
@@ -201,15 +198,6 @@ class _Interface(process.Interface):
 
             list_of_data[data[0]] = data[1]
         return list_of_data
-
-
-def _in_table_intensities(
-        amplitude: likelihoods.NestedFunction,
-        data: project.BaseFolder,
-        parameters: Dict[str, float]) -> npy.ndarray:
-
-    amplitude.setup(data)
-    return amplitude.calculate(parameters)
 
 
 def make_rejection_list(
