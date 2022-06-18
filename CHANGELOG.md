@@ -5,6 +5,32 @@ All changes important to the user will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/)
 
+
+## [4.0.0] - Unreleased (PyPWA-Next)
+### Added
+- Anaconda environments. There are two anaconda environments included
+  inside the source folder at the moment. `anaconda-environment.yml` and
+  `dev-environment.yml`. These should provide a nice starting point for
+  anyone wanting to work on or with PyPWA. Pull requests are welcomed
+  if you think a package should be added to the base environment.
+### Changed
+- Data module will no longer bury the Cache object. The cache object will
+  now reside in the same directory as the parsed data.
+- Moves Emcee to an optional dependency so that PyPWA can function in a
+  base anaconda environment. If Emcee is installed, or if emcee is
+  specified during installation using `pip install pypwa[emcee]`, the
+  emcee functionality will be usable.
+- iMinuit has changed their ABI entirely, so the iminuit function has
+  been changed to adapt to the new ABI.
+### Removed
+- Project manager. There were several bugs throughout the module, and as
+  far as we are aware, no users using the module. If you're affected by
+  this change, please open an issue in the issue tracker to let us know.
+- Removed the **command line** Binning utility. The Jupyter-based and
+  internal binning utilities remain unaffected. If this affects you,
+  please open an issue.
+- Removed PyYaml Configuration support.
+
 ## [3.4.0] - 2021-7-23
 ### Added
 - Peter's emcee wrapper, available at PyPWA.mcmc
