@@ -1,5 +1,4 @@
 #  coding=utf-8
-#  coding=utf-8
 #
 #  PyPWA, a scientific analysis toolkit.
 #  Copyright (C) 2016 JLab
