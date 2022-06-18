@@ -30,7 +30,6 @@ progs = "PyPWA.progs"
 entry_points = {
     "console_scripts": [
         f"pymask = {progs}.masking:start_masking",
-        f"pybin = {progs}.binner:start_binning"
     ]
 }
 
@@ -39,20 +38,13 @@ requires = [
     "iminuit<2",   # Default minimizer
     "scipy",       # Needed for Nestle with multiple ellipsoids.
     "numpy",       # Arrays and optimizations
-    "pyyaml",      # YAML Parser
-    "tabulate",    # Tables for iminuit
-    "appdirs",     # Attempts to find data locations
-    "tables",      # Stores table in a specialized table format
     "pandas",      # A powerful statistics package that's used everywhere
-    "openpyxl",    # Provides support for XLXS, used for resonance,
     "matplotlib",  # Adds support for plotting
     "numexpr",     # Accelerates numpy by removing intermediate steps
-    "emcee",       # Provides MCMC fitting
 ]
 
 extras = {
-    # Adds value correction to users configuration file
-    "fuzzing": ["fuzzywuzzy", "python-Levenshtein"]
+    "emcee": ["emcee"]  # Provides MCMC fitting
 }
 
 tests = [
