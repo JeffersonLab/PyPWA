@@ -1,0 +1,14 @@
+name: PyPWA
+channels:
+  - markjonestx
+  - conda-forge
+dependencies:
+  - python=3.10  # Current latest Python
+  - pypwa 
+  - emcee        # MCMC Fitting Optional dependency
+  - jupyterlab   # Jupyter and Jupyter Lab support
+  - ipython      # Quick CLI python interface
+  - tensorflow   # Machine Learning
+  - tabulate     # Better iMinuit tables
+  - seaborn      # Optional; Nicer Graphs
+

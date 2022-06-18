@@ -1,0 +1,21 @@
+name: PyPWA-dev
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10  # Current latest Python
+  - emcee        # MCMC Fitting Optional dependency
+  - jupyterlab   # Jupyter and Jupyter Lab support
+  - ipython      # Quick CLI python interface
+  - tensorflow   # Machine Learning
+  - tabulate     # Better iMinuit tables
+  - seaborn      # Optional; Nicer Graphs
+  - tqdm         # Progress Bars
+  - iminuit<2    # Default minimizer
+  - scipy        # Needed for Nestle with multiple ellipsoids.
+  - numpy        # Arrays and optimizations
+  - pandas       # A powerful statistics package that's used everywhere
+  - matplotlib   # Adds support for plotting
+  - numexpr      # Accelerates numpy by removing intermediate steps
+  - pytest            # Used to run the PyPWA unit tests
+  - sphinx            # Document generating engine
+  - sphinc_rtd_theme  # The theme used by PyPWA for Sphinx
