@@ -24,8 +24,6 @@ Miscellaneous file tools.
 import hashlib
 from pathlib import Path
 
-import appdirs
-
 from PyPWA import info as _info
 
 __credits__ = ["Mark Jones"]
@@ -34,21 +32,6 @@ __version__ = _info.VERSION
 
 
 _BUFFER = 40960
-
-
-def get_cache_uri() -> Path:
-    uri = Path(appdirs.user_cache_dir("PyPWA", "JLab", __version__))
-    uri.mkdir(parents=True, exist_ok=True)
-
-    try:
-        uri.mkdir(parents=True, exist_ok=True)
-        uri.joinpath("test").touch()
-        uri.joinpath("test").unlink()
-        return uri
-    except OSError:
-        Path.cwd().joinpath("test").touch()
-        Path.cwd().joinpath("test").unlink()
-        return Path.cwd()
 
 
 def get_sha512_hash(file_location: Path) -> str:
