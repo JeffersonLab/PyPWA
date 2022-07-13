@@ -30,8 +30,8 @@ release = "Development"
 
 
 # Sphinx Extra Options
-language = None
-exclude_patterns = []
+language = "en"
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
 pygments_style = 'sphinx'
 todo_include_todos = False
 
@@ -69,3 +69,4 @@ texinfo_documents = [
         'Scientific Studies'
     ),
 ]
+bibtex_bibfiles = ["pypwa.bib"]

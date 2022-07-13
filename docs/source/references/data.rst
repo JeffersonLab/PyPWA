@@ -65,18 +65,6 @@ wanting to rapidly transform the data that is on disk.
 
 .. _hdf5:
 
-Working with HDF5
------------------
-
-Working directly with HDF5 datasets. These datasets offer massive speed
-advantages over traditional flat files, have a lot of development time
-put behind them by the HDF group, offer chunk loading, and on the fly
-data compression.
-
-.. autoclass:: PyPWA.ProjectDatabase
-   :members:
-
-
 .. _caching:
 
 Caching
@@ -102,6 +90,7 @@ will be made available.
 
 .. autofunction:: PyPWA.bin_with_fixed_widths
 .. autofunction:: PyPWA.bin_by_range
+.. autofunction:: PyPWA.bin_by_list
 
 
 .. _vectors:
