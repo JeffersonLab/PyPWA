@@ -9,6 +9,9 @@ dependencies:
   - jupyterlab   # Jupyter and Jupyter Lab support
   - ipython      # Quick CLI python interface
   - tensorflow   # Machine Learning
+  - pytorch      # Machine Learning using Torch
   - tabulate     # Better iMinuit tables
+  - matplotlib   # Graphing
   - seaborn      # Optional; Nicer Graphs
-
+  - ipympl       # 3D Graphs
+  - tqdm         # Progress Bars

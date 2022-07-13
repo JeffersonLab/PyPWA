@@ -7,6 +7,7 @@ dependencies:
   - jupyterlab   # Jupyter and Jupyter Lab support
   - ipython      # Quick CLI python interface
   - tensorflow   # Machine Learning
+  - pytorch      # Machine Learning using Torch
   - tabulate     # Better iMinuit tables
   - seaborn      # Optional; Nicer Graphs
   - tqdm         # Progress Bars
@@ -19,4 +20,4 @@ dependencies:
   - pytest            # Used to run the PyPWA unit tests
   - pytest-cov        # Coverage reports for PyTest
   - sphinx            # Document generating engine
-  - sphinc_rtd_theme  # The theme used by PyPWA for Sphinx
+  - sphinx_rtd_theme  # The theme used by PyPWA for Sphinx
