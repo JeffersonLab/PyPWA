@@ -34,6 +34,7 @@ try:
     TORCH_AVAIL = True
 except ImportError:
     torch = npy
+    torch.Tensor = npy.ndarray
     TORCH_AVAIL = False
 
 from PyPWA import info as _info

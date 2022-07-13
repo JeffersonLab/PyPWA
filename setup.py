@@ -45,7 +45,7 @@ requires = [
 
 extras = {
     "emcee": ["emcee"],     # Provides MCMC fitting
-    "pytorch": ["pytorch"]  # Provides PyTorch support
+    "torch": ["torch"]  # Provides PyTorch support
 }
 
 tests = [
