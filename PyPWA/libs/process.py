@@ -72,7 +72,7 @@ Templates and Abstract Classes
 class Kernel(ABC):
 
     PROCESS_ID: int = 0
-    USE_GPU: bool = False
+    THREAD: int = 0
 
     """Kernel that will be placed inside each spawned process
 
@@ -203,9 +203,10 @@ def _make_data_packets(data: _data, number_of_processes: int) -> _data_packet:
 def _create_kernels_containing_data(
         process_kernel: Kernel, data_packets: _data_packet) -> List[Kernel]:
     kernels_with_data = []
-    for data in data_packets:
+    for thread, data in enumerate(data_packets):
         new_kernel = copy.deepcopy(process_kernel)
 
+        new_kernel.THREAD = thread
         for key in data.keys():
             setattr(new_kernel, key, data[key])
 

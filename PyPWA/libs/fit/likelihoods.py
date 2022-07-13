@@ -28,7 +28,13 @@ from typing import Any, Callable, Dict, List, Union, Optional as Opt
 import numexpr as ne
 import numpy as npy
 import pandas as pd
-import torch
+
+try:
+    import torch
+    TORCH_AVAIL = True
+except ImportError:
+    torch = npy
+    TORCH_AVAIL = False
 
 from PyPWA import info as _info
 from PyPWA.libs import process
@@ -54,7 +60,7 @@ class NestedFunction(ABC):
     Set USE_TORCH to calculate the likelihood using PyTorch. Assumes that
     all data returned from the NestedFunction will already be in a Tensor.
     If this is set to True, then a thread will produced per-GPU available,
-    and the DEVICE value will be set to the value for this object.
+    and the THREAD value will be set to the value for this object.
 
     See Also
     --------
@@ -63,7 +69,7 @@ class NestedFunction(ABC):
 
     USE_MP = True
     USE_TORCH = False
-    DEVICE = 0
+    THREAD = 0
 
     def __call__(self, *args):
         return self.calculate(*args)
@@ -167,8 +173,9 @@ class _GeneralLikelihood:
         self._num_of_processes = num_of_process
         self._single_process = not amplitude.USE_MP
 
-        if amplitude.USE_TORCH and torch.cuda.device_count():
-            self._num_of_processes = torch.cuda.device_count()
+        if TORCH_AVAIL:
+            if amplitude.USE_TORCH and torch.cuda.device_count() > 0:
+                self._num_of_processes = torch.cuda.device_count()
 
     def _setup_interface(
             self, likelihood_data: Dict[str, Any], kernel: process.Kernel
@@ -305,6 +312,7 @@ class _ChiSquaredKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
+        self.__amplitude.THREAD = self.THREAD
         self.__amplitude.setup(self.data)
 
         if self.binned is not None:
@@ -470,6 +478,7 @@ class _LogLikelihoodKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
+        self.__data_amplitude.THREAD = self.THREAD
         self.__data_amplitude.setup(self.data)
 
         if self.monte_carlo is not None and self.__generated is not None:
@@ -571,6 +580,7 @@ class _EmptyKernel(process.Kernel):
         self.data: npy.ndarray = None
 
     def setup(self):
+        self.__amplitude.THREAD = self.THREAD
         self.__amplitude.setup(self.data)
 
     def process(self, data: Any = False) -> float:
@@ -701,6 +711,7 @@ class _sweightedLogLikelihoodKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
+        self.__amplitude.THREAD = self.THREAD
         self.__data_amplitude.setup(self.data)
 
         try:
