@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
   `dev-environment.yml`. These should provide a nice starting point for
   anyone wanting to work on or with PyPWA. Pull requests are welcomed
   if you think a package should be added to the base environment.
+- Added PyTorch for GPU and Apple Metal support. Includes support for
+  multiple GPUs as well. Can be specified during install using
+  `pip install pypwa[torch]`.
 ### Changed
 - Data module will no longer bury the Cache object. The cache object will
   now reside in the same directory as the parsed data.
@@ -22,6 +25,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
   emcee functionality will be usable.
 - iMinuit has changed their ABI entirely, so the iminuit function has
   been changed to adapt to the new ABI.
+- Updated all dependencies around ReadTheDocs to avoid GitHub flagging
+  the dependencies for exploits.
 ### Removed
 - Project manager. There were several bugs throughout the module, and as
   far as we are aware, no users using the module. If you're affected by
@@ -29,6 +34,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - Removed the **command line** Binning utility. The Jupyter-based and
   internal binning utilities remain unaffected. If this affects you,
   please open an issue.
+- Removed appdirs as a dependency.
+- Removed CuPy support, replaced by PyTorch.
 - Removed PyYaml Configuration support.
 
 ## [3.4.0] - 2021-7-23
