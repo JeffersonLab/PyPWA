@@ -8,16 +8,6 @@ SET2 = ROOT / "set2.kvars"
 
 
 """
-Tests Cache Location
-"""
-
-
-def test_cache_directory_exists():
-    location = misc.get_cache_uri()
-    assert location.parent.exists()
-
-
-"""
 Tests File Hash
 """
 
