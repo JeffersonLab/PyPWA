@@ -62,9 +62,3 @@ def test_range_throws_error(array):
 def test_range_correct_bins(data):
     results = binning.bin_by_range(data, 'x', 10)
     assert len(results) == 10
-
-
-def test_range_cuts():
-
-
-
