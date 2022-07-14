@@ -1,17 +1,20 @@
 name: PyPWA
 channels:
-  - markjonestx
-  - conda-forge
+  - defaults
 dependencies:
-  - python=3.10  # Current latest Python
-  - pypwa 
-  - emcee        # MCMC Fitting Optional dependency
-  - jupyterlab   # Jupyter and Jupyter Lab support
-  - ipython      # Quick CLI python interface
-  - tensorflow   # Machine Learning
-  - pytorch      # Machine Learning using Torch
-  - tabulate     # Better iMinuit tables
-  - matplotlib   # Graphing
-  - seaborn      # Optional; Nicer Graphs
-  - ipympl       # 3D Graphs
-  - tqdm         # Progress Bars
+  - python=3.9              # Current latest Python
+  - markjonestx::pypwa      # PyPWA
+  - conda-forge::emcee>3.0  # Optional dependency for MCMC
+  - conda-forge::nestle     # Multinest optimization
+  - jupyterlab              # Jupyter and Jupyter Lab support
+  - ipython                 # Quick CLI python interface
+  - tensorflow              # Machine Learning
+  - pytorch                 # Machine Learning using Torch
+  - scikit-learn            # Machine Learning through Scikit
+  - tabulate                # Better iMinuit tables
+  - scipy                   # Scientific Python
+  - matplotlib              # Graphing
+  - seaborn                 # Optional; Nicer Graphs
+  - ipympl                  # 3D Graphs
+  - tqdm                    # Progress Bars
+

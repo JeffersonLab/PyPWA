@@ -1,21 +1,19 @@
 name: PyPWA-dev
-channels:
-  - conda-forge
 dependencies:
-  - python=3.10  # Current latest Python
-  - emcee        # MCMC Fitting Optional dependency
-  - jupyterlab   # Jupyter and Jupyter Lab support
-  - ipython      # Quick CLI python interface
-  - pytorch      # Machine Learning using Torch
-  - tabulate     # Better iMinuit tables
-  - tqdm         # Progress Bars
-  - iminuit      # Default minimizer
-  - numpy        # Arrays and optimizations
-  - pandas       # A powerful statistics package that's used everywhere
-  - matplotlib   # Adds support for plotting
-  - numexpr      # Accelerates numpy by removing intermediate steps
-  - pytest       # Used to run the PyPWA unit tests
-  - pytest-cov   # Coverage reports for PyTest
+  - python=3.9          # Current latest Python
+  - conda-forge::emcee  # MCMC Fitting Optional dependency
+  - jupyterlab          # Jupyter and Jupyter Lab support
+  - ipython             # Quick CLI python interface
+  - pytorch             # Machine Learning using Torch
+  - tabulate            # Better iMinuit tables
+  - tqdm                # Progress Bars
+  - iminuit             # Default minimizer
+  - numpy               # Arrays and optimizations
+  - pandas              # A powerful statistics package that's used everywhere
+  - matplotlib          # Adds support for plotting
+  - numexpr             # Accelerates numpy by removing intermediate steps
+  - pytest              # Used to run the PyPWA unit tests
+  - pytest-cov          # Coverage reports for PyTest
   - sphinx                     # Document generating engine
   - sphinx_rtd_theme           # The theme used by PyPWA for Sphinx
   - sphinx-autobuild           # Sphinx Autobuilder for the Makefile
