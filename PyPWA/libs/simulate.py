@@ -146,11 +146,11 @@ def _in_memory_intensities(
         processes: int) -> npy.ndarray:
 
     kernel = _Kernel(amplitude, params)
-    if not amplitude.USE_MP or not processes or amplitude.USE_GPU:
+    if not amplitude.USE_MP or not processes:
         kernel.data = data
         kernel.setup()
-        if amplitude.USE_GPU:
-            return cp.asnumpy(kernel.run()[1])
+        if amplitude.USE_TORCH:
+            return (kernel.run()[1]).cpu().detach().numpy()
         return kernel.run()[1]
 
     interface = _Interface()
