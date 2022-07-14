@@ -20,7 +20,7 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "3.4.0"
+__version__ = "4.0.0a"
 __email__ = "pypwa@jlab.org"
 __status__ = "development"
 
@@ -34,9 +34,8 @@ entry_points = {
 }
 
 requires = [
-    "tqdm",        # Progress Bars
-    "iminuit<2",   # Default minimizer
-    "scipy",       # Needed for Nestle with multiple ellipsoids.
+    "tqdm",        # Progress Bars, used for PyMask
+    "iminuit",     # Default minimizer
     "numpy",       # Arrays and optimizations
     "pandas",      # A powerful statistics package that's used everywhere
     "matplotlib",  # Adds support for plotting
@@ -78,9 +77,6 @@ setuptools.setup(
         "Natural Language :: English",
         "Operating System :: POSIX :: Linux",
         "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
