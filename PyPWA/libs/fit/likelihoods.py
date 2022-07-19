@@ -23,6 +23,7 @@ Main object for Parsing Data
 import copy
 import multiprocessing
 from abc import abstractmethod, ABC
+import enum
 from typing import Any, Callable, Dict, List, Union, Optional as Opt
 
 import numexpr as ne
@@ -143,6 +144,12 @@ class FunctionAmplitude(NestedFunction):
         return self.__processing_function(self.__data, parameters)
 
 
+class LikelihoodType(enum.Enum):
+    LIKELIHOOD = enum.auto()
+    CHI_SQUARED = enum.auto()
+    OTHER = enum.auto()
+
+
 class _LikelihoodInterface(process.Interface):
 
     def run(self, communicator: List[Any], *args: Any) -> Any:
@@ -242,6 +249,8 @@ class ChiSquared(_GeneralLikelihood):
         \\chi^{2} = \\frac{(Amp(data) - expected)^{2}}{errors}
 
     """
+
+    TYPE = LikelihoodType.CHI_SQUARED
 
     def __init__(
             self, amplitude: NestedFunction,
@@ -402,6 +411,8 @@ class LogLikelihood(_GeneralLikelihood):
 
     """
 
+    TYPE = LikelihoodType.LIKELIHOOD
+
     def __init__(
             self, amplitude: NestedFunction,
             data: Union[npy.ndarray, pd.DataFrame],
@@ -546,6 +557,8 @@ class EmptyLikelihood(_GeneralLikelihood):
         be spawned
     """
 
+    TYPE = LikelihoodType.OTHER
+
     def __init__(
             self, amplitude: NestedFunction,
             data: Union[npy.ndarray, pd.DataFrame],
@@ -631,6 +644,8 @@ class sweightedLogLikelihood(_GeneralLikelihood):
         L = \\sum{sW \\cdot log (Amp(data))} - \\
             \\frac{1}{generated\_length} \\cdot \\sum{Amp(monte\_carlo)}
     """
+
+    TYPE = LikelihoodType.LIKELIHOOD
 
     def __init__(
             self, amplitude: NestedFunction,

@@ -56,23 +56,19 @@ def test_2d_gauss(gauss_function):
 
     carved_data = flat_data[rejection]
 
-    fitting_settings = { "A1": 1, "A2": 1, "A3": 1, "A4": 1 }
-
-    limits = {
-        "A1": (.1, None),
-        "A2": (.1, None),
-        "A3": (.1, None),
-        "A4": (.1, None)
-    }
+    fitting_settings = {"A1": 1, "A2": 1, "A3": 1, "A4": 1}
 
     param_names = ["A1", "A2", "A3", "A4"]
 
     with pwa.LogLikelihood(gauss_function(), carved_data) as likelihood:
-        results = pwa.minuit(
-            param_names, fitting_settings, likelihood, 1, limits
-        )
+        optimizer = pwa.minuit(fitting_settings, likelihood)
 
-    for param in results.params:
+        for param in param_names:
+            optimizer.limits[param] = (.1, None)
+
+        optimizer.migrad(1000)
+
+    for param in optimizer.params:
         assert simulation_params[param.name] == round(param.value)
 
 

@@ -48,30 +48,15 @@ class _Translator:
         return self.__function(parameters_with_values)
 
 
-def minuit(
-        parameters: _List[str], settings: _Dict[str, _Any],
-        likelihood: _likelihoods.ChiSquared, set_up: int, limits=None,
-        strategy=1, num_of_calls=1000
-):
+def minuit(settings: _Dict[str, _Any], likelihood: _likelihoods.ChiSquared):
     """Optimization using iminuit
 
     Parameters
     ----------
-    parameters : List[str]
-        The names of the parameters for iminuit to use
     settings : Dict[str, Any]
         The settings to be passed to iminuit. Look into the documentation
         for iminuit for specifics
     likelihood : Likelihood object from likelihoods or single function
-    set_up : float
-        Set to 1 for log-likelihoods, or .5 for Chi-Squared
-    limits : Optional Dictionary
-        Provide limits for the parameters.
-    strategy : int
-        Fitting strategy. Defaults to 1. 0 is slowest, 2 is fastest/
-    num_of_calls : int
-        A suggested max number of calls to minuit. This may or may not
-        be respected.
 
     Returns
     -------
@@ -85,19 +70,17 @@ def minuit(
         that can be passed to iminuit, and how to use the resulting object
         after a fit has been completed.
     """
-    settings["name"] = parameters
+    if "name" not in settings:
+        settings["name"] = list(settings.keys())
 
-    translator = _Translator(parameters, likelihood)
+    translator = _Translator(settings["name"], likelihood)
     optimizer = _iminuit.Minuit(translator, **settings)
 
-    # Set limits
-    if limits is not None:
-        for key, value in limits.items():
-            optimizer.limits[key] = value
-
-
-    optimizer.strategy = strategy
-    optimizer.errordef = set_up
-    optimizer.migrad(num_of_calls)
+    # Set error for Likelihood, Migrad defaults to ChiSquared
+    if hasattr(likelihood, "TYPE"):
+        if likelihood.TYPE == _likelihoods.LikelihoodType.LIKELIHOOD:
+            optimizer.errordef = _iminuit.Minuit.LIKELIHOOD
+        elif likelihood.TYPE == _likelihoods.LikelihoodType.CHI_SQUARED:
+            optimizer.errordef = _iminuit.Minuit.LEAST_SQUARES
 
     return optimizer
