@@ -494,6 +494,7 @@ class _LogLikelihoodKernel(process.Kernel):
         self.__data_amplitude.setup(self.data)
 
         if self.monte_carlo is not None and self.__generated is not None:
+            self.__monte_carlo_amplitude.THREAD = self.THREAD
             self.__monte_carlo_amplitude.setup(self.monte_carlo)
             self.__likelihood = self.__extended_likelihood
         else:
@@ -727,10 +728,11 @@ class _sweightedLogLikelihoodKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
-        self.__amplitude.THREAD = self.THREAD
+        self.__data_amplitude.THREAD = self.THREAD
         self.__data_amplitude.setup(self.data)
 
         try:
+            self.__monte_carlo_amplitude.TREAD = self.THREAD
             self.__monte_carlo_amplitude.setup(self.monte_carlo)
             self.__likelihood = self.__extended_likelihood
         except:
