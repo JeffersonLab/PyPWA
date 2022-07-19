@@ -136,7 +136,7 @@ def write(path, data, intermediate=False):
     file_hash = ""
     if not intermediate:
         file_hash = misc.get_sha512_hash(path)
-        cache_path = path.stem / Path(path.stem + ".cache")
+        cache_path = path.parent / Path(path.stem + ".cache")
 
     data_package = _Package(file_hash, data)
 
