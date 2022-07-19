@@ -71,10 +71,12 @@ def minuit(settings: _Dict[str, _Any], likelihood: _likelihoods.ChiSquared):
         after a fit has been completed.
     """
     if "name" not in settings:
-        settings["name"] = list(settings.keys())
+        name = list(settings.keys())
+    else:
+        name = settings["name"]
 
-    translator = _Translator(settings["name"], likelihood)
-    optimizer = _iminuit.Minuit(translator, **settings)
+    translator = _Translator(name, likelihood)
+    optimizer = _iminuit.Minuit(translator, name=name, **settings)
 
     # Set error for Likelihood, Migrad defaults to ChiSquared
     if hasattr(likelihood, "TYPE"):
