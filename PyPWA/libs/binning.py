@@ -146,8 +146,12 @@ def bin_by_range(
         if sample_size:
             indexes = npy.arange(len(binned_data))
             sample_mask = npy.random.choice(indexes, sample_size, False)
+            print(type(binned_data))
 
-            binned_data = binned_data[sample_mask.astype(bool)]
+            if isinstance(binned_data, pd.DataFrame):
+                binned_data = binned_data.iloc[sample_mask]
+            else:
+                binned_data = binned_data[sample_mask]
         bin_results.append(binned_data)
 
     return bin_results
@@ -155,7 +159,7 @@ def bin_by_range(
 
 def bin_with_fixed_widths(
         dataframe: Union[pd.DataFrame, npy.ndarray],
-        bin_series: Union[npy.ndarray, pd.Series], fixed_size: int,
+        bin_series: Union[npy.ndarray, pd.Series, str], fixed_size: int,
         lower_cut: Opt[float] = None, upper_cut: Opt[float] = None
 ) -> List[pd.DataFrame]:
     """Bins a dataframe by fixed using a series in memory
@@ -270,10 +274,11 @@ def bin_with_fixed_widths(
 
     return bins
 
+
 def bin_by_list(
     data: Union[pd.DataFrame, npy.ndarray],
     bin_series: Union[npy.ndarray, pd.Series, str],
-    bin_list : List
+    bin_list: List
 ) -> List[pd.DataFrame]:
     """Bins a dataframe by list of bin limits using a series in memory
 
@@ -283,7 +288,7 @@ def bin_by_list(
 
     Parameters
     ----------
-    dataframe : DataFrame or Structured Array
+    data : DataFrame or Structured Array
         The dataframe or numpy array that you wish to break into bins
     bin_series : Array-like
         Data that you want to bin by, selectable by user. Must have the
@@ -323,11 +328,11 @@ def bin_by_list(
     First create the list which defines all the bin limits
     >>> bin_limits = [1,3,7,10]
 
-    >>> data = {
+    >>> dataset = {
     >>>     "x": npy.random.rand(1000), "y": npy.random.rand(1000),
     >>>     "z": (npy.random.rand(1000) * 100) - 50
     >>>    }
-    >>> df = pd.DataFrame(data)
+    >>> df = pd.DataFrame(dataset)
     >>> list(df.columns)
     ["x", "y", "z"]
 
@@ -341,11 +346,12 @@ def bin_by_list(
 
     That will give you 3 bins with custom bin limits
     """
-    binneddata = []
+    binned_data = []
     for i in range(len(bin_list)-1):
-        tempbin = bin_by_range(data, bin_series, 1, bin_list[i], bin_list[i+1])
-        binneddata.append(tempbin[0])
-    return binneddata
+        binned_data.append(
+            bin_by_range(data, bin_series, 1, bin_list[i], bin_list[i+1])[0]
+        )
+    return binned_data
 
 
 def _mask_binned_data(

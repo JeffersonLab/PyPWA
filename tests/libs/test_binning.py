@@ -23,6 +23,10 @@ import pytest
 from PyPWA.libs import binning
 
 
+"""
+Fixtures for Binning Tests
+"""
+
 @pytest.fixture()
 def dataframe():
     df = pd.DataFrame()
@@ -53,12 +57,69 @@ def data(request, dataframe, array):
         assert "datatype is not set as expected!"
 
 
+"""
+Tests for the bin_by_range function
+"""
+
+
 def test_range_throws_error(array):
     wrong_size = npy.random.rand(15_000)
     with pytest.raises(ValueError):
         binning.bin_by_range(array, wrong_size, 10)
 
 
-def test_range_correct_bins(data):
+def test_bin_by_range_trims_data(data):
+    results = binning.bin_by_range(
+        data, 'x', 10, lower_cut=0.1, upper_cut=0.9
+    )
+    for result in results:
+        assert npy.all(result['x'] >= 0.1)
+        assert npy.all(result['x'] <= 0.9)
+
+
+def test_range_correct_number_of_bins(data):
     results = binning.bin_by_range(data, 'x', 10)
     assert len(results) == 10
+
+
+def test_range_sample_size_reduces_data_size(data):
+    results = binning.bin_by_range(data, 'x', 10, sample_size=100)
+    assert npy.sum([len(x) for x in results]) == 1000
+
+
+def test_sum_of_all_range_lengths_matches_original(data):
+    results = binning.bin_by_range(data, 'x', 10)
+    assert npy.sum([len(x) for x in results]) == len(data)
+
+
+"""
+Tests for the bin_with_fixed_widths function
+"""
+
+
+def test_fixed_widths_throws_error(array):
+    wrong_size = npy.random.rand(15_000)
+    with pytest.raises(ValueError):
+        binning.bin_with_fixed_widths(array, wrong_size, 10)
+
+
+def test_fixed_widths_returns_expected_number_of_bins(data):
+    results = binning.bin_with_fixed_widths(data, 'x', 1000)
+    assert len(results) == 10
+
+
+def test_fixed_widths_handles_bin_overflows(data):
+    results = binning.bin_with_fixed_widths(data, 'x', 900)
+    # Check first and last element of results has length of 50
+    assert len(results[0]) == 50
+    assert len(results[-1]) == 50
+
+    # Check that the rest of the bins have length of 900
+    for result in results[1:-1]:
+        assert len(result) == 900
+
+
+"""
+Finally, test bin_by_lists
+"""
+
