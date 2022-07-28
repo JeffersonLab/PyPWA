@@ -49,7 +49,7 @@ __version__ = _info.VERSION
 class NestedFunction(ABC):
     """Interface for Amplitudes
 
-    These objects are used for calculating the users amplitude. They're
+    These objects are used for calculating the users' amplitude. They're
     expected to be initialized by the time they are sent to the kernel,
     and will be deep-copied for each process. The setup will be called
     first to initialize data and anything else that might need to be done,
@@ -57,12 +57,21 @@ class NestedFunction(ABC):
     likelihood.
 
     Set USE_MP to false to execute on the main thread only, this is best
-    for when using packages like numexpr.
+    for when using packages like numexpr. We also recommend setting this
+    flag to false for Debug purposes.
 
     Set USE_TORCH to calculate the likelihood using PyTorch. Assumes that
     all data returned from the NestedFunction will already be in a Tensor.
-    If this is set to True, then a thread will produced per-GPU available,
-    and the THREAD value will be set to the value for this object.
+
+    Set USE_THREADS to calculate the likelihood using threads. This is best
+    if the likelihood is dependent on waiting for responses from hardware
+    or network devices; or if you are working with data that can not be
+    forked.
+
+    Set USE_GPU to calculate the likelihood using GPU. If this is set to true,
+    then USE_MP will be set to false, and USE_THREADS and USE_TORCH will be
+    set to True internally. This will raise a RuntimeError if the GPU is not
+    available.
 
     See Also
     --------
@@ -71,7 +80,17 @@ class NestedFunction(ABC):
 
     USE_MP = True
     USE_TORCH = False
-    THREAD = 0
+    USE_THREADS = False
+    USE_GPU = False
+
+    def __init__(self):
+        # If USE_GPU is set, then we'll disable MP and enable Threads + Torch
+        if self.USE_GPU:
+            self.USE_MP = False
+            self.USE_TORCH = self.USE_THREADS = True
+
+        if self.USE_MP and self.USE_THREADS:
+            raise RuntimeError("Cannot use MP and THREADS at the same time")
 
     def __call__(self, *args):
         return self.calculate(*args)
@@ -180,10 +199,13 @@ class _GeneralLikelihood:
         self._amplitude = amplitude
         self._num_of_processes = num_of_process
         self._single_process = not amplitude.USE_MP
+        self._use_threads = amplitude.USE_THREADS
 
         if TORCH_AVAIL:
-            if amplitude.USE_TORCH and torch.cuda.device_count() > 0:
+            if amplitude.USE_GPU and torch.cuda.is_available():
                 self._num_of_processes = torch.cuda.device_count()
+            else:
+                raise RuntimeError("GPU not available")
 
     def _setup_interface(
             self, likelihood_data: Dict[str, Any], kernel: process.Kernel
@@ -193,11 +215,18 @@ class _GeneralLikelihood:
             kernel.setup()
             self._interface = kernel
 
+        elif self._use_threads:
+            interface = _LikelihoodInterface()
+            self._interface = process.make_processes(
+                likelihood_data, kernel, interface, self._num_of_processes,
+                use_threads=True
+            )
+
         else:
             interface = _LikelihoodInterface()
             self._interface = process.make_processes(
                 likelihood_data, kernel, interface, self._num_of_processes
-                )
+            )
 
 
 class ChiSquared(_GeneralLikelihood):
@@ -309,6 +338,7 @@ class ChiSquared(_GeneralLikelihood):
 class _ChiSquaredKernel(process.Kernel):
 
     def __init__(self, multiplier: int, amplitude: NestedFunction):
+        super(_ChiSquaredKernel, self).__init__()
         self.__multiplier = multiplier
         self.__amplitude = amplitude
 
@@ -322,7 +352,7 @@ class _ChiSquaredKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
-        self.__amplitude.THREAD = self.THREAD
+        self.__amplitude.THREAD = self.PROCESS_ID
         self.__amplitude.setup(self.data)
 
         if self.binned is not None:
@@ -475,6 +505,7 @@ class _LogLikelihoodKernel(process.Kernel):
             self, multiplier: int, amplitude: NestedFunction,
             generated_length=Opt[int]
     ):
+        super(_LogLikelihoodKernel, self).__init__()
         self.__multiplier = multiplier
         self.__data_amplitude = amplitude
         self.__monte_carlo_amplitude = copy.deepcopy(amplitude)
@@ -490,11 +521,11 @@ class _LogLikelihoodKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
-        self.__data_amplitude.THREAD = self.THREAD
+        self.__data_amplitude.THREAD = self.PROCESS_ID
         self.__data_amplitude.setup(self.data)
 
         if self.monte_carlo is not None and self.__generated is not None:
-            self.__monte_carlo_amplitude.THREAD = self.THREAD
+            self.__monte_carlo_amplitude.THREAD = self.PROCESS_ID
             self.__monte_carlo_amplitude.setup(self.monte_carlo)
             self.__likelihood = self.__extended_likelihood
         else:
@@ -589,13 +620,14 @@ class EmptyLikelihood(_GeneralLikelihood):
 class _EmptyKernel(process.Kernel):
 
     def __init__(self, amplitude: NestedFunction):
+        super(_EmptyKernel, self).__init__()
         self.__amplitude = amplitude
 
         # These are set by the process lib
         self.data: npy.ndarray = None
 
     def setup(self):
-        self.__amplitude.THREAD = self.THREAD
+        self.__amplitude.THREAD = self.PROCESS_ID
         self.__amplitude.setup(self.data)
 
     def process(self, data: Any = False) -> float:
@@ -713,6 +745,7 @@ class _sweightedLogLikelihoodKernel(process.Kernel):
             self, multiplier: float, amplitude: NestedFunction,
             generated_length=Opt[int]
     ):
+        super(_sweightedLogLikelihoodKernel, self).__init__()
         self.__multiplier = multiplier
         self.__data_amplitude = amplitude
         self.__monte_carlo_amplitude = copy.deepcopy(amplitude)
@@ -728,11 +761,11 @@ class _sweightedLogLikelihoodKernel(process.Kernel):
         self.__likelihood: Callable[[npy.ndarray], npy.float] = None
 
     def setup(self):
-        self.__data_amplitude.THREAD = self.THREAD
+        self.__data_amplitude.THREAD = self.PROCESS_ID
         self.__data_amplitude.setup(self.data)
 
         try:
-            self.__monte_carlo_amplitude.TREAD = self.THREAD
+            self.__monte_carlo_amplitude.TREAD = self.PROCESS_ID
             self.__monte_carlo_amplitude.setup(self.monte_carlo)
             self.__likelihood = self.__extended_likelihood
         except:

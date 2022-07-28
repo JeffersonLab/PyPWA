@@ -47,6 +47,7 @@ import copy
 from abc import ABC, abstractmethod
 from enum import Enum
 from multiprocessing import cpu_count, Pipe, Process
+from threading import Thread
 from multiprocessing.connection import Connection
 from typing import Any, Dict, List, Tuple, Union
 
@@ -72,7 +73,6 @@ Templates and Abstract Classes
 class Kernel(ABC):
 
     PROCESS_ID: int = 0
-    THREAD: int = 0
 
     """Kernel that will be placed inside each spawned process
 
@@ -170,12 +170,21 @@ Process creation functions
 def make_processes(
         data: _data, template_kernel: Kernel,
         interface: Interface, number_of_processes: int = MAX_PROC,
-        use_duplex: bool = True
+        use_duplex: bool = True, use_threads: bool = False
 ) -> "ProcessInterface":
 
     packets = _make_data_packets(data, number_of_processes)
     kernels = _create_kernels_containing_data(template_kernel, packets)
     processes, communication = _create_processes(kernels, use_duplex)
+
+    # We simply wrap the process in a Thread if we're using Threads instead
+    if use_threads:
+        threads = []
+        for process in processes:
+            thread = Thread(target=process.run)
+            thread.daemon = True
+            threads.append(thread)
+        processes = threads
 
     for process in processes:
         process.start()
@@ -203,10 +212,9 @@ def _make_data_packets(data: _data, number_of_processes: int) -> _data_packet:
 def _create_kernels_containing_data(
         process_kernel: Kernel, data_packets: _data_packet) -> List[Kernel]:
     kernels_with_data = []
-    for thread, data in enumerate(data_packets):
+    for data in data_packets:
         new_kernel = copy.deepcopy(process_kernel)
 
-        new_kernel.THREAD = thread
         for key in data.keys():
             setattr(new_kernel, key, data[key])
 
