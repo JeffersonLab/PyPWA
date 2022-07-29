@@ -47,6 +47,7 @@ import copy
 from abc import ABC, abstractmethod
 from enum import Enum
 from multiprocessing import cpu_count, Pipe, Process
+from queue import Queue
 from threading import Thread
 from multiprocessing.connection import Connection
 from typing import Any, Dict, List, Tuple, Union
@@ -175,7 +176,9 @@ def make_processes(
 
     packets = _make_data_packets(data, number_of_processes)
     kernels = _create_kernels_containing_data(template_kernel, packets)
-    processes, communication = _create_processes(kernels, use_duplex)
+    processes, communication = _create_processes(
+        kernels, use_duplex, use_threads
+    )
 
     # We simply wrap the process in a Thread if we're using Threads instead
     if use_threads:
@@ -183,6 +186,7 @@ def make_processes(
         for process in processes:
             thread = Thread(target=process.run)
             thread.daemon = True
+            thread.close = lambda: None
             threads.append(thread)
         processes = threads
 
@@ -222,14 +226,25 @@ def _create_kernels_containing_data(
     return kernels_with_data
 
 
-def _create_processes(kernels: List[Kernel], is_duplex: bool) -> _main:
-    receives, sends = _get_pipes_for_communication(len(kernels), is_duplex)
+def _create_processes(
+        kernels: List[Kernel], is_duplex: bool, threads: bool
+) -> _main:
+    receives, sends = _get_communication(len(kernels), is_duplex, threads)
 
     processes = []
     for index, (kernel, send_pipe) in enumerate(zip(kernels, sends)):
         kernel.PROCESS_ID = index
         processes.append(_SmartProcess(kernel, send_pipe))
     return processes, receives
+
+
+def _get_communication(
+        num_of_pipes: int, is_duplex: bool, threads: bool
+) -> _pipe:
+    if threads:
+        return _get_queues_for_communication(num_of_pipes, is_duplex)
+    else:
+        return _get_pipes_for_communication(num_of_pipes, is_duplex)
 
 
 def _get_pipes_for_communication(num_of_pipes: int, is_duplex: bool) ->_pipe:
@@ -241,6 +256,60 @@ def _get_pipes_for_communication(num_of_pipes: int, is_duplex: bool) ->_pipe:
         main.append(left)
         child.append(right)
     return main, child
+
+
+def _get_queues_for_communication(
+        num_of_queues: int, is_duplex: bool
+) -> _pipe:
+    """Creates a pair of queues that emulate pipes."""
+
+    # Make all the queues needed
+    queues = []
+    for queue_index in range(num_of_queues*2):
+        queues.append(Queue())
+
+    class FakePipe:
+        """
+        Fakes a pipe using two Queues
+        """
+
+        readable = True
+        writable = True
+
+        def __init__(self, send, recv):
+            super().__init__()
+            self.__send = send
+            self.__recv = recv
+
+        def send(self, data):
+            self.__send.put(data)
+
+        def recv(self):
+            return self.__recv.get(block=True)
+
+        def close(self):
+            pass
+
+    def make_fake_pipe(left, right):
+        return FakePipe(left, right), FakePipe(right, left)
+
+    main = []
+    child = []
+    for i in range(num_of_queues):
+        right, left = make_fake_pipe(queues[i], queues[i+num_of_queues])
+        main.append(left)
+        child.append(right)
+
+    # Emulate pipes on the queues
+    for queue in main:
+        queue.readable = True
+        queue.writable = is_duplex
+
+    for queue in child:
+        queue.readable = is_duplex
+        queue.writable = True
+
+    return main, child  # type: ignore
 
 
 """
