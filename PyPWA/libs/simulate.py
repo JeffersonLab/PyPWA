@@ -146,7 +146,8 @@ def _in_memory_intensities(
         processes: int) -> npy.ndarray:
 
     kernel = _Kernel(amplitude, params)
-    if not amplitude.USE_MP or not processes:
+    no_parallel = not amplitude.USE_MP and not amplitude.USE_THREADS
+    if no_parallel or amplitude.DEBUG or processes == 0:
         kernel.data = data
         kernel.setup()
         if amplitude.USE_TORCH:
@@ -155,7 +156,8 @@ def _in_memory_intensities(
 
     interface = _Interface()
     manager = process.make_processes(
-        {"data": data}, kernel, interface, processes, False
+        {"data": data}, kernel, interface, processes,
+        False, amplitude.USE_THREADS
     )
     result = manager.run()
     manager.close()
@@ -173,10 +175,15 @@ class _Kernel(process.Kernel):
         self.data: npy.ndarray = None
 
     def setup(self):
+        self.__amplitude.THREAD = self.PROCESS_ID
         self.__amplitude.setup(self.data)
 
     def process(self, data: Any = False) -> Any:
         calculated = self.__amplitude.calculate(self.__parameters)
+
+        if self.__amplitude.USE_TORCH:
+            calculated = calculated.cpu().detach().numpy()
+
         return self.PROCESS_ID, calculated
 
 
