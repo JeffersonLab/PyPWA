@@ -57,11 +57,11 @@ class NestedFunction(ABC):
     likelihood.
 
     Set USE_MP to false to execute on the main thread only, this is best
-    for when using packages like numexpr. We also recommend setting this
-    flag to false for Debug purposes.
+    for when using packages like numexpr that handle multi-threading
+    themselves.
 
     Set USE_TORCH to calculate the likelihood using PyTorch. Assumes that
-    all data returned from the NestedFunction will already be in a Tensor.
+    all data returned from the NestedFunction will be in a Tensor.
 
     Set USE_THREADS to calculate the likelihood using threads. This is best
     if the likelihood is dependent on waiting for responses from hardware
@@ -73,11 +73,20 @@ class NestedFunction(ABC):
     set to True internally. This will raise a RuntimeError if the GPU is not
     available.
 
+    Set DEBUG to True to disable all multiprocessing and threads, this will
+    prevent errors from being buried in tracebacks.
+
+    Warnings
+    --------
+    If you enable USE_MP and USE_THREADS, then a RuntimeError will be raised,
+    since Multiprocessing and threads are not compatible.
+
     See Also
     --------
     FunctionAmplitude : For using the old amplitudes with PyPWA 3
     """
 
+    DEBUG = False
     USE_MP = True
     USE_TORCH = False
     USE_THREADS = False
@@ -91,6 +100,9 @@ class NestedFunction(ABC):
 
         if self.USE_MP and self.USE_THREADS:
             raise RuntimeError("Cannot use MP and THREADS at the same time")
+
+        if self.DEBUG:
+            self.USE_MP = self.USE_THREADS = False
 
     def __call__(self, *args):
         return self.calculate(*args)
@@ -197,25 +209,35 @@ class _GeneralLikelihood:
 
     def __init__(self, amplitude: NestedFunction, num_of_process: int):
         self._amplitude = amplitude
-        self._num_of_processes = num_of_process
-        self._single_process = not amplitude.USE_MP
-        self._use_threads = amplitude.USE_THREADS
 
-        if TORCH_AVAIL:
-            if amplitude.USE_GPU and torch.cuda.is_available():
+        # Setup Single Process Mode
+        no_parallel = not amplitude.USE_MP and not amplitude.USE_THREADS
+        if no_parallel or amplitude.DEBUG or num_of_process == 0:
+            self._single_process = True
+        else:
+            self._single_process = False
+
+        # Setup Torch and Multiprocessing
+        if TORCH_AVAIL and amplitude.USE_TORCH and amplitude.USE_GPU:
+            if torch.cuda.is_available():
                 self._num_of_processes = torch.cuda.device_count()
             else:
                 raise RuntimeError("GPU not available")
+        else:
+            self._num_of_processes = num_of_process
+
+        # We could check that USE_TORCH and TORCH_AVAIL are both true, but
+        # the amplitude would fail to import if it wasn't.
 
     def _setup_interface(
             self, likelihood_data: Dict[str, Any], kernel: process.Kernel
     ):
-        if self._single_process or not self._num_of_processes:
+        if self._single_process:
             [setattr(kernel, n, v) for n, v in likelihood_data.items()]
             kernel.setup()
             self._interface = kernel
 
-        elif self._use_threads:
+        elif self._amplitude.USE_THREADS:
             interface = _LikelihoodInterface()
             self._interface = process.make_processes(
                 likelihood_data, kernel, interface, self._num_of_processes,
@@ -311,11 +333,16 @@ class ChiSquared(_GeneralLikelihood):
         likelihood_data = {"data": data}
         if binned is not None:
             likelihood_data["binned"] = binned
+
         elif event_errors is not None and expected_values is not None:
             likelihood_data["event_errors"] = event_errors
             likelihood_data["expected_values"] = expected_values
+
         else:
-            raise ValueError("ChiSquared needs Binned or Expected/Errors set!")
+            raise ValueError(
+                "ChiSquared needs Binned or Expected/Errors set!"
+            )
+
         return likelihood_data
 
     def __enter__(self):
@@ -357,37 +384,41 @@ class _ChiSquaredKernel(process.Kernel):
 
         if self.binned is not None:
             self.__likelihood = self.__binned
+            if self.__amplitude.USE_TORCH:
+                self.__likelihood = self.__binned_with_torch
         else:
             self.__likelihood = self.__expected_errors
+            if self.__amplitude.USE_TORCH:
+                self.__likelihood = self.__expected_errors_with_torch
 
     def process(self, data: Any = False) -> float:
         intensity = self.__amplitude.calculate(data)
         return self.__multiplier * self.__likelihood(intensity)
 
     def __binned(self, results):
-        if self.__amplitude.USE_TORCH:
-            return (
-                torch.sum((results - self.binned)**2/self.binned)
-            ).cpu().detach().numpy()
-        else:
-            return ne.evaluate(
-                "sum(((results - binned)**2)/binned)", local_dict={
-                    "results": results, "binned": self.binned
-                }
-            )
+        return ne.evaluate(
+            "sum(((results - binned)**2)/binned)", local_dict={
+                "results": results, "binned": self.binned
+            }
+        )
+
+    def __binned_with_torch(self, results):
+        return torch.sum(
+            (results - self.binned)**2/self.binned
+        ).cpu().detach().numpy()
 
     def __expected_errors(self, results):
-        if self.__amplitude.USE_TORCH:
-            return (
-                torch.sum((results - self.expected_values)**2/self.event_errors)
-            ).cpu().detach().numpy()
-        else:
-            return ne.evaluate(
-                "sum(((results - expected)**2)/errors)", local_dict={
-                    "results": results, "expected": self.expected_values,
-                    "errors": self.event_errors
-                }
-            )
+        return ne.evaluate(
+            "sum(((results - expected)**2)/errors)", local_dict={
+                "results": results, "expected": self.expected_values,
+                "errors": self.event_errors
+            }
+        )
+
+    def __expected_errors_with_torch(self, results):
+        return torch.sum(
+            (results - self.expected_values)**2/self.event_errors
+        ).cpu().detach().numpy()
 
 
 class LogLikelihood(_GeneralLikelihood):
@@ -528,8 +559,12 @@ class _LogLikelihoodKernel(process.Kernel):
             self.__monte_carlo_amplitude.THREAD = self.PROCESS_ID
             self.__monte_carlo_amplitude.setup(self.monte_carlo)
             self.__likelihood = self.__extended_likelihood
+            if self.__data_amplitude.USE_TORCH:
+                self.__likelihood = self.__extended_likelihood_with_torch
         else:
             self.__likelihood = self.__log_likelihood
+            if self.__data_amplitude.USE_TORCH:
+                self.__likelihood = self.__log_likelihood_with_torch
 
     def process(self, data: Any = False) -> float:
         return self.__multiplier * self.__likelihood(data)
@@ -538,35 +573,39 @@ class _LogLikelihoodKernel(process.Kernel):
         data = self.__data_amplitude.calculate(params)
         monte_carlo = self.__monte_carlo_amplitude.calculate(params)
 
-        if self.__data_amplitude.USE_TORCH:
-            likelihood = (
-                torch.sum(self.quality_factor * torch.log(data))
-            ).cpu().detach().numpy()
-            monte_carlo_sum = torch.sum(monte_carlo).cpu().detach().numpy()
-        else:
-            likelihood = ne.evaluate(
-                "sum(qf * log(data))", local_dict={
-                    "qf": self.quality_factor, "data": data
-                }
-            )
-            monte_carlo_sum = npy.sum(monte_carlo)
+        likelihood = ne.evaluate(
+            "sum(qf * log(data))", local_dict={
+                "qf": self.quality_factor, "data": data
+            }
+        )
+        monte_carlo_sum = npy.sum(monte_carlo)
 
         return likelihood - self.__generated * monte_carlo_sum
 
+    def __extended_likelihood_with_torch(self, params):
+        data = self.__data_amplitude.calculate(params)
+        monte_carlo = self.__monte_carlo_amplitude.calculate(params)
+
+        likelihood = torch.sum(self.quality_factor * torch.log(data))
+        monte_carlo_sum = torch.sum(monte_carlo)
+
+        return (
+                likelihood - self.__generated * monte_carlo_sum
+        ).cpu().detach().numpy()
+
     def __log_likelihood(self, params):
         data = self.__data_amplitude.calculate(params)
+        return ne.evaluate(
+            "sum(qf*binned*log(data))", local_dict={
+                "qf": self.quality_factor, "binned": self.binned, "data": data
+            }
+        )
 
-        if self.__data_amplitude.USE_TORCH:
-            return (
-                torch.sum(self.quality_factor * self.binned * torch.log(data))
-            ).cpu().detach().numpy()
-
-        else:
-            return ne.evaluate(
-                "sum(qf*binned*log(data))", local_dict={
-                    "qf": self.quality_factor, "binned": self.binned, "data": data
-                }
-            )
+    def __log_likelihood_with_torch(self, params):
+        data = self.__data_amplitude.calculate(params)
+        return torch.sum(
+            self.quality_factor * self.binned * torch.log(data)
+        ).cpu().detach().numpy()
 
 
 class EmptyLikelihood(_GeneralLikelihood):
@@ -630,13 +669,20 @@ class _EmptyKernel(process.Kernel):
         self.__amplitude.THREAD = self.PROCESS_ID
         self.__amplitude.setup(self.data)
 
-    def process(self, data: Any = False) -> float:
+        self.process = self._process_numpy
         if self.__amplitude.USE_TORCH:
-            return (
-                torch.sum(self.__amplitude.calculate(data))
-            ).cpu().detach().numpy()
-        else:
-            return npy.sum(self.__amplitude.calculate(data))
+            self.process = self._process_with_torch
+
+    def process(self, data: Any = False) -> float:
+        raise RuntimeError("Call the setup first!")
+
+    def _process_numpy(self, data: Any) -> float:
+        return npy.sum(self.__amplitude.calculate(data))  # type: ignore
+
+    def _process_with_torch(self, data: Any) -> float:
+        return torch.sum(
+            self.__amplitude.calculate(data)
+        ).cpu().detach().numpy()
 
 
 class sweightedLogLikelihood(_GeneralLikelihood):
@@ -768,6 +814,8 @@ class _sweightedLogLikelihoodKernel(process.Kernel):
             self.__monte_carlo_amplitude.TREAD = self.PROCESS_ID
             self.__monte_carlo_amplitude.setup(self.monte_carlo)
             self.__likelihood = self.__extended_likelihood
+            if self.__data_amplitude.USE_TORCH:
+                self.__likelihood = self.__extended_likelihood_with_torch
         except:
             print("Couldn't setup sweightedLogLikelihood")
 
@@ -777,24 +825,26 @@ class _sweightedLogLikelihoodKernel(process.Kernel):
     def __extended_likelihood(self, params):
         data = self.__data_amplitude.calculate(params)
         mcdata = self.__monte_carlo_amplitude.calculate(params)
-        
-        if self.__data_amplitude.USE_TORCH:
-            likelihood_data = torch.sum(self.sweight * torch.log(data))
-            likelihood_mc = torch.sum(self.mcweight * mcdata)
-            return (
-                likelihood_data - self.__generated * likelihood_mc
-            ).cpu().detach().numpy()
-        else:
-            likelihood_data = ne.evaluate(
-                "sum(sw * log(data))", local_dict={
-                    "sw": self.sweight,
-                    "data": data
-                }
-            )
-            likelihood_mc = ne.evaluate(
-                "sum(mcw * mcdata)", local_dict={
-                    "mcw": self.mcweight,
-                    "mcdata": mcdata
-                }
-            )
-            return likelihood_data - self.__generated * likelihood_mc
+
+        likelihood_data = ne.evaluate(
+            "sum(sw * log(data))", local_dict={
+                "sw": self.sweight,
+                "data": data
+            }
+        )
+        likelihood_mc = ne.evaluate(
+            "sum(mcw * mcdata)", local_dict={
+                "mcw": self.mcweight,
+                "mcdata": mcdata
+            }
+        )
+        return likelihood_data - self.__generated * likelihood_mc
+
+    def __extended_likelihood_with_torch(self, params):
+        data = self.__data_amplitude.calculate(params)
+        mcdata = self.__monte_carlo_amplitude.calculate(params)
+        likelihood_data = torch.sum(self.sweight * torch.log(data))
+        likelihood_mc = torch.sum(self.mcweight * mcdata)
+        return (
+            likelihood_data - self.__generated * likelihood_mc
+        ).cpu().detach().numpy()
