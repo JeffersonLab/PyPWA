@@ -91,7 +91,7 @@ class NestedFunction(ABC):
     USE_TORCH = False
     USE_THREADS = False
     USE_GPU = False
-    THREAD = -1
+    THREAD = 0
 
     def __init__(self):
         # If USE_GPU is set, then we'll disable MP and enable Threads + Torch
