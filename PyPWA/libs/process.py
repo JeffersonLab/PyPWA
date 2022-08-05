@@ -386,11 +386,11 @@ class _SmartProcess(Process):
 
     def __loop(self):
         while True:
-            received = self.__connection.recv()
-            if received == ProcessCodes.SHUTDOWN:
+            r = self.__connection.recv()
+            if isinstance(r, ProcessCodes) and r == ProcessCodes.SHUTDOWN:
                 self.__connection.close()
                 break
-            self.__process(received)
+            self.__process(r)
 
     def __process(self, received_data):
         try:
