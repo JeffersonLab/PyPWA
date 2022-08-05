@@ -20,27 +20,41 @@
 
 """
 
-from typing import Any as _Any, Callable as _Call, Dict as _Dict, List as _List
+from typing import Any, Callable as Call, Dict, List, Union
 
 import iminuit as _iminuit
+import numpy as np
 
-from PyPWA import info as _info
-from . import likelihoods as _likelihoods
+from PyPWA import info
+from . import likelihoods
 
 __credits__ = ["Mark Jones"]
-__author__ = _info.AUTHOR
-__version__ = _info.VERSION
+__author__ = info.AUTHOR
+__version__ = info.VERSION
 
 
 class _Translator:
 
     def __init__(
-            self, parameters: _List[str], function_call: _Call[[_Any], float]
+            self,
+            parameters: Union[List[str], None],
+            function_call: Call[[Any], float]
     ):
         self.__parameters = parameters
         self.__function = function_call
 
-    def __call__(self, *args: _List[float]) -> float:
+        if self.__parameters is None:
+            self.__call = self.__passthrough
+        else:
+            self.__call = self.__with_parameters
+
+    def __call__(self, *args):
+        return self.__call(*args)
+
+    def __passthrough(self, array) -> float:
+        return self.__function(array)
+
+    def __with_parameters(self, *args: List[float]) -> float:
         parameters_with_values = {}
         for parameter, arg in zip(self.__parameters, args):
             parameters_with_values[parameter] = arg
@@ -48,7 +62,10 @@ class _Translator:
         return self.__function(parameters_with_values)
 
 
-def minuit(settings: _Dict[str, _Any], likelihood: _likelihoods.ChiSquared):
+def minuit(
+        settings: Union[Dict[str, Any], np.ndarray],
+        likelihood: likelihoods.ChiSquared
+):
     """Optimization using iminuit
 
     Parameters
@@ -70,19 +87,25 @@ def minuit(settings: _Dict[str, _Any], likelihood: _likelihoods.ChiSquared):
         that can be passed to iminuit, and how to use the resulting object
         after a fit has been completed.
     """
-    if "name" not in settings:
+    if isinstance(settings, np.ndarray):
+        name = None
+    elif "name" not in settings:
         name = list(settings.keys())
     else:
         name = settings["name"]
 
     translator = _Translator(name, likelihood)
-    optimizer = _iminuit.Minuit(translator, name=name, **settings)
+
+    if name is None:
+        optimizer = _iminuit.Minuit(translator, settings)
+    else:
+        optimizer = _iminuit.Minuit(translator, name=name, **settings)
 
     # Set error for Likelihood, Migrad defaults to ChiSquared
     if hasattr(likelihood, "TYPE"):
-        if likelihood.TYPE == _likelihoods.LikelihoodType.LIKELIHOOD:
+        if likelihood.TYPE == likelihoods.LikelihoodType.LIKELIHOOD:
             optimizer.errordef = _iminuit.Minuit.LIKELIHOOD
-        elif likelihood.TYPE == _likelihoods.LikelihoodType.CHI_SQUARED:
+        elif likelihood.TYPE == likelihoods.LikelihoodType.CHI_SQUARED:
             optimizer.errordef = _iminuit.Minuit.LEAST_SQUARES
 
     return optimizer
