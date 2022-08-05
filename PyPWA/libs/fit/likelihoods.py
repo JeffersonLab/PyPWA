@@ -90,14 +90,9 @@ class NestedFunction(ABC):
     USE_MP = True
     USE_TORCH = False
     USE_THREADS = False
-    USE_GPU = False
     THREAD = 0
 
     def __init__(self):
-        # If USE_GPU is set, then we'll disable MP and enable Threads + Torch
-        if self.USE_GPU:
-            self.USE_MP = False
-            self.USE_TORCH = self.USE_THREADS = True
 
         if self.USE_MP and self.USE_THREADS:
             raise RuntimeError("Cannot use MP and THREADS at the same time")
@@ -210,6 +205,7 @@ class _GeneralLikelihood:
 
     def __init__(self, amplitude: NestedFunction, num_of_process: int):
         self._amplitude = amplitude
+        self._num_of_processes = num_of_process
 
         # Setup Single Process Mode
         no_parallel = not amplitude.USE_MP and not amplitude.USE_THREADS
@@ -217,15 +213,6 @@ class _GeneralLikelihood:
             self._single_process = True
         else:
             self._single_process = False
-
-        # Setup Torch and Multiprocessing
-        if TORCH_AVAIL and amplitude.USE_TORCH and amplitude.USE_GPU:
-            if torch.cuda.is_available():
-                self._num_of_processes = torch.cuda.device_count()
-            else:
-                raise RuntimeError("GPU not available")
-        else:
-            self._num_of_processes = num_of_process
 
         # We could check that USE_TORCH and TORCH_AVAIL are both true, but
         # the amplitude would fail to import if it wasn't.
