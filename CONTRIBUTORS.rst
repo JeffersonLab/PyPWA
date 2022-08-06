@@ -11,6 +11,7 @@ Team Members
  - `Dr. Will Phelps <https://github.com/wphelps>`_ CNU
  - `Mark Jones <https://github.com/Markjonestx>`_ ODU
  - `Michael Harris Jr <http://github.com/MichaelHarrisJr>`_ NSU
+ - `Dr. Peter Pauli <https://github.com/s6pepaul>`_ University of Glasgow
 
 
 **Previous PyPWA Staff**
