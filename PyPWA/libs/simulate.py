@@ -23,8 +23,10 @@ Defines how the simulation works for PyPWA
 import multiprocessing
 from typing import Any, Dict, List, Union, Set, Tuple
 
+import numpy as np
 import numpy as npy
 import pandas as pd
+import torch.cuda
 
 from PyPWA import info as _info
 from PyPWA.libs import process
@@ -142,16 +144,16 @@ def process_user_function(amplitude: likelihoods.NestedFunction,
 def _in_memory_intensities(
         amplitude: likelihoods.NestedFunction,
         data: Union[npy.ndarray, pd.DataFrame],
-        params: Dict[str, float],
-        processes: int) -> npy.ndarray:
+        params: Union[Dict[str, float], np.ndarray],
+        processes: int
+) -> npy.ndarray:
 
     kernel = _Kernel(amplitude, params)
+
     no_parallel = not amplitude.USE_MP and not amplitude.USE_THREADS
     if no_parallel or amplitude.DEBUG or processes == 0:
         kernel.data = data
         kernel.setup()
-        if amplitude.USE_TORCH:
-            return (kernel.run()[1]).cpu().detach().numpy()
         return kernel.run()[1]
 
     interface = _Interface()
@@ -162,6 +164,35 @@ def _in_memory_intensities(
     result = manager.run()
     manager.close()
     return result
+
+def make_rejection_list(
+        intensities: npy.ndarray,
+        max_value: Union[List[float], npy.ndarray, float]
+) -> npy.ndarray:
+    """Produces the rejection list from pre-calculated function values.
+    Uses the values returned by process_user_function.
+
+    Parameters
+    ----------
+    intensities : Numpy array or Pandas Series
+        This is a single dimensional array containing the final values
+        for the user's function.
+    max_value : List, Tuple, Set, nd.ndarray, or float
+        The max value for the entire dataset, or list of all the max
+        values from each dataset. Only the largest value from the list
+        will be used.
+
+    Returns
+    -------
+    boolean npy.ndarray
+        A masking array that can be used with any DataFrame or Structured
+        Array to cut the events to the generated shape
+    """
+    if isinstance(max_value, (list, tuple, set, npy.ndarray)):
+        max_value = max(max_value)
+
+    random_numbers = npy.random.rand(len(intensities))
+    return (intensities / max_value) > random_numbers
 
 
 class _Kernel(process.Kernel):
@@ -205,33 +236,3 @@ class _Interface(process.Interface):
 
             list_of_data[data[0]] = data[1]
         return list_of_data
-
-
-def make_rejection_list(
-        intensities: npy.ndarray,
-        max_value: Union[List[float], npy.ndarray, float]
-) -> npy.ndarray:
-    """Produces the rejection list from pre-calculated function values.
-    Uses the values returned by process_user_function.
-
-    Parameters
-    ----------
-    intensities : Numpy array or Pandas Series
-        This is a single dimensional array containing the final values
-        for the user's function.
-    max_value : List, Tuple, Set, nd.ndarray, or float
-        The max value for the entire dataset, or list of all the max
-        values from each dataset. Only the largest value from the list
-        will be used.
-
-    Returns
-    -------
-    boolean npy.ndarray
-        A masking array that can be used with any DataFrame or Structured
-        Array to cut the events to the generated shape
-    """
-    if isinstance(max_value, (list, tuple, set, npy.ndarray)):
-        max_value = max(max_value)
-
-    random_numbers = npy.random.rand(len(intensities))
-    return (intensities / max_value) > random_numbers
