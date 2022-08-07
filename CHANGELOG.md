@@ -13,9 +13,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
   `dev-environment.yml`. These should provide a nice starting point for
   anyone wanting to work on or with PyPWA. Pull requests are welcomed
   if you think a package should be added to the base environment.
-- Added PyTorch for GPU and Apple Metal support. Includes support for
-  multiple GPUs as well. Can be specified during install using
-  `pip install pypwa[torch]`.
+- Added PyTorch for GPU and Apple Metal support. Can be specified during
+  install using `pip install pypwa[torch]`. Amplitude support is specified
+  by setting the `USE_TORCH` flag to True.
+- Added support for Python's Multithreading. You should only use this when
+  computation is happening on separate nodes and/or your optimizer choice
+  does not support passing it's values across an OS Pipe.
+- Added support for Minuit's parameter array argument. Now amplitudes can
+  be written to accept a single array containing all the array values.
+- Debugging support for amplitudes is now explicit. You can set the `DEBUG`
+  flag to True on your amplitude before simulation or fitting, and it'll run
+  in the main process so traceback and errors will not be suppressed.
+- Amplitudes can now know where they live. Amplitudes have a `THREAD` flag
+  that is numbered from 0 to N-threads that will specify which thread the
+  amplitude is running in. This is useful if you want to pair your
+  processes/threads with external devices like GPUs or OpenMPI nodes.
 ### Changed
 - Data module will no longer bury the Cache object. The cache object will
   now reside in the same directory as the parsed data.
@@ -37,6 +49,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 - Removed appdirs as a dependency.
 - Removed CuPy support, replaced by PyTorch.
 - Removed PyYaml Configuration support.
+### Fixed
+- The bin by range function was not sampling data correctly. The intended
+  behaviour was for each bin to be sampled by N samples, and then those
+  samples to be shuffled to add randomization. However, because the
+  shuffling was improperly implemented, what would occur instead is a single
+  random event would be dropped from the sample, and then returned. This
+  no longer occurs, and the returned bins will now be the correct length, 
+  and will be correctly shuffled.
+
 
 ## [3.4.0] - 2021-7-23
 ### Added
@@ -56,7 +77,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
   support NVIDIA GPU acceleration, however for now it is limited to a single
   GPU. If there is enough demand for this to be expanded on, support for 
   multiple GPUs will be added.
-### CHanged
+### Changed
 - Particle now requires a charge to be supplied during the creation of the
   object. GAMP has also been modified to support the Charge being passed
   through to the Particle
