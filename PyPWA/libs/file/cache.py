@@ -59,19 +59,19 @@ def read(
     """Reads a cache object
 
     This reads caches objects from the disk. With its default settings
-    it'll load the cache file as long as the source file's hash hasn't
-    changed. It can also be used to store an intermediate step directly
-    by providing a name and setting intermediate to True.
+    it'll read the file as if it were a cache file. If intermediate is
+    set to False, the path will be the source file, and it'll load the cache
+    file as long as the source file's hash hasn't changed. It can also be
 
     Parameters
     ----------
     path : Path or str
         The path of the source file, or path where you want the
-        intermediate step t0 be stored.
+        intermediate step to be stored.
     intermediate : bool
         If set to true, the cache will be treated as an intermediate step,
         this means it will assume there is no data file associated with
-        the data, and will not check file hashes.
+        the data, and will not check file hashes. By default this is True
     remove_cache : bool
         Setting this to true will remove the cache.
 
@@ -110,13 +110,13 @@ def read(
         return False, None
 
 
-def write(path, data, intermediate=False):
+def write(path, data, intermediate=True):
     """Writes a cache file
 
-    With its default settings, it'll write the cache file into the cache
-    location and store the source file's hash in the cache for future
-    comparison. If intermediate is set to true though, it'll store the
-    cache in the provided location, and will not store a hash.
+    With its default settings, it will treat the path as a save location for
+    the cache as an intermediate step. If intermediate is set to false,
+    it'll write the cache file into a computed cache location and store the
+    source file's hash in the cache for future comparison.
 
     Parameters
     ----------

@@ -81,11 +81,14 @@ class _DataLoader:
     def parse(
             self, filename: Path, use_pandas: bool
     ) -> Union[pd.DataFrame, pd.Series]:
-        valid, cache_obj = cache.read(filename, remove_cache=self.__clear_cache)
+        valid, cache_obj = cache.read(
+            filename, intermediate=False, remove_cache=self.__clear_cache
+        )
         if valid and self.__use_cache:
             self.__LOGGER.info("Loading cache for %s" % filename)
             data = cache_obj
         else:
+            print("Reading data")
             self.__LOGGER.info("No cache found, loading file directly.")
             data = self.__read_data(filename)
 
@@ -121,7 +124,7 @@ class _DataDumper:
         if self.__use_cache and plugin.use_caching:
             if isinstance(data, (pd.DataFrame, pd.Series)):
                 data = common.pandas_to_numpy(data)
-            cache.write(filename, data)
+            cache.write(filename, data, intermediate=False)
 
     @staticmethod
     def __get_write_plugin(filename: Path,
