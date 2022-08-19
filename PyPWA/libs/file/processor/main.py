@@ -88,7 +88,6 @@ class _DataLoader:
             self.__LOGGER.info("Loading cache for %s" % filename)
             data = cache_obj
         else:
-            print("Reading data")
             self.__LOGGER.info("No cache found, loading file directly.")
             data = self.__read_data(filename)
 
