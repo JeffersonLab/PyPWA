@@ -102,7 +102,7 @@ class _DataLoader:
         plugin = _get_read_plugin(filename, False)
         data = plugin.get_memory_parser().parse(filename)
         if self.__use_cache and plugin.use_caching:
-            cache.write(filename, data)
+            cache.write(filename, data, intermediate=False)
         return data
 
 
