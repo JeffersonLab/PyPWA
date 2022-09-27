@@ -49,7 +49,7 @@ PyPWA is statistical analysis toolkit that was built with Partial Wave
 Analysis in mind, however you should be able to use the tools included for
 anything statistical analysis.
 
-Currently there are 4 different applications defined inside this package:
+Currently, there are 4 different applications defined inside this package:
 
 - pyfit - Fitting with any likelihood.
 - pysimulate - Monte-Carlo something or the other.
@@ -91,7 +91,7 @@ For more information on how each package works, view their documentation.
 __credits__ = ["Mark Jones"]
 
 AUTHOR = "PyPWA Team and Contributors"
-VERSION = "4.0.0a"
+VERSION = "4.0.0"
 RELEASE = f"{VERSION}"
 LICENSE = "GPLv3"
-STATUS = "development"
+STATUS = "production"
