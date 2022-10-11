@@ -43,8 +43,8 @@ requires = [
 ]
 
 extras = {
-    "emcee": ["emcee"],     # Provides MCMC fitting
-    "torch": ["torch"]  # Provides PyTorch support
+    "emcee": ["emcee"],  # Provides MCMC fitting
+    "torch": ["torch"]   # Provides PyTorch support
 }
 
 tests = [
