@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/)
 ### Fixed
 
 
-## [4.0.0] - 2022-9-10
+## [4.0.0] - 2022-10-11
 ### Added
 - Anaconda environments. There are two anaconda environments included
   inside the source folder at the moment. `anaconda-environment.yml` and
