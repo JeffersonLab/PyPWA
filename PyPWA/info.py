@@ -30,9 +30,6 @@ Working with data:
  - get_reader, get_writer: Returns an object that can read/write data
     one event at a time.
  - read, write: Reads/Writes data to and from memory
- - ProjectDatabase: Handles operating with HD5 tables. This is the
-    method used inside PyPWA to bin data, or operate on larger-than-memory
-    data.
 
 Programs:
  - monte_carlo_simulation: Simulates data using the Monte Carlo Rejection
