@@ -88,7 +88,7 @@ For more information on how each package works, view their documentation.
 __credits__ = ["Mark Jones"]
 
 AUTHOR = "PyPWA Team and Contributors"
-VERSION = "4.0.0"
+VERSION = "4.0.1"
 RELEASE = f"{VERSION}"
 LICENSE = "GPLv3"
 STATUS = "production"

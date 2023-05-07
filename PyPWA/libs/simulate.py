@@ -21,21 +21,15 @@ Defines how the simulation works for PyPWA
 """
 
 import multiprocessing
-from typing import Any, Dict, List, Union, Set, Tuple
+from typing import Any, Dict, List, Union, Tuple
 
 import numpy as np
 import numpy as npy
 import pandas as pd
-import torch.cuda
 
 from PyPWA import info as _info
 from PyPWA.libs import process
 from PyPWA.libs.fit import likelihoods
-
-try:
-    import cupy as cp
-except ImportError:
-    cp = npy
 
 
 __credits__ = ["Mark Jones"]

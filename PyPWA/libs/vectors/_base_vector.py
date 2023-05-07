@@ -23,8 +23,7 @@ This provides the method for vector inputs to be sanitized into something
 usable, and the base object for math that is similar for all vector types.
 """
 
-from typing import Union, Tuple
-from abc import abstractmethod
+from typing import Union
 
 import numpy as np
 import pandas as pd

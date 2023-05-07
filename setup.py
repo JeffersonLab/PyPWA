@@ -20,7 +20,7 @@ import setuptools
 
 __author__ = "PyPWA Team and Contributors"
 __license__ = "GPLv3"
-__version__ = "4.0.0"
+__version__ = "4.0.1"
 __email__ = "salgado@jlab.org"
 __status__ = "Production"
 
