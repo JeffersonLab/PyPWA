@@ -104,7 +104,8 @@ Fitting
 PyPWA supplies a single wrapper around iMinuit's module. This is a
 convenience function to make working with Minuit's parameters easier.
 However, if wanting to use a different fitting function, like Scikit or
-Scipy, the likelihoods should work natively with them.
+Scipy, the likelihoods should work natively with them. In addition,
+PyPWA also supplies a wrapper around the MCMC package emcee.
 
 Most optimizers built in Python assume the data is some sort of global
 variable, and the function passed to them is just accepting parameters
@@ -118,3 +119,5 @@ they're expecting a function or callable object, and as long as the
 parameters they pass are pickle-able.
 
 .. autofunction:: PyPWA.minuit
+
+.. autofunction:: PyPWA.mcmc
